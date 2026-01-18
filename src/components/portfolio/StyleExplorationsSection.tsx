@@ -39,7 +39,7 @@ const StyleExplorationsSection = () => {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   return (
-    <section id="styles" className="py-32 px-6 bg-secondary/30" ref={ref}>
+    <section id="styles" className="py-32 px-6 bg-muted/20" ref={ref}>
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -47,13 +47,13 @@ const StyleExplorationsSection = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-20"
         >
-          <p className="text-sm tracking-[0.3em] uppercase text-muted-foreground mb-4">
+          <p className="text-xs tracking-[0.25em] uppercase text-muted-foreground mb-6">
             Creative Exploration
           </p>
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-light text-foreground mb-6">
+          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-light text-foreground mb-8">
             Style Variations
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Beyond channel requirements, exploring different aesthetic directions 
             that align with Mejuri's brand DNA.
           </p>
@@ -70,38 +70,38 @@ const StyleExplorationsSection = () => {
               onMouseEnter={() => setHoveredId(style.id)}
               onMouseLeave={() => setHoveredId(null)}
             >
-              <div className="relative overflow-hidden rounded-sm mb-6">
+              <div className="relative overflow-hidden mb-6">
                 <motion.img
                   src={style.image}
                   alt={style.title}
                   className="w-full aspect-[4/5] object-cover"
                   animate={{
-                    scale: hoveredId === style.id ? 1.05 : 1,
+                    scale: hoveredId === style.id ? 1.03 : 1,
                   }}
                   transition={{ duration: 0.5 }}
                 />
                 <motion.div
                   className="absolute inset-0 bg-foreground/0"
                   animate={{
-                    backgroundColor: hoveredId === style.id ? "rgba(0,0,0,0.1)" : "rgba(0,0,0,0)",
+                    backgroundColor: hoveredId === style.id ? "rgba(0,0,0,0.05)" : "rgba(0,0,0,0)",
                   }}
                   transition={{ duration: 0.3 }}
                 />
                 <div className="absolute top-4 left-4">
-                  <span className="bg-background/90 backdrop-blur-sm px-3 py-1 text-xs tracking-widest uppercase text-foreground rounded-sm">
+                  <span className="bg-background border border-border px-3 py-1 text-xs tracking-[0.15em] uppercase text-foreground">
                     {style.style}
                   </span>
                 </div>
               </div>
 
               <div className="space-y-3">
-                <h3 className="font-display text-2xl font-light text-foreground group-hover:text-foreground/80 transition-colors">
+                <h3 className="font-display text-2xl font-light text-foreground group-hover:text-muted-foreground transition-colors">
                   {style.title}
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   {style.description}
                 </p>
-                <p className="text-xs tracking-widest uppercase text-accent">
+                <p className="text-xs tracking-[0.15em] uppercase text-muted-foreground">
                   {style.mood}
                 </p>
               </div>

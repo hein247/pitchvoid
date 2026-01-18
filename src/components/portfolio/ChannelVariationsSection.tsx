@@ -230,13 +230,13 @@ const ChannelVariationsSection = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-20"
         >
-          <p className="text-sm tracking-[0.3em] uppercase text-muted-foreground mb-4">
+          <p className="text-xs tracking-[0.25em] uppercase text-muted-foreground mb-6">
             Channel-Specific
           </p>
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-light text-foreground mb-6">
+          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-light text-foreground mb-8">
             Tailored Variations
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Each variation is designed with the specific channel requirements and audience behavior in mind.
           </p>
         </motion.div>
@@ -265,7 +265,7 @@ const ChannelVariationsSection = () => {
               {/* Info below mockup */}
               <div className="max-w-2xl mx-auto text-center space-y-4">
                 <div className="flex items-center justify-center gap-4">
-                  <span className="bg-secondary px-3 py-1 text-xs tracking-widest uppercase text-foreground rounded-sm">
+                  <span className="bg-background border border-foreground px-3 py-1 text-xs tracking-[0.15em] uppercase text-foreground">
                     {variation.channel}
                   </span>
                   <span className="text-sm text-muted-foreground">{variation.specs}</span>
@@ -279,8 +279,8 @@ const ChannelVariationsSection = () => {
                   {variation.description}
                 </p>
 
-                <div className="inline-block border-l-2 border-accent pl-4 text-left mt-4">
-                  <p className="text-sm text-muted-foreground italic">
+                <div className="inline-block border-l border-foreground pl-4 text-left mt-4">
+                  <p className="text-sm text-muted-foreground">
                     <span className="font-medium text-foreground">Strategic Rationale:</span>{" "}
                     {variation.rationale}
                   </p>
