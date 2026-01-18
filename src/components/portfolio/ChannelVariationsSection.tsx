@@ -5,7 +5,7 @@ import { useRef, useState } from "react";
 import ringEmailLinen from "@/assets/ring_email_linen.png";
 import ringSocialLifestyle from "@/assets/ring_social_lifestyle.png";
 import ringWebBanner from "@/assets/ring_web_banner.png";
-
+import ringModernConcrete from "@/assets/ring_modern_concrete.png";
 // Email Mockup Component
 const EmailMockup = ({ image }: { image: string }) => (
   <div className="bg-muted rounded-lg shadow-2xl overflow-hidden max-w-md mx-auto">
@@ -125,6 +125,54 @@ const BrowserMockup = ({ image }: { image: string }) => (
   </div>
 );
 
+// In-Store Display Mockup Component
+const StoreMockup = ({ image }: { image: string }) => (
+  <div className="relative mx-auto max-w-3xl">
+    {/* Store environment */}
+    <div className="bg-gradient-to-b from-secondary to-muted rounded-2xl p-8 shadow-2xl">
+      {/* Ceiling lights */}
+      <div className="flex justify-center gap-16 mb-8">
+        <div className="w-2 h-8 bg-accent/30 rounded-full shadow-lg shadow-accent/20" />
+        <div className="w-2 h-8 bg-accent/30 rounded-full shadow-lg shadow-accent/20" />
+        <div className="w-2 h-8 bg-accent/30 rounded-full shadow-lg shadow-accent/20" />
+      </div>
+      
+      {/* Display case */}
+      <div className="bg-card rounded-xl p-6 shadow-inner border border-border">
+        {/* Glass top effect */}
+        <div className="relative rounded-lg overflow-hidden bg-gradient-to-br from-background to-muted">
+          {/* Display image */}
+          <img 
+            src={image} 
+            alt="In-store display" 
+            className="w-full aspect-[16/10] object-cover"
+          />
+          {/* Glass reflection */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent pointer-events-none" />
+        </div>
+        
+        {/* Product info card */}
+        <div className="mt-4 flex items-center justify-between bg-secondary/50 rounded-lg px-4 py-3">
+          <div>
+            <p className="font-display text-sm text-foreground tracking-wide">Dôme Figure Ring</p>
+            <p className="text-xs text-muted-foreground">14K Gold Vermeil</p>
+          </div>
+          <div className="text-right">
+            <p className="text-sm font-medium text-foreground">$148</p>
+            <p className="text-xs text-accent">In Stock</p>
+          </div>
+        </div>
+      </div>
+      
+      {/* Store branding footer */}
+      <div className="mt-6 text-center">
+        <span className="font-display text-xs tracking-[0.4em] text-muted-foreground">MEJURI</span>
+        <p className="text-[10px] text-muted-foreground/60 mt-1">Fine Jewelry • Est. 2015</p>
+      </div>
+    </div>
+  </div>
+);
+
 const channelVariations = [
   {
     id: "email",
@@ -155,6 +203,16 @@ const channelVariations = [
     specs: "1920×800px • Hero Banner",
     rationale: "Web heroes need visual impact. The mirror effect adds dimension without competing with product focus.",
     MockupComponent: BrowserMockup,
+  },
+  {
+    id: "instore",
+    channel: "In-Store",
+    title: "Modern Concrete",
+    description: "Clean architectural backdrop that lets the product shine. Designed for in-store displays and visual merchandising materials.",
+    image: ringModernConcrete,
+    specs: "1200×750px • Display Signage",
+    rationale: "Retail environments need bold, clean visuals. The concrete texture adds premium weight while maintaining focus.",
+    MockupComponent: StoreMockup,
   },
 ];
 
