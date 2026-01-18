@@ -2,9 +2,6 @@ import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
 
-import originalRing from "@/assets/original_ring.png";
-import ringHand1 from "@/assets/ring_hand_1.png";
-
 const processSteps = [
   {
     step: "01",
@@ -62,62 +59,12 @@ const ProcessSection = () => {
           <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-light text-foreground mb-6">
             AI-Powered Process
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
             A systematic approach that balances creative exploration with production efficiency.
           </p>
-        </motion.div>
-
-        {/* Source to Variation Comparison */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="mb-24"
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            <div className="space-y-4">
-              <p className="text-sm tracking-widest uppercase text-muted-foreground">
-                Source Assets
-              </p>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="relative rounded-sm overflow-hidden">
-                  <img
-                    src={originalRing}
-                    alt="Original product shot"
-                    className="w-full aspect-square object-cover"
-                  />
-                  <div className="absolute bottom-2 left-2 bg-background/80 backdrop-blur-sm px-2 py-1 text-xs">
-                    Product Shot
-                  </div>
-                </div>
-                <div className="relative rounded-sm overflow-hidden">
-                  <img
-                    src={ringHand1}
-                    alt="Hand reference"
-                    className="w-full aspect-square object-cover"
-                  />
-                  <div className="absolute bottom-2 left-2 bg-background/80 backdrop-blur-sm px-2 py-1 text-xs">
-                    Hand Reference
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-center">
-              <div className="text-center space-y-4">
-                <div className="flex items-center justify-center gap-4">
-                  <div className="h-px w-12 bg-border" />
-                  <span className="text-2xl">→</span>
-                  <div className="h-px w-12 bg-border" />
-                </div>
-                <div className="space-y-2">
-                  <p className="text-5xl font-display font-light text-foreground">10</p>
-                  <p className="text-sm text-muted-foreground">Campaign Variations</p>
-                  <p className="text-xs text-accent">~65 minutes total</p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <p className="text-sm text-accent">
+            From 2 source assets → 10 campaign variations
+          </p>
         </motion.div>
 
         {/* Roadmap Timeline */}
