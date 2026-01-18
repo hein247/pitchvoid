@@ -45,7 +45,7 @@ const ProcessSection = () => {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section id="process" className="py-32 px-6" ref={ref}>
+    <section id="process" className="py-32 px-6 bg-background" ref={ref}>
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -53,16 +53,16 @@ const ProcessSection = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-20"
         >
-          <p className="text-sm tracking-[0.3em] uppercase text-muted-foreground mb-4">
+          <p className="text-xs tracking-[0.25em] uppercase text-muted-foreground mb-6">
             The Workflow
           </p>
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-light text-foreground mb-6">
+          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-light text-foreground mb-8">
             AI-Powered Process
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
+          <p className="text-base text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed">
             A systematic approach that balances creative exploration with production efficiency.
           </p>
-          <p className="text-sm text-accent">
+          <p className="text-xs tracking-[0.15em] uppercase text-muted-foreground">
             From 2 source assets → 10 campaign variations
           </p>
         </motion.div>
@@ -70,10 +70,10 @@ const ProcessSection = () => {
         {/* Roadmap Timeline */}
         <div className="relative">
           {/* Horizontal line for desktop */}
-          <div className="hidden md:block absolute top-16 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-border to-transparent" />
+          <div className="hidden md:block absolute top-16 left-0 right-0 h-px bg-border" />
           
           {/* Vertical line for mobile */}
-          <div className="md:hidden absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-transparent via-border to-transparent" />
+          <div className="md:hidden absolute left-6 top-0 bottom-0 w-px bg-border" />
 
           {/* Desktop: Horizontal roadmap */}
           <div className="hidden md:grid grid-cols-5 gap-4">
@@ -91,18 +91,18 @@ const ProcessSection = () => {
                     initial={{ scale: 0 }}
                     animate={isInView ? { scale: 1 } : {}}
                     transition={{ duration: 0.4, delay: 0.5 + index * 0.1 }}
-                    className="w-14 h-14 rounded-full bg-card border-2 border-accent flex items-center justify-center shadow-lg"
+                    className="w-12 h-12 bg-background border border-foreground flex items-center justify-center"
                   >
-                    <span className="text-2xl">{step.icon}</span>
+                    <span className="text-lg">{step.icon}</span>
                   </motion.div>
                   {/* Connector dot */}
-                  <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-accent" />
+                  <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-2 h-2 bg-foreground" />
                 </div>
 
                 {/* Content card */}
                 <div className="pt-8 space-y-3">
                   <div className="flex items-center justify-center gap-2">
-                    <span className="text-xs font-medium text-accent">{step.step}</span>
+                    <span className="text-xs tracking-[0.15em] uppercase font-medium text-foreground">{step.step}</span>
                     <span className="text-xs text-muted-foreground">• {step.time}</span>
                   </div>
                   <h3 className="text-sm font-medium text-foreground leading-tight">
@@ -131,15 +131,15 @@ const ProcessSection = () => {
                   initial={{ scale: 0 }}
                   animate={isInView ? { scale: 1 } : {}}
                   transition={{ duration: 0.4, delay: 0.5 + index * 0.1 }}
-                  className="absolute -left-16 top-0 w-12 h-12 rounded-full bg-card border-2 border-accent flex items-center justify-center shadow-lg z-10"
+                  className="absolute -left-16 top-0 w-12 h-12 bg-background border border-foreground flex items-center justify-center z-10"
                 >
-                  <span className="text-xl">{step.icon}</span>
+                  <span className="text-lg">{step.icon}</span>
                 </motion.div>
 
                 {/* Content */}
-                <div className="bg-card border border-border rounded-lg p-5 space-y-2">
+                <div className="bg-background border border-border p-5 space-y-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-medium text-accent">{step.step}</span>
+                    <span className="text-xs tracking-[0.15em] uppercase font-medium text-foreground">{step.step}</span>
                     <span className="text-xs text-muted-foreground">• {step.time}</span>
                   </div>
                   <h3 className="text-base font-medium text-foreground">
@@ -161,20 +161,20 @@ const ProcessSection = () => {
           transition={{ duration: 0.8, delay: 0.9 }}
           className="mt-20 text-center"
         >
-          <div className="inline-flex items-center gap-6 bg-secondary/50 rounded-full px-8 py-4">
+          <div className="inline-flex items-center gap-8 bg-muted/30 border border-border px-10 py-6">
             <div className="text-center">
-              <p className="text-3xl font-display font-light text-foreground">65</p>
-              <p className="text-xs text-muted-foreground">minutes</p>
+              <p className="text-4xl font-display font-light text-foreground">65</p>
+              <p className="text-xs tracking-[0.15em] uppercase text-muted-foreground mt-1">minutes</p>
             </div>
-            <div className="w-px h-10 bg-border" />
+            <div className="w-px h-12 bg-border" />
             <div className="text-center">
-              <p className="text-3xl font-display font-light text-foreground">10</p>
-              <p className="text-xs text-muted-foreground">variations</p>
+              <p className="text-4xl font-display font-light text-foreground">10</p>
+              <p className="text-xs tracking-[0.15em] uppercase text-muted-foreground mt-1">variations</p>
             </div>
-            <div className="w-px h-10 bg-border" />
+            <div className="w-px h-12 bg-border" />
             <div className="text-center">
-              <p className="text-3xl font-display font-light text-foreground">4</p>
-              <p className="text-xs text-muted-foreground">channels</p>
+              <p className="text-4xl font-display font-light text-foreground">4</p>
+              <p className="text-xs tracking-[0.15em] uppercase text-muted-foreground mt-1">channels</p>
             </div>
           </div>
         </motion.div>
@@ -186,14 +186,14 @@ const ProcessSection = () => {
           transition={{ duration: 0.8, delay: 1 }}
           className="mt-16 text-center"
         >
-          <p className="text-sm tracking-widest uppercase text-muted-foreground mb-6">
+          <p className="text-xs tracking-[0.25em] uppercase text-muted-foreground mb-6">
             Tools Used
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             {["Gemini", "Adobe", "Claude", "Antigravity", "Grok"].map((tool) => (
               <span
                 key={tool}
-                className="px-4 py-2 bg-secondary rounded-full text-sm text-foreground"
+                className="px-5 py-2 bg-background border border-border text-sm text-foreground hover:bg-muted transition-colors"
               >
                 {tool}
               </span>

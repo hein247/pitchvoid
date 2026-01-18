@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
 import ringHero from "@/assets/ring_web_banner.png";
 const HeroSection = () => {
-  return <section className="min-h-screen flex flex-col items-center justify-center px-6 py-20 relative overflow-hidden">
+  return <section className="min-h-screen flex flex-col items-center justify-center px-6 py-20 relative overflow-hidden bg-background">
       {/* Background subtle gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/30 to-background" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-muted/20 to-background" />
       
       <motion.div initial={{
       opacity: 0,
@@ -22,7 +22,7 @@ const HeroSection = () => {
       }} transition={{
         delay: 0.2,
         duration: 0.6
-      }} className="text-sm tracking-[0.3em] uppercase text-muted-foreground mb-6 font-bold">GRAPHIC DESIGNER RESPONSE</motion.p>
+      }} className="text-xs tracking-[0.25em] uppercase text-muted-foreground mb-8">GRAPHIC DESIGNER RESPONSE</motion.p>
         
         <motion.h1 initial={{
         opacity: 0,
@@ -33,7 +33,7 @@ const HeroSection = () => {
       }} transition={{
         delay: 0.3,
         duration: 0.8
-      }} className="font-display text-5xl md:text-7xl lg:text-8xl font-light tracking-tight text-foreground mb-6">
+      }} className="font-display text-5xl md:text-7xl lg:text-8xl font-light tracking-tight text-foreground mb-8 leading-[1.1]">
           Dôme Figure Ring
         </motion.h1>
         
@@ -44,7 +44,7 @@ const HeroSection = () => {
       }} transition={{
         delay: 0.5,
         duration: 0.6
-      }} className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-12">
+      }} className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto mb-12 leading-relaxed">
           AI-Powered Campaign Variations for Email, Social, Web & In-Store
         </motion.p>
       </motion.div>

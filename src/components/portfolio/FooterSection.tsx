@@ -18,13 +18,13 @@ const FooterSection = () => {
       } : {}} transition={{
         duration: 0.8
       }} className="space-y-8">
-          <p className="text-sm tracking-[0.3em] uppercase text-background/60">PROPOSAL</p>
+          <p className="text-xs tracking-[0.25em] uppercase text-background/50">PROPOSAL</p>
           
           <h2 className="font-display text-4xl md:text-5xl font-light">
             Thank You
           </h2>
           
-          <p className="text-lg text-background/70 max-w-xl mx-auto leading-relaxed">This presentation demonstrates how AI tools can accelerate my creative workflows while maintaining the quality and brand consistency that defines Mejuri.</p>
+          <p className="text-base text-background/60 max-w-xl mx-auto leading-relaxed">This presentation demonstrates how AI tools can accelerate my creative workflows while maintaining the quality and brand consistency that defines Mejuri.</p>
 
           <div className="pt-8 border-t border-background/10">
             <div className="space-y-4">
