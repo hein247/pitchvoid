@@ -58,9 +58,7 @@ const ProcessSection = () => {
           <p className="text-base text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed">
             A systematic approach that balances creative exploration with production efficiency.
           </p>
-          <p className="text-xs tracking-[0.15em] uppercase text-muted-foreground">
-            From 2 source assets → 10 campaign variations
-          </p>
+          <p className="text-xs tracking-[0.15em] uppercase text-muted-foreground">FROM 2 SOURCE ASSETS → 6 CAMPAIGN VARIATIONS</p>
         </motion.div>
 
         {/* Roadmap Timeline */}
