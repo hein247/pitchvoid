@@ -243,7 +243,7 @@ const ProcessSection = () => {
             Tools Used
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            {["ChatGPT Image Generation", "Adobe Photoshop", "Figma"].map((tool) => (
+            {["Gemini", "Adobe Photoshop", "Figma"].map((tool) => (
               <span
                 key={tool}
                 className="px-4 py-2 bg-secondary rounded-full text-sm text-foreground"
