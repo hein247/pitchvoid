@@ -6,6 +6,125 @@ import ringEmailLinen from "@/assets/ring_email_linen.png";
 import ringSocialLifestyle from "@/assets/ring_social_lifestyle.png";
 import ringWebBanner from "@/assets/ring_web_banner.png";
 
+// Email Mockup Component
+const EmailMockup = ({ image }: { image: string }) => (
+  <div className="bg-muted rounded-lg shadow-2xl overflow-hidden max-w-md mx-auto">
+    {/* Email client header */}
+    <div className="bg-secondary px-4 py-3 flex items-center gap-2 border-b border-border">
+      <div className="flex gap-1.5">
+        <div className="w-3 h-3 rounded-full bg-destructive/60" />
+        <div className="w-3 h-3 rounded-full bg-accent" />
+        <div className="w-3 h-3 rounded-full bg-green-500/60" />
+      </div>
+      <div className="flex-1 text-center">
+        <span className="text-xs text-muted-foreground">mejuri.com</span>
+      </div>
+    </div>
+    {/* Email header */}
+    <div className="bg-card px-6 py-4 border-b border-border">
+      <p className="text-xs text-muted-foreground mb-1">From: Mejuri &lt;hello@mejuri.com&gt;</p>
+      <p className="text-sm font-medium text-foreground">Introducing the Dôme Figure Ring ✨</p>
+    </div>
+    {/* Email content */}
+    <div className="bg-card">
+      <img src={image} alt="Email hero" className="w-full" />
+      <div className="p-6 text-center space-y-4">
+        <h3 className="font-display text-xl text-foreground">Cozy Luxury Awaits</h3>
+        <p className="text-sm text-muted-foreground">The new Dôme Figure Ring — sculptural elegance for everyday.</p>
+        <button className="bg-foreground text-background px-6 py-2 text-sm tracking-wide">
+          SHOP NOW
+        </button>
+      </div>
+    </div>
+  </div>
+);
+
+// Phone Mockup Component for Social
+const PhoneMockup = ({ image }: { image: string }) => (
+  <div className="relative mx-auto" style={{ width: "280px" }}>
+    {/* Phone frame */}
+    <div className="bg-foreground rounded-[3rem] p-2 shadow-2xl">
+      <div className="bg-background rounded-[2.5rem] overflow-hidden">
+        {/* Notch */}
+        <div className="bg-foreground h-7 flex items-center justify-center">
+          <div className="w-20 h-5 bg-foreground rounded-b-xl" />
+        </div>
+        {/* Screen content - Instagram style */}
+        <div className="bg-card">
+          {/* IG Header */}
+          <div className="px-3 py-2 flex items-center gap-2 border-b border-border">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent to-primary flex items-center justify-center">
+              <span className="text-xs text-primary-foreground font-bold">M</span>
+            </div>
+            <span className="text-sm font-medium text-foreground">mejuri</span>
+            <span className="text-xs text-muted-foreground ml-auto">•••</span>
+          </div>
+          {/* Image */}
+          <img src={image} alt="Social post" className="w-full aspect-square object-cover" />
+          {/* IG Actions */}
+          <div className="px-3 py-2 flex items-center gap-4">
+            <span className="text-lg">♡</span>
+            <span className="text-lg">💬</span>
+            <span className="text-lg">↗</span>
+            <span className="text-lg ml-auto">⊡</span>
+          </div>
+          <div className="px-3 pb-3">
+            <p className="text-xs"><span className="font-medium">mejuri</span> The Dôme Figure Ring — your new everyday essential ✨</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// Browser/Web Mockup Component
+const BrowserMockup = ({ image }: { image: string }) => (
+  <div className="bg-secondary rounded-lg shadow-2xl overflow-hidden max-w-4xl mx-auto">
+    {/* Browser header */}
+    <div className="bg-muted px-4 py-3 flex items-center gap-3 border-b border-border">
+      <div className="flex gap-1.5">
+        <div className="w-3 h-3 rounded-full bg-destructive/60" />
+        <div className="w-3 h-3 rounded-full bg-accent" />
+        <div className="w-3 h-3 rounded-full bg-green-500/60" />
+      </div>
+      <div className="flex-1 bg-card rounded-md px-4 py-1.5 text-center">
+        <span className="text-xs text-muted-foreground">https://mejuri.com/collections/rings</span>
+      </div>
+    </div>
+    {/* Website content */}
+    <div className="bg-card">
+      {/* Nav bar */}
+      <div className="px-8 py-4 flex items-center justify-between border-b border-border">
+        <span className="font-display text-lg text-foreground tracking-wider">MEJURI</span>
+        <div className="flex gap-6 text-xs text-muted-foreground tracking-wide">
+          <span>NEW</span>
+          <span>EARRINGS</span>
+          <span className="text-foreground font-medium">RINGS</span>
+          <span>NECKLACES</span>
+        </div>
+        <div className="flex gap-4 text-sm">
+          <span>🔍</span>
+          <span>♡</span>
+          <span>👤</span>
+        </div>
+      </div>
+      {/* Hero banner */}
+      <div className="relative">
+        <img src={image} alt="Web hero banner" className="w-full aspect-[21/9] object-cover" />
+        <div className="absolute inset-0 flex items-center justify-center bg-foreground/10">
+          <div className="text-center text-background">
+            <h2 className="font-display text-4xl mb-4 drop-shadow-lg">Dôme Figure Ring</h2>
+            <p className="text-sm mb-6 drop-shadow">Sculptural elegance, everyday wear</p>
+            <button className="bg-background text-foreground px-8 py-3 text-sm tracking-widest hover:bg-background/90 transition-colors">
+              SHOP THE COLLECTION
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 const channelVariations = [
   {
     id: "email",
@@ -15,6 +134,7 @@ const channelVariations = [
     image: ringEmailLinen,
     specs: "600×800px • Hero Banner",
     rationale: "Email readers respond to warmth and comfort. The linen texture creates an intimate, gift-worthy presentation.",
+    MockupComponent: EmailMockup,
   },
   {
     id: "social",
@@ -24,6 +144,7 @@ const channelVariations = [
     image: ringSocialLifestyle,
     specs: "1080×1080px • Instagram Feed",
     rationale: "POV shots drive engagement. The casual luxury of coffee + jewelry speaks to everyday elegance.",
+    MockupComponent: PhoneMockup,
   },
   {
     id: "web",
@@ -33,6 +154,7 @@ const channelVariations = [
     image: ringWebBanner,
     specs: "1920×800px • Hero Banner",
     rationale: "Web heroes need visual impact. The mirror effect adds dimension without competing with product focus.",
+    MockupComponent: BrowserMockup,
   },
 ];
 
@@ -61,52 +183,45 @@ const ChannelVariationsSection = () => {
           </p>
         </motion.div>
 
-        <div className="space-y-24">
+        <div className="space-y-32">
           {channelVariations.map((variation, index) => (
             <motion.div
               key={variation.id}
               initial={{ opacity: 0, y: 60 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: index * 0.2 }}
-              className={`grid grid-cols-1 lg:grid-cols-2 gap-12 items-center ${
-                index % 2 === 1 ? "lg:flex-row-reverse" : ""
-              }`}
+              className="space-y-12"
               onMouseEnter={() => setActiveCard(variation.id)}
               onMouseLeave={() => setActiveCard(null)}
             >
-              <div className={`${index % 2 === 1 ? "lg:order-2" : ""}`}>
-                <div className="relative overflow-hidden rounded-sm">
-                  <motion.img
-                    src={variation.image}
-                    alt={variation.title}
-                    className="w-full h-auto"
-                    animate={{
-                      scale: activeCard === variation.id ? 1.02 : 1,
-                    }}
-                    transition={{ duration: 0.4 }}
-                  />
-                  <div className="absolute top-4 left-4">
-                    <span className="bg-background/90 backdrop-blur-sm px-3 py-1 text-xs tracking-widest uppercase text-foreground rounded-sm">
-                      {variation.channel}
-                    </span>
-                  </div>
-                </div>
-              </div>
+              {/* Mockup */}
+              <motion.div
+                animate={{
+                  scale: activeCard === variation.id ? 1.01 : 1,
+                }}
+                transition={{ duration: 0.4 }}
+              >
+                <variation.MockupComponent image={variation.image} />
+              </motion.div>
 
-              <div className={`${index % 2 === 1 ? "lg:order-1" : ""} space-y-6`}>
-                <div>
-                  <p className="text-sm tracking-[0.2em] uppercase text-muted-foreground mb-2">
-                    {variation.specs}
-                  </p>
-                  <h3 className="font-display text-3xl md:text-4xl font-light text-foreground mb-4">
-                    {variation.title}
-                  </h3>
-                  <p className="text-muted-foreground leading-relaxed">
-                    {variation.description}
-                  </p>
+              {/* Info below mockup */}
+              <div className="max-w-2xl mx-auto text-center space-y-4">
+                <div className="flex items-center justify-center gap-4">
+                  <span className="bg-secondary px-3 py-1 text-xs tracking-widest uppercase text-foreground rounded-sm">
+                    {variation.channel}
+                  </span>
+                  <span className="text-sm text-muted-foreground">{variation.specs}</span>
                 </div>
+                
+                <h3 className="font-display text-3xl md:text-4xl font-light text-foreground">
+                  {variation.title}
+                </h3>
+                
+                <p className="text-muted-foreground leading-relaxed">
+                  {variation.description}
+                </p>
 
-                <div className="border-l-2 border-accent pl-6">
+                <div className="inline-block border-l-2 border-accent pl-4 text-left mt-4">
                   <p className="text-sm text-muted-foreground italic">
                     <span className="font-medium text-foreground">Strategic Rationale:</span>{" "}
                     {variation.rationale}
