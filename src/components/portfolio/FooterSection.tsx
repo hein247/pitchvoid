@@ -34,11 +34,11 @@ const FooterSection = () => {
                   ​Email
                 </a>
                 <span className="hidden sm:inline">•</span>
-                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-background transition-colors">
+                <a href="https://www.linkedin.com/in/heinthantaung/" target="_blank" rel="noopener noreferrer" className="hover:text-background transition-colors">
                   LinkedIn
                 </a>
                 <span className="hidden sm:inline">•</span>
-                <a href="https://portfolio.com" target="_blank" rel="noopener noreferrer" className="hover:text-background transition-colors">
+                <a href="https://heinforever.com" target="_blank" rel="noopener noreferrer" className="hover:text-background transition-colors">
                   Portfolio
                 </a>
               </div>
