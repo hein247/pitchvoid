@@ -18,7 +18,7 @@ const FooterSection = () => {
       } : {}} transition={{
         duration: 0.8
       }} className="space-y-8">
-          <p className="text-xs tracking-[0.25em] uppercase text-background/50">PROPOSAL</p>
+          <p className="text-xs tracking-[0.25em] uppercase text-background/50 font-bold">RESPONSE TO ASSESSMENT QUESTION</p>
           
           <h2 className="font-display text-4xl md:text-5xl font-light">
             Thank You
