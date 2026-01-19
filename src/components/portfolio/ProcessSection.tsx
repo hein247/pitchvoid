@@ -198,7 +198,7 @@ const ProcessSection = () => {
             Tools Used
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            {["Gemini", "Adobe", "Claude", "Antigravity", "Grok"].map(tool => <span key={tool} className="px-5 py-2 bg-background border border-border text-sm text-foreground hover:bg-muted transition-colors">
+            {["Gemini", "Adobe", "Claude", "Antigravity", "Grok", "Lovable"].map(tool => <span key={tool} className="px-5 py-2 bg-background border border-border text-sm text-foreground hover:bg-muted transition-colors">
                 {tool}
               </span>)}
           </div>
