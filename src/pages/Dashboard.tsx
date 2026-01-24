@@ -173,19 +173,78 @@ const Dashboard = () => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = inputMessage;
     setInputMessage('');
     setIsSending(true);
 
-    // Simulate AI response (in production, this would call your AI edge function)
-    setTimeout(() => {
-      const aiResponse: ChatMessage = {
+    try {
+      // Check if user wants to generate slides
+      const generateKeywords = ['generate', 'create', 'make', 'build', 'slides', 'presentation', 'pitch deck'];
+      const shouldGenerate = generateKeywords.some(kw => currentInput.toLowerCase().includes(kw)) && uploadedFiles.length > 0;
+
+      if (shouldGenerate) {
+        // Call the AI edge function to generate pitch
+        const response = await supabase.functions.invoke('generate-pitch', {
+          body: {
+            scenario: currentInput,
+            targetAudience: extractAudience(currentInput),
+            documentContext: `User has uploaded ${uploadedFiles.length} document(s): ${uploadedFiles.map(f => f.name).join(', ')}`,
+          },
+        });
+
+        if (response.error) {
+          throw new Error(response.error.message || 'Failed to generate pitch');
+        }
+
+        const { slides } = response.data;
+        
+        // Format slides for display
+        const slideContent = slides.map((slide: any, idx: number) => 
+          `**Slide ${idx + 1}: ${slide.content.title}**\n${slide.content.description}${slide.content.bullets ? '\n• ' + slide.content.bullets.join('\n• ') : ''}\n_Animation: ${slide.animation.type} (${slide.animation.speed})_`
+        ).join('\n\n---\n\n');
+
+        const aiResponse: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: `🎯 **Your Anti-Gravity Pitch Deck is Ready!**\n\nI've analyzed your documents and created a 5-slide presentation:\n\n${slideContent}\n\n---\n\n✨ Would you like me to:\n• Adjust the tone or style?\n• Add more detail to specific slides?\n• Generate alternative versions?`,
+        };
+        setMessages(prev => [...prev, aiResponse]);
+      } else {
+        // Regular conversational response
+        const aiResponse: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: generateAIResponse(currentInput, uploadedFiles.length),
+        };
+        setMessages(prev => [...prev, aiResponse]);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: generateAIResponse(inputMessage, uploadedFiles.length),
+        content: `I encountered an issue while generating your pitch. ${error instanceof Error ? error.message : 'Please try again.'}`,
       };
-      setMessages(prev => [...prev, aiResponse]);
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsSending(false);
-    }, 1500);
+    }
+  };
+
+  const extractAudience = (input: string): string => {
+    const audiencePatterns = [
+      { pattern: /investor/i, audience: 'Investors and VCs' },
+      { pattern: /client/i, audience: 'Potential clients' },
+      { pattern: /partner/i, audience: 'Business partners' },
+      { pattern: /board/i, audience: 'Board of directors' },
+      { pattern: /team/i, audience: 'Internal team' },
+      { pattern: /sales/i, audience: 'Sales prospects' },
+    ];
+    
+    for (const { pattern, audience } of audiencePatterns) {
+      if (pattern.test(input)) return audience;
+    }
+    return 'General business audience';
   };
 
   const generateAIResponse = (input: string, fileCount: number): string => {

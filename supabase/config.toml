@@ -1,1 +1,4 @@
 project_id = "kixwyufvyfnvtgzbisqy"
+
+[functions.generate-pitch]
+verify_jwt = false
