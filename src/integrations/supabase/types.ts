@@ -14,7 +14,100 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          credits: number | null
+          full_name: string | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          credits?: number | null
+          full_name?: string | null
+          id: string
+          updated_at?: string | null
+        }
+        Update: {
+          credits?: number | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          created_at: string | null
+          id: string
+          scenario_description: string | null
+          target_audience: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          scenario_description?: string | null
+          target_audience?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          scenario_description?: string | null
+          target_audience?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      slides: {
+        Row: {
+          animation_settings: Json | null
+          component_type: string | null
+          content: Json | null
+          created_at: string | null
+          id: string
+          order_index: number | null
+          project_id: string
+        }
+        Insert: {
+          animation_settings?: Json | null
+          component_type?: string | null
+          content?: Json | null
+          created_at?: string | null
+          id?: string
+          order_index?: number | null
+          project_id: string
+        }
+        Update: {
+          animation_settings?: Json | null
+          component_type?: string | null
+          content?: Json | null
+          created_at?: string | null
+          id?: string
+          order_index?: number | null
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "slides_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
