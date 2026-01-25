@@ -163,25 +163,27 @@ const LiveSlideEditor = ({ projectId, initialSlides, onClose }: LiveSlideEditorP
   return (
     <div className="h-full flex flex-col bg-background">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Layers className="w-5 h-5 text-primary" />
+      <div className="flex items-center justify-between p-4 border-b border-[rgba(255,255,255,0.08)] bg-[rgba(0,0,0,0.3)] backdrop-blur-xl">
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center shadow-[0_0_20px_hsl(var(--primary)/0.4)]">
+              <Layers className="w-4 h-4 text-primary-foreground" />
+            </div>
             <h2 className="font-display text-xl tracking-wide">Live Slide Editor</h2>
           </div>
           
           {/* Slide Navigation */}
-          <div className="flex items-center gap-2 ml-4">
+          <div className="flex items-center gap-2 ml-4 bg-[rgba(255,255,255,0.03)] px-3 py-1.5 rounded-lg border border-[rgba(255,255,255,0.08)]">
             <Button
               variant="ghost"
               size="sm"
               onClick={goToPreviousSlide}
               disabled={currentSlideIndex === 0}
-              className="h-8 w-8 p-0"
+              className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary transition-colors"
             >
               <ChevronLeft className="w-4 h-4" />
             </Button>
-            <span className="text-sm text-muted-foreground min-w-[60px] text-center font-sans">
+            <span className="text-sm text-muted-foreground min-w-[60px] text-center font-sans tracking-wide">
               {currentSlideIndex + 1} / {slides.length}
             </span>
             <Button
@@ -189,16 +191,16 @@ const LiveSlideEditor = ({ projectId, initialSlides, onClose }: LiveSlideEditorP
               size="sm"
               onClick={goToNextSlide}
               disabled={currentSlideIndex === slides.length - 1}
-              className="h-8 w-8 p-0"
+              className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary transition-colors"
             >
               <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           {hasUnsavedChanges && (
-            <span className="text-xs text-gold uppercase tracking-wider font-sans">
+            <span className="text-xs text-gold uppercase tracking-[0.15em] font-sans px-3 py-1 bg-gold/10 rounded-full border border-gold/30">
               Unsaved changes
             </span>
           )}
@@ -218,23 +220,27 @@ const LiveSlideEditor = ({ projectId, initialSlides, onClose }: LiveSlideEditorP
         </div>
       </div>
 
-      {/* Slide Thumbnails */}
-      <div className="flex gap-2 p-4 border-b border-border/50 overflow-x-auto">
+      {/* Slide Thumbnails Carousel */}
+      <div className="flex gap-3 p-4 border-b border-[rgba(255,255,255,0.06)] overflow-x-auto bg-[rgba(0,0,0,0.2)] scrollbar-hide">
         {slides.map((slide, index) => (
           <button
             key={slide.id}
             onClick={() => setCurrentSlideIndex(index)}
             className={`
-              flex-shrink-0 w-24 h-16 p-2 rounded-md border transition-all duration-200 font-sans
+              flex-shrink-0 w-28 h-20 p-3 rounded-lg border-2 transition-all duration-300 font-sans
+              flex flex-col justify-between
               ${index === currentSlideIndex
-                ? 'border-primary bg-primary/10 shadow-[0_0_15px_hsl(var(--primary)/0.3)]'
-                : 'border-border bg-card hover:border-primary/50'
+                ? 'border-primary bg-primary/10 shadow-[0_0_25px_hsl(var(--primary)/0.4)] scale-105'
+                : 'border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] hover:border-primary/40 hover:bg-[rgba(255,255,255,0.04)]'
               }
             `}
           >
-            <div className="text-[8px] text-muted-foreground truncate">
+            <span className={`text-[9px] font-medium ${index === currentSlideIndex ? 'text-primary' : 'text-muted-foreground'}`}>
+              {index + 1}
+            </span>
+            <span className="text-[10px] text-foreground/80 truncate text-left leading-tight">
               {slide.content.title || `Slide ${index + 1}`}
-            </div>
+            </span>
           </button>
         ))}
       </div>
@@ -242,11 +248,13 @@ const LiveSlideEditor = ({ projectId, initialSlides, onClose }: LiveSlideEditorP
       {/* Split View: Editor & Preview */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-0 min-h-0">
         {/* Left: Editor Panel */}
-        <div className="border-r border-border overflow-y-auto">
+        <div className="border-r border-[rgba(255,255,255,0.06)] overflow-y-auto bg-[rgba(0,0,0,0.15)]">
           <div className="p-6">
             <div className="flex items-center gap-2 mb-6">
-              <Edit3 className="w-4 h-4 text-muted-foreground" />
-              <span className="text-xs uppercase tracking-[0.15em] text-muted-foreground font-sans">
+              <div className="w-6 h-6 bg-primary/10 rounded flex items-center justify-center">
+                <Edit3 className="w-3.5 h-3.5 text-primary" />
+              </div>
+              <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-sans font-medium">
                 Edit Content
               </span>
             </div>
@@ -256,7 +264,7 @@ const LiveSlideEditor = ({ projectId, initialSlides, onClose }: LiveSlideEditorP
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
-                transition={{ duration: 0.2 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
               >
                 <SlideEditor
                   slide={currentSlide}
@@ -269,12 +277,14 @@ const LiveSlideEditor = ({ projectId, initialSlides, onClose }: LiveSlideEditorP
         </div>
 
         {/* Right: Live Preview Panel */}
-        <div className="bg-background/50 backdrop-blur-sm overflow-y-auto">
+        <div className="bg-[rgba(5,1,13,0.6)] backdrop-blur-sm overflow-y-auto">
           <div className="p-6 h-full">
             <div className="flex items-center gap-2 mb-6">
-              <Eye className="w-4 h-4 text-muted-foreground" />
-              <span className="text-xs uppercase tracking-[0.15em] text-muted-foreground font-sans">
-                Anti-Gravity Preview
+              <div className="w-6 h-6 bg-accent/10 rounded flex items-center justify-center">
+                <Eye className="w-3.5 h-3.5 text-accent" />
+              </div>
+              <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-sans font-medium">
+                Static Preview
               </span>
             </div>
             <div className="h-[calc(100%-40px)]">

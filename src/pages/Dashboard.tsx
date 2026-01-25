@@ -291,57 +291,61 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
 
       {/* Header */}
-      <header className="border-b border-[rgba(255,255,255,0.1)] bg-[rgba(0,0,0,0.5)] backdrop-blur-xl sticky top-0 z-50">
+      <header className="border-b border-[rgba(255,255,255,0.08)] bg-[rgba(5,1,13,0.8)] backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-8">
+            {/* Logo with Magenta Glow */}
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-[hsl(263,70%,58%)] to-[hsl(217,91%,60%)] rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(139,92,246,0.3)]">
-                <Sparkles className="w-5 h-5 text-white" />
+              <div className="relative">
+                <div className="absolute inset-0 bg-primary/30 blur-xl rounded-full" />
+                <div className="relative w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center shadow-[0_0_25px_hsl(var(--primary)/0.5)]">
+                  <Sparkles className="w-5 h-5 text-white" />
+                </div>
               </div>
               <span className="font-display text-xl font-medium tracking-wide">PitchVoid</span>
             </div>
 
-            {/* View Tabs */}
-            <div className="flex items-center gap-1 bg-[rgba(255,255,255,0.03)] p-1 border border-[rgba(255,255,255,0.08)]">
+            {/* View Tabs with Smooth Transitions */}
+            <div className="flex items-center gap-1 bg-[rgba(255,255,255,0.03)] p-1.5 border border-[rgba(255,255,255,0.08)] rounded-lg">
               <button
                 onClick={() => setCurrentView('chat')}
                 className={`
-                  flex items-center gap-2 px-4 py-2 text-sm transition-all duration-200
+                  flex items-center gap-2 px-5 py-2.5 text-sm font-sans tracking-wide transition-all duration-300 rounded-md
                   ${currentView === 'chat'
-                    ? 'bg-[rgba(139,92,246,0.2)] text-foreground'
+                    ? 'bg-gradient-to-r from-primary/20 to-accent/20 text-foreground shadow-[0_0_15px_hsl(var(--primary)/0.3)]'
                     : 'text-muted-foreground hover:text-foreground hover:bg-[rgba(255,255,255,0.05)]'
                   }
                 `}
               >
                 <MessageCircle className="w-4 h-4" />
-                Chat
+                <span className="tracking-[0.08em]">Chat</span>
               </button>
               <button
                 onClick={() => setCurrentView('editor')}
                 className={`
-                  flex items-center gap-2 px-4 py-2 text-sm transition-all duration-200
+                  flex items-center gap-2 px-5 py-2.5 text-sm font-sans tracking-wide transition-all duration-300 rounded-md
                   ${currentView === 'editor'
-                    ? 'bg-[rgba(139,92,246,0.2)] text-foreground'
+                    ? 'bg-gradient-to-r from-primary/20 to-accent/20 text-foreground shadow-[0_0_15px_hsl(var(--primary)/0.3)]'
                     : 'text-muted-foreground hover:text-foreground hover:bg-[rgba(255,255,255,0.05)]'
                   }
                 `}
               >
                 <Layers className="w-4 h-4" />
-                Slide Editor
+                <span className="tracking-[0.08em]">Slide Editor</span>
               </button>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-4 py-2 bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] backdrop-blur-sm">
-              <Coins className="w-4 h-4 text-[hsl(45,80%,60%)]" />
-              <span className="text-sm font-medium">{credits} credits</span>
+          <div className="flex items-center gap-5">
+            <div className="flex items-center gap-2 px-4 py-2 bg-[rgba(255,255,255,0.03)] border border-gold/20 rounded-lg backdrop-blur-sm">
+              <Coins className="w-4 h-4 text-gold" />
+              <span className="text-sm font-medium font-sans tracking-wide">{credits} credits</span>
             </div>
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={handleSignOut} 
-              className="gap-2 text-muted-foreground hover:text-foreground hover:bg-[rgba(255,255,255,0.05)]"
+              className="gap-2 text-muted-foreground hover:text-foreground hover:bg-[rgba(255,255,255,0.05)] font-sans tracking-wide"
             >
               <LogOut className="w-4 h-4" />
               Sign Out
@@ -350,16 +354,16 @@ const Dashboard = () => {
         </div>
       </header>
 
-      {/* Main Content */}
+      {/* Main Content with Smooth Tab Transitions */}
       <main className="flex-1 relative z-10">
         <AnimatePresence mode="wait">
           {currentView === 'chat' ? (
             <motion.div
               key="chat"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.35, ease: "easeInOut" }}
               className="max-w-7xl mx-auto w-full p-6 h-[calc(100vh-5rem)]"
             >
               <div className="grid lg:grid-cols-2 gap-6 h-full">
@@ -554,10 +558,10 @@ const Dashboard = () => {
           ) : (
             <motion.div
               key="editor"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              transition={{ duration: 0.3 }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.35, ease: "easeInOut" }}
               className="h-[calc(100vh-5rem)]"
             >
               <LiveSlideEditor projectId={currentProjectId} />
