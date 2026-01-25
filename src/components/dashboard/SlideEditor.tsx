@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, Trash2, GripVertical, Layout } from 'lucide-react';
+import { Plus, Trash2, GripVertical, Layout, Palette, Sparkles, Loader2 } from 'lucide-react';
 import GlassCard from '@/components/ui/GlassCard';
 
 export interface SlideContent {
@@ -30,6 +30,8 @@ export interface Slide {
   };
   layout_type: string;
   order_index: number;
+  image_url?: string;
+  visual_style?: string;
 }
 
 const LAYOUT_OPTIONS = [
@@ -42,9 +44,18 @@ interface SlideEditorProps {
   slide: Slide;
   slideIndex: number;
   onUpdate: (slide: Slide) => void;
+  onGenerateImage?: (slide: Slide) => void;
+  isGeneratingImage?: boolean;
 }
 
-const SlideEditor = ({ slide, slideIndex, onUpdate }: SlideEditorProps) => {
+const SlideEditor = ({ slide, slideIndex, onUpdate, onGenerateImage, isGeneratingImage }: SlideEditorProps) => {
+  const handleVisualStyleChange = (value: string) => {
+    onUpdate({
+      ...slide,
+      visual_style: value,
+    });
+  };
+
   const handleTitleChange = (value: string) => {
     onUpdate({
       ...slide,
@@ -238,6 +249,45 @@ const SlideEditor = ({ slide, slideIndex, onUpdate }: SlideEditorProps) => {
             </p>
           )}
         </div>
+      </div>
+
+      {/* Visual Style for AI Image Generation */}
+      <div className="space-y-3 pt-4 border-t border-border">
+        <div className="flex items-center justify-between">
+          <Label className="text-sm uppercase tracking-[0.15em] text-muted-foreground flex items-center gap-2">
+            <Palette className="w-4 h-4" />
+            Visual Style
+          </Label>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => onGenerateImage?.(slide)}
+            disabled={isGeneratingImage}
+            className="text-primary hover:text-primary/80 hover:bg-primary/10 gap-2"
+          >
+            {isGeneratingImage ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Generating...
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4" />
+                {slide.image_url ? 'Regenerate with AI' : 'Generate Image'}
+              </>
+            )}
+          </Button>
+        </div>
+        <Input
+          value={slide.visual_style || ''}
+          onChange={(e) => handleVisualStyleChange(e.target.value)}
+          placeholder="E.g., 'Minimalist blue', 'Vibrant startup colors', 'Professional corporate grey'..."
+          className="bg-[rgba(255,255,255,0.03)] border-[rgba(255,255,255,0.1)] focus:border-primary focus:ring-primary/30 focus:shadow-[0_0_10px_hsl(var(--primary)/0.15)] font-sans transition-all duration-300"
+        />
+        <p className="text-xs text-muted-foreground">
+          Describe your desired color palette or theme for the AI-generated slide image.
+        </p>
       </div>
 
       {/* Animation Settings */}

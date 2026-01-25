@@ -110,6 +110,7 @@ const LiveSlideEditor = ({ projectId, initialSlides, onClose }: LiveSlideEditorP
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isPublished, setIsPublished] = useState(false);
   const [publicUrl, setPublicUrl] = useState<string | null>(null);
+  const [generatingImageSlideId, setGeneratingImageSlideId] = useState<string | null>(null);
 
   const currentSlide = slides[currentSlideIndex];
 
@@ -140,6 +141,50 @@ const LiveSlideEditor = ({ projectId, initialSlides, onClose }: LiveSlideEditorP
       prev.map((slide) => (slide.id === updatedSlide.id ? updatedSlide : slide))
     );
     setHasUnsavedChanges(true);
+  };
+
+  const handleGenerateImage = async (slide: Slide) => {
+    setGeneratingImageSlideId(slide.id);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-pitch-images', {
+        body: {
+          slideTitle: slide.content.title,
+          slideDescription: slide.content.description,
+          visualStyle: slide.visual_style,
+          slideIndex: slides.findIndex(s => s.id === slide.id),
+        },
+      });
+
+      if (error) {
+        console.error('Error generating image:', error);
+        throw error;
+      }
+
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
+      if (data?.imageUrl) {
+        // Update the slide with the new image URL
+        const updatedSlide = {
+          ...slide,
+          image_url: data.imageUrl,
+        };
+        handleSlideUpdate(updatedSlide);
+        sonnerToast.success('Image generated!', {
+          description: 'Your slide image has been created.',
+        });
+      }
+    } catch (error) {
+      console.error('Image generation error:', error);
+      const message = error instanceof Error ? error.message : 'Failed to generate image';
+      sonnerToast.error('Generation failed', {
+        description: message,
+      });
+    } finally {
+      setGeneratingImageSlideId(null);
+    }
   };
 
   const goToPreviousSlide = () => {
@@ -179,6 +224,8 @@ const LiveSlideEditor = ({ projectId, initialSlides, onClose }: LiveSlideEditorP
         animation_settings: JSON.parse(JSON.stringify(slide.animation)),
         layout_type: slide.layout_type || 'centered',
         order_index: index,
+        image_url: slide.image_url || null,
+        visual_style: slide.visual_style || null,
       }));
 
       const { error: insertError } = await supabase
@@ -473,6 +520,8 @@ const LiveSlideEditor = ({ projectId, initialSlides, onClose }: LiveSlideEditorP
                   slide={currentSlide}
                   slideIndex={currentSlideIndex}
                   onUpdate={handleSlideUpdate}
+                  onGenerateImage={handleGenerateImage}
+                  isGeneratingImage={generatingImageSlideId === currentSlide.id}
                 />
               </motion.div>
             </AnimatePresence>
@@ -493,9 +542,10 @@ const LiveSlideEditor = ({ projectId, initialSlides, onClose }: LiveSlideEditorP
             <div className="h-[calc(100%-40px)]">
               <AnimatePresence mode="wait">
                 <SlidePreview
-                  key={`${currentSlide.id}-${JSON.stringify(currentSlide.content)}`}
+                  key={`${currentSlide.id}-${JSON.stringify(currentSlide.content)}-${currentSlide.image_url}`}
                   slide={currentSlide}
                   slideIndex={currentSlideIndex}
+                  isGeneratingImage={generatingImageSlideId === currentSlide.id}
                 />
               </AnimatePresence>
             </div>
