@@ -2,6 +2,9 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Sparkles, Zap, FileText, MessageSquare, ArrowRight, Check } from 'lucide-react';
+import GridBackground from '@/components/ui/GridBackground';
+import GlassCard from '@/components/ui/GlassCard';
+import ShimmerButton from '@/components/ui/ShimmerButton';
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -32,19 +35,22 @@ const Landing = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Animated Grid Background */}
+      <GridBackground />
+
       {/* Navigation */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background/60 backdrop-blur-xl border-b border-white/[0.05]">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             className="flex items-center gap-2"
           >
-            <div className="w-8 h-8 bg-foreground rounded-full flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-background" />
+            <div className="w-8 h-8 bg-gradient-to-br from-void-purple to-void-blue rounded-full flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-white" />
             </div>
-            <span className="font-display text-xl font-medium">PitchVoid</span>
+            <span className="font-display text-xl font-medium text-foreground">PitchVoid</span>
           </motion.div>
 
           <motion.div
@@ -52,13 +58,16 @@ const Landing = () => {
             animate={{ opacity: 1, x: 0 }}
             className="flex items-center gap-4"
           >
-            <Button variant="ghost" onClick={() => navigate('/portfolio')}>
+            <Button variant="ghost" onClick={() => navigate('/portfolio')} className="text-muted-foreground hover:text-foreground">
               Portfolio
             </Button>
-            <Button variant="ghost" onClick={() => navigate('/auth')}>
+            <Button variant="ghost" onClick={() => navigate('/auth')} className="text-muted-foreground hover:text-foreground">
               Sign In
             </Button>
-            <Button onClick={() => navigate('/auth')} className="uppercase-spaced text-xs">
+            <Button 
+              onClick={() => navigate('/auth')} 
+              className="uppercase-spaced text-xs bg-white/10 hover:bg-white/20 border border-white/10"
+            >
               Get Started
             </Button>
           </motion.div>
@@ -66,15 +75,25 @@ const Landing = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-6">
-        <div className="max-w-7xl mx-auto">
+      <section className="pt-32 pb-20 px-6 relative">
+        {/* Radial Gradient Glow behind headline */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] pointer-events-none">
+          <div 
+            className="absolute inset-0 opacity-40"
+            style={{
+              background: 'radial-gradient(ellipse at center, hsl(263 70% 58% / 0.4) 0%, hsl(217 91% 60% / 0.2) 40%, transparent 70%)',
+            }}
+          />
+        </div>
+
+        <div className="max-w-7xl mx-auto relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             >
-              <span className="inline-block uppercase-spaced text-xs text-muted-foreground mb-6 px-4 py-2 bg-muted rounded-full">
+              <span className="inline-block uppercase-spaced text-xs text-muted-foreground mb-6 px-4 py-2 glass rounded-full">
                 AI-Powered Pitch Creation
               </span>
             </motion.div>
@@ -83,10 +102,12 @@ const Landing = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-              className="font-display text-5xl md:text-7xl font-light leading-[1.1] mb-6"
+              className="font-display text-5xl md:text-7xl font-light leading-[1.1] mb-6 text-foreground"
             >
               Transform your ideas into{' '}
-              <span className="italic text-gold">stunning pitches</span>
+              <span className="italic bg-gradient-to-r from-void-purple via-void-blue to-void-purple bg-clip-text text-transparent">
+                stunning pitches
+              </span>
             </motion.h1>
 
             <motion.p
@@ -105,19 +126,15 @@ const Landing = () => {
               transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
               className="flex flex-col sm:flex-row items-center justify-center gap-4"
             >
-              <Button 
-                size="lg" 
-                onClick={() => navigate('/auth')}
-                className="h-14 px-8 uppercase-spaced text-sm gap-2"
-              >
+              <ShimmerButton onClick={() => navigate('/auth')}>
                 Start Creating
                 <ArrowRight className="w-4 h-4" />
-              </Button>
+              </ShimmerButton>
               <Button 
                 variant="outline" 
                 size="lg"
                 onClick={() => navigate('/portfolio')}
-                className="h-14 px-8 uppercase-spaced text-sm"
+                className="h-14 px-8 uppercase-spaced text-sm bg-transparent border-white/20 text-foreground hover:bg-white/5 hover:border-white/30"
               >
                 View Portfolio
               </Button>
@@ -127,7 +144,7 @@ const Landing = () => {
       </section>
 
       {/* Floating Visual */}
-      <section className="py-20 px-6 overflow-hidden">
+      <section className="py-20 px-6 overflow-hidden relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -135,7 +152,15 @@ const Landing = () => {
           transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
           className="max-w-5xl mx-auto"
         >
-          <div className="relative bg-gradient-to-br from-muted to-card border border-border aspect-[16/9] flex items-center justify-center">
+          <GlassCard hover={false} className="aspect-[16/9] flex items-center justify-center relative">
+            {/* Inner glow effect */}
+            <div 
+              className="absolute inset-0 opacity-30"
+              style={{
+                background: 'radial-gradient(ellipse at center, hsl(263 70% 58% / 0.2) 0%, transparent 60%)',
+              }}
+            />
+            
             <motion.div
               animate={{ 
                 y: [0, -10, 0],
@@ -146,11 +171,13 @@ const Landing = () => {
                 repeat: Infinity,
                 ease: 'easeInOut'
               }}
-              className="w-3/4 h-3/4 bg-background border border-border shadow-2xl flex items-center justify-center"
+              className="w-3/4 h-3/4 glass border border-white/10 shadow-2xl flex items-center justify-center relative"
             >
               <div className="text-center p-8">
-                <Sparkles className="w-12 h-12 mx-auto mb-4 text-gold" />
-                <p className="font-display text-2xl">Your Pitch Preview</p>
+                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-void-purple to-void-blue rounded-full flex items-center justify-center">
+                  <Sparkles className="w-8 h-8 text-white" />
+                </div>
+                <p className="font-display text-2xl text-foreground">Your Pitch Preview</p>
                 <p className="text-sm text-muted-foreground mt-2">Anti-Gravity animations enabled</p>
               </div>
             </motion.div>
@@ -167,9 +194,9 @@ const Landing = () => {
                 ease: 'easeInOut',
                 delay: 0.5
               }}
-              className="absolute top-10 right-10 w-20 h-20 bg-card border border-border shadow-lg flex items-center justify-center"
+              className="absolute top-10 right-10 w-20 h-20 glass border border-white/10 shadow-lg flex items-center justify-center"
             >
-              <FileText className="w-8 h-8 text-muted-foreground" />
+              <FileText className="w-8 h-8 text-void-purple" />
             </motion.div>
             
             <motion.div
@@ -183,16 +210,16 @@ const Landing = () => {
                 ease: 'easeInOut',
                 delay: 1
               }}
-              className="absolute bottom-10 left-10 w-24 h-24 bg-card border border-border shadow-lg flex items-center justify-center"
+              className="absolute bottom-10 left-10 w-24 h-24 glass border border-white/10 shadow-lg flex items-center justify-center"
             >
-              <MessageSquare className="w-10 h-10 text-muted-foreground" />
+              <MessageSquare className="w-10 h-10 text-void-blue" />
             </motion.div>
-          </div>
+          </GlassCard>
         </motion.div>
       </section>
 
       {/* Features */}
-      <section className="py-20 px-6 bg-muted/30">
+      <section className="py-20 px-6 relative z-10">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -202,7 +229,7 @@ const Landing = () => {
             className="text-center mb-16"
           >
             <span className="uppercase-spaced text-xs text-muted-foreground">How It Works</span>
-            <h2 className="font-display text-4xl md:text-5xl mt-4">Three simple steps</h2>
+            <h2 className="font-display text-4xl md:text-5xl mt-4 text-foreground">Three simple steps</h2>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -213,13 +240,14 @@ const Landing = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="bg-background border border-border p-8 hover:shadow-lg transition-shadow"
               >
-                <div className="w-14 h-14 bg-muted flex items-center justify-center mb-6">
-                  <feature.icon className="w-7 h-7" />
-                </div>
-                <h3 className="font-display text-xl mb-3">{feature.title}</h3>
-                <p className="text-muted-foreground">{feature.description}</p>
+                <GlassCard className="h-full">
+                  <div className="w-14 h-14 bg-gradient-to-br from-void-purple/20 to-void-blue/20 border border-white/10 flex items-center justify-center mb-6">
+                    <feature.icon className="w-7 h-7 text-void-purple" />
+                  </div>
+                  <h3 className="font-display text-xl mb-3 text-foreground">{feature.title}</h3>
+                  <p className="text-muted-foreground">{feature.description}</p>
+                </GlassCard>
               </motion.div>
             ))}
           </div>
@@ -227,15 +255,25 @@ const Landing = () => {
       </section>
 
       {/* CTA */}
-      <section className="py-24 px-6">
-        <div className="max-w-4xl mx-auto text-center">
+      <section className="py-24 px-6 relative z-10">
+        {/* Gradient glow for CTA section */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div 
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] opacity-30"
+            style={{
+              background: 'radial-gradient(ellipse at center, hsl(263 70% 58% / 0.3) 0%, transparent 60%)',
+            }}
+          />
+        </div>
+
+        <div className="max-w-4xl mx-auto text-center relative">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <h2 className="font-display text-4xl md:text-5xl mb-6">
+            <h2 className="font-display text-4xl md:text-5xl mb-6 text-foreground">
               Ready to create your pitch?
             </h2>
             <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
@@ -250,34 +288,30 @@ const Landing = () => {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: index * 0.1 }}
-                  className="flex items-center gap-2 px-4 py-2 bg-muted text-sm"
+                  className="flex items-center gap-2 px-4 py-2 glass text-sm text-foreground"
                 >
-                  <Check className="w-4 h-4 text-gold" />
+                  <Check className="w-4 h-4 text-void-purple" />
                   {benefit}
                 </motion.div>
               ))}
             </div>
 
-            <Button 
-              size="lg" 
-              onClick={() => navigate('/auth')}
-              className="h-14 px-10 uppercase-spaced text-sm gap-2"
-            >
+            <ShimmerButton onClick={() => navigate('/auth')}>
               Get Started Free
               <ArrowRight className="w-4 h-4" />
-            </Button>
+            </ShimmerButton>
           </motion.div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border py-12 px-6">
+      <footer className="border-t border-white/[0.05] py-12 px-6 relative z-10">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-foreground rounded-full flex items-center justify-center">
-              <Sparkles className="w-3 h-3 text-background" />
+            <div className="w-6 h-6 bg-gradient-to-br from-void-purple to-void-blue rounded-full flex items-center justify-center">
+              <Sparkles className="w-3 h-3 text-white" />
             </div>
-            <span className="font-display text-lg">PitchVoid</span>
+            <span className="font-display text-lg text-foreground">PitchVoid</span>
           </div>
           <p className="text-sm text-muted-foreground">
             © 2024 PitchVoid. All rights reserved.
