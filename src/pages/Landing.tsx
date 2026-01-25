@@ -1,10 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Zap, FileText, MessageSquare, ArrowRight, Check } from 'lucide-react';
+import { Zap, FileText, MessageSquare, ArrowRight, Check, Sparkles } from 'lucide-react';
 import GridBackground from '@/components/ui/GridBackground';
 import GlassCard from '@/components/ui/GlassCard';
 import ShimmerButton from '@/components/ui/ShimmerButton';
+import logo from '@/assets/logo.png';
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -47,10 +48,7 @@ const Landing = () => {
             animate={{ opacity: 1, x: 0 }}
             className="flex items-center gap-2"
           >
-            <div className="w-8 h-8 bg-gradient-to-br from-void-purple to-void-blue rounded-full flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-display text-xl font-medium text-foreground">PitchVoid</span>
+            <img src={logo} alt="PitchVoid" className="h-10 w-auto" />
           </motion.div>
 
           <motion.div
@@ -308,10 +306,7 @@ const Landing = () => {
       <footer className="border-t border-white/[0.05] py-12 px-6 relative z-10">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-gradient-to-br from-void-purple to-void-blue rounded-full flex items-center justify-center">
-              <Sparkles className="w-3 h-3 text-white" />
-            </div>
-            <span className="font-display text-lg text-foreground">PitchVoid</span>
+            <img src={logo} alt="PitchVoid" className="h-8 w-auto" />
           </div>
           <p className="text-sm text-muted-foreground">
             © 2024 PitchVoid. All rights reserved.
