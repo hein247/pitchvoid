@@ -16,6 +16,8 @@ interface SlideContent {
     speed: string;
     type: string;
   };
+  layout_type: string;
+  visual_style?: string;
 }
 
 serve(async (req) => {
@@ -24,7 +26,7 @@ serve(async (req) => {
   }
 
   try {
-    const { scenario, targetAudience, documentContext } = await req.json();
+    const { scenario, targetAudience, documentContext, imageDescriptions, visualStyle } = await req.json();
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -33,37 +35,53 @@ serve(async (req) => {
 
     console.log("Generating pitch for scenario:", scenario);
     console.log("Target audience:", targetAudience);
+    console.log("Image descriptions count:", imageDescriptions?.length || 0);
 
-    const systemPrompt = `You are an expert pitch strategist and presentation designer. Based on the user's scenario and context, generate a 5-slide presentation optimized for impact and engagement.
+    // Build image context for the prompt
+    const imageContext = imageDescriptions && imageDescriptions.length > 0
+      ? `\n\n**Uploaded Visual Assets (${imageDescriptions.length} images):**\n${imageDescriptions.map((desc: string, i: number) => `- Image ${i + 1}: ${desc}`).join('\n')}\n\nIMPORTANT: Create visual-heavy slides that prominently feature these product images. Each slide should be designed to showcase these visuals as the primary focus.`
+      : '';
+
+    const systemPrompt = `You are an expert pitch strategist and presentation designer specializing in luxury brand presentations. Create visual-heavy, elegant slides that prioritize imagery over text.
+
+DESIGN PRINCIPLES:
+- Typography: Use elegant, editorial typography (Times New Roman Italic for headings, Be Vietnam Pro for body)
+- Layout: Favor asymmetric, magazine-style layouts that let visuals breathe
+- Content: Keep text minimal - let the images speak
+- Tone: ${targetAudience?.includes('sales') ? 'Professional and persuasive' : 'Sophisticated and aspirational'}
 
 Output ONLY a valid JSON array where each object has:
-- component_type: An Anti-Gravity animation component name. Choose from: 'MovingBorder', 'HoverCard', 'FloatingElement', 'GlowCard', 'ParallaxSection'
+- component_type: Choose from: 'MovingBorder', 'HoverCard', 'FloatingElement', 'GlowCard', 'ParallaxSection'
 - content: An object with:
-  - title: A compelling, concise slide title
-  - description: A brief but impactful description (1-2 sentences)
-  - bullets: An array of 3-4 key points (optional, omit for intro/outro slides)
+  - title: A compelling, concise slide title (elegant and minimal)
+  - description: A brief, evocative description (1 sentence max, poetic for luxury brands)
+  - bullets: An array of 2-3 key points (optional, use sparingly)
 - animation: An object with:
-  - speed: 'slow', 'medium', or 'fast'
-  - type: 'fade', 'slide', 'scale', 'bounce', or 'float'
+  - speed: 'slow' (preferred for luxury), 'medium', or 'fast'
+  - type: 'fade', 'slide', 'scale', 'float' (prefer 'fade' and 'float' for elegance)
+- layout_type: 'centered', 'side-by-side', or 'bento-grid' (favor 'side-by-side' for product showcases)
+- visual_style: A brief style description for AI image generation (e.g., "Minimalist gold and cream", "Soft natural lighting on jewelry")
 
-Slide structure should follow:
-1. Hook/Opening - Grab attention with a bold statement or question
-2. Problem - Define the pain point clearly
-3. Solution - Present the value proposition
-4. Proof - Evidence, metrics, or testimonials
-5. Call to Action - Clear next steps
+SLIDE STRUCTURE (5 slides, NO Case Study section):
+1. Hero/Opening - Bold visual statement, minimal text, showcase hero product
+2. Product Showcase - Feature the collection/products with elegant descriptions
+3. Craftsmanship/Value - Highlight quality, materials, or unique selling points
+4. Lifestyle/Aspiration - Emotional connection, how the product enhances life
+5. Call to Action - Clear next steps, contact, or offer
 
-Make the content compelling, specific, and tailored to the target audience. Use power words and create emotional resonance.`;
+Make content elegant, minimal, and focused on visual storytelling.`;
 
-    const userPrompt = `Create a 5-slide pitch presentation for the following scenario:
+    const userPrompt = `Create a 5-slide visual-heavy pitch presentation:
 
 **Scenario:** ${scenario}
 
-**Target Audience:** ${targetAudience || "General business audience"}
+**Target Audience:** ${targetAudience || "Jewelry customers"}
 
-${documentContext ? `**Additional Context from Documents:** ${documentContext}` : ""}
+**Goal:** Sales-focused presentation with professional tone
+${documentContext ? `\n**Document Context:** ${documentContext}` : ''}${imageContext}
+${visualStyle ? `\n**Preferred Visual Style:** ${visualStyle}` : ''}
 
-Generate the JSON array now. Remember: output ONLY the JSON array, no other text.`;
+Generate the JSON array now. Remember: output ONLY the JSON array, no other text. Focus on visual storytelling - minimal text, maximum impact.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -129,6 +147,13 @@ Generate the JSON array now. Remember: output ONLY the JSON array, no other text
     if (!Array.isArray(slides) || slides.length === 0) {
       throw new Error("Invalid slides structure received");
     }
+
+    // Ensure each slide has required fields with defaults
+    slides = slides.map((slide, index) => ({
+      ...slide,
+      layout_type: slide.layout_type || (index === 0 ? 'centered' : 'side-by-side'),
+      visual_style: slide.visual_style || 'Elegant minimalist with soft lighting',
+    }));
 
     console.log("Generated slides:", JSON.stringify(slides, null, 2));
 
