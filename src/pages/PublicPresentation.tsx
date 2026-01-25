@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
-import { Sparkles, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { Sparkles, ChevronLeft, ChevronRight, Loader2, Maximize2, Minimize2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface SlideContent {
@@ -30,6 +30,24 @@ const PublicPresentation = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [projectTitle, setProjectTitle] = useState('Presentation');
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Fullscreen change listener
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = useCallback(() => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(console.error);
+    } else {
+      document.exitFullscreen().catch(console.error);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchPresentation = async () => {
@@ -245,23 +263,25 @@ const PublicPresentation = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col overflow-hidden">
-      {/* Header with Logo Glow */}
-      <header className="border-b border-[rgba(255,255,255,0.08)] bg-[rgba(5,1,13,0.9)] backdrop-blur-xl sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <div className="absolute inset-0 bg-primary/30 blur-xl rounded-full" />
-              <div className="relative w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center shadow-[0_0_25px_hsl(var(--primary)/0.5)]">
-                <Sparkles className="w-4 h-4 text-white" />
+      {/* Header with Logo Glow - hidden in fullscreen */}
+      {!isFullscreen && (
+        <header className="border-b border-[rgba(255,255,255,0.08)] bg-[rgba(5,1,13,0.9)] backdrop-blur-xl sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <div className="absolute inset-0 bg-primary/30 blur-xl rounded-full" />
+                <div className="relative w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center shadow-[0_0_25px_hsl(var(--primary)/0.5)]">
+                  <Sparkles className="w-4 h-4 text-white" />
+                </div>
               </div>
+              <span className="font-display text-lg font-medium tracking-wide">PitchVoid</span>
             </div>
-            <span className="font-display text-lg font-medium tracking-wide">PitchVoid</span>
+            <span className="text-sm text-muted-foreground font-sans tracking-wide truncate max-w-[200px] md:max-w-none">
+              {projectTitle}
+            </span>
           </div>
-          <span className="text-sm text-muted-foreground font-sans tracking-wide truncate max-w-[200px] md:max-w-none">
-            {projectTitle}
-          </span>
-        </div>
-      </header>
+        </header>
+      )}
 
       {/* Slide Content */}
       <main className="flex-1 relative">
@@ -279,9 +299,15 @@ const PublicPresentation = () => {
         </AnimatePresence>
       </main>
 
-      {/* Navigation Footer */}
-      <footer className="border-t border-[rgba(255,255,255,0.08)] bg-[rgba(5,1,13,0.9)] backdrop-blur-xl py-4 px-6">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+      {/* Navigation Footer - Floating glassmorphism style in fullscreen */}
+      <footer className={`
+        ${isFullscreen 
+          ? 'fixed bottom-6 left-1/2 -translate-x-1/2 rounded-full px-6 py-3 bg-[rgba(5,1,13,0.8)] border border-[rgba(255,255,255,0.15)] shadow-[0_8px_32px_rgba(0,0,0,0.4)]'
+          : 'border-t border-[rgba(255,255,255,0.08)] bg-[rgba(5,1,13,0.9)] py-4 px-6'
+        }
+        backdrop-blur-xl z-50
+      `}>
+        <div className={`${isFullscreen ? '' : 'max-w-7xl mx-auto'} flex items-center ${isFullscreen ? 'gap-6' : 'justify-between'}`}>
           {/* Slide Dots */}
           <div className="flex items-center gap-2">
             {slides.map((_, index) => (
@@ -326,6 +352,17 @@ const PublicPresentation = () => {
               <ChevronRight className="w-5 h-5" />
             </Button>
           </div>
+
+          {/* Fullscreen Toggle */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleFullscreen}
+            className="h-10 w-10 p-0 hover:bg-primary/10 hover:text-primary transition-colors"
+            aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+          >
+            {isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
+          </Button>
         </div>
       </footer>
     </div>
