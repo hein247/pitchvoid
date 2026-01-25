@@ -85,16 +85,19 @@ const SlideEditor = ({ slide, slideIndex, onUpdate }: SlideEditorProps) => {
   };
 
   return (
-    <div className="space-y-6 font-sans">
+    <div className="space-y-6 font-sans bg-[rgba(255,255,255,0.03)] backdrop-blur-[10px] border border-[rgba(255,255,255,0.08)] p-6 rounded-lg">
       {/* Slide Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center text-primary-foreground text-sm font-bold">
+          <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center text-primary-foreground text-sm font-bold shadow-[0_0_20px_hsl(var(--primary)/0.4)]">
             {slideIndex + 1}
           </div>
-          <span className="text-sm text-muted-foreground uppercase tracking-wider">
-            {slide.component_type}
-          </span>
+          <div className="flex flex-col">
+            <span className="text-sm text-muted-foreground uppercase tracking-[0.15em]">
+              {slide.component_type}
+            </span>
+            <span className="text-xs text-muted-foreground/60">Slide {slideIndex + 1}</span>
+          </div>
         </div>
       </div>
 
@@ -108,7 +111,7 @@ const SlideEditor = ({ slide, slideIndex, onUpdate }: SlideEditorProps) => {
           value={slide.content.title}
           onChange={(e) => handleTitleChange(e.target.value)}
           placeholder="Enter slide title..."
-          className="bg-card border-border focus:border-primary focus:ring-primary/30 text-lg font-display"
+          className="bg-[rgba(255,255,255,0.03)] border-[rgba(255,255,255,0.1)] focus:border-primary focus:ring-primary/30 focus:shadow-[0_0_15px_hsl(var(--primary)/0.2)] text-lg font-display transition-all duration-300"
           maxLength={100}
         />
       </div>
@@ -123,7 +126,7 @@ const SlideEditor = ({ slide, slideIndex, onUpdate }: SlideEditorProps) => {
           value={slide.content.description}
           onChange={(e) => handleDescriptionChange(e.target.value)}
           placeholder="Enter slide body text..."
-          className="bg-card border-border focus:border-primary focus:ring-primary/30 min-h-[100px] resize-none font-sans"
+          className="bg-[rgba(255,255,255,0.03)] border-[rgba(255,255,255,0.1)] focus:border-primary focus:ring-primary/30 focus:shadow-[0_0_15px_hsl(var(--primary)/0.2)] min-h-[100px] resize-none font-sans transition-all duration-300"
           maxLength={500}
         />
       </div>
@@ -162,7 +165,7 @@ const SlideEditor = ({ slide, slideIndex, onUpdate }: SlideEditorProps) => {
                   value={bullet}
                   onChange={(e) => handleBulletChange(index, e.target.value)}
                   placeholder={`Bullet point ${index + 1}...`}
-                  className="bg-card border-border focus:border-primary focus:ring-primary/30 font-sans"
+                  className="bg-[rgba(255,255,255,0.03)] border-[rgba(255,255,255,0.1)] focus:border-primary focus:ring-primary/30 focus:shadow-[0_0_10px_hsl(var(--primary)/0.15)] font-sans transition-all duration-300"
                   maxLength={200}
                 />
               </div>
