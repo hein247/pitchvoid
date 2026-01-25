@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { toast as sonnerToast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Json } from '@/integrations/supabase/types';
 import { 
@@ -11,7 +12,10 @@ import {
   Loader2, 
   Layers,
   Eye,
-  Edit3
+  Edit3,
+  Share2,
+  Link,
+  Check
 } from 'lucide-react';
 import GlassCard from '@/components/ui/GlassCard';
 import ShimmerButton from '@/components/ui/ShimmerButton';
@@ -35,6 +39,7 @@ const defaultSlides: Slide[] = [
       bullets: ['Pain point 1', 'Pain point 2', 'Pain point 3'],
     },
     animation: { type: 'fadeIn', speed: 'medium' },
+    layout_type: 'centered',
     order_index: 0,
   },
   {
@@ -46,6 +51,7 @@ const defaultSlides: Slide[] = [
       bullets: ['Key feature 1', 'Key feature 2', 'Key feature 3'],
     },
     animation: { type: 'slideUp', speed: 'medium' },
+    layout_type: 'side-by-side',
     order_index: 1,
   },
   {
@@ -57,6 +63,7 @@ const defaultSlides: Slide[] = [
       bullets: ['TAM: $X billion', 'SAM: $X million', 'Target growth: X%'],
     },
     animation: { type: 'scaleIn', speed: 'medium' },
+    layout_type: 'bento-grid',
     order_index: 2,
   },
   {
@@ -68,6 +75,7 @@ const defaultSlides: Slide[] = [
       bullets: ['Metric 1', 'Metric 2', 'Metric 3'],
     },
     animation: { type: 'slideRight', speed: 'medium' },
+    layout_type: 'side-by-side',
     order_index: 3,
   },
   {
@@ -79,6 +87,7 @@ const defaultSlides: Slide[] = [
       bullets: ['Investment amount', 'Use of funds', 'Timeline'],
     },
     animation: { type: 'fadeIn', speed: 'slow' },
+    layout_type: 'centered',
     order_index: 4,
   },
 ];
@@ -88,9 +97,34 @@ const LiveSlideEditor = ({ projectId, initialSlides, onClose }: LiveSlideEditorP
   const [slides, setSlides] = useState<Slide[]>(initialSlides || defaultSlides);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isPublished, setIsPublished] = useState(false);
+  const [publicUrl, setPublicUrl] = useState<string | null>(null);
 
   const currentSlide = slides[currentSlideIndex];
+
+  // Check if project is already published
+  useEffect(() => {
+    const checkPublishStatus = async () => {
+      if (!projectId) return;
+      
+      const { data } = await supabase
+        .from('projects')
+        .select('is_published, public_id')
+        .eq('id', projectId)
+        .maybeSingle();
+      
+      if (data) {
+        setIsPublished(data.is_published || false);
+        if (data.public_id) {
+          setPublicUrl(`${window.location.origin}/p/${data.public_id}`);
+        }
+      }
+    };
+    
+    checkPublishStatus();
+  }, [projectId]);
 
   const handleSlideUpdate = (updatedSlide: Slide) => {
     setSlides((prev) =>
@@ -134,6 +168,7 @@ const LiveSlideEditor = ({ projectId, initialSlides, onClose }: LiveSlideEditorP
         component_type: slide.component_type,
         content: JSON.parse(JSON.stringify(slide.content)),
         animation_settings: JSON.parse(JSON.stringify(slide.animation)),
+        layout_type: slide.layout_type || 'centered',
         order_index: index,
       }));
 
@@ -157,6 +192,61 @@ const LiveSlideEditor = ({ projectId, initialSlides, onClose }: LiveSlideEditorP
       });
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handlePublish = async () => {
+    if (!projectId) {
+      toast({
+        title: 'No project selected',
+        description: 'Please create or select a project first.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // First save any unsaved changes
+    if (hasUnsavedChanges) {
+      await handleSaveProgress();
+    }
+
+    setIsPublishing(true);
+
+    try {
+      // Generate a unique public ID if not already published
+      const publicId = isPublished && publicUrl 
+        ? publicUrl.split('/p/')[1] 
+        : `${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 8)}`;
+
+      const { error } = await supabase
+        .from('projects')
+        .update({
+          is_published: true,
+          public_id: publicId,
+        })
+        .eq('id', projectId);
+
+      if (error) throw error;
+
+      const newUrl = `${window.location.origin}/p/${publicId}`;
+      setPublicUrl(newUrl);
+      setIsPublished(true);
+
+      // Copy to clipboard
+      await navigator.clipboard.writeText(newUrl);
+      
+      sonnerToast.success('Published & copied!', {
+        description: 'Your presentation link has been copied to clipboard.',
+      });
+    } catch (error) {
+      console.error('Error publishing:', error);
+      toast({
+        title: 'Publish failed',
+        description: 'Could not publish your presentation. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsPublishing(false);
     }
   };
 
@@ -198,12 +288,46 @@ const LiveSlideEditor = ({ projectId, initialSlides, onClose }: LiveSlideEditorP
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           {hasUnsavedChanges && (
             <span className="text-xs text-gold uppercase tracking-[0.15em] font-sans px-3 py-1 bg-gold/10 rounded-full border border-gold/30">
               Unsaved changes
             </span>
           )}
+          {isPublished && publicUrl && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                navigator.clipboard.writeText(publicUrl);
+                sonnerToast.success('Link copied!');
+              }}
+              className="gap-2 text-muted-foreground hover:text-foreground"
+            >
+              <Link className="w-4 h-4" />
+              Copy Link
+            </Button>
+          )}
+          <Button
+            variant="outline"
+            onClick={handlePublish}
+            disabled={isPublishing}
+            className="gap-2 border-primary/30 hover:border-primary hover:bg-primary/10"
+          >
+            {isPublishing ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : isPublished ? (
+              <>
+                <Check className="w-4 h-4 text-primary" />
+                Published
+              </>
+            ) : (
+              <>
+                <Share2 className="w-4 h-4" />
+                Publish
+              </>
+            )}
+          </Button>
           <ShimmerButton
             onClick={handleSaveProgress}
             className="h-10 px-6"
