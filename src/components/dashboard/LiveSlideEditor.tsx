@@ -15,8 +15,17 @@ import {
   Edit3,
   Share2,
   Link,
-  Check
+  Check,
+  ExternalLink,
+  EyeOff,
+  ChevronDown
 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import GlassCard from '@/components/ui/GlassCard';
 import ShimmerButton from '@/components/ui/ShimmerButton';
 import SlideEditor, { Slide, SlideContent } from './SlideEditor';
@@ -213,10 +222,21 @@ const LiveSlideEditor = ({ projectId, initialSlides, onClose }: LiveSlideEditorP
     setIsPublishing(true);
 
     try {
-      // Generate a unique public ID if not already published
-      const publicId = isPublished && publicUrl 
-        ? publicUrl.split('/p/')[1] 
-        : `${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 8)}`;
+      // Check if we already have a public_id, reuse it if so
+      let publicId: string;
+      
+      if (publicUrl) {
+        publicId = publicUrl.split('/p/')[1];
+      } else {
+        // Fetch existing public_id if any
+        const { data: existingProject } = await supabase
+          .from('projects')
+          .select('public_id')
+          .eq('id', projectId)
+          .maybeSingle();
+        
+        publicId = existingProject?.public_id || `${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 8)}`;
+      }
 
       const { error } = await supabase
         .from('projects')
@@ -247,6 +267,44 @@ const LiveSlideEditor = ({ projectId, initialSlides, onClose }: LiveSlideEditorP
       });
     } finally {
       setIsPublishing(false);
+    }
+  };
+
+  const handleUnpublish = async () => {
+    if (!projectId) return;
+
+    try {
+      const { error } = await supabase
+        .from('projects')
+        .update({ is_published: false })
+        .eq('id', projectId);
+
+      if (error) throw error;
+
+      setIsPublished(false);
+      sonnerToast.success('Unpublished', {
+        description: 'Your presentation is now private.',
+      });
+    } catch (error) {
+      console.error('Error unpublishing:', error);
+      toast({
+        title: 'Unpublish failed',
+        description: 'Could not unpublish your presentation. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleViewPublished = () => {
+    if (publicUrl) {
+      window.open(publicUrl, '_blank');
+    }
+  };
+
+  const handleCopyLink = () => {
+    if (publicUrl) {
+      navigator.clipboard.writeText(publicUrl);
+      sonnerToast.success('Link copied!');
     }
   };
 
@@ -294,40 +352,61 @@ const LiveSlideEditor = ({ projectId, initialSlides, onClose }: LiveSlideEditorP
               Unsaved changes
             </span>
           )}
-          {isPublished && publicUrl && (
+          {isPublished && publicUrl ? (
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleCopyLink}
+                className="gap-2 text-muted-foreground hover:text-foreground"
+              >
+                <Link className="w-4 h-4" />
+                Copy Link
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="gap-2 border-primary/30 hover:border-primary hover:bg-primary/10"
+                  >
+                    <Check className="w-4 h-4 text-primary" />
+                    Published
+                    <ChevronDown className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48 bg-popover border-border">
+                  <DropdownMenuItem onClick={handleViewPublished} className="cursor-pointer">
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    View Published
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleCopyLink} className="cursor-pointer">
+                    <Link className="w-4 h-4 mr-2" />
+                    Copy Link
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleUnpublish} className="cursor-pointer text-destructive focus:text-destructive">
+                    <EyeOff className="w-4 h-4 mr-2" />
+                    Unpublish
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          ) : (
             <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                navigator.clipboard.writeText(publicUrl);
-                sonnerToast.success('Link copied!');
-              }}
-              className="gap-2 text-muted-foreground hover:text-foreground"
+              variant="outline"
+              onClick={handlePublish}
+              disabled={isPublishing}
+              className="gap-2 border-primary/30 hover:border-primary hover:bg-primary/10"
             >
-              <Link className="w-4 h-4" />
-              Copy Link
+              {isPublishing ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <>
+                  <Share2 className="w-4 h-4" />
+                  Publish
+                </>
+              )}
             </Button>
           )}
-          <Button
-            variant="outline"
-            onClick={handlePublish}
-            disabled={isPublishing}
-            className="gap-2 border-primary/30 hover:border-primary hover:bg-primary/10"
-          >
-            {isPublishing ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : isPublished ? (
-              <>
-                <Check className="w-4 h-4 text-primary" />
-                Published
-              </>
-            ) : (
-              <>
-                <Share2 className="w-4 h-4" />
-                Publish
-              </>
-            )}
-          </Button>
           <ShimmerButton
             onClick={handleSaveProgress}
             className="h-10 px-6"
