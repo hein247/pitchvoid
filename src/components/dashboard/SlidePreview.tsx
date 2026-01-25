@@ -69,24 +69,92 @@ const SlidePreview = ({ slide, slideIndex }: SlidePreviewProps) => {
     }
   };
 
-  return (
-    <motion.div
-      key={`${slide.id}-${JSON.stringify(slide.content)}`}
-      initial="hidden"
-      animate="visible"
-      variants={variants}
-      transition={{ duration, ease: [0.22, 1, 0.36, 1] }}
-      className="h-full"
-    >
-      <div
-        className={`
-          h-full p-8 rounded-lg
-          bg-card backdrop-blur-[10px]
-          border border-border
-          flex flex-col
-          ${getComponentStyle()}
-        `}
-      >
+  // Layout-specific rendering
+  const renderContent = () => {
+    const layout = slide.layout_type || 'centered';
+
+    if (layout === 'side-by-side') {
+      return (
+        <div className="grid grid-cols-2 gap-6 h-full">
+          <div className="flex flex-col justify-center">
+            <motion.h2
+              key={slide.content.title}
+              initial={{ opacity: 0.5 }}
+              animate={{ opacity: 1 }}
+              className="font-display text-2xl md:text-3xl font-light mb-3 tracking-wide text-foreground leading-tight"
+            >
+              {slide.content.title || <span className="text-muted-foreground/50">Enter a title...</span>}
+            </motion.h2>
+            <motion.p
+              key={slide.content.description}
+              initial={{ opacity: 0.5 }}
+              animate={{ opacity: 1 }}
+              className="text-muted-foreground text-sm mb-4 leading-relaxed font-sans"
+            >
+              {slide.content.description || <span className="text-muted-foreground/30">Add body text...</span>}
+            </motion.p>
+          </div>
+          <div className="flex flex-col justify-center">
+            {slide.content.bullets.length > 0 && (
+              <ul className="space-y-2">
+                {slide.content.bullets.map((bullet, index) => (
+                  <motion.li
+                    key={index}
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="flex items-start gap-2 text-sm"
+                  >
+                    <span className="w-2 h-2 rounded-full bg-gradient-to-r from-primary to-accent mt-1.5 flex-shrink-0" />
+                    <span className="text-foreground/90 font-sans">{bullet || <span className="text-muted-foreground/30">Empty...</span>}</span>
+                  </motion.li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    if (layout === 'bento-grid') {
+      return (
+        <div className="grid grid-cols-2 gap-3 h-full auto-rows-min">
+          {/* Title */}
+          <div className="col-span-2 bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] rounded-md p-4">
+            <motion.h2
+              key={slide.content.title}
+              initial={{ opacity: 0.5 }}
+              animate={{ opacity: 1 }}
+              className="font-display text-xl font-light tracking-wide text-foreground"
+            >
+              {slide.content.title || <span className="text-muted-foreground/50">Enter a title...</span>}
+            </motion.h2>
+          </div>
+          {/* Description */}
+          <div className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] rounded-md p-3">
+            <motion.p className="text-xs text-muted-foreground font-sans">
+              {slide.content.description || <span className="text-muted-foreground/30">Add body text...</span>}
+            </motion.p>
+          </div>
+          {/* Bullets as grid items */}
+          {slide.content.bullets.slice(0, 3).map((bullet, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.1 + idx * 0.05 }}
+              className="bg-gradient-to-br from-primary/5 to-accent/5 border border-primary/10 rounded-md p-3 flex items-center"
+            >
+              <span className="text-xs text-foreground font-sans">{bullet || 'Empty...'}</span>
+            </motion.div>
+          ))}
+        </div>
+      );
+    }
+
+    // Default: Centered layout
+    return (
+      <>
         {/* Slide Number Badge */}
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center shadow-[0_0_20px_hsl(var(--primary)/0.4)]">
@@ -148,10 +216,33 @@ const SlidePreview = ({ slide, slideIndex }: SlidePreviewProps) => {
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-primary" />
             <span className="text-xs text-muted-foreground uppercase tracking-wider font-sans">
-              {slide.animation.type} • {slide.animation.speed}
+              {slide.animation.type} • {slide.animation.speed} • {slide.layout_type || 'centered'}
             </span>
           </div>
         </div>
+      </>
+    );
+  };
+
+  return (
+    <motion.div
+      key={`${slide.id}-${JSON.stringify(slide.content)}-${slide.layout_type}`}
+      initial="hidden"
+      animate="visible"
+      variants={variants}
+      transition={{ duration, ease: [0.22, 1, 0.36, 1] }}
+      className="h-full"
+    >
+      <div
+        className={`
+          h-full p-8 rounded-lg
+          bg-card backdrop-blur-[10px]
+          border border-border
+          flex flex-col
+          ${getComponentStyle()}
+        `}
+      >
+        {renderContent()}
       </div>
     </motion.div>
   );

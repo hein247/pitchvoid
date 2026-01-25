@@ -39,6 +39,8 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
+          is_published: boolean | null
+          public_id: string | null
           scenario_description: string | null
           target_audience: string | null
           title: string
@@ -47,6 +49,8 @@ export type Database = {
         Insert: {
           created_at?: string | null
           id?: string
+          is_published?: boolean | null
+          public_id?: string | null
           scenario_description?: string | null
           target_audience?: string | null
           title: string
@@ -55,6 +59,8 @@ export type Database = {
         Update: {
           created_at?: string | null
           id?: string
+          is_published?: boolean | null
+          public_id?: string | null
           scenario_description?: string | null
           target_audience?: string | null
           title?: string
@@ -77,6 +83,7 @@ export type Database = {
           content: Json | null
           created_at: string | null
           id: string
+          layout_type: string | null
           order_index: number | null
           project_id: string
         }
@@ -86,6 +93,7 @@ export type Database = {
           content?: Json | null
           created_at?: string | null
           id?: string
+          layout_type?: string | null
           order_index?: number | null
           project_id: string
         }
@@ -95,6 +103,7 @@ export type Database = {
           content?: Json | null
           created_at?: string | null
           id?: string
+          layout_type?: string | null
           order_index?: number | null
           project_id?: string
         }

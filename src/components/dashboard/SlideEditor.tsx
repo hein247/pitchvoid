@@ -4,7 +4,14 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, GripVertical } from 'lucide-react';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Plus, Trash2, GripVertical, Layout } from 'lucide-react';
 import GlassCard from '@/components/ui/GlassCard';
 
 export interface SlideContent {
@@ -21,8 +28,15 @@ export interface Slide {
     type: string;
     speed: string;
   };
+  layout_type: string;
   order_index: number;
 }
+
+const LAYOUT_OPTIONS = [
+  { value: 'centered', label: 'Centered', description: 'Title and content centered' },
+  { value: 'side-by-side', label: 'Side-by-Side', description: 'Content in two columns' },
+  { value: 'bento-grid', label: 'Bento Grid', description: 'Modern grid layout' },
+];
 
 interface SlideEditorProps {
   slide: Slide;
@@ -38,6 +52,13 @@ const SlideEditor = ({ slide, slideIndex, onUpdate }: SlideEditorProps) => {
         ...slide.content,
         title: value,
       },
+    });
+  };
+
+  const handleLayoutChange = (value: string) => {
+    onUpdate({
+      ...slide,
+      layout_type: value,
     });
   };
 
@@ -99,6 +120,36 @@ const SlideEditor = ({ slide, slideIndex, onUpdate }: SlideEditorProps) => {
             <span className="text-xs text-muted-foreground/60">Slide {slideIndex + 1}</span>
           </div>
         </div>
+      </div>
+
+      {/* Layout Selector */}
+      <div className="space-y-2">
+        <Label className="text-sm uppercase tracking-[0.15em] text-muted-foreground flex items-center gap-2">
+          <Layout className="w-4 h-4" />
+          Layout Template
+        </Label>
+        <Select
+          value={slide.layout_type || 'centered'}
+          onValueChange={handleLayoutChange}
+        >
+          <SelectTrigger className="bg-[hsl(270_82%_5%)] border-[rgba(255,255,255,0.1)] focus:border-primary focus:ring-primary/30 z-50">
+            <SelectValue placeholder="Select layout" />
+          </SelectTrigger>
+          <SelectContent className="bg-[hsl(270_82%_5%)] border-[rgba(255,255,255,0.15)] z-50">
+            {LAYOUT_OPTIONS.map((layout) => (
+              <SelectItem 
+                key={layout.value} 
+                value={layout.value}
+                className="focus:bg-primary/20 focus:text-foreground"
+              >
+                <div className="flex flex-col">
+                  <span className="font-medium">{layout.label}</span>
+                  <span className="text-xs text-muted-foreground">{layout.description}</span>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Title Field */}
