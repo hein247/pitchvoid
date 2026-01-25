@@ -1,81 +1,161 @@
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+
+interface Star {
+  id: number;
+  x: number;
+  y: number;
+  size: number;
+  opacity: number;
+  duration: number;
+  delay: number;
+}
 
 const GridBackground = () => {
+  const [stars, setStars] = useState<Star[]>([]);
+
+  useEffect(() => {
+    // Generate starfield
+    const newStars: Star[] = [];
+    for (let i = 0; i < 80; i++) {
+      newStars.push({
+        id: i,
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        size: Math.random() * 2 + 0.5,
+        opacity: Math.random() * 0.5 + 0.2,
+        duration: Math.random() * 3 + 2,
+        delay: Math.random() * 2,
+      });
+    }
+    setStars(newStars);
+  }, []);
+
   return (
     <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-      {/* Base grid pattern */}
+      {/* Deep charcoal gradient background */}
       <div 
-        className="absolute inset-0 opacity-[0.03]"
+        className="absolute inset-0"
         style={{
-          backgroundImage: `
-            linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)
-          `,
-          backgroundSize: '60px 60px',
+          background: 'linear-gradient(180deg, hsl(0 0% 2%) 0%, hsl(0 0% 4%) 50%, hsl(0 0% 2%) 100%)',
         }}
       />
-      
-      {/* Animated floating particles */}
-      {[...Array(20)].map((_, i) => (
+
+      {/* Faint grid pattern */}
+      <div 
+        className="absolute inset-0 opacity-[0.02]"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px)
+          `,
+          backgroundSize: '80px 80px',
+        }}
+      />
+
+      {/* Animated starfield */}
+      {stars.map((star) => (
         <motion.div
-          key={i}
-          className="absolute w-1 h-1 rounded-full bg-white/20"
-          initial={{
-            x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
-            y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 800),
+          key={star.id}
+          className="absolute rounded-full bg-white"
+          style={{
+            left: `${star.x}%`,
+            top: `${star.y}%`,
+            width: star.size,
+            height: star.size,
           }}
           animate={{
-            y: [null, -20, 20],
-            opacity: [0.1, 0.3, 0.1],
+            opacity: [star.opacity * 0.3, star.opacity, star.opacity * 0.3],
+            scale: [0.8, 1.2, 0.8],
           }}
           transition={{
-            duration: 4 + Math.random() * 4,
+            duration: star.duration,
             repeat: Infinity,
             ease: "easeInOut",
-            delay: Math.random() * 2,
+            delay: star.delay,
           }}
+        />
+      ))}
+
+      {/* Floating particles */}
+      {[...Array(15)].map((_, i) => (
+        <motion.div
+          key={`particle-${i}`}
+          className="absolute w-1 h-1 rounded-full"
           style={{
             left: `${Math.random() * 100}%`,
             top: `${Math.random() * 100}%`,
+            background: `hsl(${Math.random() > 0.5 ? '263 70% 58%' : '217 91% 60%'} / 0.4)`,
+          }}
+          animate={{
+            y: [-20, 20, -20],
+            x: [-10, 10, -10],
+            opacity: [0.2, 0.5, 0.2],
+          }}
+          transition={{
+            duration: 6 + Math.random() * 4,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: Math.random() * 3,
           }}
         />
       ))}
       
       {/* Subtle moving glow orbs */}
       <motion.div
-        className="absolute w-96 h-96 rounded-full blur-[120px] opacity-20"
+        className="absolute w-[600px] h-[600px] rounded-full blur-[150px] opacity-15"
         style={{
-          background: 'radial-gradient(circle, hsl(var(--void-purple)) 0%, transparent 70%)',
-          left: '10%',
-          top: '20%',
+          background: 'radial-gradient(circle, hsl(263 70% 58%) 0%, transparent 70%)',
+          left: '5%',
+          top: '10%',
         }}
         animate={{
-          x: [0, 50, 0],
-          y: [0, 30, 0],
+          x: [0, 80, 0],
+          y: [0, 50, 0],
         }}
         transition={{
-          duration: 15,
+          duration: 20,
           repeat: Infinity,
           ease: "easeInOut",
         }}
       />
       
       <motion.div
-        className="absolute w-80 h-80 rounded-full blur-[100px] opacity-15"
+        className="absolute w-[500px] h-[500px] rounded-full blur-[130px] opacity-10"
         style={{
-          background: 'radial-gradient(circle, hsl(var(--void-blue)) 0%, transparent 70%)',
-          right: '15%',
-          bottom: '30%',
+          background: 'radial-gradient(circle, hsl(217 91% 60%) 0%, transparent 70%)',
+          right: '10%',
+          bottom: '20%',
         }}
         animate={{
-          x: [0, -40, 0],
-          y: [0, -20, 0],
+          x: [0, -60, 0],
+          y: [0, -40, 0],
         }}
         transition={{
-          duration: 12,
+          duration: 15,
           repeat: Infinity,
           ease: "easeInOut",
-          delay: 2,
+          delay: 3,
+        }}
+      />
+
+      {/* Third glow orb for depth */}
+      <motion.div
+        className="absolute w-[400px] h-[400px] rounded-full blur-[120px] opacity-8"
+        style={{
+          background: 'radial-gradient(circle, hsl(263 100% 70%) 0%, transparent 70%)',
+          left: '40%',
+          bottom: '10%',
+        }}
+        animate={{
+          x: [0, 40, 0],
+          y: [0, 30, 0],
+        }}
+        transition={{
+          duration: 18,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 5,
         }}
       />
     </div>
