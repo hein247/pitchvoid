@@ -21,6 +21,7 @@ interface Slide {
   };
   layout_type: string;
   order_index: number;
+  image_url?: string;
 }
 
 const PublicPresentation = () => {
@@ -91,6 +92,7 @@ const PublicPresentation = () => {
           animation: (s.animation_settings as { type: string; speed: string }) || { type: 'fadeIn', speed: 'medium' },
           layout_type: s.layout_type || 'centered',
           order_index: s.order_index,
+          image_url: s.image_url,
         }));
 
         setSlides(formattedSlides);
@@ -136,6 +138,27 @@ const PublicPresentation = () => {
 
   const currentSlide = slides[currentSlideIndex];
 
+  // Image component for slides
+  const SlideImage = ({ slide }: { slide: Slide }) => {
+    if (!slide.image_url) return null;
+    
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.2 }}
+        className="relative w-full max-w-2xl rounded-xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
+      >
+        <img
+          src={slide.image_url}
+          alt={`Visual for ${slide.content.title}`}
+          className="w-full h-auto object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent pointer-events-none" />
+      </motion.div>
+    );
+  };
+
   // Layout-specific rendering
   const renderSlideContent = (slide: Slide) => {
     const layout = slide.layout_type || 'centered';
@@ -147,9 +170,14 @@ const PublicPresentation = () => {
             <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-light tracking-wide text-foreground mb-6 leading-tight">
               {slide.content.title}
             </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground font-sans leading-relaxed">
+            <p className="text-xl md:text-2xl text-muted-foreground font-sans leading-relaxed mb-6">
               {slide.content.description}
             </p>
+            {slide.image_url && (
+              <div className="mt-4">
+                <SlideImage slide={slide} />
+              </div>
+            )}
           </div>
           <div className="flex flex-col justify-center">
             {slide.content.bullets.length > 0 && (
@@ -182,14 +210,24 @@ const PublicPresentation = () => {
               {slide.content.title}
             </h1>
           </div>
+          {/* Image */}
+          {slide.image_url && (
+            <div className="col-span-2 lg:col-span-1 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] rounded-lg overflow-hidden">
+              <img
+                src={slide.image_url}
+                alt={`Visual for ${slide.content.title}`}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
           {/* Description */}
-          <div className="col-span-2 lg:col-span-1 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] rounded-lg p-6 flex items-center">
+          <div className={`${slide.image_url ? '' : 'col-span-2 lg:col-span-1'} bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] rounded-lg p-6 flex items-center`}>
             <p className="text-lg text-muted-foreground font-sans">
               {slide.content.description}
             </p>
           </div>
           {/* Bullets as grid items */}
-          {slide.content.bullets.slice(0, 4).map((bullet, idx) => (
+          {slide.content.bullets.slice(0, slide.image_url ? 3 : 4).map((bullet, idx) => (
             <motion.div
               key={idx}
               initial={{ opacity: 0, scale: 0.9 }}
@@ -207,6 +245,15 @@ const PublicPresentation = () => {
     // Default: Centered layout
     return (
       <div className="flex flex-col items-center justify-center text-center h-full max-w-4xl mx-auto px-4">
+        {slide.image_url && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
+            <SlideImage slide={slide} />
+          </motion.div>
+        )}
         <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-light tracking-wide text-foreground mb-8 leading-tight">
           {slide.content.title}
         </h1>

@@ -83,9 +83,11 @@ export type Database = {
           content: Json | null
           created_at: string | null
           id: string
+          image_url: string | null
           layout_type: string | null
           order_index: number | null
           project_id: string
+          visual_style: string | null
         }
         Insert: {
           animation_settings?: Json | null
@@ -93,9 +95,11 @@ export type Database = {
           content?: Json | null
           created_at?: string | null
           id?: string
+          image_url?: string | null
           layout_type?: string | null
           order_index?: number | null
           project_id: string
+          visual_style?: string | null
         }
         Update: {
           animation_settings?: Json | null
@@ -103,9 +107,11 @@ export type Database = {
           content?: Json | null
           created_at?: string | null
           id?: string
+          image_url?: string | null
           layout_type?: string | null
           order_index?: number | null
           project_id?: string
+          visual_style?: string | null
         }
         Relationships: [
           {

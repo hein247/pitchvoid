@@ -1,13 +1,15 @@
 import { motion } from 'framer-motion';
 import { Slide } from './SlideEditor';
-import GlassCard from '@/components/ui/GlassCard';
+import { Skeleton } from '@/components/ui/skeleton';
+import { ImageIcon } from 'lucide-react';
 
 interface SlidePreviewProps {
   slide: Slide;
   slideIndex: number;
+  isGeneratingImage?: boolean;
 }
 
-const SlidePreview = ({ slide, slideIndex }: SlidePreviewProps) => {
+const SlidePreview = ({ slide, slideIndex, isGeneratingImage }: SlidePreviewProps) => {
   // Animation variants based on slide settings
   const getAnimationVariants = () => {
     switch (slide.animation.type) {
@@ -53,7 +55,7 @@ const SlidePreview = ({ slide, slideIndex }: SlidePreviewProps) => {
   const variants = getAnimationVariants();
   const duration = getAnimationDuration();
 
-  // Component styling based on type - using brand colors (no background animations)
+  // Component styling based on type
   const getComponentStyle = () => {
     switch (slide.component_type) {
       case 'MovingBorder':
@@ -67,6 +69,53 @@ const SlidePreview = ({ slide, slideIndex }: SlidePreviewProps) => {
       default:
         return '';
     }
+  };
+
+  // Image placeholder/skeleton component
+  const ImageSection = () => {
+    if (isGeneratingImage) {
+      return (
+        <div className="relative w-full h-32 rounded-lg overflow-hidden">
+          <Skeleton className="w-full h-full bg-gradient-to-br from-primary/10 to-accent/10" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-2">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full"
+              />
+              <span className="text-xs text-muted-foreground">Generating image...</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (slide.image_url) {
+      return (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="relative w-full h-32 rounded-lg overflow-hidden"
+        >
+          <img
+            src={slide.image_url}
+            alt={`Visual for ${slide.content.title}`}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+        </motion.div>
+      );
+    }
+
+    return (
+      <div className="w-full h-24 rounded-lg border-2 border-dashed border-muted-foreground/20 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-1 text-muted-foreground/50">
+          <ImageIcon className="w-6 h-6" />
+          <span className="text-xs">No image yet</span>
+        </div>
+      </div>
+    );
   };
 
   // Layout-specific rendering
@@ -93,6 +142,7 @@ const SlidePreview = ({ slide, slideIndex }: SlidePreviewProps) => {
             >
               {slide.content.description || <span className="text-muted-foreground/30">Add body text...</span>}
             </motion.p>
+            <ImageSection />
           </div>
           <div className="flex flex-col justify-center">
             {slide.content.bullets.length > 0 && (
@@ -130,14 +180,18 @@ const SlidePreview = ({ slide, slideIndex }: SlidePreviewProps) => {
               {slide.content.title || <span className="text-muted-foreground/50">Enter a title...</span>}
             </motion.h2>
           </div>
+          {/* Image */}
+          <div className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] rounded-md p-2">
+            <ImageSection />
+          </div>
           {/* Description */}
-          <div className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] rounded-md p-3">
+          <div className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] rounded-md p-3 flex items-center">
             <motion.p className="text-xs text-muted-foreground font-sans">
               {slide.content.description || <span className="text-muted-foreground/30">Add body text...</span>}
             </motion.p>
           </div>
           {/* Bullets as grid items */}
-          {slide.content.bullets.slice(0, 3).map((bullet, idx) => (
+          {slide.content.bullets.slice(0, 2).map((bullet, idx) => (
             <motion.div
               key={idx}
               initial={{ opacity: 0, scale: 0.95 }}
@@ -156,7 +210,7 @@ const SlidePreview = ({ slide, slideIndex }: SlidePreviewProps) => {
     return (
       <>
         {/* Slide Number Badge */}
-        <div className="flex items-center gap-3 mb-6">
+        <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center shadow-[0_0_20px_hsl(var(--primary)/0.4)]">
             <span className="text-primary-foreground font-bold font-sans">{slideIndex + 1}</span>
           </div>
@@ -165,7 +219,12 @@ const SlidePreview = ({ slide, slideIndex }: SlidePreviewProps) => {
           </span>
         </div>
 
-        {/* Title - Times New Roman Italic */}
+        {/* Image Section */}
+        <div className="mb-4">
+          <ImageSection />
+        </div>
+
+        {/* Title */}
         <motion.h2
           key={slide.content.title}
           initial={{ opacity: 0.5 }}
@@ -177,7 +236,7 @@ const SlidePreview = ({ slide, slideIndex }: SlidePreviewProps) => {
           )}
         </motion.h2>
 
-        {/* Description - Be Vietnam Pro */}
+        {/* Description */}
         <motion.p
           key={slide.content.description}
           initial={{ opacity: 0.5 }}
@@ -226,7 +285,7 @@ const SlidePreview = ({ slide, slideIndex }: SlidePreviewProps) => {
 
   return (
     <motion.div
-      key={`${slide.id}-${JSON.stringify(slide.content)}-${slide.layout_type}`}
+      key={`${slide.id}-${JSON.stringify(slide.content)}-${slide.layout_type}-${slide.image_url}`}
       initial="hidden"
       animate="visible"
       variants={variants}
