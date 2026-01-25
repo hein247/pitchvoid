@@ -53,15 +53,15 @@ const SlidePreview = ({ slide, slideIndex }: SlidePreviewProps) => {
   const variants = getAnimationVariants();
   const duration = getAnimationDuration();
 
-  // Component styling based on type
+  // Component styling based on type - using brand colors
   const getComponentStyle = () => {
     switch (slide.component_type) {
       case 'MovingBorder':
-        return 'relative before:absolute before:inset-[-2px] before:bg-gradient-to-r before:from-[hsl(263,70%,58%)] before:via-[hsl(217,91%,60%)] before:to-[hsl(263,70%,58%)] before:rounded-lg before:animate-[spin_3s_linear_infinite] before:-z-10 after:absolute after:inset-0 after:bg-[hsl(0,0%,3%)] after:rounded-lg after:-z-[5]';
+        return 'relative before:absolute before:inset-[-2px] before:bg-gradient-to-r before:from-primary before:via-accent before:to-primary before:rounded-lg before:animate-[spin_3s_linear_infinite] before:-z-10 after:absolute after:inset-0 after:bg-background after:rounded-lg after:-z-[5]';
       case 'HoverCard':
-        return 'hover:shadow-[0_0_50px_rgba(139,92,246,0.3)] hover:border-[rgba(139,92,246,0.5)] transition-all duration-500';
+        return 'hover:shadow-[0_0_50px_hsl(var(--primary)/0.3)] hover:border-primary/50 transition-all duration-500';
       case 'GlowCard':
-        return 'shadow-[0_0_30px_rgba(139,92,246,0.2)] border-[rgba(139,92,246,0.3)]';
+        return 'shadow-[0_0_30px_hsl(var(--primary)/0.2)] border-primary/30';
       case 'FloatingCard':
         return 'animate-[float_3s_ease-in-out_infinite]';
       default:
@@ -81,23 +81,23 @@ const SlidePreview = ({ slide, slideIndex }: SlidePreviewProps) => {
       <div
         className={`
           h-full p-8 rounded-lg
-          bg-[rgba(255,255,255,0.03)] backdrop-blur-[10px]
-          border border-[rgba(255,255,255,0.1)]
+          bg-card backdrop-blur-[10px]
+          border border-border
           flex flex-col
           ${getComponentStyle()}
         `}
       >
         {/* Slide Number Badge */}
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-gradient-to-br from-[hsl(263,70%,58%)] to-[hsl(217,91%,60%)] rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(139,92,246,0.4)]">
-            <span className="text-white font-bold">{slideIndex + 1}</span>
+          <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center shadow-[0_0_20px_hsl(var(--primary)/0.4)]">
+            <span className="text-primary-foreground font-bold font-sans">{slideIndex + 1}</span>
           </div>
-          <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+          <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-sans">
             {slide.component_type}
           </span>
         </div>
 
-        {/* Title */}
+        {/* Title - Times New Roman Italic */}
         <motion.h2
           key={slide.content.title}
           initial={{ opacity: 0.5 }}
@@ -105,19 +105,19 @@ const SlidePreview = ({ slide, slideIndex }: SlidePreviewProps) => {
           className="font-display text-3xl md:text-4xl font-light mb-4 tracking-wide text-foreground leading-tight"
         >
           {slide.content.title || (
-            <span className="text-muted-foreground/50 italic">Enter a title...</span>
+            <span className="text-muted-foreground/50">Enter a title...</span>
           )}
         </motion.h2>
 
-        {/* Description */}
+        {/* Description - Be Vietnam Pro */}
         <motion.p
           key={slide.content.description}
           initial={{ opacity: 0.5 }}
           animate={{ opacity: 1 }}
-          className="text-muted-foreground text-lg mb-6 leading-relaxed"
+          className="text-muted-foreground text-lg mb-6 leading-relaxed font-sans"
         >
           {slide.content.description || (
-            <span className="text-muted-foreground/30 italic">Add a description...</span>
+            <span className="text-muted-foreground/30">Add body text...</span>
           )}
         </motion.p>
 
@@ -132,10 +132,10 @@ const SlidePreview = ({ slide, slideIndex }: SlidePreviewProps) => {
                 transition={{ delay: index * 0.1 }}
                 className="flex items-start gap-3"
               >
-                <span className="w-2 h-2 rounded-full bg-gradient-to-r from-[hsl(263,70%,58%)] to-[hsl(217,91%,60%)] mt-2 flex-shrink-0" />
-                <span className="text-foreground/90">
+                <span className="w-2 h-2 rounded-full bg-gradient-to-r from-primary to-accent mt-2 flex-shrink-0" />
+                <span className="text-foreground/90 font-sans">
                   {bullet || (
-                    <span className="text-muted-foreground/30 italic">Empty bullet...</span>
+                    <span className="text-muted-foreground/30">Empty bullet...</span>
                   )}
                 </span>
               </motion.li>
@@ -144,10 +144,10 @@ const SlidePreview = ({ slide, slideIndex }: SlidePreviewProps) => {
         )}
 
         {/* Animation indicator */}
-        <div className="mt-auto pt-6 border-t border-[rgba(255,255,255,0.05)]">
+        <div className="mt-auto pt-6 border-t border-border/50">
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-[hsl(263,70%,58%)] animate-pulse" />
-            <span className="text-xs text-muted-foreground uppercase tracking-wider">
+            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            <span className="text-xs text-muted-foreground uppercase tracking-wider font-sans">
               {slide.animation.type} • {slide.animation.speed}
             </span>
           </div>

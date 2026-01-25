@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+// ShimmerButton with Electric Magenta & Deep Violet gradient
 import { cn } from "@/lib/utils";
 
 interface ShimmerButtonProps {
@@ -15,19 +16,19 @@ const ShimmerButton = ({ children, className, onClick, variant = "primary" }: Sh
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
       className={cn(
-        "relative overflow-hidden h-14 px-10 uppercase tracking-[0.15em] text-sm font-medium",
+        "relative overflow-hidden h-14 px-10 uppercase tracking-[0.15em] text-sm font-medium font-sans",
         variant === "primary" && [
-          "bg-gradient-to-r from-[hsl(263,70%,58%)] via-[hsl(217,91%,60%)] to-[hsl(263,70%,58%)]",
+          "bg-gradient-to-r from-electric-magenta via-deep-violet to-electric-magenta",
           "bg-[length:200%_100%]",
         ],
         variant === "secondary" && [
-          "bg-[rgba(255,255,255,0.05)]",
-          "border border-[rgba(255,255,255,0.15)]",
+          "bg-card",
+          "border border-border",
         ],
-        "text-white",
+        "text-primary-foreground",
         "transition-all duration-300 ease-out",
-        // Metallic glow on hover
-        "hover:shadow-[0_0_50px_rgba(139,92,246,0.5),0_0_20px_rgba(96,165,250,0.3)]",
+        // Electric Magenta & Deep Violet glow on hover
+        "hover:shadow-[0_0_50px_hsl(var(--electric-magenta)/0.5),0_0_20px_hsl(var(--deep-violet)/0.3)]",
         className
       )}
     >

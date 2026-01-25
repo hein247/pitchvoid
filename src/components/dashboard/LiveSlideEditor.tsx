@@ -161,12 +161,12 @@ const LiveSlideEditor = ({ projectId, initialSlides, onClose }: LiveSlideEditorP
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col bg-background">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-[rgba(255,255,255,0.1)]">
+      <div className="flex items-center justify-between p-4 border-b border-border">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <Layers className="w-5 h-5 text-[hsl(263,70%,58%)]" />
+            <Layers className="w-5 h-5 text-primary" />
             <h2 className="font-display text-xl tracking-wide">Live Slide Editor</h2>
           </div>
           
@@ -181,7 +181,7 @@ const LiveSlideEditor = ({ projectId, initialSlides, onClose }: LiveSlideEditorP
             >
               <ChevronLeft className="w-4 h-4" />
             </Button>
-            <span className="text-sm text-muted-foreground min-w-[60px] text-center">
+            <span className="text-sm text-muted-foreground min-w-[60px] text-center font-sans">
               {currentSlideIndex + 1} / {slides.length}
             </span>
             <Button
@@ -198,7 +198,7 @@ const LiveSlideEditor = ({ projectId, initialSlides, onClose }: LiveSlideEditorP
 
         <div className="flex items-center gap-3">
           {hasUnsavedChanges && (
-            <span className="text-xs text-[hsl(45,80%,60%)] uppercase tracking-wider">
+            <span className="text-xs text-gold uppercase tracking-wider font-sans">
               Unsaved changes
             </span>
           )}
@@ -219,16 +219,16 @@ const LiveSlideEditor = ({ projectId, initialSlides, onClose }: LiveSlideEditorP
       </div>
 
       {/* Slide Thumbnails */}
-      <div className="flex gap-2 p-4 border-b border-[rgba(255,255,255,0.05)] overflow-x-auto">
+      <div className="flex gap-2 p-4 border-b border-border/50 overflow-x-auto">
         {slides.map((slide, index) => (
           <button
             key={slide.id}
             onClick={() => setCurrentSlideIndex(index)}
             className={`
-              flex-shrink-0 w-24 h-16 p-2 rounded-md border transition-all duration-200
+              flex-shrink-0 w-24 h-16 p-2 rounded-md border transition-all duration-200 font-sans
               ${index === currentSlideIndex
-                ? 'border-[hsl(263,70%,58%)] bg-[rgba(139,92,246,0.1)] shadow-[0_0_15px_rgba(139,92,246,0.2)]'
-                : 'border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.02)] hover:border-[rgba(255,255,255,0.2)]'
+                ? 'border-primary bg-primary/10 shadow-[0_0_15px_hsl(var(--primary)/0.3)]'
+                : 'border-border bg-card hover:border-primary/50'
               }
             `}
           >
@@ -240,13 +240,13 @@ const LiveSlideEditor = ({ projectId, initialSlides, onClose }: LiveSlideEditorP
       </div>
 
       {/* Split View: Editor & Preview */}
-      <div className="flex-1 grid grid-cols-2 gap-0 min-h-0">
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-0 min-h-0">
         {/* Left: Editor Panel */}
-        <div className="border-r border-[rgba(255,255,255,0.1)] overflow-y-auto">
+        <div className="border-r border-border overflow-y-auto">
           <div className="p-6">
             <div className="flex items-center gap-2 mb-6">
               <Edit3 className="w-4 h-4 text-muted-foreground" />
-              <span className="text-xs uppercase tracking-[0.15em] text-muted-foreground">
+              <span className="text-xs uppercase tracking-[0.15em] text-muted-foreground font-sans">
                 Edit Content
               </span>
             </div>
@@ -269,18 +269,18 @@ const LiveSlideEditor = ({ projectId, initialSlides, onClose }: LiveSlideEditorP
         </div>
 
         {/* Right: Live Preview Panel */}
-        <div className="bg-[rgba(0,0,0,0.3)] overflow-y-auto">
+        <div className="bg-background/50 backdrop-blur-sm overflow-y-auto">
           <div className="p-6 h-full">
             <div className="flex items-center gap-2 mb-6">
               <Eye className="w-4 h-4 text-muted-foreground" />
-              <span className="text-xs uppercase tracking-[0.15em] text-muted-foreground">
-                Live Preview
+              <span className="text-xs uppercase tracking-[0.15em] text-muted-foreground font-sans">
+                Anti-Gravity Preview
               </span>
             </div>
             <div className="h-[calc(100%-40px)]">
               <AnimatePresence mode="wait">
                 <SlidePreview
-                  key={currentSlide.id}
+                  key={`${currentSlide.id}-${JSON.stringify(currentSlide.content)}`}
                   slide={currentSlide}
                   slideIndex={currentSlideIndex}
                 />
