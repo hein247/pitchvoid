@@ -2,25 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap');
+/* Import Fonts - Be Vietnam Pro for body/UI */
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&display=swap');
 
-/* Master Premium Dark Theme - Void Aesthetic */
+/* PitchVoid Master Theme - Electric Magenta & Deep Violet */
 
 @layer base {
   :root {
-    /* Master Premium Dark Theme - Deep Void */
-    --background: 0 0% 2%;
-    --background-end: 0 0% 4%;
+    /* Deep Midnight Purple Background */
+    --background: 270 82% 3%;
+    --background-end: 270 70% 4%;
     --foreground: 0 0% 95%;
 
     --card: 0 0% 100% / 0.03;
     --card-foreground: 0 0% 95%;
 
-    --popover: 0 0% 4%;
+    --popover: 270 82% 4%;
     --popover-foreground: 0 0% 95%;
 
-    --primary: 263 70% 58%;
+    /* Electric Magenta as Primary */
+    --primary: 292 91% 58%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 0 0% 100% / 0.05;
@@ -29,38 +30,41 @@
     --muted: 0 0% 100% / 0.05;
     --muted-foreground: 0 0% 55%;
 
-    --accent: 263 50% 20%;
-    --accent-foreground: 0 0% 95%;
+    /* Deep Violet as Accent */
+    --accent: 258 90% 66%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 0 0% 100% / 0.1;
     --input: 0 0% 100% / 0.1;
-    --ring: 263 70% 58%;
+    --ring: 292 91% 58%;
 
     --radius: 0rem;
 
-    /* Void theme custom tokens */
-    --void-purple: 263 70% 58%;
+    /* Brand tokens from logo */
+    --electric-magenta: 292 91% 58%;
+    --deep-violet: 258 90% 66%;
+    --void-purple: 258 90% 66%;
     --void-blue: 217 91% 60%;
-    --void-glow: 263 100% 70%;
+    --void-glow: 292 100% 70%;
     --gold: 45 80% 60%;
     --gold-dark: 45 60% 40%;
-    --charcoal: 0 0% 2%;
-    --charcoal-end: 0 0% 4%;
+    --charcoal: 270 82% 3%;
+    --charcoal-end: 270 70% 4%;
     --glass-bg: 0 0% 100% / 0.05;
     --glass-border: 0 0% 100% / 0.1;
     --glass-hover: 0 0% 100% / 0.08;
 
-    --sidebar-background: 0 0% 2%;
+    --sidebar-background: 270 82% 3%;
     --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 263 70% 58%;
+    --sidebar-primary: 292 91% 58%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 100% / 0.05;
     --sidebar-accent-foreground: 0 0% 95%;
     --sidebar-border: 0 0% 100% / 0.1;
-    --sidebar-ring: 263 70% 58%;
+    --sidebar-ring: 292 91% 58%;
   }
 
   /* Light mode for portfolio pages */
@@ -119,8 +123,8 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    background: linear-gradient(180deg, hsl(0 0% 2%) 0%, hsl(0 0% 4%) 100%);
+    font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(180deg, hsl(270 82% 3%) 0%, hsl(270 70% 4%) 100%);
     min-height: 100vh;
   }
 
@@ -128,14 +132,15 @@
     scroll-behavior: smooth;
   }
 
-  /* Typography system */
+  /* Typography system - Times New Roman Italic for headings, Be Vietnam Pro for body */
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-family: 'Times New Roman', Georgia, serif;
+    font-style: italic;
     letter-spacing: 0.02em;
   }
 
-  p, span, div, button, input, textarea {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  p, span, div, button, input, textarea, label {
+    font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
   }
 }
 
@@ -145,11 +150,43 @@
   }
 
   .font-display {
-    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-family: 'Times New Roman', Georgia, serif;
+    font-style: italic;
   }
 
   .font-sans {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
+  }
+
+  .text-electric-magenta {
+    color: hsl(var(--electric-magenta));
+  }
+
+  .text-deep-violet {
+    color: hsl(var(--deep-violet));
+  }
+
+  .bg-electric-magenta {
+    background-color: hsl(var(--electric-magenta));
+  }
+
+  .bg-deep-violet {
+    background-color: hsl(var(--deep-violet));
+  }
+
+  .from-electric-magenta {
+    --tw-gradient-from: hsl(var(--electric-magenta)) var(--tw-gradient-from-position);
+    --tw-gradient-to: hsl(var(--electric-magenta) / 0) var(--tw-gradient-to-position);
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+  }
+
+  .to-deep-violet {
+    --tw-gradient-to: hsl(var(--deep-violet)) var(--tw-gradient-to-position);
+  }
+
+  .via-deep-violet {
+    --tw-gradient-to: hsl(var(--deep-violet) / 0) var(--tw-gradient-to-position);
+    --tw-gradient-stops: var(--tw-gradient-from), hsl(var(--deep-violet)) var(--tw-gradient-via-position), var(--tw-gradient-to);
   }
 
   .text-olive {
