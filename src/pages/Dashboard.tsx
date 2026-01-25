@@ -197,8 +197,16 @@ const Dashboard = () => {
 
     try {
       // Check if user wants to generate slides
-      const generateKeywords = ['generate', 'create', 'make', 'build', 'slides', 'presentation', 'pitch deck'];
-      const shouldGenerate = generateKeywords.some(kw => currentInput.toLowerCase().includes(kw)) && uploadedFiles.length > 0;
+      const generateKeywords = ['generate', 'create', 'make', 'build', 'slides', 'presentation', 'pitch deck', 'pitch'];
+      const hasGenerateKeyword = generateKeywords.some(kw => currentInput.toLowerCase().includes(kw));
+      const shouldGenerate = hasGenerateKeyword && uploadedFiles.length > 0;
+
+      console.log('Generate check:', { 
+        input: currentInput, 
+        hasKeyword: hasGenerateKeyword, 
+        fileCount: uploadedFiles.length,
+        shouldGenerate 
+      });
 
       if (shouldGenerate) {
         // Separate images from documents
