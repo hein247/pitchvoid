@@ -54,7 +54,7 @@ const Dashboard = () => {
     {
       id: '1',
       role: 'assistant',
-      content: "Welcome to PitchVoid! 👋 I'm here to help you create stunning pitch presentations. Start by uploading your PDF or DOCX files, then describe your pitch scenario. What are you pitching today?"
+      content: "Welcome to PitchVoid! 👋 Upload your images or documents, then say **\"generate slides\"** to create a visual-heavy presentation. I'll analyze your files and craft elegant, minimal slides that let your visuals shine."
     }
   ]);
   const [inputMessage, setInputMessage] = useState('');
@@ -201,12 +201,27 @@ const Dashboard = () => {
       const shouldGenerate = generateKeywords.some(kw => currentInput.toLowerCase().includes(kw)) && uploadedFiles.length > 0;
 
       if (shouldGenerate) {
+        // Separate images from documents
+        const imageFiles = uploadedFiles.filter(f => f.type.startsWith('image/'));
+        const docFiles = uploadedFiles.filter(f => !f.type.startsWith('image/'));
+        
+        // Generate descriptions for uploaded images
+        const imageDescriptions: string[] = imageFiles.map((file, index) => {
+          // Extract meaningful description from filename
+          const nameWithoutExt = file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ');
+          return `${nameWithoutExt} (${file.type.split('/')[1].toUpperCase()})`;
+        });
+
         // Call the AI edge function to generate pitch
         const response = await supabase.functions.invoke('generate-pitch', {
           body: {
             scenario: currentInput,
             targetAudience: extractAudience(currentInput),
-            documentContext: `User has uploaded ${uploadedFiles.length} document(s): ${uploadedFiles.map(f => f.name).join(', ')}`,
+            documentContext: docFiles.length > 0 
+              ? `User has uploaded ${docFiles.length} document(s): ${docFiles.map(f => f.name).join(', ')}`
+              : undefined,
+            imageDescriptions: imageDescriptions.length > 0 ? imageDescriptions : undefined,
+            visualStyle: 'Elegant minimalist jewelry photography with soft natural lighting',
           },
         });
 
@@ -216,15 +231,19 @@ const Dashboard = () => {
 
         const { slides } = response.data;
         
-        // Format slides for display
+        // Format slides for display with layout info
         const slideContent = slides.map((slide: any, idx: number) => 
-          `**Slide ${idx + 1}: ${slide.content.title}**\n${slide.content.description}${slide.content.bullets ? '\n• ' + slide.content.bullets.join('\n• ') : ''}\n_Animation: ${slide.animation.type} (${slide.animation.speed})_`
+          `**Slide ${idx + 1}: ${slide.content.title}**\n${slide.content.description}${slide.content.bullets ? '\n• ' + slide.content.bullets.join('\n• ') : ''}\n_Layout: ${slide.layout_type || 'centered'} | Animation: ${slide.animation.type} (${slide.animation.speed})_`
         ).join('\n\n---\n\n');
+
+        const imageNote = imageFiles.length > 0 
+          ? `\n\n📸 I've analyzed your ${imageFiles.length} image${imageFiles.length > 1 ? 's' : ''} and created visual-heavy slides to showcase them.`
+          : '';
 
         const aiResponse: ChatMessage = {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
-          content: `🎯 **Your Anti-Gravity Pitch Deck is Ready!**\n\nI've analyzed your documents and created a 5-slide presentation:\n\n${slideContent}\n\n---\n\n✨ Would you like me to:\n• Adjust the tone or style?\n• Add more detail to specific slides?\n• Generate alternative versions?`,
+          content: `🎯 **Your Visual Pitch Deck is Ready!**${imageNote}\n\n${slideContent}\n\n---\n\n✨ Switch to the **Slide Editor** tab to:\n• Preview and refine each slide\n• Generate AI images for backgrounds\n• Customize layouts and animations`,
         };
         setMessages(prev => [...prev, aiResponse]);
       } else {
@@ -267,20 +286,23 @@ const Dashboard = () => {
 
   const generateAIResponse = (input: string, fileCount: number): string => {
     if (fileCount === 0) {
-      return "I'd love to help you create a pitch! Please upload your PDF or DOCX files first so I can understand your content. You can drag and drop files into the upload area on the left, or click to browse.";
+      return "Upload your images or documents first, then say **\"generate slides\"** to create a stunning presentation. I support PDFs, DOCX, and images (JPG, PNG, GIF, WebP).";
     }
+    
+    const imageCount = uploadedFiles.filter(f => f.type.startsWith('image/')).length;
+    const docCount = fileCount - imageCount;
     
     const lowerInput = input.toLowerCase();
     
     if (lowerInput.includes('investor') || lowerInput.includes('funding')) {
-      return "Great! For an investor pitch, I'll focus on:\n\n• **Problem & Solution** - Clear value proposition\n• **Market Size** - TAM, SAM, SOM analysis\n• **Business Model** - Revenue streams\n• **Traction** - Key metrics and growth\n• **Team** - Founder backgrounds\n• **Ask** - Funding amount and use of funds\n\nWould you like me to generate slides based on your uploaded documents?";
+      return `Ready to create an investor pitch! I'll craft visual-heavy slides focusing on:\n\n• **Hero Opening** - Bold visual statement\n• **Product Showcase** - Feature your offerings\n• **Value Proposition** - Why you're unique\n• **Lifestyle/Aspiration** - Emotional connection\n• **Call to Action** - Clear next steps\n\n${imageCount > 0 ? `📸 I'll feature your ${imageCount} image${imageCount > 1 ? 's' : ''} prominently.` : ''}\n\nSay **"generate slides"** when ready!`;
     }
     
-    if (lowerInput.includes('client') || lowerInput.includes('sales')) {
-      return "Perfect! For a client pitch, I'll emphasize:\n\n• **Your Understanding** of their challenges\n• **Your Solution** and unique approach\n• **Case Studies** - Similar success stories\n• **Process** - How you work together\n• **Pricing** - Clear and transparent\n\nShall I analyze your documents and create a tailored pitch deck?";
+    if (lowerInput.includes('client') || lowerInput.includes('sales') || lowerInput.includes('jewelry') || lowerInput.includes('customer')) {
+      return `Perfect for a sales presentation! I'll create elegant, visual-first slides:\n\n• **Hero Product Shot** - Stunning opening\n• **Collection Showcase** - Your best pieces\n• **Craftsmanship** - Quality & materials\n• **Lifestyle Appeal** - Aspirational imagery\n• **Call to Action** - Next steps\n\n${imageCount > 0 ? `📸 Your ${imageCount} image${imageCount > 1 ? 's' : ''} will be the star of the show.` : ''}\n\nSay **"generate slides"** to begin!`;
     }
     
-    return `I see you've uploaded ${fileCount} file(s). Tell me more about your pitch:\n\n• **Who is your audience?** (investors, clients, partners)\n• **What's the main goal?** (funding, sales, partnership)\n• **What tone do you want?** (professional, casual, bold)\n\nThis will help me create the perfect Anti-Gravity animated slides for you!`;
+    return `I see you've uploaded ${fileCount} file${fileCount > 1 ? 's' : ''}${imageCount > 0 ? ` (${imageCount} image${imageCount > 1 ? 's' : ''})` : ''}.\n\nJust say **"generate slides"** and I'll create a visual-heavy presentation that lets your content shine. I'll use elegant layouts with minimal text and maximum visual impact.`;
   };
 
   const handleSignOut = async () => {
