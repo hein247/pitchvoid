@@ -13,12 +13,14 @@ import {
   Send, 
   LogOut, 
   Loader2,
-  X,
   Coins,
   FolderOpen,
   MessageSquare,
   Trash2
 } from 'lucide-react';
+import GridBackground from '@/components/ui/GridBackground';
+import GlassCard from '@/components/ui/GlassCard';
+import ShimmerButton from '@/components/ui/ShimmerButton';
 
 interface ChatMessage {
   id: string;
@@ -272,30 +274,38 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+      <div className="min-h-screen bg-background flex items-center justify-center relative">
+        <GridBackground />
+        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground relative z-10" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
+      <GridBackground />
+
       {/* Header */}
-      <header className="border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-50">
+      <header className="border-b border-[rgba(255,255,255,0.1)] bg-[rgba(0,0,0,0.5)] backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-foreground rounded-full flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-background" />
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-[hsl(263,70%,58%)] to-[hsl(217,91%,60%)] rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(139,92,246,0.3)]">
+              <Sparkles className="w-5 h-5 text-white" />
             </div>
-            <span className="font-display text-xl font-medium">PitchVoid</span>
+            <span className="font-display text-xl font-medium tracking-wide">PitchVoid</span>
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-4 py-2 bg-muted">
-              <Coins className="w-4 h-4 text-gold" />
+            <div className="flex items-center gap-2 px-4 py-2 bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] backdrop-blur-sm">
+              <Coins className="w-4 h-4 text-[hsl(45,80%,60%)]" />
               <span className="text-sm font-medium">{credits} credits</span>
             </div>
-            <Button variant="ghost" size="sm" onClick={handleSignOut} className="gap-2">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleSignOut} 
+              className="gap-2 text-muted-foreground hover:text-foreground hover:bg-[rgba(255,255,255,0.05)]"
+            >
               <LogOut className="w-4 h-4" />
               Sign Out
             </Button>
@@ -304,7 +314,7 @@ const Dashboard = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-7xl mx-auto w-full p-6">
+      <main className="flex-1 max-w-7xl mx-auto w-full p-6 relative z-10">
         <div className="grid lg:grid-cols-2 gap-6 h-[calc(100vh-8rem)]">
           {/* File Upload Section */}
           <motion.div
@@ -314,7 +324,7 @@ const Dashboard = () => {
             className="flex flex-col"
           >
             <div className="mb-4">
-              <h2 className="font-display text-2xl mb-1">Upload Documents</h2>
+              <h2 className="font-display text-2xl mb-1 tracking-wide">Upload Documents</h2>
               <p className="text-sm text-muted-foreground">
                 Drop your PDF or DOCX files to analyze
               </p>
@@ -327,12 +337,14 @@ const Dashboard = () => {
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
               className={`
-                flex-1 min-h-[200px] border-2 border-dashed cursor-pointer
+                flex-1 min-h-[200px] cursor-pointer
                 flex flex-col items-center justify-center gap-4 p-8
                 transition-all duration-300
+                bg-[rgba(255,255,255,0.03)] backdrop-blur-[10px]
+                border-2 border-dashed
                 ${isDragging 
-                  ? 'border-foreground bg-muted/50' 
-                  : 'border-border hover:border-muted-foreground hover:bg-muted/30'
+                  ? 'border-[hsl(263,70%,58%)] bg-[rgba(139,92,246,0.1)] shadow-[0_0_30px_rgba(139,92,246,0.2)]' 
+                  : 'border-[rgba(255,255,255,0.15)] hover:border-[rgba(255,255,255,0.25)] hover:bg-[rgba(255,255,255,0.05)]'
                 }
               `}
             >
@@ -349,7 +361,7 @@ const Dashboard = () => {
                 animate={{ y: isDragging ? -5 : 0 }}
                 transition={{ duration: 0.2 }}
               >
-                <Upload className={`w-12 h-12 ${isDragging ? 'text-foreground' : 'text-muted-foreground'}`} />
+                <Upload className={`w-12 h-12 ${isDragging ? 'text-[hsl(263,70%,58%)]' : 'text-muted-foreground'}`} />
               </motion.div>
               
               <div className="text-center">
@@ -385,7 +397,7 @@ const Dashboard = () => {
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -10 }}
-                        className="flex items-center justify-between p-3 bg-muted"
+                        className="flex items-center justify-between p-3 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] backdrop-blur-sm"
                       >
                         <div className="flex items-center gap-3">
                           <FileText className="w-5 h-5 text-muted-foreground" />
@@ -419,72 +431,76 @@ const Dashboard = () => {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="flex flex-col bg-card border border-border"
           >
-            <div className="p-4 border-b border-border">
-              <div className="flex items-center gap-2">
-                <MessageSquare className="w-5 h-5" />
-                <h2 className="font-display text-lg">Pitch Assistant</h2>
+            <GlassCard hover={false} glow={false} className="flex flex-col h-full p-0">
+              <div className="p-4 border-b border-[rgba(255,255,255,0.1)]">
+                <div className="flex items-center gap-2">
+                  <MessageSquare className="w-5 h-5 text-[hsl(263,70%,58%)]" />
+                  <h2 className="font-display text-lg tracking-wide">Pitch Assistant</h2>
+                </div>
               </div>
-            </div>
 
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {messages.map((message) => (
-                <motion.div
-                  key={message.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`
-                      max-w-[85%] p-4 
-                      ${message.role === 'user' 
-                        ? 'bg-foreground text-background' 
-                        : 'bg-muted'
-                      }
-                    `}
+              {/* Messages */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                {messages.map((message) => (
+                  <motion.div
+                    key={message.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
-                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                  </div>
-                </motion.div>
-              ))}
-              
-              {isSending && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex justify-start"
-                >
-                  <div className="bg-muted p-4">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-foreground rounded-full animate-bounce" />
-                      <div className="w-2 h-2 bg-foreground rounded-full animate-bounce [animation-delay:0.1s]" />
-                      <div className="w-2 h-2 bg-foreground rounded-full animate-bounce [animation-delay:0.2s]" />
+                    <div
+                      className={`
+                        max-w-[85%] p-4 
+                        ${message.role === 'user' 
+                          ? 'bg-gradient-to-r from-[hsl(263,70%,58%)] to-[hsl(217,91%,60%)] text-white' 
+                          : 'bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)]'
+                        }
+                      `}
+                    >
+                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                     </div>
-                  </div>
-                </motion.div>
-              )}
-              
-              <div ref={chatEndRef} />
-            </div>
-
-            {/* Input */}
-            <form onSubmit={handleSendMessage} className="p-4 border-t border-border">
-              <div className="flex gap-2">
-                <Input
-                  value={inputMessage}
-                  onChange={(e) => setInputMessage(e.target.value)}
-                  placeholder="Describe your pitch scenario..."
-                  className="flex-1 bg-background"
-                  disabled={isSending}
-                />
-                <Button type="submit" disabled={!inputMessage.trim() || isSending}>
-                  <Send className="w-4 h-4" />
-                </Button>
+                  </motion.div>
+                ))}
+                
+                {isSending && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex justify-start"
+                  >
+                    <div className="bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] p-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-[hsl(263,70%,58%)] rounded-full animate-bounce" />
+                        <div className="w-2 h-2 bg-[hsl(263,70%,58%)] rounded-full animate-bounce [animation-delay:0.1s]" />
+                        <div className="w-2 h-2 bg-[hsl(263,70%,58%)] rounded-full animate-bounce [animation-delay:0.2s]" />
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+                
+                <div ref={chatEndRef} />
               </div>
-            </form>
+
+              {/* Input */}
+              <form onSubmit={handleSendMessage} className="p-4 border-t border-[rgba(255,255,255,0.1)]">
+                <div className="flex gap-2">
+                  <Input
+                    value={inputMessage}
+                    onChange={(e) => setInputMessage(e.target.value)}
+                    placeholder="Describe your pitch scenario..."
+                    className="flex-1 bg-[rgba(255,255,255,0.03)] border-[rgba(255,255,255,0.1)] focus:border-[rgba(139,92,246,0.5)] focus:ring-[rgba(139,92,246,0.3)]"
+                    disabled={isSending}
+                  />
+                  <ShimmerButton 
+                    onClick={() => {}} 
+                    className="h-10 w-10 px-0"
+                  >
+                    <Send className="w-4 h-4" />
+                  </ShimmerButton>
+                </div>
+              </form>
+            </GlassCard>
           </motion.div>
         </div>
       </main>

@@ -8,6 +8,9 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Sparkles, ArrowLeft } from 'lucide-react';
 import { z } from 'zod';
+import GridBackground from '@/components/ui/GridBackground';
+import GlassCard from '@/components/ui/GlassCard';
+import ShimmerButton from '@/components/ui/ShimmerButton';
 
 const emailSchema = z.string().email('Please enter a valid email address');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
@@ -103,26 +106,29 @@ const Auth = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+        <GridBackground />
+        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground relative z-10" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
+      <GridBackground />
+
       {/* Header */}
-      <header className="p-6">
+      <header className="p-6 relative z-10">
         <Button 
           variant="ghost" 
           onClick={() => navigate('/')}
-          className="gap-2"
+          className="gap-2 text-muted-foreground hover:text-foreground hover:bg-[rgba(255,255,255,0.05)]"
         >
           <ArrowLeft className="w-4 h-4" />
           Back
         </Button>
       </header>
 
-      <main className="flex-1 flex items-center justify-center p-6">
+      <main className="flex-1 flex items-center justify-center p-6 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -135,23 +141,20 @@ const Auth = () => {
               initial={{ scale: 0.9 }}
               animate={{ scale: 1 }}
               transition={{ duration: 0.5, type: 'spring' }}
-              className="inline-flex items-center gap-2 mb-4"
+              className="inline-flex items-center gap-3 mb-4"
             >
-              <div className="w-10 h-10 bg-foreground rounded-full flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-background" />
+              <div className="w-12 h-12 bg-gradient-to-br from-[hsl(263,70%,58%)] to-[hsl(217,91%,60%)] rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(139,92,246,0.4)]">
+                <Sparkles className="w-6 h-6 text-white" />
               </div>
-              <span className="font-display text-3xl font-medium">PitchVoid</span>
+              <span className="font-display text-3xl font-medium text-foreground tracking-wide">PitchVoid</span>
             </motion.div>
             <p className="text-muted-foreground">
               {isLogin ? 'Welcome back' : 'Create your account'}
             </p>
           </div>
 
-          {/* Form */}
-          <motion.div
-            layout
-            className="bg-card border border-border p-8"
-          >
+          {/* Form Card */}
+          <GlassCard hover={false} glow={false} className="p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               <AnimatePresence mode="wait">
                 {!isLogin && (
@@ -161,7 +164,7 @@ const Auth = () => {
                     exit={{ opacity: 0, height: 0 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <Label htmlFor="fullName" className="text-sm uppercase-spaced text-muted-foreground">
+                    <Label htmlFor="fullName" className="text-sm uppercase tracking-[0.15em] text-muted-foreground">
                       Full Name
                     </Label>
                     <Input
@@ -170,14 +173,14 @@ const Auth = () => {
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       placeholder="Enter your name"
-                      className="mt-2 bg-background border-border"
+                      className="mt-2 bg-[rgba(255,255,255,0.03)] border-[rgba(255,255,255,0.1)] focus:border-[rgba(139,92,246,0.5)] focus:ring-[rgba(139,92,246,0.3)]"
                     />
                   </motion.div>
                 )}
               </AnimatePresence>
 
               <div>
-                <Label htmlFor="email" className="text-sm uppercase-spaced text-muted-foreground">
+                <Label htmlFor="email" className="text-sm uppercase tracking-[0.15em] text-muted-foreground">
                   Email
                 </Label>
                 <Input
@@ -189,7 +192,7 @@ const Auth = () => {
                     if (errors.email) setErrors(prev => ({ ...prev, email: undefined }));
                   }}
                   placeholder="Enter your email"
-                  className="mt-2 bg-background border-border"
+                  className="mt-2 bg-[rgba(255,255,255,0.03)] border-[rgba(255,255,255,0.1)] focus:border-[rgba(139,92,246,0.5)] focus:ring-[rgba(139,92,246,0.3)]"
                 />
                 {errors.email && (
                   <p className="text-destructive text-sm mt-1">{errors.email}</p>
@@ -197,7 +200,7 @@ const Auth = () => {
               </div>
 
               <div>
-                <Label htmlFor="password" className="text-sm uppercase-spaced text-muted-foreground">
+                <Label htmlFor="password" className="text-sm uppercase tracking-[0.15em] text-muted-foreground">
                   Password
                 </Label>
                 <Input
@@ -209,24 +212,23 @@ const Auth = () => {
                     if (errors.password) setErrors(prev => ({ ...prev, password: undefined }));
                   }}
                   placeholder="Enter your password"
-                  className="mt-2 bg-background border-border"
+                  className="mt-2 bg-[rgba(255,255,255,0.03)] border-[rgba(255,255,255,0.1)] focus:border-[rgba(139,92,246,0.5)] focus:ring-[rgba(139,92,246,0.3)]"
                 />
                 {errors.password && (
                   <p className="text-destructive text-sm mt-1">{errors.password}</p>
                 )}
               </div>
 
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full h-12 uppercase-spaced text-sm"
+              <ShimmerButton
+                onClick={() => {}}
+                className="w-full"
               >
                 {isSubmitting ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   isLogin ? 'Sign In' : 'Create Account'
                 )}
-              </Button>
+              </ShimmerButton>
             </form>
 
             <div className="mt-6 text-center">
@@ -241,7 +243,7 @@ const Auth = () => {
                 {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
               </button>
             </div>
-          </motion.div>
+          </GlassCard>
         </motion.div>
       </main>
     </div>

@@ -1,29 +1,37 @@
 import { cn } from "@/lib/utils";
-import { HTMLAttributes, forwardRef } from "react";
+import { forwardRef, ReactNode } from "react";
+import { motion } from "framer-motion";
 
-interface GlassCardProps extends HTMLAttributes<HTMLDivElement> {
-  children: React.ReactNode;
+interface GlassCardProps {
+  children: ReactNode;
   className?: string;
   hover?: boolean;
+  glow?: boolean;
 }
 
 const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
-  ({ children, className, hover = true, ...props }, ref) => {
+  ({ children, className, hover = true, glow = true }, ref) => {
     return (
-      <div
+      <motion.div
         ref={ref}
+        whileHover={hover ? { scale: 1.01 } : undefined}
         className={cn(
           "relative p-8",
-          "bg-white/[0.03] backdrop-blur-xl",
-          "border border-white/[0.08]",
-          hover && "hover:bg-white/[0.06] hover:border-white/[0.15] hover:shadow-[0_8px_32px_rgba(139,92,246,0.15)]",
-          "transition-all duration-300 ease-out",
+          // Glassmorphism: 5% opacity white, 10px backdrop-blur, 1px border
+          "bg-[rgba(255,255,255,0.05)] backdrop-blur-[10px]",
+          "border border-[rgba(255,255,255,0.1)]",
+          // Hover glow effect
+          hover && [
+            "transition-all duration-300 ease-out",
+            "hover:bg-[rgba(255,255,255,0.08)]",
+            "hover:border-[rgba(255,255,255,0.15)]",
+            glow && "hover:shadow-[0_0_40px_rgba(139,92,246,0.15),0_8px_32px_rgba(0,0,0,0.3)]",
+          ],
           className
         )}
-        {...props}
       >
         {children}
-      </div>
+      </motion.div>
     );
   }
 );
