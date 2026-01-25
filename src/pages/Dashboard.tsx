@@ -120,14 +120,23 @@ const Dashboard = () => {
 
   const handleFiles = (files: File[]) => {
     const validFiles = files.filter(file => {
-      const isValidType = file.type === 'application/pdf' || 
-        file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+      const validDocTypes = [
+        'application/pdf',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      ];
+      const validImageTypes = [
+        'image/jpeg',
+        'image/png',
+        'image/gif',
+        'image/webp'
+      ];
+      const isValidType = validDocTypes.includes(file.type) || validImageTypes.includes(file.type);
       
       if (!isValidType) {
         toast({
           variant: 'destructive',
           title: 'Invalid file type',
-          description: `${file.name} is not a PDF or DOCX file.`,
+          description: `${file.name} is not a supported file type (PDF, DOCX, JPG, PNG, GIF, WebP).`,
         });
         return false;
       }
@@ -377,7 +386,7 @@ const Dashboard = () => {
             <div className="mb-4">
               <h2 className="font-display text-2xl mb-1 tracking-wide">Upload Documents</h2>
               <p className="text-sm text-muted-foreground">
-                Drop your PDF or DOCX files to analyze
+                Drop your PDF, DOCX, or image files to analyze
               </p>
             </div>
 
@@ -402,7 +411,7 @@ const Dashboard = () => {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".pdf,.docx"
+                accept=".pdf,.docx,.jpg,.jpeg,.png,.gif,.webp"
                 multiple
                 onChange={handleFileInput}
                 className="hidden"
@@ -420,7 +429,7 @@ const Dashboard = () => {
                   {isDragging ? 'Drop files here' : 'Drag & drop files here'}
                 </p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  or click to browse (PDF, DOCX up to 10MB)
+                  or click to browse (PDF, DOCX, images up to 10MB)
                 </p>
               </div>
             </div>
