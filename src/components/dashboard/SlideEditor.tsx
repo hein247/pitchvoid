@@ -85,11 +85,11 @@ const SlideEditor = ({ slide, slideIndex, onUpdate }: SlideEditorProps) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-sans">
       {/* Slide Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-gradient-to-br from-[hsl(263,70%,58%)] to-[hsl(217,91%,60%)] rounded-full flex items-center justify-center text-white text-sm font-bold">
+          <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center text-primary-foreground text-sm font-bold">
             {slideIndex + 1}
           </div>
           <span className="text-sm text-muted-foreground uppercase tracking-wider">
@@ -108,7 +108,7 @@ const SlideEditor = ({ slide, slideIndex, onUpdate }: SlideEditorProps) => {
           value={slide.content.title}
           onChange={(e) => handleTitleChange(e.target.value)}
           placeholder="Enter slide title..."
-          className="bg-[rgba(255,255,255,0.03)] border-[rgba(255,255,255,0.1)] focus:border-[rgba(139,92,246,0.5)] focus:ring-[rgba(139,92,246,0.3)] text-lg font-display"
+          className="bg-card border-border focus:border-primary focus:ring-primary/30 text-lg font-display"
           maxLength={100}
         />
       </div>
@@ -116,14 +116,14 @@ const SlideEditor = ({ slide, slideIndex, onUpdate }: SlideEditorProps) => {
       {/* Description Field */}
       <div className="space-y-2">
         <Label htmlFor="description" className="text-sm uppercase tracking-[0.15em] text-muted-foreground">
-          Description
+          Body Text
         </Label>
         <Textarea
           id="description"
           value={slide.content.description}
           onChange={(e) => handleDescriptionChange(e.target.value)}
-          placeholder="Enter slide description..."
-          className="bg-[rgba(255,255,255,0.03)] border-[rgba(255,255,255,0.1)] focus:border-[rgba(139,92,246,0.5)] focus:ring-[rgba(139,92,246,0.3)] min-h-[100px] resize-none"
+          placeholder="Enter slide body text..."
+          className="bg-card border-border focus:border-primary focus:ring-primary/30 min-h-[100px] resize-none font-sans"
           maxLength={500}
         />
       </div>
@@ -139,7 +139,7 @@ const SlideEditor = ({ slide, slideIndex, onUpdate }: SlideEditorProps) => {
             variant="ghost"
             size="sm"
             onClick={addBullet}
-            className="text-[hsl(263,70%,58%)] hover:text-[hsl(263,70%,68%)] hover:bg-[rgba(139,92,246,0.1)]"
+            className="text-primary hover:text-primary/80 hover:bg-primary/10"
           >
             <Plus className="w-4 h-4 mr-1" />
             Add Point
@@ -157,12 +157,12 @@ const SlideEditor = ({ slide, slideIndex, onUpdate }: SlideEditorProps) => {
             >
               <GripVertical className="w-4 h-4 text-muted-foreground/50 cursor-grab" />
               <div className="flex-1 flex items-center gap-2">
-                <span className="text-[hsl(263,70%,58%)] text-lg">•</span>
+                <span className="text-primary text-lg">•</span>
                 <Input
                   value={bullet}
                   onChange={(e) => handleBulletChange(index, e.target.value)}
                   placeholder={`Bullet point ${index + 1}...`}
-                  className="bg-[rgba(255,255,255,0.03)] border-[rgba(255,255,255,0.1)] focus:border-[rgba(139,92,246,0.5)] focus:ring-[rgba(139,92,246,0.3)]"
+                  className="bg-card border-border focus:border-primary focus:ring-primary/30 font-sans"
                   maxLength={200}
                 />
               </div>
@@ -187,7 +187,7 @@ const SlideEditor = ({ slide, slideIndex, onUpdate }: SlideEditorProps) => {
       </div>
 
       {/* Animation Settings */}
-      <div className="pt-4 border-t border-[rgba(255,255,255,0.1)]">
+      <div className="pt-4 border-t border-border">
         <div className="flex items-center gap-4">
           <div className="flex-1">
             <Label className="text-xs uppercase tracking-[0.15em] text-muted-foreground mb-2 block">
