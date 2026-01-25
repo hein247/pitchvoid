@@ -2,11 +2,62 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Mejuri-inspired elegant design system */
+/* Modern Premium Dark Theme - Void Aesthetic */
 
 @layer base {
   :root {
-    /* Mejuri-inspired color palette */
+    /* Modern Premium Dark Theme - Void Aesthetic */
+    --background: 0 0% 2%;
+    --foreground: 0 0% 95%;
+
+    --card: 0 0% 4%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 0 0% 4%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 263 70% 58%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 8%;
+    --secondary-foreground: 0 0% 95%;
+
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 60%;
+
+    --accent: 263 50% 20%;
+    --accent-foreground: 0 0% 95%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 12%;
+    --input: 0 0% 12%;
+    --ring: 263 70% 58%;
+
+    --radius: 0rem;
+
+    /* Void theme custom tokens */
+    --void-purple: 263 70% 58%;
+    --void-blue: 217 91% 60%;
+    --void-glow: 263 100% 70%;
+    --gold: 45 80% 60%;
+    --gold-dark: 45 60% 40%;
+    --charcoal: 0 0% 2%;
+    --glass-border: 0 0% 100%;
+
+    --sidebar-background: 0 0% 3%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 263 70% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 8%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 0 0% 12%;
+    --sidebar-ring: 263 70% 58%;
+  }
+
+  /* Light mode for portfolio pages */
+  .light {
     --background: 0 0% 100%;
     --foreground: 0 0% 0%;
 
@@ -35,9 +86,6 @@
     --input: 40 8% 92%;
     --ring: 0 0% 0%;
 
-    --radius: 0rem;
-
-    /* Mejuri custom tokens */
     --olive: 45 5% 45%;
     --olive-dark: 45 5% 39%;
     --cream: 40 60% 97%;
@@ -54,53 +102,6 @@
     --sidebar-accent-foreground: 0 0% 0%;
     --sidebar-border: 40 8% 92%;
     --sidebar-ring: 0 0% 0%;
-  }
-
-  .dark {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
-
-    --card: 0 0% 6%;
-    --card-foreground: 0 0% 100%;
-
-    --popover: 0 0% 6%;
-    --popover-foreground: 0 0% 100%;
-
-    --primary: 0 0% 100%;
-    --primary-foreground: 0 0% 0%;
-
-    --secondary: 45 5% 15%;
-    --secondary-foreground: 0 0% 100%;
-
-    --muted: 45 5% 15%;
-    --muted-foreground: 45 5% 60%;
-
-    --accent: 45 5% 15%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 45 5% 20%;
-    --input: 45 5% 20%;
-    --ring: 0 0% 100%;
-
-    --olive: 45 5% 60%;
-    --olive-dark: 45 5% 45%;
-    --cream: 40 30% 12%;
-    --gold: 35 30% 55%;
-    --gold-dark: 30 30% 70%;
-    --warm-gray: 45 8% 50%;
-    --charcoal: 0 0% 100%;
-
-    --sidebar-background: 0 0% 6%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 0 0% 0%;
-    --sidebar-accent: 45 5% 15%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 45 5% 20%;
-    --sidebar-ring: 0 0% 100%;
   }
 }
 
@@ -148,8 +149,51 @@
     color: hsl(var(--gold));
   }
 
+  .bg-void-purple {
+    background-color: hsl(var(--void-purple));
+  }
+
+  .bg-void-blue {
+    background-color: hsl(var(--void-blue));
+  }
+
+  .text-void-purple {
+    color: hsl(var(--void-purple));
+  }
+
+  .text-void-blue {
+    color: hsl(var(--void-blue));
+  }
+
+  .from-void-purple {
+    --tw-gradient-from: hsl(var(--void-purple)) var(--tw-gradient-from-position);
+    --tw-gradient-to: hsl(var(--void-purple) / 0) var(--tw-gradient-to-position);
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+  }
+
+  .via-void-blue {
+    --tw-gradient-to: hsl(var(--void-blue) / 0) var(--tw-gradient-to-position);
+    --tw-gradient-stops: var(--tw-gradient-from), hsl(var(--void-blue)) var(--tw-gradient-via-position), var(--tw-gradient-to);
+  }
+
+  .to-void-purple {
+    --tw-gradient-to: hsl(var(--void-purple)) var(--tw-gradient-to-position);
+  }
+
   .uppercase-spaced {
     text-transform: uppercase;
     letter-spacing: 0.15em;
+  }
+
+  /* Glassmorphism utilities */
+  .glass {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .glass-hover:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.15);
   }
 }

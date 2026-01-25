@@ -57,6 +57,13 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // Void theme colors
+        "void-purple": "hsl(var(--void-purple))",
+        "void-blue": "hsl(var(--void-blue))",
+        "void-glow": "hsl(var(--void-glow))",
+        gold: "hsl(var(--gold))",
+        "gold-dark": "hsl(var(--gold-dark))",
+        charcoal: "hsl(var(--charcoal))",
       },
       borderRadius: {
         lg: "var(--radius)",
