@@ -16,11 +16,14 @@ import {
   Coins,
   FolderOpen,
   MessageSquare,
-  Trash2
+  Trash2,
+  Layers,
+  MessageCircle
 } from 'lucide-react';
 import GridBackground from '@/components/ui/GridBackground';
 import GlassCard from '@/components/ui/GlassCard';
 import ShimmerButton from '@/components/ui/ShimmerButton';
+import LiveSlideEditor from '@/components/dashboard/LiveSlideEditor';
 
 interface ChatMessage {
   id: string;
@@ -35,6 +38,8 @@ interface UploadedFile {
   file: File;
 }
 
+type DashboardView = 'chat' | 'editor';
+
 const Dashboard = () => {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
@@ -43,6 +48,8 @@ const Dashboard = () => {
   const [credits, setCredits] = useState<number>(10);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isDragging, setIsDragging] = useState(false);
+  const [currentView, setCurrentView] = useState<DashboardView>('chat');
+  const [currentProjectId, setCurrentProjectId] = useState<string | undefined>();
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: '1',
@@ -288,11 +295,43 @@ const Dashboard = () => {
       {/* Header */}
       <header className="border-b border-[rgba(255,255,255,0.1)] bg-[rgba(0,0,0,0.5)] backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-[hsl(263,70%,58%)] to-[hsl(217,91%,60%)] rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(139,92,246,0.3)]">
-              <Sparkles className="w-5 h-5 text-white" />
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-[hsl(263,70%,58%)] to-[hsl(217,91%,60%)] rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(139,92,246,0.3)]">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <span className="font-display text-xl font-medium tracking-wide">PitchVoid</span>
             </div>
-            <span className="font-display text-xl font-medium tracking-wide">PitchVoid</span>
+
+            {/* View Tabs */}
+            <div className="flex items-center gap-1 bg-[rgba(255,255,255,0.03)] p-1 border border-[rgba(255,255,255,0.08)]">
+              <button
+                onClick={() => setCurrentView('chat')}
+                className={`
+                  flex items-center gap-2 px-4 py-2 text-sm transition-all duration-200
+                  ${currentView === 'chat'
+                    ? 'bg-[rgba(139,92,246,0.2)] text-foreground'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-[rgba(255,255,255,0.05)]'
+                  }
+                `}
+              >
+                <MessageCircle className="w-4 h-4" />
+                Chat
+              </button>
+              <button
+                onClick={() => setCurrentView('editor')}
+                className={`
+                  flex items-center gap-2 px-4 py-2 text-sm transition-all duration-200
+                  ${currentView === 'editor'
+                    ? 'bg-[rgba(139,92,246,0.2)] text-foreground'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-[rgba(255,255,255,0.05)]'
+                  }
+                `}
+              >
+                <Layers className="w-4 h-4" />
+                Slide Editor
+              </button>
+            </div>
           </div>
 
           <div className="flex items-center gap-4">
@@ -314,8 +353,18 @@ const Dashboard = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-7xl mx-auto w-full p-6 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-6 h-[calc(100vh-8rem)]">
+      <main className="flex-1 relative z-10">
+        <AnimatePresence mode="wait">
+          {currentView === 'chat' ? (
+            <motion.div
+              key="chat"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+              className="max-w-7xl mx-auto w-full p-6 h-[calc(100vh-5rem)]"
+            >
+              <div className="grid lg:grid-cols-2 gap-6 h-full">
           {/* File Upload Section */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -502,7 +551,21 @@ const Dashboard = () => {
               </form>
             </GlassCard>
           </motion.div>
-        </div>
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="editor"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.3 }}
+              className="h-[calc(100vh-5rem)]"
+            >
+              <LiveSlideEditor projectId={currentProjectId} />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
     </div>
   );
