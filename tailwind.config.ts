@@ -57,13 +57,19 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        // Void theme colors
+        // Brand colors from logo
+        "electric-magenta": "hsl(var(--electric-magenta))",
+        "deep-violet": "hsl(var(--deep-violet))",
         "void-purple": "hsl(var(--void-purple))",
         "void-blue": "hsl(var(--void-blue))",
         "void-glow": "hsl(var(--void-glow))",
         gold: "hsl(var(--gold))",
         "gold-dark": "hsl(var(--gold-dark))",
         charcoal: "hsl(var(--charcoal))",
+      },
+      fontFamily: {
+        display: ["'Times New Roman'", "Georgia", "serif"],
+        sans: ["'Be Vietnam Pro'", "system-ui", "-apple-system", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",
