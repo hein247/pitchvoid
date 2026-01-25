@@ -281,16 +281,14 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center relative">
-        <GridBackground />
-        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground relative z-10" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
-      <GridBackground />
 
       {/* Header */}
       <header className="border-b border-[rgba(255,255,255,0.1)] bg-[rgba(0,0,0,0.5)] backdrop-blur-xl sticky top-0 z-50">
