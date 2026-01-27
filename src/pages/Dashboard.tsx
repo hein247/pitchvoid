@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Mic, Plus, ArrowLeft, X, Play, Share2, Home } from 'lucide-react';
+import { Loader2, Mic, Plus, ArrowLeft, X, Play, Share2, Home, ChevronLeft, ChevronRight } from 'lucide-react';
 import Navbar from '@/components/Navbar';
+import SlideGrid from '@/components/dashboard/SlideGrid';
+import { useSwipeGesture } from '@/hooks/useSwipeGesture';
 
 interface Project {
   id: string;
@@ -333,8 +335,15 @@ const Dashboard = () => {
     );
   }
 
+  // Swipe gesture for slide navigation
+  const { containerRef: swipeRef } = useSwipeGesture({
+    onSwipeLeft: () => setActiveSlide(prev => Math.min(generatedSlides.length - 1, prev + 1)),
+    onSwipeRight: () => setActiveSlide(prev => Math.max(0, prev - 1)),
+    enabled: showSlides && currentView === 'project',
+  });
+
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#0F0518' }}>
+    <div className="min-h-screen bg-background transition-colors duration-300">
       {/* Install Banner */}
       {showInstallPrompt && currentView === 'dashboard' && (
         <div className="fixed top-0 left-0 right-0 z-50 p-2 sm:p-3 install-banner animate-slideDown">
@@ -368,40 +377,41 @@ const Dashboard = () => {
           />
 
           {/* Projects Grid */}
-          <main className="px-4 sm:px-6 py-6 sm:py-8 max-w-7xl mx-auto relative z-10">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 sm:mb-8">
-              <div>
-                <h2 className="text-xl sm:text-2xl text-foreground mb-1 font-display">Your Pitches</h2>
-                <p className="text-sm text-muted-foreground">{projects.length} projects</p>
+          <main className="px-4 sm:px-6 lg:px-8 py-8 sm:py-10 max-w-7xl mx-auto relative z-10">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 sm:mb-10">
+              <div className="space-y-1">
+                <h2 className="text-2xl sm:text-3xl text-foreground font-display">Your Pitches</h2>
+                <p className="text-sm sm:text-base text-muted-foreground">{projects.length} projects</p>
               </div>
               <button 
                 onClick={() => setShowNewProjectModal(true)} 
-                className="flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-foreground font-medium border border-accent/30 hover:bg-accent/10 transition-colors w-full sm:w-auto justify-center sm:justify-start"
+                className="flex items-center gap-2 px-5 py-3 rounded-xl text-foreground font-medium border border-accent/30 hover:bg-accent/10 transition-colors w-full sm:w-auto justify-center"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-5 h-5" />
                 New Project
               </button>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+            {/* Single column on mobile for reduced cognitive load, 2-3 columns on larger screens */}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6">
               {projects.map((project, i) => (
                 <div 
                   key={project.id} 
                   onClick={() => openProject(project)} 
                   className="project-card rounded-2xl overflow-hidden cursor-pointer group"
                 >
-                  <div className={`h-24 sm:h-28 thumbnail-gradient-${(i % 3) + 1} relative`}>
+                  <div className={`h-28 sm:h-32 thumbnail-gradient-${(i % 3) + 1} relative`}>
                     <div className="absolute bottom-3 left-3">
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-black/40 text-white/80">
+                      <span className="text-xs px-3 py-1 rounded-full bg-background/60 backdrop-blur-sm text-foreground/90 font-medium">
                         {project.tags[0] || 'Pitch'}
                       </span>
                     </div>
                   </div>
-                  <div className="p-4 sm:p-5">
-                    <h3 className="text-foreground font-medium mb-1 group-hover:text-primary transition-colors text-sm sm:text-base">
+                  <div className="p-5 sm:p-6 space-y-2">
+                    <h3 className="text-foreground font-medium text-base sm:text-lg group-hover:text-primary transition-colors leading-tight">
                       {project.title}
                     </h3>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-sm text-muted-foreground">
                       {project.lastEdited} · {project.slides} slides
                     </p>
                   </div>
@@ -550,16 +560,39 @@ const Dashboard = () => {
           </div>
 
           {/* Preview Panel */}
-          <div className="flex-1 grain-bg flex flex-col relative min-h-[50vh] lg:min-h-0">
-            <header className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between border-b border-accent/10 relative z-10">
+          <div 
+            ref={swipeRef as React.RefObject<HTMLDivElement>}
+            className="flex-1 grain-bg flex flex-col relative min-h-[50vh] lg:min-h-0"
+          >
+            <header className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between border-b border-border relative z-10">
               <div>
                 <h2 className="text-foreground font-medium font-display text-sm sm:text-base">Preview</h2>
                 {showSlides && (
-                  <p className="text-xs text-muted-foreground hidden sm:block">{generatedSlides.length} slides · ← → navigate</p>
+                  <p className="text-xs text-muted-foreground hidden sm:block">Swipe or use ← → to navigate</p>
                 )}
               </div>
               {showSlides && (
                 <div className="flex items-center gap-2 sm:gap-3">
+                  {/* Mobile navigation arrows */}
+                  <div className="flex items-center gap-1 sm:hidden">
+                    <button 
+                      onClick={() => setActiveSlide(prev => Math.max(0, prev - 1))}
+                      disabled={activeSlide === 0}
+                      className="p-2 rounded-lg border border-accent/20 disabled:opacity-30 hover:bg-accent/10 transition-colors"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <span className="text-xs font-medium text-foreground min-w-[40px] text-center">
+                      {activeSlide + 1}/{generatedSlides.length}
+                    </span>
+                    <button 
+                      onClick={() => setActiveSlide(prev => Math.min(generatedSlides.length - 1, prev + 1))}
+                      disabled={activeSlide === generatedSlides.length - 1}
+                      className="p-2 rounded-lg border border-accent/20 disabled:opacity-30 hover:bg-accent/10 transition-colors"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
                   <button 
                     onClick={() => setIsPracticeMode(true)} 
                     className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm text-accent border border-accent/30 flex items-center gap-1 sm:gap-2 hover:bg-accent/10 transition-colors"
@@ -578,34 +611,18 @@ const Dashboard = () => {
               )}
             </header>
             
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6 relative z-10">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 relative z-10">
               {showSlides ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                  {generatedSlides.map((slide, i) => (
-                    <div 
-                      key={slide.id} 
-                      onClick={() => setActiveSlide(i)} 
-                      className={`slide-card rounded-xl overflow-hidden cursor-pointer ${activeSlide === i ? 'active' : ''}`}
-                    >
-                      <div className="slide-visual h-20 sm:h-24 flex items-center justify-center">
-                        <span className="text-xs text-accent">{String(slide.id).padStart(2, '0')}</span>
-                      </div>
-                      <div className="p-3 sm:p-4">
-                        <h4 className="text-foreground font-medium text-xs sm:text-sm mb-1 sm:mb-2 font-display">{slide.title}</h4>
-                        <p className="text-xs text-muted-foreground line-clamp-2">{slide.content}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <SlideGrid 
+                  slides={generatedSlides}
+                  activeSlide={activeSlide}
+                  onSlideSelect={setActiveSlide}
+                />
               ) : (
                 <div className="h-full flex items-center justify-center">
                   <div className="text-center">
                     <div 
-                      className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 rounded-2xl flex items-center justify-center"
-                      style={{ 
-                        background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(217, 70, 239, 0.08) 100%)', 
-                        border: '1px dashed rgba(139, 92, 246, 0.3)' 
-                      }}
+                      className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 rounded-2xl flex items-center justify-center bg-gradient-to-br from-accent/15 to-primary/8 border border-dashed border-accent/30"
                     >
                       <span className="text-3xl sm:text-4xl text-accent/50">📊</span>
                     </div>
@@ -615,15 +632,19 @@ const Dashboard = () => {
               )}
             </div>
             
+            {/* Progress dots for quick navigation */}
             {showSlides && (
-              <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-accent/10 flex justify-center gap-2 relative z-10">
+              <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-border flex justify-center gap-2 relative z-10 bg-card/50 backdrop-blur-sm">
                 {generatedSlides.map((_, i) => (
                   <button 
                     key={i} 
                     onClick={() => setActiveSlide(i)} 
-                    className={`w-2 h-2 rounded-full transition-all ${
-                      activeSlide === i ? 'w-6 magenta-gradient' : 'bg-accent/30'
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      activeSlide === i 
+                        ? 'w-8 bg-gradient-to-r from-primary to-accent shadow-[0_0_10px_hsl(var(--primary)/0.5)]' 
+                        : 'w-2 bg-muted-foreground/30 hover:bg-muted-foreground/50'
                     }`} 
+                    aria-label={`Go to slide ${i + 1}`}
                   />
                 ))}
               </div>
@@ -700,7 +721,7 @@ const Dashboard = () => {
                     {isRecording ? (
                       <>
                         <p className="text-foreground text-base sm:text-lg font-mono">{formatTime(recordingTime)}</p>
-                        <p className="text-red-400 text-xs sm:text-sm">Recording...</p>
+                        <p className="text-destructive text-xs sm:text-sm">Recording...</p>
                       </>
                     ) : (
                       <>
@@ -814,8 +835,8 @@ const Dashboard = () => {
             </div>
             
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-4 sm:mb-6">
-              <div className="w-24 h-24 sm:w-32 sm:h-32 bg-white rounded-lg flex items-center justify-center flex-shrink-0 mx-auto sm:mx-0">
-                <span className="text-gray-400 text-xs">QR Code</span>
+              <div className="w-24 h-24 sm:w-32 sm:h-32 bg-card rounded-lg flex items-center justify-center flex-shrink-0 mx-auto sm:mx-0 border border-border">
+                <span className="text-muted-foreground text-xs">QR Code</span>
               </div>
               <div className="flex-1">
                 <p className="text-sm text-muted-foreground mb-2 sm:mb-3">Share link</p>
