@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Mic, Plus, ArrowLeft, X, Play, Share2 } from 'lucide-react';
+import { Loader2, Mic, Plus, ArrowLeft, X, Play, Share2, Home } from 'lucide-react';
+import Navbar from '@/components/Navbar';
 
 interface Project {
   id: string;
@@ -359,53 +360,12 @@ const Dashboard = () => {
       {currentView === 'dashboard' && (
         <div className={`min-h-screen grain-bg ${showInstallPrompt ? 'pt-16' : ''}`}>
           {/* Nav */}
-          <nav className="glassmorphism px-6 py-4 flex items-center justify-between sticky top-0 z-40">
-            <div className="flex items-center gap-8">
-              <h1 
-                className="text-xl font-semibold font-display"
-                style={{ 
-                  background: 'linear-gradient(135deg, #fff 0%, #D946EF 100%)', 
-                  WebkitBackgroundClip: 'text', 
-                  WebkitTextFillColor: 'transparent' 
-                }}
-              >
-                PitchVoid
-              </h1>
-              <div className="flex items-center gap-6">
-                <a href="#" className="text-sm text-foreground font-medium">Dashboard</a>
-                <a href="#" className="text-sm text-muted-foreground">Templates</a>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <button 
-                onClick={() => setShowQuickPitch(true)} 
-                className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-sm font-medium magenta-gradient"
-              >
-                <Mic className="w-5 h-5" />
-                Quick Pitch <span className="text-xs opacity-70">⌘K</span>
-              </button>
-              <div 
-                className="flex items-center gap-3 px-4 py-2 rounded-xl"
-                style={{ background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.2)' }}
-              >
-                <span className="text-sm text-foreground/80">{credits.total - credits.used} credits</span>
-                <div className="w-16 h-1.5 credit-bar rounded-full overflow-hidden">
-                  <div 
-                    className="h-full credit-fill" 
-                    style={{ width: `${((credits.total - credits.used) / credits.total) * 100}%` }} 
-                  />
-                </div>
-              </div>
-              {user && (
-                <div 
-                  onClick={handleSignOut}
-                  className="w-9 h-9 rounded-full magenta-gradient flex items-center justify-center text-white text-sm font-medium cursor-pointer"
-                >
-                  {user.email?.charAt(0).toUpperCase()}
-                </div>
-              )}
-            </div>
-          </nav>
+          <Navbar 
+            variant="dashboard" 
+            credits={credits}
+            onQuickPitch={() => setShowQuickPitch(true)}
+            onSignOut={handleSignOut}
+          />
 
           {/* Projects Grid */}
           <main className="px-6 py-8 max-w-7xl mx-auto relative z-10">
