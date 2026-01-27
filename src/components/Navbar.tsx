@@ -1,7 +1,13 @@
-import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { Mic, Menu, X } from 'lucide-react';
+import { Mic, Menu } from 'lucide-react';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 
 interface NavbarProps {
   variant?: 'landing' | 'dashboard' | 'minimal';
@@ -19,7 +25,6 @@ const Navbar = ({
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -61,45 +66,51 @@ const Navbar = ({
           </button>
         </div>
 
-        {/* Mobile hamburger */}
-        <button 
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-2 text-foreground"
-        >
-          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
-
-        {/* Mobile menu */}
-        {mobileMenuOpen && (
-          <div className="fixed top-16 left-0 right-0 z-50 bg-background/95 backdrop-blur-lg border-b border-accent/10 p-6 flex flex-col gap-4 md:hidden">
-            <a 
-              href="#features" 
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors py-3"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Features
-            </a>
-            <a 
-              href="#pricing" 
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors py-3"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Pricing
-            </a>
-            <button 
-              onClick={() => { navigate('/auth'); setMobileMenuOpen(false); }} 
-              className="text-sm text-foreground/80 hover:text-foreground transition-colors py-3 text-left"
-            >
-              Log In
+        {/* Mobile menu using Sheet */}
+        <Sheet>
+          <SheetTrigger asChild>
+            <button className="md:hidden p-2 text-foreground">
+              <Menu className="w-6 h-6" />
             </button>
-            <button 
-              onClick={() => { navigate('/auth'); setMobileMenuOpen(false); }} 
-              className="px-5 py-3 rounded-xl text-sm text-white font-medium magenta-gradient hover:opacity-90 transition-opacity w-full"
-            >
-              Get Started Free
-            </button>
-          </div>
-        )}
+          </SheetTrigger>
+          <SheetContent side="right" className="w-[280px] bg-background border-l border-accent/20">
+            <SheetHeader>
+              <SheetTitle className="text-left font-display" style={{ 
+                background: 'linear-gradient(135deg, #fff 0%, #D946EF 100%)', 
+                WebkitBackgroundClip: 'text', 
+                WebkitTextFillColor: 'transparent' 
+              }}>
+                PitchVoid
+              </SheetTitle>
+            </SheetHeader>
+            <nav className="flex flex-col gap-4 mt-8">
+              <a 
+                href="#features" 
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors py-3 border-b border-accent/10"
+              >
+                Features
+              </a>
+              <a 
+                href="#pricing" 
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors py-3 border-b border-accent/10"
+              >
+                Pricing
+              </a>
+              <button 
+                onClick={() => navigate('/auth')} 
+                className="text-sm text-foreground/80 hover:text-foreground transition-colors py-3 text-left border-b border-accent/10"
+              >
+                Log In
+              </button>
+              <button 
+                onClick={() => navigate('/auth')} 
+                className="mt-4 px-5 py-3 rounded-xl text-sm text-white font-medium magenta-gradient hover:opacity-90 transition-opacity w-full"
+              >
+                Get Started Free
+              </button>
+            </nav>
+          </SheetContent>
+        </Sheet>
       </nav>
     );
   }
