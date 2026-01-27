@@ -71,30 +71,30 @@ const Navbar = ({
 
         {/* Mobile menu */}
         {mobileMenuOpen && (
-          <div className="absolute top-full left-0 right-0 glassmorphism-dark border-t border-accent/10 p-4 flex flex-col gap-4 md:hidden">
+          <div className="fixed top-16 left-0 right-0 z-50 bg-background/95 backdrop-blur-lg border-b border-accent/10 p-6 flex flex-col gap-4 md:hidden">
             <a 
               href="#features" 
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors py-3"
               onClick={() => setMobileMenuOpen(false)}
             >
               Features
             </a>
             <a 
               href="#pricing" 
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors py-3"
               onClick={() => setMobileMenuOpen(false)}
             >
               Pricing
             </a>
             <button 
               onClick={() => { navigate('/auth'); setMobileMenuOpen(false); }} 
-              className="text-sm text-foreground/80 hover:text-foreground transition-colors py-2 text-left"
+              className="text-sm text-foreground/80 hover:text-foreground transition-colors py-3 text-left"
             >
               Log In
             </button>
             <button 
               onClick={() => { navigate('/auth'); setMobileMenuOpen(false); }} 
-              className="px-5 py-2.5 rounded-xl text-sm text-white font-medium magenta-gradient hover:opacity-90 transition-opacity"
+              className="px-5 py-3 rounded-xl text-sm text-white font-medium magenta-gradient hover:opacity-90 transition-opacity w-full"
             >
               Get Started Free
             </button>
