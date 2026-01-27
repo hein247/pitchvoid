@@ -260,6 +260,13 @@ const Dashboard = () => {
     navigate('/');
   };
 
+  // Swipe gesture for slide navigation - MUST be called before any returns
+  const { containerRef: swipeRef } = useSwipeGesture({
+    onSwipeLeft: () => setActiveSlide(prev => Math.min(generatedSlides.length - 1, prev + 1)),
+    onSwipeRight: () => setActiveSlide(prev => Math.max(0, prev - 1)),
+    enabled: showSlides && currentView === 'project' && !isPracticeMode && !loading,
+  });
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#0F0518' }}>
@@ -332,13 +339,6 @@ const Dashboard = () => {
       </div>
     );
   }
-
-  // Swipe gesture for slide navigation
-  const { containerRef: swipeRef } = useSwipeGesture({
-    onSwipeLeft: () => setActiveSlide(prev => Math.min(generatedSlides.length - 1, prev + 1)),
-    onSwipeRight: () => setActiveSlide(prev => Math.max(0, prev - 1)),
-    enabled: showSlides && currentView === 'project',
-  });
 
   return (
     <div className="min-h-screen bg-background transition-colors duration-300">
