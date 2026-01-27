@@ -66,7 +66,7 @@ const Navbar = ({
       <nav className="glassmorphism px-6 py-4 flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-8">
           <button 
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate('/')}
             className="text-xl font-semibold font-display"
             style={{ 
               background: 'linear-gradient(135deg, #fff 0%, #D946EF 100%)', 
