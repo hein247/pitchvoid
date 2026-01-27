@@ -8,6 +8,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 
 interface NavbarProps {
   variant?: 'landing' | 'dashboard' | 'minimal';
@@ -149,6 +150,9 @@ const Navbar = ({
           </div>
         </div>
         <div className="flex items-center gap-2 sm:gap-4">
+          {/* Theme Toggle */}
+          <ThemeToggle />
+          
           {onQuickPitch && (
             <button 
               onClick={onQuickPitch} 
@@ -160,8 +164,7 @@ const Navbar = ({
             </button>
           )}
           <div 
-            className="hidden sm:flex items-center gap-3 px-4 py-2 rounded-xl"
-            style={{ background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.2)' }}
+            className="hidden sm:flex items-center gap-3 px-4 py-2 rounded-xl bg-accent/10 border border-accent/20"
           >
             <span className="text-sm text-foreground/80">{credits.total - credits.used} credits</span>
             <div className="w-16 h-1.5 credit-bar rounded-full overflow-hidden">
