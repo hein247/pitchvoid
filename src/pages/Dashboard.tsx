@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Mic, Plus, ArrowLeft, X, Play, Share2, Home, ChevronLeft, ChevronRight } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import SlideGrid from '@/components/dashboard/SlideGrid';
+import RefinementPanel from '@/components/dashboard/RefinementPanel';
 import { useSwipeGesture } from '@/hooks/useSwipeGesture';
 
 interface Project {
@@ -97,12 +98,9 @@ const Dashboard = () => {
     { id: 6, title: "Let's Build Together", content: 'Ready to bring my experience to Google\'s next chapter.', speakerNotes: 'Strong close. Smile.' }
   ];
 
-  const refinementSuggestions = [
-    { id: 1, label: 'Make it shorter', icon: '⚡' },
-    { id: 2, label: 'More confident', icon: '💪' },
-    { id: 3, label: 'Add metrics', icon: '📊' },
-    { id: 4, label: 'Leadership focus', icon: '👥' },
-  ];
+  // Refinement state
+  const [isApplyingRefinements, setIsApplyingRefinements] = useState(false);
+  const [slidesHistory, setSlidesHistory] = useState<typeof generatedSlides[]>([]);
 
   const quickTemplates = [
     { id: 1, label: 'Job Interview', icon: '💼', prefill: 'Pitch me for a [Role] at [Company]. Focus on [Key Skills].' },
@@ -513,21 +511,35 @@ const Dashboard = () => {
               <div ref={messagesEndRef} />
             </div>
             
-            {/* Refinements */}
+            {/* Refinements Panel */}
             {showRefinements && (
-              <div className="p-3 sm:p-4 border-t border-accent/10">
-                <p className="text-xs text-muted-foreground mb-2 sm:mb-3">Quick refinements</p>
-                <div className="flex flex-wrap gap-2">
-                  {refinementSuggestions.map(s => (
-                    <button 
-                      key={s.id} 
-                      onClick={() => setInputValue(s.label)} 
-                      className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm text-foreground/80 border border-accent/20 hover:bg-accent/10 transition-colors"
-                    >
-                      {s.icon} {s.label}
-                    </button>
-                  ))}
-                </div>
+              <div className="p-3 sm:p-4 border-t border-accent/10 max-h-[50vh] overflow-y-auto">
+                <RefinementPanel
+                  slides={generatedSlides}
+                  projectTitle={activeProject?.title}
+                  onApplyRefinements={(selectedIds) => {
+                    // Save current state for undo
+                    setSlidesHistory(prev => [...prev, generatedSlides]);
+                    setIsApplyingRefinements(true);
+                    
+                    // Simulate applying refinements
+                    setTimeout(() => {
+                      setIsApplyingRefinements(false);
+                      setMessages(prev => [...prev, { 
+                        id: Date.now().toString(), 
+                        type: 'assistant', 
+                        content: `Applied refinements: ${selectedIds.join(', ')}` 
+                      }]);
+                    }, 2000);
+                  }}
+                  onUndo={() => {
+                    if (slidesHistory.length > 0) {
+                      // Could restore slides here if we had actual slide state management
+                      setSlidesHistory(prev => prev.slice(0, -1));
+                    }
+                  }}
+                  isApplying={isApplyingRefinements}
+                />
               </div>
             )}
             
