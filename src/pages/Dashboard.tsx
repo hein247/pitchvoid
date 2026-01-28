@@ -3,11 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Mic, Plus, ArrowLeft, X, Play, Share2, Home, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Loader2, Mic, Plus, ArrowLeft, X, Play, Share2, Home, ChevronLeft, ChevronRight, FileText, Layers } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import SlideGrid from '@/components/dashboard/SlideGrid';
 import RefinementPanel from '@/components/dashboard/RefinementPanel';
+import OnePager, { OnePagerData } from '@/components/dashboard/OnePager';
 import { useSwipeGesture } from '@/hooks/useSwipeGesture';
+
+type OutputFormat = 'slides' | 'one-pager';
 
 interface Project {
   id: string;
@@ -59,6 +62,10 @@ const Dashboard = () => {
   const [showSlides, setShowSlides] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
   const [showRefinements, setShowRefinements] = useState(false);
+  
+  // Output format state
+  const [outputFormat, setOutputFormat] = useState<OutputFormat>('slides');
+  const [onePagerData, setOnePagerData] = useState<OnePagerData | null>(null);
   
   // Quick pitch state
   const [isRecording, setIsRecording] = useState(false);
@@ -227,26 +234,90 @@ const Dashboard = () => {
     }, 1000);
   };
 
-  const handleQuickGenerate = () => {
+  const handleQuickGenerate = async () => {
     setQuickPitchStep(3);
     setIsGenerating(true);
-    const phases = ['Analyzing input...', 'Processing files...', 'Crafting narrative...', 'Designing slides...', 'Finalizing...'];
-    let i = 0;
-    const interval = setInterval(() => {
-      if (i < phases.length) { 
-        setGenerationPhase(phases[i]); 
-        i++; 
+    
+    const phases = outputFormat === 'one-pager' 
+      ? ['Analyzing input...', 'Crafting narrative...', 'Building one-pager...', 'Finalizing...']
+      : ['Analyzing input...', 'Processing files...', 'Crafting narrative...', 'Designing slides...', 'Finalizing...'];
+    
+    let phaseIndex = 0;
+    const phaseInterval = setInterval(() => {
+      if (phaseIndex < phases.length) { 
+        setGenerationPhase(phases[phaseIndex]); 
+        phaseIndex++; 
+      }
+    }, 1200);
+
+    try {
+      const functionName = outputFormat === 'one-pager' ? 'generate-one-pager' : 'generate-pitch';
+      
+      const { data, error } = await supabase.functions.invoke(functionName, {
+        body: {
+          scenario: transcribedText,
+          targetAudience: 'Decision makers',
+          visualStyle: 'Professional and impactful',
+        },
+      });
+
+      clearInterval(phaseInterval);
+
+      if (error) throw error;
+
+      setIsGenerating(false);
+      setShowQuickPitch(false);
+      setCurrentView('project');
+      setActiveProject({ 
+        id: Date.now().toString(), 
+        title: 'Quick Pitch', 
+        tags: [outputFormat === 'one-pager' ? 'One-Pager' : 'Interview'], 
+        lastEdited: 'Just now', 
+        slides: outputFormat === 'slides' ? 6 : 1, 
+        views: 0 
+      });
+
+      if (outputFormat === 'one-pager') {
+        setOnePagerData(data.onePager);
+        setShowSlides(false);
+        setShowRefinements(false);
+        setMessages([{ id: '1', type: 'system', content: 'Your one-pager is ready!' }]);
       } else {
-        clearInterval(interval);
-        setIsGenerating(false);
         setShowSlides(true);
-        setShowQuickPitch(false);
         setShowRefinements(true);
-        setCurrentView('project');
-        setActiveProject({ id: Date.now().toString(), title: 'Quick Pitch - Google PM', tags: ['Interview'], lastEdited: 'Just now', slides: 6, views: 0 });
+        setOnePagerData(null);
+        setMessages([{ id: '1', type: 'system', content: `Your pitch is ready! ${data.slides?.length || 6} slides created.` }]);
+      }
+    } catch (error) {
+      clearInterval(phaseInterval);
+      console.error('Generation error:', error);
+      setIsGenerating(false);
+      
+      // Fallback to mock data
+      setShowQuickPitch(false);
+      setCurrentView('project');
+      setActiveProject({ id: Date.now().toString(), title: 'Quick Pitch - Google PM', tags: ['Interview'], lastEdited: 'Just now', slides: 6, views: 0 });
+      
+      if (outputFormat === 'one-pager') {
+        setOnePagerData({
+          headline: "Senior Product Manager Ready to Scale",
+          subheadline: "8+ years leading consumer products from 0 to 1M+ users with proven expertise in AI-powered features",
+          sections: [
+            { type: 'key-points', title: 'Key Achievements', content: 'Proven track record of shipping products that scale', bullets: ['Led mobile app redesign: +47% DAU, -23% churn', 'Launched AI features to 50M+ users', 'Managed cross-functional teams of 15+'] },
+            { type: 'value-prop', title: 'Why Me', content: 'Unique blend of technical depth and product intuition', bullets: ['User-centric discovery methodology', 'Data-driven decision making', 'Rapid prototyping expertise'] },
+            { type: 'cta', title: "Let's Connect", content: 'Ready to bring my experience to your next chapter. Schedule a conversation today.' }
+          ]
+        });
+        setShowSlides(false);
+        setShowRefinements(false);
+        setMessages([{ id: '1', type: 'system', content: 'Your one-pager is ready!' }]);
+      } else {
+        setShowSlides(true);
+        setShowRefinements(true);
+        setOnePagerData(null);
         setMessages([{ id: '1', type: 'system', content: 'Your pitch is ready! 6 slides created.' }]);
       }
-    }, 1500);
+    }
   };
 
   const handleCopyLink = () => {
@@ -579,39 +650,47 @@ const Dashboard = () => {
             <header className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between border-b border-border relative z-10">
               <div>
                 <h2 className="text-foreground font-medium font-display text-sm sm:text-base">Preview</h2>
-                {showSlides && (
+                {showSlides && !onePagerData && (
                   <p className="text-xs text-muted-foreground hidden sm:block">Swipe or use ← → to navigate</p>
                 )}
+                {onePagerData && (
+                  <p className="text-xs text-muted-foreground hidden sm:block">One-pager executive summary</p>
+                )}
               </div>
-              {showSlides && (
+              {(showSlides || onePagerData) && (
                 <div className="flex items-center gap-2 sm:gap-3">
-                  {/* Mobile navigation arrows */}
-                  <div className="flex items-center gap-1 sm:hidden">
+                  {/* Mobile navigation arrows - only for slides */}
+                  {showSlides && !onePagerData && (
+                    <div className="flex items-center gap-1 sm:hidden">
+                      <button 
+                        onClick={() => setActiveSlide(prev => Math.max(0, prev - 1))}
+                        disabled={activeSlide === 0}
+                        className="p-2 rounded-lg border border-accent/20 disabled:opacity-30 hover:bg-accent/10 transition-colors"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+                      <span className="text-xs font-medium text-foreground min-w-[40px] text-center">
+                        {activeSlide + 1}/{generatedSlides.length}
+                      </span>
+                      <button 
+                        onClick={() => setActiveSlide(prev => Math.min(generatedSlides.length - 1, prev + 1))}
+                        disabled={activeSlide === generatedSlides.length - 1}
+                        className="p-2 rounded-lg border border-accent/20 disabled:opacity-30 hover:bg-accent/10 transition-colors"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                  {/* Practice mode - only for slides */}
+                  {showSlides && !onePagerData && (
                     <button 
-                      onClick={() => setActiveSlide(prev => Math.max(0, prev - 1))}
-                      disabled={activeSlide === 0}
-                      className="p-2 rounded-lg border border-accent/20 disabled:opacity-30 hover:bg-accent/10 transition-colors"
+                      onClick={() => setIsPracticeMode(true)} 
+                      className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm text-accent border border-accent/30 flex items-center gap-1 sm:gap-2 hover:bg-accent/10 transition-colors"
                     >
-                      <ChevronLeft className="w-4 h-4" />
+                      <Play className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <span className="hidden sm:inline">Practice</span>
                     </button>
-                    <span className="text-xs font-medium text-foreground min-w-[40px] text-center">
-                      {activeSlide + 1}/{generatedSlides.length}
-                    </span>
-                    <button 
-                      onClick={() => setActiveSlide(prev => Math.min(generatedSlides.length - 1, prev + 1))}
-                      disabled={activeSlide === generatedSlides.length - 1}
-                      className="p-2 rounded-lg border border-accent/20 disabled:opacity-30 hover:bg-accent/10 transition-colors"
-                    >
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                  <button 
-                    onClick={() => setIsPracticeMode(true)} 
-                    className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm text-accent border border-accent/30 flex items-center gap-1 sm:gap-2 hover:bg-accent/10 transition-colors"
-                  >
-                    <Play className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span className="hidden sm:inline">Practice</span>
-                  </button>
+                  )}
                   <button 
                     onClick={() => setShowShareModal(true)} 
                     className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm text-white magenta-gradient flex items-center gap-1 sm:gap-2"
@@ -624,7 +703,12 @@ const Dashboard = () => {
             </header>
             
             <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 relative z-10">
-              {showSlides ? (
+              {onePagerData ? (
+                <OnePager 
+                  data={onePagerData}
+                  projectTitle={activeProject?.title}
+                />
+              ) : showSlides ? (
                 <SlideGrid 
                   slides={generatedSlides}
                   activeSlide={activeSlide}
@@ -750,6 +834,41 @@ const Dashboard = () => {
                   placeholder="Or type your pitch scenario..." 
                   className="w-full h-20 sm:h-24 p-3 sm:p-4 rounded-xl text-foreground input-field resize-none mb-4 sm:mb-6 text-sm" 
                 />
+                
+                {/* Output Format Selection */}
+                <div className="mb-4 sm:mb-6">
+                  <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wider">Output Format</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={() => setOutputFormat('slides')}
+                      className={`flex items-center gap-3 p-3 sm:p-4 rounded-xl border transition-all ${
+                        outputFormat === 'slides' 
+                          ? 'border-primary bg-primary/10 text-foreground' 
+                          : 'border-accent/20 text-muted-foreground hover:border-accent/40'
+                      }`}
+                    >
+                      <Layers className="w-5 h-5" />
+                      <div className="text-left">
+                        <p className="text-sm font-medium">Slides</p>
+                        <p className="text-xs opacity-70">Multi-slide deck</p>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => setOutputFormat('one-pager')}
+                      className={`flex items-center gap-3 p-3 sm:p-4 rounded-xl border transition-all ${
+                        outputFormat === 'one-pager' 
+                          ? 'border-primary bg-primary/10 text-foreground' 
+                          : 'border-accent/20 text-muted-foreground hover:border-accent/40'
+                      }`}
+                    >
+                      <FileText className="w-5 h-5" />
+                      <div className="text-left">
+                        <p className="text-sm font-medium">One-Pager</p>
+                        <p className="text-xs opacity-70">Executive summary</p>
+                      </div>
+                    </button>
+                  </div>
+                </div>
                 
                 <div className="flex gap-3">
                   <button 

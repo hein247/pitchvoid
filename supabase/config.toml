@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.generate-pitch-images]
 verify_jwt = false
+
+[functions.generate-one-pager]
+verify_jwt = false
