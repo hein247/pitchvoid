@@ -8,6 +8,7 @@ import Navbar from '@/components/Navbar';
 import SlideGrid from '@/components/dashboard/SlideGrid';
 import RefinementPanel from '@/components/dashboard/RefinementPanel';
 import OnePager, { OnePagerData } from '@/components/dashboard/OnePager';
+import OnePagerEditor from '@/components/dashboard/OnePagerEditor';
 import { useSwipeGesture } from '@/hooks/useSwipeGesture';
 
 type OutputFormat = 'slides' | 'one-pager';
@@ -582,8 +583,8 @@ const Dashboard = () => {
               <div ref={messagesEndRef} />
             </div>
             
-            {/* Refinements Panel */}
-            {showRefinements && (
+            {/* Refinements Panel - for slides */}
+            {showRefinements && !onePagerData && (
               <div className="p-3 sm:p-4 border-t border-accent/10 max-h-[50vh] overflow-y-auto">
                 <RefinementPanel
                   slides={generatedSlides}
@@ -610,6 +611,16 @@ const Dashboard = () => {
                     }
                   }}
                   isApplying={isApplyingRefinements}
+                />
+              </div>
+            )}
+            
+            {/* One-Pager Editor - for one-pagers */}
+            {onePagerData && (
+              <div className="p-3 sm:p-4 border-t border-accent/10 max-h-[50vh] overflow-y-auto">
+                <OnePagerEditor
+                  data={onePagerData}
+                  onUpdate={(updatedData) => setOnePagerData(updatedData)}
                 />
               </div>
             )}
