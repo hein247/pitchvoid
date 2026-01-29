@@ -358,7 +358,7 @@ const LiveSlideEditor = ({ projectId, initialSlides, onClose }: LiveSlideEditorP
   return (
     <div className="h-full flex flex-col bg-background">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border bg-card/80 backdrop-blur-xl">
+      <div className="flex items-center justify-between p-4 border-b border-border bg-muted/50 dark:bg-black/30 backdrop-blur-xl">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center shadow-[0_0_20px_hsl(var(--primary)/0.4)]">
@@ -368,7 +368,7 @@ const LiveSlideEditor = ({ projectId, initialSlides, onClose }: LiveSlideEditorP
           </div>
           
           {/* Slide Navigation */}
-          <div className="flex items-center gap-2 ml-4 bg-muted px-3 py-1.5 rounded-lg border border-border">
+          <div className="flex items-center gap-2 ml-4 bg-muted/80 dark:bg-white/[0.03] px-3 py-1.5 rounded-lg border border-border">
             <Button
               variant="ghost"
               size="sm"
@@ -471,7 +471,7 @@ const LiveSlideEditor = ({ projectId, initialSlides, onClose }: LiveSlideEditorP
       </div>
 
       {/* Slide Thumbnails Carousel */}
-      <div className="flex gap-3 p-4 border-b border-border overflow-x-auto bg-muted scrollbar-hide">
+      <div className="flex gap-3 p-4 border-b border-border overflow-x-auto bg-muted/50 dark:bg-black/20 scrollbar-hide">
         {slides.map((slide, index) => (
           <button
             key={slide.id}
@@ -481,7 +481,7 @@ const LiveSlideEditor = ({ projectId, initialSlides, onClose }: LiveSlideEditorP
               flex flex-col justify-between
               ${index === currentSlideIndex
                 ? 'border-primary bg-primary/10 shadow-[0_0_25px_hsl(var(--primary)/0.4)] scale-105'
-                : 'border-border bg-card hover:border-primary/40 hover:bg-muted'
+                : 'border-border bg-muted/50 dark:bg-white/[0.02] hover:border-primary/40 hover:bg-muted dark:hover:bg-white/[0.04]'
               }
             `}
           >
