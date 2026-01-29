@@ -12,6 +12,7 @@ import RefinementPanel from '@/components/dashboard/RefinementPanel';
 import OnePager, { OnePagerData } from '@/components/dashboard/OnePager';
 import OnePagerEditor from '@/components/dashboard/OnePagerEditor';
 import ScriptViewer, { ScriptData } from '@/components/dashboard/ScriptViewer';
+import FormatToggle from '@/components/dashboard/FormatToggle';
 import { useSwipeGesture } from '@/hooks/useSwipeGesture';
 
 type OutputFormat = 'slides' | 'one-pager' | 'script';
@@ -85,6 +86,17 @@ const Dashboard = () => {
   const [outputFormat, setOutputFormat] = useState<OutputFormat>('slides');
   const [onePagerData, setOnePagerData] = useState<OnePagerData | null>(null);
   const [scriptData, setScriptData] = useState<ScriptData | null>(null);
+  const [isRegenerating, setIsRegenerating] = useState(false);
+  
+  // Store last generation context for regenerating in different formats
+  const [lastGenerationContext, setLastGenerationContext] = useState<{
+    scenario: string;
+    targetAudience: string;
+    tone: string;
+    length: string;
+    documentContext?: string;
+    imageDescriptions?: string[];
+  } | null>(null);
   
   // Quick pitch state - 4 steps: 1=Describe, 2=Context, 3=Tune, 4=Generate
   const [isRecording, setIsRecording] = useState(false);
@@ -458,6 +470,16 @@ const Dashboard = () => {
 
     const targetAudience = parsedContext?.audience_detail || parsedContext?.audience || 'Decision makers';
 
+    // Store context for later regeneration in different formats
+    setLastGenerationContext({
+      scenario: transcribedText,
+      targetAudience,
+      tone: selectedTone,
+      length: selectedLength,
+      documentContext: documentContext || undefined,
+      imageDescriptions: imageDescriptions.length > 0 ? imageDescriptions : undefined,
+    });
+
     try {
       let functionName: string;
       let body: Record<string, unknown>;
@@ -603,6 +625,141 @@ const Dashboard = () => {
   };
 
   // handleCopyLink moved to ShareModal component
+
+  // Regenerate content in a different format
+  const handleRegenerateInFormat = async (newFormat: OutputFormat) => {
+    if (!lastGenerationContext) {
+      toast({ 
+        title: 'No context available', 
+        description: 'Please generate content first using Quick Pitch', 
+        variant: 'destructive' 
+      });
+      return;
+    }
+
+    setIsRegenerating(true);
+    setOutputFormat(newFormat);
+    
+    const phasesByFormat: Record<OutputFormat, string[]> = {
+      'slides': ['Restructuring as slides...', 'Designing layouts...', 'Finalizing...'],
+      'one-pager': ['Converting to one-pager...', 'Crafting summary...', 'Finalizing...'],
+      'script': ['Converting to script...', 'Adding delivery cues...', 'Finalizing...']
+    };
+    
+    let phaseIndex = 0;
+    const phaseInterval = setInterval(() => {
+      if (phaseIndex < phasesByFormat[newFormat].length) { 
+        setGenerationPhase(phasesByFormat[newFormat][phaseIndex]); 
+        phaseIndex++; 
+      }
+    }, 800);
+
+    try {
+      let functionName: string;
+      let body: Record<string, unknown>;
+      const ctx = lastGenerationContext;
+
+      if (newFormat === 'script') {
+        functionName = 'generate-script';
+        body = {
+          scenario: ctx.scenario,
+          targetAudience: ctx.targetAudience,
+          tone: ctx.tone,
+          length: ctx.length,
+          documentContext: ctx.documentContext,
+          imageDescriptions: ctx.imageDescriptions,
+        };
+      } else if (newFormat === 'one-pager') {
+        functionName = 'generate-one-pager';
+        body = {
+          scenario: ctx.scenario,
+          targetAudience: ctx.targetAudience,
+          visualStyle: ctx.tone,
+          documentContext: ctx.documentContext,
+          imageDescriptions: ctx.imageDescriptions,
+        };
+      } else {
+        functionName = 'generate-pitch';
+        body = {
+          scenario: ctx.scenario,
+          targetAudience: ctx.targetAudience,
+          visualStyle: `${ctx.tone}, ${ctx.length === 'quick' ? 'concise' : ctx.length === 'detailed' ? 'comprehensive' : 'balanced'}`,
+          documentContext: ctx.documentContext,
+          imageDescriptions: ctx.imageDescriptions,
+        };
+      }
+      
+      const { data, error } = await supabase.functions.invoke(functionName, { body });
+
+      clearInterval(phaseInterval);
+
+      if (error) throw error;
+
+      if (newFormat === 'one-pager') {
+        setOnePagerData(data.onePager);
+        setMessages(prev => [...prev, { id: Date.now().toString(), type: 'assistant', content: 'Regenerated as one-pager!' }]);
+      } else if (newFormat === 'script') {
+        setScriptData(data.script);
+        setMessages(prev => [...prev, { id: Date.now().toString(), type: 'assistant', content: `Regenerated as script with ${data.script?.sections?.length || 5} sections!` }]);
+      } else {
+        setShowSlides(true);
+        setMessages(prev => [...prev, { id: Date.now().toString(), type: 'assistant', content: `Regenerated as slides!` }]);
+      }
+
+    } catch (error) {
+      clearInterval(phaseInterval);
+      console.error('Regeneration error:', error);
+      toast({ 
+        title: 'Regeneration failed', 
+        description: 'Using fallback content', 
+        variant: 'destructive' 
+      });
+      
+      // Fallback content
+      if (newFormat === 'one-pager') {
+        setOnePagerData({
+          headline: "Your Pitch, Reimagined",
+          subheadline: "A concise executive summary based on your original content",
+          sections: [
+            { type: 'key-points', title: 'Key Points', content: 'Your main strengths and value proposition', bullets: ['Point 1', 'Point 2', 'Point 3'] },
+            { type: 'cta', title: 'Next Steps', content: 'Ready to discuss further.' }
+          ]
+        });
+      } else if (newFormat === 'script') {
+        setScriptData({
+          title: 'Speaking Script',
+          total_duration: '2-3 minutes',
+          sections: [
+            { name: 'Opening', duration: '20 seconds', content: 'Your opening hook goes here.', cue: 'Make eye contact.' },
+            { name: 'Close', duration: '15 seconds', content: 'Your closing statement.', cue: 'Pause for effect.' }
+          ],
+          key_phrases: ['Key phrase 1', 'Key phrase 2']
+        });
+      } else {
+        setShowSlides(true);
+      }
+    } finally {
+      setIsRegenerating(false);
+      setGenerationPhase('');
+    }
+  };
+
+  // Handle format change - switch view or regenerate
+  const handleFormatChange = (newFormat: OutputFormat) => {
+    if (newFormat === outputFormat) return;
+    
+    // If content exists for the format, just switch view
+    if (
+      (newFormat === 'slides' && showSlides) ||
+      (newFormat === 'one-pager' && onePagerData) ||
+      (newFormat === 'script' && scriptData)
+    ) {
+      setOutputFormat(newFormat);
+    } else {
+      // Regenerate in new format
+      handleRegenerateInFormat(newFormat);
+    }
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -935,23 +1092,42 @@ const Dashboard = () => {
             ref={swipeRef as React.RefObject<HTMLDivElement>}
             className="flex-1 grain-bg flex flex-col relative min-h-[50vh] lg:min-h-0"
           >
-            <header className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between border-b border-border relative z-10">
-              <div>
-                <h2 className="text-foreground font-medium font-display text-sm sm:text-base">Preview</h2>
-                {showSlides && !onePagerData && !scriptData && (
-                  <p className="text-xs text-muted-foreground hidden sm:block">Swipe or use ← → to navigate</p>
-                )}
-                {onePagerData && (
-                  <p className="text-xs text-muted-foreground hidden sm:block">One-pager executive summary</p>
-                )}
-                {scriptData && (
-                  <p className="text-xs text-muted-foreground hidden sm:block">Speaking script with delivery cues</p>
+            <header className="px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:justify-between border-b border-border relative z-10">
+              <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+                <div>
+                  <h2 className="text-foreground font-medium font-display text-sm sm:text-base">Preview</h2>
+                  {isRegenerating && (
+                    <p className="text-xs text-primary animate-pulse">{generationPhase}</p>
+                  )}
+                  {!isRegenerating && outputFormat === 'slides' && showSlides && (
+                    <p className="text-xs text-muted-foreground hidden sm:block">Swipe or use ← → to navigate</p>
+                  )}
+                  {!isRegenerating && outputFormat === 'one-pager' && onePagerData && (
+                    <p className="text-xs text-muted-foreground hidden sm:block">One-pager executive summary</p>
+                  )}
+                  {!isRegenerating && outputFormat === 'script' && scriptData && (
+                    <p className="text-xs text-muted-foreground hidden sm:block">Speaking script with delivery cues</p>
+                  )}
+                </div>
+                
+                {/* Format Toggle - Only show when content exists */}
+                {(showSlides || onePagerData || scriptData) && (
+                  <FormatToggle
+                    activeFormat={outputFormat}
+                    onFormatChange={handleFormatChange}
+                    hasSlides={showSlides}
+                    hasOnePager={!!onePagerData}
+                    hasScript={!!scriptData}
+                    onRegenerate={handleRegenerateInFormat}
+                    isRegenerating={isRegenerating}
+                  />
                 )}
               </div>
+              
               {(showSlides || onePagerData || scriptData) && (
-                <div className="flex items-center gap-2 sm:gap-3">
+                <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end">
                   {/* Mobile navigation arrows - only for slides */}
-                  {showSlides && !onePagerData && !scriptData && (
+                  {outputFormat === 'slides' && showSlides && !onePagerData && !scriptData && (
                     <div className="flex items-center gap-1 sm:hidden">
                       <button 
                         onClick={() => setActiveSlide(prev => Math.max(0, prev - 1))}
@@ -973,7 +1149,7 @@ const Dashboard = () => {
                     </div>
                   )}
                   {/* Practice mode - for slides and scripts */}
-                  {(showSlides || scriptData) && !onePagerData && (
+                  {((outputFormat === 'slides' && showSlides) || (outputFormat === 'script' && scriptData)) && !onePagerData && (
                     <button 
                       onClick={() => setIsPracticeMode(true)} 
                       className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm text-accent border border-accent/30 flex items-center gap-1 sm:gap-2 hover:bg-accent/10 transition-colors"
