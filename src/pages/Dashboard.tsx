@@ -3,16 +3,31 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Mic, Plus, ArrowLeft, X, Play, Share2, Home, ChevronLeft, ChevronRight, FileText, Layers, Upload, File, Image } from 'lucide-react';
+import { Loader2, Mic, Plus, ArrowLeft, X, Play, Share2, Home, ChevronLeft, ChevronRight, FileText, Layers, Upload, File, Image, ScrollText, Check, Edit2, Users, Target, Sparkles, Clock } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import Navbar from '@/components/Navbar';
 import SlideGrid from '@/components/dashboard/SlideGrid';
 import RefinementPanel from '@/components/dashboard/RefinementPanel';
 import OnePager, { OnePagerData } from '@/components/dashboard/OnePager';
 import OnePagerEditor from '@/components/dashboard/OnePagerEditor';
+import ScriptViewer, { ScriptData } from '@/components/dashboard/ScriptViewer';
 import { useSwipeGesture } from '@/hooks/useSwipeGesture';
 
-type OutputFormat = 'slides' | 'one-pager';
+type OutputFormat = 'slides' | 'one-pager' | 'script';
+
+interface ParsedContext {
+  audience: string;
+  audience_detail: string;
+  subject: string;
+  subject_detail: string;
+  goal: string;
+  tone: string;
+  urgency: string;
+  suggested_format: OutputFormat;
+  suggested_length: 'quick' | 'standard' | 'detailed';
+  clarifying_questions: string[];
+  summary: string;
+}
 
 interface Project {
   id: string;
@@ -68,12 +83,20 @@ const Dashboard = () => {
   // Output format state
   const [outputFormat, setOutputFormat] = useState<OutputFormat>('slides');
   const [onePagerData, setOnePagerData] = useState<OnePagerData | null>(null);
+  const [scriptData, setScriptData] = useState<ScriptData | null>(null);
   
-  // Quick pitch state
+  // Quick pitch state - 4 steps: 1=Describe, 2=Context, 3=Tune, 4=Generate
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [transcribedText, setTranscribedText] = useState('');
   const [quickPitchStep, setQuickPitchStep] = useState(1);
+  const [parsedContext, setParsedContext] = useState<ParsedContext | null>(null);
+  const [isParsing, setIsParsing] = useState(false);
+  
+  // Tune preferences
+  const [selectedLength, setSelectedLength] = useState<'quick' | 'standard' | 'detailed'>('standard');
+  const [selectedTone, setSelectedTone] = useState<'confident' | 'humble' | 'balanced' | 'bold'>('balanced');
+  const [highlightNotes, setHighlightNotes] = useState('');
   
   // File attachment state
   interface AttachedFile {
@@ -247,8 +270,53 @@ const Dashboard = () => {
     setIsRecording(false);
     setTimeout(() => {
       setTranscribedText("Pitch me for a Senior Product Manager role at Google. Focus on my experience scaling mobile apps.");
-      setQuickPitchStep(2);
     }, 1000);
+  };
+
+  // Parse user input with AI to understand context
+  const handleParseInput = async () => {
+    if (!transcribedText.trim()) return;
+    
+    setIsParsing(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('parse-pitch-input', {
+        body: { userInput: transcribedText },
+      });
+
+      if (error) throw error;
+
+      const parsed = data.parsedContext as ParsedContext;
+      setParsedContext(parsed);
+      setOutputFormat(parsed.suggested_format);
+      setSelectedLength(parsed.suggested_length);
+      setSelectedTone(parsed.tone as 'confident' | 'humble' | 'balanced' | 'bold' || 'balanced');
+      setQuickPitchStep(2); // Move to confirmation step
+    } catch (error) {
+      console.error('Parse error:', error);
+      toast({ 
+        title: 'Could not parse input', 
+        description: 'Moving forward with defaults', 
+        variant: 'destructive' 
+      });
+      // Fallback - set defaults and continue
+      setParsedContext({
+        audience: 'Decision makers',
+        audience_detail: '',
+        subject: 'Your pitch',
+        subject_detail: transcribedText,
+        goal: 'Persuade',
+        tone: 'confident',
+        urgency: 'not specified',
+        suggested_format: 'slides',
+        suggested_length: 'standard',
+        clarifying_questions: [],
+        summary: transcribedText
+      });
+      setQuickPitchStep(2);
+    } finally {
+      setIsParsing(false);
+    }
   };
 
   // File upload handlers
@@ -356,12 +424,16 @@ const Dashboard = () => {
   };
 
   const handleQuickGenerate = async () => {
-    setQuickPitchStep(3);
+    setQuickPitchStep(5); // Generation step
     setIsGenerating(true);
     
-    const phases = outputFormat === 'one-pager' 
-      ? ['Analyzing input...', 'Crafting narrative...', 'Building one-pager...', 'Finalizing...']
-      : ['Analyzing input...', 'Processing files...', 'Crafting narrative...', 'Designing slides...', 'Finalizing...'];
+    const phasesByFormat: Record<OutputFormat, string[]> = {
+      'slides': ['Understanding your pitch...', 'Processing files...', 'Structuring narrative...', 'Designing slides...', 'Finalizing...'],
+      'one-pager': ['Understanding your pitch...', 'Analyzing materials...', 'Crafting narrative...', 'Building one-pager...', 'Finalizing...'],
+      'script': ['Understanding your pitch...', 'Analyzing materials...', 'Writing script...', 'Adding delivery cues...', 'Finalizing...']
+    };
+    
+    const phases = phasesByFormat[outputFormat];
     
     let phaseIndex = 0;
     const phaseInterval = setInterval(() => {
@@ -372,27 +444,54 @@ const Dashboard = () => {
     }, 1200);
 
     // Prepare file context for AI
-    const documentContext = attachedFiles
-      .filter(f => !f.type.startsWith('image/'))
-      .map(f => f.content || `File: ${f.name}`)
-      .join('\n');
+    const documentContext = [
+      ...(attachedFiles
+        .filter(f => !f.type.startsWith('image/'))
+        .map(f => f.content || `File: ${f.name}`)),
+      highlightNotes ? `User highlights: ${highlightNotes}` : ''
+    ].filter(Boolean).join('\n');
     
     const imageDescriptions = attachedFiles
       .filter(f => f.type.startsWith('image/'))
       .map(f => `Uploaded image: ${f.name}`);
 
+    const targetAudience = parsedContext?.audience_detail || parsedContext?.audience || 'Decision makers';
+
     try {
-      const functionName = outputFormat === 'one-pager' ? 'generate-one-pager' : 'generate-pitch';
-      
-      const { data, error } = await supabase.functions.invoke(functionName, {
-        body: {
+      let functionName: string;
+      let body: Record<string, unknown>;
+
+      if (outputFormat === 'script') {
+        functionName = 'generate-script';
+        body = {
           scenario: transcribedText,
-          targetAudience: 'Decision makers',
-          visualStyle: 'Professional and impactful',
+          targetAudience,
+          tone: selectedTone,
+          length: selectedLength,
           documentContext: documentContext || undefined,
           imageDescriptions: imageDescriptions.length > 0 ? imageDescriptions : undefined,
-        },
-      });
+        };
+      } else if (outputFormat === 'one-pager') {
+        functionName = 'generate-one-pager';
+        body = {
+          scenario: transcribedText,
+          targetAudience,
+          visualStyle: selectedTone,
+          documentContext: documentContext || undefined,
+          imageDescriptions: imageDescriptions.length > 0 ? imageDescriptions : undefined,
+        };
+      } else {
+        functionName = 'generate-pitch';
+        body = {
+          scenario: transcribedText,
+          targetAudience,
+          visualStyle: `${selectedTone}, ${selectedLength === 'quick' ? 'concise' : selectedLength === 'detailed' ? 'comprehensive' : 'balanced'}`,
+          documentContext: documentContext || undefined,
+          imageDescriptions: imageDescriptions.length > 0 ? imageDescriptions : undefined,
+        };
+      }
+      
+      const { data, error } = await supabase.functions.invoke(functionName, { body });
 
       clearInterval(phaseInterval);
 
@@ -401,26 +500,45 @@ const Dashboard = () => {
       setIsGenerating(false);
       setShowQuickPitch(false);
       setCurrentView('project');
+      
+      const formatLabels: Record<OutputFormat, string> = {
+        'slides': 'Presentation',
+        'one-pager': 'One-Pager',
+        'script': 'Script'
+      };
+      
       setActiveProject({ 
         id: Date.now().toString(), 
-        title: 'Quick Pitch', 
-        tags: [outputFormat === 'one-pager' ? 'One-Pager' : 'Interview'], 
+        title: parsedContext?.summary || 'Quick Pitch', 
+        tags: [formatLabels[outputFormat]], 
         lastEdited: 'Just now', 
-        slides: outputFormat === 'slides' ? 6 : 1, 
+        slides: outputFormat === 'slides' ? (data.slides?.length || 6) : 1, 
         views: 0 
       });
 
       if (outputFormat === 'one-pager') {
         setOnePagerData(data.onePager);
+        setScriptData(null);
         setShowSlides(false);
         setShowRefinements(false);
         setMessages([{ id: '1', type: 'system', content: 'Your one-pager is ready!' }]);
+      } else if (outputFormat === 'script') {
+        setScriptData(data.script);
+        setOnePagerData(null);
+        setShowSlides(false);
+        setShowRefinements(false);
+        setMessages([{ id: '1', type: 'system', content: `Your script is ready! ${data.script?.sections?.length || 5} sections created.` }]);
       } else {
         setShowSlides(true);
         setShowRefinements(true);
         setOnePagerData(null);
+        setScriptData(null);
         setMessages([{ id: '1', type: 'system', content: `Your pitch is ready! ${data.slides?.length || 6} slides created.` }]);
       }
+      
+      // Reset Quick Pitch state
+      resetQuickPitchState();
+      
     } catch (error) {
       clearInterval(phaseInterval);
       console.error('Generation error:', error);
@@ -429,7 +547,7 @@ const Dashboard = () => {
       // Fallback to mock data
       setShowQuickPitch(false);
       setCurrentView('project');
-      setActiveProject({ id: Date.now().toString(), title: 'Quick Pitch - Google PM', tags: ['Interview'], lastEdited: 'Just now', slides: 6, views: 0 });
+      setActiveProject({ id: Date.now().toString(), title: parsedContext?.summary || 'Quick Pitch', tags: [outputFormat], lastEdited: 'Just now', slides: 6, views: 0 });
       
       if (outputFormat === 'one-pager') {
         setOnePagerData({
@@ -441,16 +559,46 @@ const Dashboard = () => {
             { type: 'cta', title: "Let's Connect", content: 'Ready to bring my experience to your next chapter. Schedule a conversation today.' }
           ]
         });
+        setScriptData(null);
         setShowSlides(false);
         setShowRefinements(false);
         setMessages([{ id: '1', type: 'system', content: 'Your one-pager is ready!' }]);
+      } else if (outputFormat === 'script') {
+        setScriptData({
+          title: parsedContext?.summary || 'Interview Script',
+          total_duration: '2-3 minutes',
+          sections: [
+            { name: 'Opening', duration: '15 seconds', content: 'Thank you for having me. I\'m excited to share why I believe I\'m the right fit for this role.', cue: 'Make eye contact, smile, project confidence.' },
+            { name: 'Background', duration: '30 seconds', content: 'I\'ve spent the last 8 years scaling consumer products from zero to millions of users. Most recently, I led a mobile redesign that increased daily active users by 47%.', cue: 'Lean in slightly, emphasize the numbers.' },
+            { name: 'Value', duration: '45 seconds', content: 'What sets me apart is my approach: I combine deep user research with rapid experimentation. I don\'t just build features—I validate them with data first.', cue: 'Use hand gestures to illustrate points.' },
+            { name: 'Close', duration: '20 seconds', content: 'I\'m ready to bring this experience to your team. I\'d love to discuss how I can contribute to your next chapter.', cue: 'End with genuine enthusiasm. Pause for effect.' }
+          ],
+          key_phrases: ['47% increase in DAU', 'Zero to millions', 'Data-driven decisions']
+        });
+        setOnePagerData(null);
+        setShowSlides(false);
+        setShowRefinements(false);
+        setMessages([{ id: '1', type: 'system', content: 'Your script is ready!' }]);
       } else {
         setShowSlides(true);
         setShowRefinements(true);
         setOnePagerData(null);
+        setScriptData(null);
         setMessages([{ id: '1', type: 'system', content: 'Your pitch is ready! 6 slides created.' }]);
       }
+      
+      resetQuickPitchState();
     }
+  };
+
+  const resetQuickPitchState = () => {
+    setQuickPitchStep(1);
+    setTranscribedText('');
+    setParsedContext(null);
+    setAttachedFiles([]);
+    setHighlightNotes('');
+    setSelectedLength('standard');
+    setSelectedTone('balanced');
   };
 
   const handleCopyLink = () => {
@@ -793,17 +941,20 @@ const Dashboard = () => {
             <header className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between border-b border-border relative z-10">
               <div>
                 <h2 className="text-foreground font-medium font-display text-sm sm:text-base">Preview</h2>
-                {showSlides && !onePagerData && (
+                {showSlides && !onePagerData && !scriptData && (
                   <p className="text-xs text-muted-foreground hidden sm:block">Swipe or use ← → to navigate</p>
                 )}
                 {onePagerData && (
                   <p className="text-xs text-muted-foreground hidden sm:block">One-pager executive summary</p>
                 )}
+                {scriptData && (
+                  <p className="text-xs text-muted-foreground hidden sm:block">Speaking script with delivery cues</p>
+                )}
               </div>
-              {(showSlides || onePagerData) && (
+              {(showSlides || onePagerData || scriptData) && (
                 <div className="flex items-center gap-2 sm:gap-3">
                   {/* Mobile navigation arrows - only for slides */}
-                  {showSlides && !onePagerData && (
+                  {showSlides && !onePagerData && !scriptData && (
                     <div className="flex items-center gap-1 sm:hidden">
                       <button 
                         onClick={() => setActiveSlide(prev => Math.max(0, prev - 1))}
@@ -824,8 +975,8 @@ const Dashboard = () => {
                       </button>
                     </div>
                   )}
-                  {/* Practice mode - only for slides */}
-                  {showSlides && !onePagerData && (
+                  {/* Practice mode - for slides and scripts */}
+                  {(showSlides || scriptData) && !onePagerData && (
                     <button 
                       onClick={() => setIsPracticeMode(true)} 
                       className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm text-accent border border-accent/30 flex items-center gap-1 sm:gap-2 hover:bg-accent/10 transition-colors"
@@ -846,7 +997,12 @@ const Dashboard = () => {
             </header>
             
             <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 relative z-10">
-              {onePagerData ? (
+              {scriptData ? (
+                <ScriptViewer 
+                  data={scriptData}
+                  onUpdate={(updatedData) => setScriptData(updatedData)}
+                />
+              ) : onePagerData ? (
                 <OnePager 
                   data={onePagerData}
                   projectTitle={activeProject?.title}
@@ -892,11 +1048,11 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Quick Pitch Modal */}
+      {/* Quick Pitch Modal - 5 Steps: Describe → Confirm → Context → Tune → Generate */}
       {showQuickPitch && (
         <div 
           className="fixed inset-0 z-50 flex items-center justify-center modal-overlay p-4" 
-          onClick={() => { setShowQuickPitch(false); setQuickPitchStep(1); setTranscribedText(''); }}
+          onClick={() => { setShowQuickPitch(false); resetQuickPitchState(); }}
         >
           <div 
             className="glassmorphism-dark rounded-2xl p-4 sm:p-8 w-full max-w-2xl animate-scaleIn max-h-[90vh] overflow-y-auto" 
@@ -906,30 +1062,35 @@ const Dashboard = () => {
               <div>
                 <h3 className="text-lg sm:text-xl text-foreground font-display">Quick Pitch</h3>
                 <p className="text-xs sm:text-sm text-muted-foreground">
-                  {quickPitchStep === 1 ? 'Speak or type' : quickPitchStep === 2 ? 'Attach files' : 'Generating...'}
+                  {quickPitchStep === 1 ? 'Step 1: Describe your pitch' : 
+                   quickPitchStep === 2 ? 'Step 2: Confirm understanding' :
+                   quickPitchStep === 3 ? 'Step 3: Add context (optional)' :
+                   quickPitchStep === 4 ? 'Step 4: Quick tune' : 'Generating...'}
                 </p>
               </div>
               <button 
-                onClick={() => { setShowQuickPitch(false); setQuickPitchStep(1); }} 
+                onClick={() => { setShowQuickPitch(false); resetQuickPitchState(); }} 
                 className="text-muted-foreground hover:text-foreground"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
             
-            {/* Progress */}
+            {/* Progress - 5 steps */}
             <div className="flex gap-2 mb-4 sm:mb-6">
-              {[1, 2, 3].map(s => (
+              {[1, 2, 3, 4, 5].map(s => (
                 <div 
                   key={s} 
-                  className={`h-1 flex-1 rounded-full ${quickPitchStep >= s ? 'magenta-gradient' : 'bg-accent/20'}`} 
+                  className={`h-1 flex-1 rounded-full transition-all ${quickPitchStep >= s ? 'magenta-gradient' : 'bg-accent/20'}`} 
                 />
               ))}
             </div>
 
-            {/* Step 1: Input */}
+            {/* Step 1: Describe */}
             {quickPitchStep === 1 && (
               <div>
+                <p className="text-sm text-muted-foreground mb-4">🎯 What do you need to pitch?</p>
+                
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4 sm:mb-6">
                   {quickTemplates.map(t => (
                     <button 
@@ -974,44 +1135,9 @@ const Dashboard = () => {
                 <textarea 
                   value={transcribedText} 
                   onChange={e => setTranscribedText(e.target.value)} 
-                  placeholder="Or type your pitch scenario..." 
-                  className="w-full h-20 sm:h-24 p-3 sm:p-4 rounded-xl text-foreground input-field resize-none mb-4 sm:mb-6 text-sm" 
+                  placeholder="Describe your pitch in your own words..." 
+                  className="w-full h-24 sm:h-28 p-3 sm:p-4 rounded-xl text-foreground input-field resize-none mb-4 sm:mb-6 text-sm" 
                 />
-                
-                {/* Output Format Selection */}
-                <div className="mb-4 sm:mb-6">
-                  <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wider">Output Format</p>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      onClick={() => setOutputFormat('slides')}
-                      className={`flex items-center gap-3 p-3 sm:p-4 rounded-xl border transition-all ${
-                        outputFormat === 'slides' 
-                          ? 'border-primary bg-primary/10 text-foreground' 
-                          : 'border-accent/20 text-muted-foreground hover:border-accent/40'
-                      }`}
-                    >
-                      <Layers className="w-5 h-5" />
-                      <div className="text-left">
-                        <p className="text-sm font-medium">Slides</p>
-                        <p className="text-xs opacity-70">Multi-slide deck</p>
-                      </div>
-                    </button>
-                    <button
-                      onClick={() => setOutputFormat('one-pager')}
-                      className={`flex items-center gap-3 p-3 sm:p-4 rounded-xl border transition-all ${
-                        outputFormat === 'one-pager' 
-                          ? 'border-primary bg-primary/10 text-foreground' 
-                          : 'border-accent/20 text-muted-foreground hover:border-accent/40'
-                      }`}
-                    >
-                      <FileText className="w-5 h-5" />
-                      <div className="text-left">
-                        <p className="text-sm font-medium">One-Pager</p>
-                        <p className="text-xs opacity-70">Executive summary</p>
-                      </div>
-                    </button>
-                  </div>
-                </div>
                 
                 <div className="flex gap-3">
                   <button 
@@ -1021,19 +1147,121 @@ const Dashboard = () => {
                     Cancel
                   </button>
                   <button 
-                    onClick={() => setQuickPitchStep(2)} 
-                    disabled={!transcribedText.trim()} 
-                    className="flex-1 py-2.5 sm:py-3 rounded-xl text-white font-medium magenta-gradient disabled:opacity-50 text-sm"
+                    onClick={handleParseInput} 
+                    disabled={!transcribedText.trim() || isParsing} 
+                    className="flex-1 py-2.5 sm:py-3 rounded-xl text-white font-medium magenta-gradient disabled:opacity-50 text-sm flex items-center justify-center gap-2"
                   >
-                    Next
+                    {isParsing ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                    {isParsing ? 'Analyzing...' : 'Next →'}
                   </button>
                 </div>
               </div>
             )}
 
-            {/* Step 2: Files */}
-            {quickPitchStep === 2 && (
+            {/* Step 2: AI Confirmation */}
+            {quickPitchStep === 2 && parsedContext && (
               <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <Check className="w-5 h-5 text-green-500" />
+                  <p className="text-sm text-foreground">Here's what I understood:</p>
+                </div>
+                
+                <div className="p-4 sm:p-5 rounded-xl border border-accent/20 bg-accent/5 mb-4 sm:mb-6 space-y-3">
+                  <div className="flex items-start gap-3">
+                    <Sparkles className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-foreground font-medium">{parsedContext.summary}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4 text-accent" />
+                      <span className="text-muted-foreground">Audience:</span>
+                      <span className="text-foreground">{parsedContext.audience}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Target className="w-4 h-4 text-accent" />
+                      <span className="text-muted-foreground">Goal:</span>
+                      <span className="text-foreground">{parsedContext.goal}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-4 text-sm pt-2 border-t border-accent/10">
+                    <span className="text-muted-foreground">Suggested:</span>
+                    <span className="px-2 py-1 rounded bg-primary/10 text-primary text-xs font-medium">
+                      {parsedContext.suggested_format === 'slides' ? '📊 Slides' : 
+                       parsedContext.suggested_format === 'one-pager' ? '📄 One-Pager' : '📝 Script'}
+                    </span>
+                    <span className="px-2 py-1 rounded bg-accent/10 text-accent text-xs font-medium">
+                      {parsedContext.suggested_length === 'quick' ? 'Quick' : 
+                       parsedContext.suggested_length === 'standard' ? 'Standard' : 'Detailed'}
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Format override */}
+                <div className="mb-4 sm:mb-6">
+                  <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wider">Output Format</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      onClick={() => setOutputFormat('slides')}
+                      className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all ${
+                        outputFormat === 'slides' 
+                          ? 'border-primary bg-primary/10 text-foreground' 
+                          : 'border-accent/20 text-muted-foreground hover:border-accent/40'
+                      }`}
+                    >
+                      <Layers className="w-5 h-5" />
+                      <span className="text-xs font-medium">Slides</span>
+                    </button>
+                    <button
+                      onClick={() => setOutputFormat('one-pager')}
+                      className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all ${
+                        outputFormat === 'one-pager' 
+                          ? 'border-primary bg-primary/10 text-foreground' 
+                          : 'border-accent/20 text-muted-foreground hover:border-accent/40'
+                      }`}
+                    >
+                      <FileText className="w-5 h-5" />
+                      <span className="text-xs font-medium">One-Pager</span>
+                    </button>
+                    <button
+                      onClick={() => setOutputFormat('script')}
+                      className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all ${
+                        outputFormat === 'script' 
+                          ? 'border-primary bg-primary/10 text-foreground' 
+                          : 'border-accent/20 text-muted-foreground hover:border-accent/40'
+                      }`}
+                    >
+                      <ScrollText className="w-5 h-5" />
+                      <span className="text-xs font-medium">Script</span>
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3">
+                  <button 
+                    onClick={() => setQuickPitchStep(1)} 
+                    className="flex-1 py-2.5 sm:py-3 rounded-xl text-muted-foreground border border-border text-sm flex items-center justify-center gap-2"
+                  >
+                    <Edit2 className="w-4 h-4" /> Edit
+                  </button>
+                  <button 
+                    onClick={() => setQuickPitchStep(3)} 
+                    className="flex-1 py-2.5 sm:py-3 rounded-xl text-white font-medium magenta-gradient text-sm"
+                  >
+                    Looks good →
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Context / Files */}
+            {quickPitchStep === 3 && (
+              <div>
+                <p className="text-sm text-muted-foreground mb-4">📎 Anything to help me help you? (optional)</p>
+                
                 {/* Hidden file input */}
                 <input
                   ref={fileInputRef}
@@ -1050,57 +1278,43 @@ const Dashboard = () => {
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
                   onClick={() => fileInputRef.current?.click()}
-                  className={`relative mb-4 sm:mb-6 p-6 sm:p-8 rounded-xl border-2 border-dashed cursor-pointer transition-all text-center ${
+                  className={`relative mb-4 p-6 rounded-xl border-2 border-dashed cursor-pointer transition-all text-center ${
                     isDragging 
                       ? 'border-primary bg-primary/10' 
                       : 'border-accent/30 hover:border-accent/50 hover:bg-accent/5'
                   }`}
                 >
-                  <Upload className={`w-8 h-8 mx-auto mb-3 ${isDragging ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <Upload className={`w-7 h-7 mx-auto mb-2 ${isDragging ? 'text-primary' : 'text-muted-foreground'}`} />
                   <p className="text-foreground text-sm mb-1">
-                    {isDragging ? 'Drop files here' : 'Drag files here or click to browse'}
+                    {isDragging ? 'Drop files here' : 'Drop files here or click to browse'}
                   </p>
                   <p className="text-muted-foreground text-xs">
-                    PDF, DOCX, PNG, JPG up to 10MB • Max {MAX_FILES} files
+                    PDF, DOCX, PNG, JPG up to 10MB
                   </p>
                 </div>
                 
                 {/* Attached files list */}
                 {attachedFiles.length > 0 && (
-                  <div className="mb-4 sm:mb-6">
+                  <div className="mb-4">
                     <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
-                      Attached Files ({attachedFiles.length})
+                      Attached ({attachedFiles.length})
                     </p>
-                    <div className="space-y-2">
+                    <div className="space-y-2 max-h-32 overflow-y-auto">
                       {attachedFiles.map((file) => {
                         const FileIcon = getFileIcon(file.type);
                         return (
                           <div
                             key={file.id}
-                            className="flex items-center gap-3 p-3 rounded-xl border border-accent/20 bg-accent/5"
+                            className="flex items-center gap-3 p-2 rounded-lg border border-accent/20 bg-accent/5"
                           >
-                            <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0">
-                              {file.type.startsWith('image/') ? (
-                                <Image className="w-5 h-5 text-accent" />
-                              ) : (
-                                <FileIcon className="w-5 h-5 text-accent" />
-                              )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-foreground text-sm truncate">{file.name}</p>
-                              <p className="text-muted-foreground text-xs">{formatFileSize(file.size)}</p>
-                              {file.progress < 100 && (
-                                <Progress value={file.progress} className="h-1 mt-1" />
-                              )}
-                            </div>
+                            <FileIcon className="w-4 h-4 text-accent flex-shrink-0" />
+                            <span className="text-foreground text-xs truncate flex-1">{file.name}</span>
+                            <span className="text-muted-foreground text-xs">{formatFileSize(file.size)}</span>
                             <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleRemoveFile(file.id);
-                              }}
-                              className="p-1.5 rounded-lg hover:bg-accent/20 text-muted-foreground hover:text-foreground transition-colors"
+                              onClick={(e) => { e.stopPropagation(); handleRemoveFile(file.id); }}
+                              className="p-1 hover:bg-accent/20 rounded"
                             >
-                              <X className="w-4 h-4" />
+                              <X className="w-3 h-3 text-muted-foreground" />
                             </button>
                           </div>
                         );
@@ -1109,36 +1323,109 @@ const Dashboard = () => {
                   </div>
                 )}
                 
-                {/* No files message */}
-                {attachedFiles.length === 0 && (
-                  <p className="text-center text-muted-foreground text-xs mb-4">
-                    Files are optional but help the AI understand your context better
-                  </p>
-                )}
+                {/* Highlight notes */}
+                <div className="mb-4">
+                  <p className="text-xs text-muted-foreground mb-2">💡 Specific points to highlight (optional)</p>
+                  <textarea
+                    value={highlightNotes}
+                    onChange={(e) => setHighlightNotes(e.target.value)}
+                    placeholder="e.g., Emphasize my leadership experience..."
+                    className="w-full h-16 p-3 rounded-xl text-foreground input-field resize-none text-sm"
+                  />
+                </div>
                 
                 <div className="flex gap-3">
                   <button 
-                    onClick={() => {
-                      setQuickPitchStep(1);
-                      setAttachedFiles([]);
-                    }} 
+                    onClick={() => setQuickPitchStep(2)} 
                     className="flex-1 py-2.5 sm:py-3 rounded-xl text-muted-foreground border border-border text-sm"
                   >
-                    Back
+                    ← Back
                   </button>
                   <button 
-                    onClick={handleQuickGenerate}
+                    onClick={() => setQuickPitchStep(4)}
                     disabled={isProcessingFiles}
                     className="flex-1 py-2.5 sm:py-3 rounded-xl text-white font-medium magenta-gradient text-sm disabled:opacity-50"
                   >
-                    {isProcessingFiles ? 'Processing...' : 'Generate ⚡'}
+                    {attachedFiles.length > 0 ? 'Next →' : 'Skip & Continue →'}
                   </button>
                 </div>
               </div>
             )}
 
-            {/* Step 3: Generating */}
-            {quickPitchStep === 3 && (
+            {/* Step 4: Quick Tune */}
+            {quickPitchStep === 4 && (
+              <div>
+                <p className="text-sm text-muted-foreground mb-4">⚙️ Any preferences? (or use smart defaults)</p>
+                
+                {/* Length */}
+                <div className="mb-4">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Length</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { id: 'quick', label: 'Quick', desc: '2-3 slides' },
+                      { id: 'standard', label: 'Standard', desc: '5-6 slides' },
+                      { id: 'detailed', label: 'Detailed', desc: '8-10 slides' }
+                    ].map(opt => (
+                      <button
+                        key={opt.id}
+                        onClick={() => setSelectedLength(opt.id as 'quick' | 'standard' | 'detailed')}
+                        className={`p-3 rounded-xl border text-center transition-all ${
+                          selectedLength === opt.id
+                            ? 'border-primary bg-primary/10 text-foreground'
+                            : 'border-accent/20 text-muted-foreground hover:border-accent/40'
+                        }`}
+                      >
+                        <p className="text-sm font-medium">{opt.label}</p>
+                        <p className="text-xs opacity-70">{opt.desc}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Tone */}
+                <div className="mb-4">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Tone</p>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[
+                      { id: 'confident', label: 'Confident' },
+                      { id: 'humble', label: 'Humble' },
+                      { id: 'balanced', label: 'Balanced' },
+                      { id: 'bold', label: 'Bold' }
+                    ].map(opt => (
+                      <button
+                        key={opt.id}
+                        onClick={() => setSelectedTone(opt.id as 'confident' | 'humble' | 'balanced' | 'bold')}
+                        className={`p-3 rounded-xl border text-center transition-all ${
+                          selectedTone === opt.id
+                            ? 'border-primary bg-primary/10 text-foreground'
+                            : 'border-accent/20 text-muted-foreground hover:border-accent/40'
+                        }`}
+                      >
+                        <p className="text-xs font-medium">{opt.label}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="flex gap-3">
+                  <button 
+                    onClick={() => setQuickPitchStep(3)} 
+                    className="flex-1 py-2.5 sm:py-3 rounded-xl text-muted-foreground border border-border text-sm"
+                  >
+                    ← Back
+                  </button>
+                  <button 
+                    onClick={handleQuickGenerate}
+                    className="flex-1 py-2.5 sm:py-3 rounded-xl text-white font-medium magenta-gradient text-sm flex items-center justify-center gap-2"
+                  >
+                    <Sparkles className="w-4 h-4" /> Generate
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 5: Generating */}
+            {quickPitchStep === 5 && (
               <div className="py-8 sm:py-12 text-center">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 sm:mb-6 relative">
                   <div className="absolute inset-0 rounded-full magenta-gradient opacity-20 animate-ping" />
@@ -1150,6 +1437,7 @@ const Dashboard = () => {
                   </div>
                 </div>
                 <p className="text-foreground font-medium text-sm sm:text-base">{generationPhase}</p>
+                <p className="text-muted-foreground text-xs mt-2">This usually takes 10-15 seconds</p>
               </div>
             )}
           </div>
