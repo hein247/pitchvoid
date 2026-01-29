@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Mic, Plus, ArrowLeft, X, Play, Share2, Home, ChevronLeft, ChevronRight, FileText, Layers } from 'lucide-react';
+import { Loader2, Mic, Plus, ArrowLeft, X, Play, Share2, Home, ChevronLeft, ChevronRight, FileText, Layers, Upload, File, Image } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 import Navbar from '@/components/Navbar';
 import SlideGrid from '@/components/dashboard/SlideGrid';
 import RefinementPanel from '@/components/dashboard/RefinementPanel';
@@ -73,6 +74,21 @@ const Dashboard = () => {
   const [recordingTime, setRecordingTime] = useState(0);
   const [transcribedText, setTranscribedText] = useState('');
   const [quickPitchStep, setQuickPitchStep] = useState(1);
+  
+  // File attachment state
+  interface AttachedFile {
+    id: string;
+    file: File;
+    name: string;
+    size: number;
+    type: string;
+    content?: string;
+    progress: number;
+  }
+  const [attachedFiles, setAttachedFiles] = useState<AttachedFile[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isProcessingFiles, setIsProcessingFiles] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Practice mode
   const [isPracticeMode, setIsPracticeMode] = useState(false);
@@ -235,6 +251,110 @@ const Dashboard = () => {
     }, 1000);
   };
 
+  // File upload handlers
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+  const MAX_FILES = 5;
+  const ACCEPTED_TYPES = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/png', 'image/jpeg', 'image/webp'];
+  
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  const getFileIcon = (type: string) => {
+    if (type.startsWith('image/')) return Image;
+    return File;
+  };
+
+  const processFile = async (file: File): Promise<string | undefined> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        // For images, return base64; for documents, return a description
+        if (file.type.startsWith('image/')) {
+          resolve(reader.result as string);
+        } else {
+          // For PDFs/docs, we'll just send metadata - actual parsing would need backend
+          resolve(`Document: ${file.name} (${formatFileSize(file.size)})`);
+        }
+      };
+      reader.onerror = () => resolve(undefined);
+      
+      if (file.type.startsWith('image/')) {
+        reader.readAsDataURL(file);
+      } else {
+        reader.readAsText(file);
+      }
+    });
+  };
+
+  const handleFileSelect = async (files: FileList | null) => {
+    if (!files) return;
+    
+    const fileArray = Array.from(files);
+    const validFiles = fileArray.filter(file => {
+      if (!ACCEPTED_TYPES.includes(file.type)) {
+        toast({ title: 'Invalid file type', description: `${file.name} is not supported`, variant: 'destructive' });
+        return false;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        toast({ title: 'File too large', description: `${file.name} exceeds 10MB limit`, variant: 'destructive' });
+        return false;
+      }
+      return true;
+    });
+
+    if (attachedFiles.length + validFiles.length > MAX_FILES) {
+      toast({ title: 'Too many files', description: `Maximum ${MAX_FILES} files allowed`, variant: 'destructive' });
+      return;
+    }
+
+    setIsProcessingFiles(true);
+    
+    for (const file of validFiles) {
+      const newFile: AttachedFile = {
+        id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        file,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        progress: 0,
+      };
+      
+      setAttachedFiles(prev => [...prev, newFile]);
+      
+      // Simulate progress and process file
+      const content = await processFile(file);
+      
+      setAttachedFiles(prev => 
+        prev.map(f => f.id === newFile.id ? { ...f, content, progress: 100 } : f)
+      );
+    }
+    
+    setIsProcessingFiles(false);
+  };
+
+  const handleRemoveFile = (id: string) => {
+    setAttachedFiles(prev => prev.filter(f => f.id !== id));
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    handleFileSelect(e.dataTransfer.files);
+  };
+
   const handleQuickGenerate = async () => {
     setQuickPitchStep(3);
     setIsGenerating(true);
@@ -251,6 +371,16 @@ const Dashboard = () => {
       }
     }, 1200);
 
+    // Prepare file context for AI
+    const documentContext = attachedFiles
+      .filter(f => !f.type.startsWith('image/'))
+      .map(f => f.content || `File: ${f.name}`)
+      .join('\n');
+    
+    const imageDescriptions = attachedFiles
+      .filter(f => f.type.startsWith('image/'))
+      .map(f => `Uploaded image: ${f.name}`);
+
     try {
       const functionName = outputFormat === 'one-pager' ? 'generate-one-pager' : 'generate-pitch';
       
@@ -259,6 +389,8 @@ const Dashboard = () => {
           scenario: transcribedText,
           targetAudience: 'Decision makers',
           visualStyle: 'Professional and impactful',
+          documentContext: documentContext || undefined,
+          imageDescriptions: imageDescriptions.length > 0 ? imageDescriptions : undefined,
         },
       });
 
@@ -902,39 +1034,104 @@ const Dashboard = () => {
             {/* Step 2: Files */}
             {quickPitchStep === 2 && (
               <div>
-                <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
-                  {[
-                    { id: 1, name: 'Resume_2026.pdf', type: 'PDF', size: '142 KB' },
-                    { id: 2, name: 'Portfolio_Case_Study.pdf', type: 'PDF', size: '2.1 MB' },
-                  ].map(f => (
-                    <label 
-                      key={f.id} 
-                      className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl border border-accent/20 cursor-pointer hover:border-accent/40 transition-colors"
-                    >
-                      <input type="checkbox" defaultChecked className="w-4 h-4 sm:w-5 sm:h-5 accent-primary" />
-                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-accent/20 flex items-center justify-center text-xs text-accent flex-shrink-0">
-                        {f.type}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-foreground text-sm truncate">{f.name}</p>
-                        <p className="text-muted-foreground text-xs">{f.size}</p>
-                      </div>
-                    </label>
-                  ))}
+                {/* Hidden file input */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept=".pdf,.docx,.doc,.png,.jpg,.jpeg,.webp"
+                  onChange={(e) => handleFileSelect(e.target.files)}
+                  className="hidden"
+                />
+                
+                {/* Drag and drop zone */}
+                <div
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`relative mb-4 sm:mb-6 p-6 sm:p-8 rounded-xl border-2 border-dashed cursor-pointer transition-all text-center ${
+                    isDragging 
+                      ? 'border-primary bg-primary/10' 
+                      : 'border-accent/30 hover:border-accent/50 hover:bg-accent/5'
+                  }`}
+                >
+                  <Upload className={`w-8 h-8 mx-auto mb-3 ${isDragging ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <p className="text-foreground text-sm mb-1">
+                    {isDragging ? 'Drop files here' : 'Drag files here or click to browse'}
+                  </p>
+                  <p className="text-muted-foreground text-xs">
+                    PDF, DOCX, PNG, JPG up to 10MB • Max {MAX_FILES} files
+                  </p>
                 </div>
+                
+                {/* Attached files list */}
+                {attachedFiles.length > 0 && (
+                  <div className="mb-4 sm:mb-6">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
+                      Attached Files ({attachedFiles.length})
+                    </p>
+                    <div className="space-y-2">
+                      {attachedFiles.map((file) => {
+                        const FileIcon = getFileIcon(file.type);
+                        return (
+                          <div
+                            key={file.id}
+                            className="flex items-center gap-3 p-3 rounded-xl border border-accent/20 bg-accent/5"
+                          >
+                            <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0">
+                              {file.type.startsWith('image/') ? (
+                                <Image className="w-5 h-5 text-accent" />
+                              ) : (
+                                <FileIcon className="w-5 h-5 text-accent" />
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-foreground text-sm truncate">{file.name}</p>
+                              <p className="text-muted-foreground text-xs">{formatFileSize(file.size)}</p>
+                              {file.progress < 100 && (
+                                <Progress value={file.progress} className="h-1 mt-1" />
+                              )}
+                            </div>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveFile(file.id);
+                              }}
+                              className="p-1.5 rounded-lg hover:bg-accent/20 text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+                
+                {/* No files message */}
+                {attachedFiles.length === 0 && (
+                  <p className="text-center text-muted-foreground text-xs mb-4">
+                    Files are optional but help the AI understand your context better
+                  </p>
+                )}
                 
                 <div className="flex gap-3">
                   <button 
-                    onClick={() => setQuickPitchStep(1)} 
+                    onClick={() => {
+                      setQuickPitchStep(1);
+                      setAttachedFiles([]);
+                    }} 
                     className="flex-1 py-2.5 sm:py-3 rounded-xl text-muted-foreground border border-border text-sm"
                   >
                     Back
                   </button>
                   <button 
-                    onClick={handleQuickGenerate} 
-                    className="flex-1 py-2.5 sm:py-3 rounded-xl text-white font-medium magenta-gradient text-sm"
+                    onClick={handleQuickGenerate}
+                    disabled={isProcessingFiles}
+                    className="flex-1 py-2.5 sm:py-3 rounded-xl text-white font-medium magenta-gradient text-sm disabled:opacity-50"
                   >
-                    Generate ⚡
+                    {isProcessingFiles ? 'Processing...' : 'Generate ⚡'}
                   </button>
                 </div>
               </div>
