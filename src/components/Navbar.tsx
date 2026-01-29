@@ -2,7 +2,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Mic, Menu } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { ThemeToggle } from '@/components/ui/theme-toggle';
 interface NavbarProps {
   variant?: 'landing' | 'dashboard' | 'minimal';
   credits?: {
@@ -110,9 +109,6 @@ const Navbar = ({
           </div>
         </div>
         <div className="flex items-center gap-2 sm:gap-4">
-          {/* Theme Toggle */}
-          <ThemeToggle />
-          
           {onQuickPitch && <button onClick={onQuickPitch} className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl text-white text-sm font-medium magenta-gradient hover:opacity-90 transition-opacity">
               <Mic className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="hidden sm:inline">Quick Pitch</span>
