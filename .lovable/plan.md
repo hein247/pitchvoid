@@ -27,25 +27,35 @@
 - 10MB per file limit, max 5 files
 - File content passed to AI for context
 
+### 5. Enhanced Share System ✅
+- QR code generation with qrcode.react library
+- Password protection toggle with input field
+- Expiry date setting with date picker
+- Social sharing buttons (WhatsApp, LinkedIn, Email, Twitter) with auto-generated teaser text
+- Copy link functionality with visual feedback
+- Created dedicated ShareModal component
+
+### 6. Design Token Alignment ✅
+- Added --surface and --surface-light CSS variables from spec
+- Added surface colors to Tailwind config
+- Popover now uses surface color for better contrast
+- All colors use HSL format per design system
+
 ## 🔲 Remaining Tasks
 
-### Enhance Share System
-- Add QR code generation
-- Password protection toggle
-- Expiry date setting
-- Social sharing buttons (WhatsApp, LinkedIn, Email, Twitter)
-
-### Align Design Tokens
-- Update CSS variables to match spec exactly
-- Ensure Playfair Display + Be Vietnam Pro fonts
-- Grain texture, glassmorphism effects
+- Practice Mode enhancement for Script format
+- URL input for auto-fetching content (job postings, LinkedIn profiles)
+- Style options for slides (Minimal, Visual, Data-heavy)
 
 ## Files Modified/Created
 
 | File | Status |
 |------|--------|
-| `src/pages/Dashboard.tsx` | Updated with 5-step flow, Script support |
+| `src/pages/Dashboard.tsx` | Updated with 5-step flow, Script support, ShareModal integration |
 | `src/components/dashboard/ScriptViewer.tsx` | Created |
+| `src/components/dashboard/ShareModal.tsx` | Created - QR code, password, expiry, social sharing |
 | `supabase/functions/generate-script/index.ts` | Created |
 | `supabase/functions/parse-pitch-input/index.ts` | Created |
 | `supabase/config.toml` | Updated with new functions |
+| `src/index.css` | Updated with surface tokens |
+| `tailwind.config.ts` | Updated with surface colors |

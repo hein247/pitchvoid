@@ -21,11 +21,15 @@
     /* Deep Midnight Purple Background #0F0518 */
     --background: 270 82% 5%;
     --foreground: 0 0% 100%;
+    
+    /* Surface colors from spec */
+    --surface: 270 60% 11%;           /* #1A0A2E */
+    --surface-light: 270 50% 20%;     /* #2D1B4E */
 
     --card: 270 60% 8%;
     --card-foreground: 0 0% 100%;
 
-    --popover: 270 82% 5%;
+    --popover: 270 60% 11%;
     --popover-foreground: 0 0% 100%;
 
     /* Electric Magenta as Primary #D946EF */
@@ -56,6 +60,9 @@
     --deep-violet: 258 90% 66%;
     --void-purple: 258 90% 66%;
     --void-glow: 292 100% 70%;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(292 91% 58%) 0%, hsl(258 90% 66%) 100%);
 
     --sidebar-background: 270 82% 5%;
     --sidebar-foreground: 0 0% 100%;
