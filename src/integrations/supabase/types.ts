@@ -17,23 +17,61 @@ export type Database = {
       profiles: {
         Row: {
           credits: number | null
+          current_period_end: string | null
           full_name: string | null
           id: string
+          last_pitch_at: string | null
+          pitch_count: number | null
+          plan: string | null
+          plan_interval: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          subscription_status: string | null
+          team_id: string | null
+          team_role: string | null
           updated_at: string | null
         }
         Insert: {
           credits?: number | null
+          current_period_end?: string | null
           full_name?: string | null
           id: string
+          last_pitch_at?: string | null
+          pitch_count?: number | null
+          plan?: string | null
+          plan_interval?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_status?: string | null
+          team_id?: string | null
+          team_role?: string | null
           updated_at?: string | null
         }
         Update: {
           credits?: number | null
+          current_period_end?: string | null
           full_name?: string | null
           id?: string
+          last_pitch_at?: string | null
+          pitch_count?: number | null
+          plan?: string | null
+          plan_interval?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_status?: string | null
+          team_id?: string | null
+          team_role?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       projects: {
         Row: {
@@ -119,6 +157,50 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teams: {
+        Row: {
+          created_at: string | null
+          current_period_end: string | null
+          id: string
+          name: string
+          owner_id: string
+          seat_count: number | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          subscription_status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_period_end?: string | null
+          id?: string
+          name: string
+          owner_id: string
+          seat_count?: number | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          current_period_end?: string | null
+          id?: string
+          name?: string
+          owner_id?: string
+          seat_count?: number | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teams_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
