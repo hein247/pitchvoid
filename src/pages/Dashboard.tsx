@@ -14,6 +14,9 @@ import OnePagerEditor from '@/components/dashboard/OnePagerEditor';
 import ScriptViewer, { ScriptData } from '@/components/dashboard/ScriptViewer';
 import FormatToggle from '@/components/dashboard/FormatToggle';
 import { useSwipeGesture } from '@/hooks/useSwipeGesture';
+import { usePricing } from '@/hooks/usePricing';
+import { PaywallModal } from '@/components/pricing/PaywallModal';
+import { UpgradeNudge } from '@/components/pricing/UpgradeNudge';
 
 type OutputFormat = 'slides' | 'one-pager' | 'script';
 
@@ -58,6 +61,24 @@ const Dashboard = () => {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  
+  // Pricing & paywall state
+  const {
+    userPlan,
+    pitchCount,
+    remainingPitches,
+    nudgeMessage,
+    showNudge,
+    dismissNudge,
+    checkAndTriggerPaywall,
+    incrementPitchCount,
+    showPaywall,
+    paywallType,
+    paywallMessage,
+    setShowPaywall,
+    isFree,
+    planLimits,
+  } = usePricing();
   
   // Dashboard state
   const [currentView, setCurrentView] = useState<'dashboard' | 'project'>('dashboard');
@@ -437,6 +458,16 @@ const Dashboard = () => {
   };
 
   const handleQuickGenerate = async () => {
+    // Check paywall before generating
+    if (!checkAndTriggerPaywall('create_pitch')) {
+      return;
+    }
+    
+    // Check format permission
+    if (!checkAndTriggerPaywall('use_format', { format: outputFormat })) {
+      return;
+    }
+    
     setQuickPitchStep(5); // Generation step
     setIsGenerating(true);
     
@@ -559,6 +590,9 @@ const Dashboard = () => {
         setMessages([{ id: '1', type: 'system', content: `Your pitch is ready! ${data.slides?.length || 6} slides created.` }]);
       }
       
+      // Increment pitch count on successful generation
+      await incrementPitchCount();
+      
       // Reset Quick Pitch state
       resetQuickPitchState();
       
@@ -628,6 +662,11 @@ const Dashboard = () => {
 
   // Regenerate content in a different format
   const handleRegenerateInFormat = async (newFormat: OutputFormat) => {
+    // Check format permission before regenerating
+    if (!checkAndTriggerPaywall('use_format', { format: newFormat })) {
+      return;
+    }
+    
     if (!lastGenerationContext) {
       toast({ 
         title: 'No context available', 
@@ -1120,6 +1159,8 @@ const Dashboard = () => {
                     hasScript={!!scriptData}
                     onRegenerate={handleRegenerateInFormat}
                     isRegenerating={isRegenerating}
+                    lockedFormats={isFree ? ['one-pager', 'script'] : []}
+                    onLockedClick={(format) => checkAndTriggerPaywall('use_format', { format })}
                   />
                 )}
               </div>
@@ -1624,6 +1665,21 @@ const Dashboard = () => {
         onClose={() => setShowShareModal(false)}
         projectTitle={activeProject?.title || 'My Pitch'}
         publicUrl={shareUrl}
+      />
+      
+      {/* Paywall Modal */}
+      <PaywallModal
+        open={showPaywall}
+        onOpenChange={setShowPaywall}
+        type={paywallType}
+        message={paywallMessage}
+      />
+      
+      {/* Upgrade Nudge */}
+      <UpgradeNudge
+        message={nudgeMessage || ''}
+        show={showNudge}
+        onDismiss={dismissNudge}
       />
     </div>
   );
