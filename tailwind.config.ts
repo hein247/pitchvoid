@@ -66,6 +66,9 @@ export default {
         gold: "hsl(var(--gold))",
         "gold-dark": "hsl(var(--gold-dark))",
         charcoal: "hsl(var(--charcoal))",
+        // Surface colors from spec
+        surface: "hsl(var(--surface))",
+        "surface-light": "hsl(var(--surface-light))",
       },
       fontFamily: {
         display: ["'Times New Roman'", "Georgia", "serif"],

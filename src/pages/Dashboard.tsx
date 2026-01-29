@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Mic, Plus, ArrowLeft, X, Play, Share2, Home, ChevronLeft, ChevronRight, FileText, Layers, Upload, File, Image, ScrollText, Check, Edit2, Users, Target, Sparkles, Clock } from 'lucide-react';
+import ShareModal from '@/components/dashboard/ShareModal';
 import { Progress } from '@/components/ui/progress';
 import Navbar from '@/components/Navbar';
 import SlideGrid from '@/components/dashboard/SlideGrid';
@@ -119,10 +120,10 @@ const Dashboard = () => {
   const [practiceTimer, setPracticeTimer] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   
-  // Share modal
-  const [shareLink] = useState('pitchvoid.com/p/my-pitch');
-  const [copied, setCopied] = useState(false);
-  const [shareSettings, setShareSettings] = useState({ password: false, expiry: false });
+  // Share modal - generate real URL based on active project
+  const shareUrl = activeProject 
+    ? `https://pitchvoid.lovable.app/p/${activeProject.id}` 
+    : 'https://pitchvoid.lovable.app/p/demo';
   
   // Credits
   const credits = { used: 48, total: 50 };
@@ -601,11 +602,7 @@ const Dashboard = () => {
     setSelectedTone('balanced');
   };
 
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(shareLink);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+  // handleCopyLink moved to ShareModal component
 
   const handleSignOut = async () => {
     await signOut();
@@ -1445,102 +1442,12 @@ const Dashboard = () => {
       )}
 
       {/* Share Modal */}
-      {showShareModal && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center modal-overlay p-4" 
-          onClick={() => setShowShareModal(false)}
-        >
-          <div 
-            className="glassmorphism-dark rounded-2xl p-4 sm:p-8 w-full max-w-lg animate-scaleIn max-h-[90vh] overflow-y-auto" 
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-4 sm:mb-6">
-              <h3 className="text-lg sm:text-xl text-foreground font-display">Share Pitch</h3>
-              <button onClick={() => setShowShareModal(false)} className="text-muted-foreground hover:text-foreground">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-4 sm:mb-6">
-              <div className="w-24 h-24 sm:w-32 sm:h-32 bg-card rounded-lg flex items-center justify-center flex-shrink-0 mx-auto sm:mx-0 border border-border">
-                <span className="text-muted-foreground text-xs">QR Code</span>
-              </div>
-              <div className="flex-1">
-                <p className="text-sm text-muted-foreground mb-2 sm:mb-3">Share link</p>
-                <div className="flex items-center gap-2 p-2 sm:p-3 rounded-xl bg-accent/10 border border-accent/20">
-                  <input 
-                    type="text" 
-                    value={shareLink} 
-                    readOnly 
-                    className="flex-1 bg-transparent text-foreground text-xs sm:text-sm focus:outline-none min-w-0" 
-                  />
-                  <button 
-                    onClick={handleCopyLink} 
-                    className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium flex-shrink-0 ${
-                      copied ? 'bg-green-500 text-white' : 'magenta-gradient text-white'
-                    }`}
-                  >
-                    {copied ? 'Copied!' : 'Copy'}
-                  </button>
-                </div>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-4 gap-2 sm:gap-3 mb-4 sm:mb-6">
-              {[
-                { name: 'WhatsApp', icon: '💬' },
-                { name: 'LinkedIn', icon: '💼' },
-                { name: 'Email', icon: '✉️' },
-                { name: 'Twitter', icon: '🐦' }
-              ].map(p => (
-                <button 
-                  key={p.name} 
-                  className="flex flex-col items-center gap-1 sm:gap-2 p-2 sm:p-3 rounded-xl border border-accent/20 hover:border-accent/40 transition-colors"
-                >
-                  <span className="text-xl sm:text-2xl">{p.icon}</span>
-                  <span className="text-[10px] sm:text-xs text-muted-foreground">{p.name}</span>
-                </button>
-              ))}
-            </div>
-            
-            <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
-              <label className="flex items-center justify-between p-3 sm:p-4 rounded-xl border border-accent/20">
-                <p className="text-xs sm:text-sm text-foreground">Password protect</p>
-                <button 
-                  onClick={() => setShareSettings({ ...shareSettings, password: !shareSettings.password })} 
-                  className={`w-10 h-5 sm:w-12 sm:h-6 rounded-full relative ${shareSettings.password ? 'magenta-gradient' : 'bg-muted'}`}
-                >
-                  <div 
-                    className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-white absolute top-0.5 transition-all ${
-                      shareSettings.password ? 'right-0.5' : 'left-0.5'
-                    }`} 
-                  />
-                </button>
-              </label>
-              <label className="flex items-center justify-between p-3 sm:p-4 rounded-xl border border-accent/20">
-                <p className="text-xs sm:text-sm text-foreground">Set expiry</p>
-                <button 
-                  onClick={() => setShareSettings({ ...shareSettings, expiry: !shareSettings.expiry })} 
-                  className={`w-10 h-5 sm:w-12 sm:h-6 rounded-full relative ${shareSettings.expiry ? 'magenta-gradient' : 'bg-muted'}`}
-                >
-                  <div 
-                    className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-white absolute top-0.5 transition-all ${
-                      shareSettings.expiry ? 'right-0.5' : 'left-0.5'
-                    }`} 
-                  />
-                </button>
-              </label>
-            </div>
-            
-            <button 
-              onClick={() => setShowShareModal(false)} 
-              className="w-full py-2.5 sm:py-3 rounded-xl text-white font-medium magenta-gradient text-sm"
-            >
-              Done
-            </button>
-          </div>
-        </div>
-      )}
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        projectTitle={activeProject?.title || 'My Pitch'}
+        publicUrl={shareUrl}
+      />
     </div>
   );
 };
