@@ -1170,17 +1170,18 @@ const Dashboard = () => {
             </header>
             
             <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 relative z-10">
-              {scriptData ? (
+              {/* Render based on active outputFormat, not just data existence */}
+              {outputFormat === 'script' && scriptData ? (
                 <ScriptViewer 
                   data={scriptData}
                   onUpdate={(updatedData) => setScriptData(updatedData)}
                 />
-              ) : onePagerData ? (
+              ) : outputFormat === 'one-pager' && onePagerData ? (
                 <OnePager 
                   data={onePagerData}
                   projectTitle={activeProject?.title}
                 />
-              ) : showSlides ? (
+              ) : outputFormat === 'slides' && showSlides ? (
                 <SlideGrid 
                   slides={generatedSlides}
                   activeSlide={activeSlide}

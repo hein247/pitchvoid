@@ -27,6 +27,18 @@ const FormatToggle = ({
     { id: 'script', label: 'Script', icon: ScrollText, hasContent: hasScript },
   ];
 
+  const handleClick = (id: OutputFormat, hasContent: boolean) => {
+    if (isRegenerating) return;
+    
+    if (hasContent) {
+      // Content exists - just switch view
+      onFormatChange(id);
+    } else {
+      // No content - trigger regeneration
+      onRegenerate(id);
+    }
+  };
+
   return (
     <div className="flex items-center gap-2">
       {/* Format tabs */}
@@ -34,13 +46,13 @@ const FormatToggle = ({
         {formats.map(({ id, label, icon: Icon, hasContent }) => (
           <button
             key={id}
-            onClick={() => hasContent ? onFormatChange(id) : onRegenerate(id)}
+            onClick={() => handleClick(id, hasContent)}
             disabled={isRegenerating}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all relative ${
               activeFormat === id
                 ? 'bg-primary text-primary-foreground shadow-sm'
                 : hasContent
-                ? 'text-foreground hover:bg-accent/10'
+                ? 'text-foreground hover:bg-accent/10 cursor-pointer'
                 : 'text-muted-foreground hover:text-foreground hover:bg-accent/5'
             }`}
           >
@@ -48,6 +60,9 @@ const FormatToggle = ({
             <span className="hidden sm:inline">{label}</span>
             {!hasContent && (
               <RefreshCw className={`w-3 h-3 ml-1 ${isRegenerating ? 'animate-spin' : ''}`} />
+            )}
+            {hasContent && activeFormat !== id && (
+              <span className="w-1.5 h-1.5 rounded-full bg-primary/70 ml-1" title="Generated" />
             )}
           </button>
         ))}
