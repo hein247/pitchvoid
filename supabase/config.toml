@@ -8,3 +8,9 @@ verify_jwt = false
 
 [functions.generate-one-pager]
 verify_jwt = false
+
+[functions.generate-script]
+verify_jwt = false
+
+[functions.parse-pitch-input]
+verify_jwt = false
