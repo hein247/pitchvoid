@@ -117,7 +117,7 @@ const SlideEditor = ({ slide, slideIndex, onUpdate, onGenerateImage, isGeneratin
   };
 
   return (
-    <div className="space-y-6 font-sans bg-[rgba(255,255,255,0.03)] backdrop-blur-[10px] border border-[rgba(255,255,255,0.08)] p-6 rounded-lg">
+    <div className="space-y-6 font-sans bg-card/50 backdrop-blur-[10px] border border-border p-6 rounded-lg">
       {/* Slide Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -143,10 +143,10 @@ const SlideEditor = ({ slide, slideIndex, onUpdate, onGenerateImage, isGeneratin
           value={slide.layout_type || 'centered'}
           onValueChange={handleLayoutChange}
         >
-          <SelectTrigger className="bg-[hsl(270_82%_5%)] border-[rgba(255,255,255,0.1)] focus:border-primary focus:ring-primary/30 z-50">
+          <SelectTrigger className="bg-card border-border focus:border-primary focus:ring-primary/30 z-50">
             <SelectValue placeholder="Select layout" />
           </SelectTrigger>
-          <SelectContent className="bg-[hsl(270_82%_5%)] border-[rgba(255,255,255,0.15)] z-50">
+          <SelectContent className="bg-popover border-border z-50">
             {LAYOUT_OPTIONS.map((layout) => (
               <SelectItem 
                 key={layout.value} 
@@ -173,7 +173,7 @@ const SlideEditor = ({ slide, slideIndex, onUpdate, onGenerateImage, isGeneratin
           value={slide.content.title}
           onChange={(e) => handleTitleChange(e.target.value)}
           placeholder="Enter slide title..."
-          className="bg-[rgba(255,255,255,0.03)] border-[rgba(255,255,255,0.1)] focus:border-primary focus:ring-primary/30 focus:shadow-[0_0_15px_hsl(var(--primary)/0.2)] text-lg font-display transition-all duration-300"
+          className="bg-card border-border focus:border-primary focus:ring-primary/30 focus:shadow-[0_0_15px_hsl(var(--primary)/0.2)] text-lg font-display transition-all duration-300"
           maxLength={100}
         />
       </div>
@@ -188,7 +188,7 @@ const SlideEditor = ({ slide, slideIndex, onUpdate, onGenerateImage, isGeneratin
           value={slide.content.description}
           onChange={(e) => handleDescriptionChange(e.target.value)}
           placeholder="Enter slide body text..."
-          className="bg-[rgba(255,255,255,0.03)] border-[rgba(255,255,255,0.1)] focus:border-primary focus:ring-primary/30 focus:shadow-[0_0_15px_hsl(var(--primary)/0.2)] min-h-[100px] resize-none font-sans transition-all duration-300"
+          className="bg-card border-border focus:border-primary focus:ring-primary/30 focus:shadow-[0_0_15px_hsl(var(--primary)/0.2)] min-h-[100px] resize-none font-sans transition-all duration-300"
           maxLength={500}
         />
       </div>
@@ -227,7 +227,7 @@ const SlideEditor = ({ slide, slideIndex, onUpdate, onGenerateImage, isGeneratin
                   value={bullet}
                   onChange={(e) => handleBulletChange(index, e.target.value)}
                   placeholder={`Bullet point ${index + 1}...`}
-                  className="bg-[rgba(255,255,255,0.03)] border-[rgba(255,255,255,0.1)] focus:border-primary focus:ring-primary/30 focus:shadow-[0_0_10px_hsl(var(--primary)/0.15)] font-sans transition-all duration-300"
+                  className="bg-card border-border focus:border-primary focus:ring-primary/30 focus:shadow-[0_0_10px_hsl(var(--primary)/0.15)] font-sans transition-all duration-300"
                   maxLength={200}
                 />
               </div>
@@ -283,7 +283,7 @@ const SlideEditor = ({ slide, slideIndex, onUpdate, onGenerateImage, isGeneratin
           value={slide.visual_style || ''}
           onChange={(e) => handleVisualStyleChange(e.target.value)}
           placeholder="E.g., 'Minimalist blue', 'Vibrant startup colors', 'Professional corporate grey'..."
-          className="bg-[rgba(255,255,255,0.03)] border-[rgba(255,255,255,0.1)] focus:border-primary focus:ring-primary/30 focus:shadow-[0_0_10px_hsl(var(--primary)/0.15)] font-sans transition-all duration-300"
+          className="bg-card border-border focus:border-primary focus:ring-primary/30 focus:shadow-[0_0_10px_hsl(var(--primary)/0.15)] font-sans transition-all duration-300"
         />
         <p className="text-xs text-muted-foreground">
           Describe your desired color palette or theme for the AI-generated slide image.
