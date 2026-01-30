@@ -38,7 +38,7 @@ serve(async (req) => {
     // Rate limiting based on user plan
     const plan = profile.plan || "free";
     const rateConfig = plan === "free" ? RATE_LIMITS.aiGeneration.free : RATE_LIMITS.aiGeneration.paid;
-    const rateLimitResult = checkRateLimit(`script:${user.id}`, rateConfig);
+    const rateLimitResult = await checkRateLimit(`script:${user.id}`, rateConfig);
     if (!rateLimitResult.allowed) {
       console.log("Rate limit exceeded for user:", user.id);
       return rateLimitResponse(rateLimitResult);

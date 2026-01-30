@@ -36,6 +36,7 @@ export interface UsePricingReturn {
   canPerformAction: (action: PaywallAction, options?: ActionCheckOptions) => PaywallCheckResult;
   checkAndTriggerPaywall: (action: PaywallAction, options?: ActionCheckOptions) => boolean;
   incrementPitchCount: () => Promise<void>;
+  refreshPitchCount: () => Promise<void>;
   
   // Paywall modal state
   showPaywall: boolean;
@@ -150,33 +151,45 @@ export function usePricing(): UsePricingReturn {
     [canPerformAction]
   );
 
+  /**
+   * Optimistic UI update for pitch count.
+   * NOTE: The actual pitch count is incremented server-side by edge functions.
+   * This function only updates the local state for immediate UI feedback.
+   * The client should NOT write pitch_count to the database directly.
+   */
   const incrementPitchCount = useCallback(async () => {
     if (!user?.id) return;
 
+    // Optimistic local update only - server handles the actual increment
+    setPricingData(prev => ({
+      ...prev,
+      pitchCount: prev.pitchCount + 1,
+    }));
+  }, [user?.id]);
+
+  /**
+   * Refresh pitch count from the server to sync with database
+   */
+  const refreshPitchCount = useCallback(async () => {
+    if (!user?.id) return;
+
     try {
-      const newCount = pricingData.pitchCount + 1;
-      
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
-        .update({
-          pitch_count: newCount,
-          last_pitch_at: new Date().toISOString(),
-        })
-        .eq('id', user.id);
+        .select('pitch_count')
+        .eq('id', user.id)
+        .single();
 
-      if (error) {
-        console.error('Error incrementing pitch count:', error);
-        return;
+      if (!error && data) {
+        setPricingData(prev => ({
+          ...prev,
+          pitchCount: data.pitch_count || 0,
+        }));
       }
-
-      setPricingData(prev => ({
-        ...prev,
-        pitchCount: newCount,
-      }));
     } catch (err) {
-      console.error('Error in incrementPitchCount:', err);
+      console.error('Error refreshing pitch count:', err);
     }
-  }, [user?.id, pricingData.pitchCount]);
+  }, [user?.id]);
 
   const dismissNudge = useCallback(() => {
     setShowNudge(false);
@@ -199,6 +212,7 @@ export function usePricing(): UsePricingReturn {
     canPerformAction,
     checkAndTriggerPaywall,
     incrementPitchCount,
+    refreshPitchCount,
     
     // Paywall modal state
     showPaywall,
