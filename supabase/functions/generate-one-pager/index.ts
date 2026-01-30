@@ -1,9 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { authenticateRequest, checkPitchLimit, checkFormatAccess, incrementPitchCount } from "../_shared/auth.ts";
+import { validateGenerateOnePagerInput, sanitizeForPrompt } from "../_shared/validation.ts";
+import { corsHeaders, jsonResponse, errorResponse, handleCors } from "../_shared/cors.ts";
 
 interface OnePagerSection {
   type: 'hero' | 'key-points' | 'value-prop' | 'cta';
@@ -24,23 +22,58 @@ interface OnePagerData {
 }
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  // Handle CORS preflight
+  const corsResponse = handleCors(req);
+  if (corsResponse) return corsResponse;
 
   try {
-    const { scenario, targetAudience, documentContext, imageDescriptions, visualStyle } = await req.json();
+    // Authenticate the request
+    const { result: authResult, error: authError } = await authenticateRequest(req);
+    if (authError) {
+      return new Response(authError.body, {
+        status: authError.status,
+        headers: corsHeaders,
+      });
+    }
+
+    const { user, profile } = authResult!;
+
+    // Check pitch limit (server-side paywall)
+    const limitCheck = checkPitchLimit(profile);
+    if (!limitCheck.allowed) {
+      return jsonResponse({ error: limitCheck.error }, limitCheck.statusCode || 402);
+    }
+
+    // Check format access (one-pager is Pro only)
+    const formatCheck = checkFormatAccess(profile, 'one-pager');
+    if (!formatCheck.allowed) {
+      return jsonResponse({ error: formatCheck.error }, formatCheck.statusCode || 402);
+    }
+
+    // Parse and validate request body
+    const body = await req.json();
+    const validation = validateGenerateOnePagerInput(body);
+    if (!validation.valid) {
+      return jsonResponse({ error: validation.error }, 400);
+    }
+
+    const { scenario, targetAudience, documentContext, imageDescriptions, visualStyle } = body;
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+      return errorResponse("Service configuration error", 500, "LOVABLE_API_KEY is not configured");
     }
 
-    console.log("Generating one-pager for scenario:", scenario);
-    console.log("Target audience:", targetAudience);
+    console.log("Generating one-pager for user:", user.id);
+
+    // Sanitize inputs
+    const sanitizedScenario = sanitizeForPrompt(scenario);
+    const sanitizedAudience = targetAudience ? sanitizeForPrompt(targetAudience) : "";
+    const sanitizedContext = documentContext ? sanitizeForPrompt(documentContext) : "";
+    const sanitizedStyle = visualStyle ? sanitizeForPrompt(visualStyle) : "";
 
     const imageContext = imageDescriptions && imageDescriptions.length > 0
-      ? `\n\n**Uploaded Visual Assets (${imageDescriptions.length} images):**\n${imageDescriptions.map((desc: string, i: number) => `- Image ${i + 1}: ${desc}`).join('\n')}`
+      ? `\n\n**Uploaded Visual Assets (${imageDescriptions.length} images):**\n${imageDescriptions.map((desc: string, i: number) => `- Image ${i + 1}: ${sanitizeForPrompt(desc)}`).join('\n')}`
       : '';
 
     const systemPrompt = `You are an expert pitch strategist creating compelling one-pager documents. Create a single-page executive summary that is concise, impactful, and scannable.
@@ -90,13 +123,13 @@ Keep everything scannable and impactful. Less is more.`;
 
     const userPrompt = `Create a one-pager executive summary:
 
-**Scenario:** ${scenario}
+**Scenario:** ${sanitizedScenario}
 
-**Target Audience:** ${targetAudience || "Decision makers"}
+**Target Audience:** ${sanitizedAudience || "Decision makers"}
 
 **Goal:** Concise, scannable single-page document
-${documentContext ? `\n**Document Context:** ${documentContext}` : ''}${imageContext}
-${visualStyle ? `\n**Tone/Style:** ${visualStyle}` : ''}
+${sanitizedContext ? `\n**Document Context:** ${sanitizedContext}` : ''}${imageContext}
+${sanitizedStyle ? `\n**Tone/Style:** ${sanitizedStyle}` : ''}
 
 Generate the JSON now. Output ONLY the JSON object, no other text.`;
 
@@ -118,37 +151,26 @@ Generate the JSON now. Output ONLY the JSON object, no other text.`;
 
     if (!response.ok) {
       if (response.status === 429) {
-        console.error("Rate limit exceeded");
-        return new Response(
-          JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return jsonResponse({ error: "Rate limit exceeded. Please try again in a moment." }, 429);
       }
       if (response.status === 402) {
-        console.error("Payment required");
-        return new Response(
-          JSON.stringify({ error: "AI credits exhausted. Please add credits to continue." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return jsonResponse({ error: "AI credits exhausted. Please add credits to continue." }, 402);
       }
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      throw new Error(`AI gateway error: ${response.status}`);
+      return errorResponse("Failed to generate one-pager", 500, `AI gateway error: ${response.status}`);
     }
 
     const data = await response.json();
     const aiContent = data.choices?.[0]?.message?.content;
     
     if (!aiContent) {
-      throw new Error("No content received from AI");
+      return errorResponse("Failed to generate one-pager", 500, "No content received from AI");
     }
 
-    console.log("Raw AI response:", aiContent);
+    console.log("AI response received for user:", user.id);
 
     // Parse the JSON from the response
     let onePager: OnePagerData;
     try {
-      // Try to extract JSON from the response (in case there's extra text)
       const jsonMatch = aiContent.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         onePager = JSON.parse(jsonMatch[0]);
@@ -156,27 +178,22 @@ Generate the JSON now. Output ONLY the JSON object, no other text.`;
         onePager = JSON.parse(aiContent);
       }
     } catch (parseError) {
-      console.error("Failed to parse AI response:", parseError);
-      throw new Error("Failed to parse one-pager content from AI response");
+      return errorResponse("Failed to generate one-pager", 500, parseError);
     }
 
     // Validate structure
     if (!onePager.headline || !onePager.subheadline || !Array.isArray(onePager.sections)) {
-      throw new Error("Invalid one-pager structure received");
+      return errorResponse("Failed to generate one-pager", 500, "Invalid one-pager structure");
     }
 
-    console.log("Generated one-pager:", JSON.stringify(onePager, null, 2));
+    // Increment pitch count after successful generation
+    await incrementPitchCount(user.id);
 
-    return new Response(
-      JSON.stringify({ onePager }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    console.log("Generated one-pager for user:", user.id);
+
+    return jsonResponse({ onePager });
 
   } catch (error) {
-    console.error("Error generating one-pager:", error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error occurred" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return errorResponse("An error occurred while generating your one-pager", 500, error);
   }
 });

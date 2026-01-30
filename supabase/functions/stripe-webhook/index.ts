@@ -23,15 +23,35 @@ serve(async (req) => {
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
 
+    const stripeWebhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
+    
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
     // Get raw body for signature verification
     const body = await req.text();
     const signature = req.headers.get("stripe-signature");
 
-    // For now, we'll parse without signature verification
-    // In production, you should verify the webhook signature
-    const event = JSON.parse(body) as Stripe.Event;
+    let event: Stripe.Event;
+
+    // Verify webhook signature if secret is configured
+    if (stripeWebhookSecret && signature) {
+      try {
+        event = stripe.webhooks.constructEvent(body, signature, stripeWebhookSecret);
+        logStep("Webhook signature verified");
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        logStep("Webhook signature verification failed", { error: errorMessage });
+        return new Response(
+          JSON.stringify({ error: "Invalid webhook signature" }),
+          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    } else {
+      // Log warning if webhook secret is not configured
+      logStep("WARNING: STRIPE_WEBHOOK_SECRET not configured - signature verification skipped");
+      event = JSON.parse(body) as Stripe.Event;
+    }
+
     logStep("Event parsed", { type: event.type, id: event.id });
 
     const supabaseAdmin = createClient(
@@ -174,7 +194,7 @@ serve(async (req) => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("ERROR", { message: errorMessage });
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    return new Response(JSON.stringify({ error: "Webhook processing failed" }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 400,
     });
