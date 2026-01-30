@@ -1,19 +1,16 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { ArrowLeft, Play, Share2, Lock, Layers, FileText, ScrollText } from 'lucide-react';
-import OutputSlidesView, { OutputSlide } from './OutputSlidesView';
+import { useState } from 'react';
+import { ArrowLeft, Play, Share2, Lock, FileText, ScrollText } from 'lucide-react';
 import OutputOnePagerView, { OutputOnePagerData } from './OutputOnePagerView';
 import OutputScriptView, { OutputScriptData } from './OutputScriptView';
 import RefinementBar from './RefinementBar';
 import OptionsModal from './OptionsModal';
 import { usePricing } from '@/hooks/usePricing';
 
-type OutputFormat = 'slides' | 'onepager' | 'script';
+type OutputFormat = 'onepager' | 'script';
 
 interface PitchOutputViewProps {
   title: string;
   subtitle?: string;
-  slides: OutputSlide[];
   onePager?: OutputOnePagerData;
   script?: OutputScriptData;
   onBack?: () => void;
@@ -30,7 +27,6 @@ interface PitchOutputViewProps {
 const PitchOutputView = ({
   title,
   subtitle,
-  slides,
   onePager,
   script,
   onBack,
@@ -38,13 +34,12 @@ const PitchOutputView = ({
   onPractice,
   onRefine,
   isRefining = false,
-  defaultFormat = 'slides',
+  defaultFormat = 'onepager',
   hasOnePager = false,
   hasScript = false,
   onGenerateFormat,
 }: PitchOutputViewProps) => {
   const [format, setFormat] = useState<OutputFormat>(defaultFormat);
-  const [currentSlide, setCurrentSlide] = useState(0);
   const [showOptions, setShowOptions] = useState(false);
   const { canPerformAction, isPro } = usePricing();
 
@@ -52,8 +47,7 @@ const PitchOutputView = ({
   const canUseOnePager = canPerformAction('use_format', { format: 'one-pager' }).allowed;
   const canUseScript = canPerformAction('use_format', { format: 'script' }).allowed;
 
-  const formats: { id: OutputFormat; label: string; icon: typeof Layers; hasContent: boolean; locked: boolean }[] = [
-    { id: 'slides', label: 'Slides', icon: Layers, hasContent: slides.length > 0, locked: false },
+  const formats: { id: OutputFormat; label: string; icon: typeof FileText; hasContent: boolean; locked: boolean }[] = [
     { id: 'onepager', label: 'One-Pager', icon: FileText, hasContent: hasOnePager, locked: !canUseOnePager },
     { id: 'script', label: 'Script', icon: ScrollText, hasContent: hasScript, locked: !canUseScript },
   ];
@@ -63,14 +57,12 @@ const PitchOutputView = ({
     if (!formatConfig) return;
 
     if (formatConfig.locked) {
-      // Show upgrade prompt
       return;
     }
 
     if (formatConfig.hasContent) {
       setFormat(formatId);
     } else {
-      // Generate this format
       onGenerateFormat?.(formatId);
       setFormat(formatId);
     }
@@ -157,13 +149,6 @@ const PitchOutputView = ({
 
       {/* Content Area */}
       <main className="max-w-5xl mx-auto px-4 pb-32">
-        {format === 'slides' && slides.length > 0 && (
-          <OutputSlidesView
-            slides={slides}
-            currentSlide={currentSlide}
-            setCurrentSlide={setCurrentSlide}
-          />
-        )}
         {format === 'onepager' && onePager && (
           <OutputOnePagerView data={onePager} />
         )}
@@ -175,11 +160,6 @@ const PitchOutputView = ({
         )}
 
         {/* Loading/Empty states */}
-        {format === 'slides' && slides.length === 0 && (
-          <div className="text-center py-20">
-            <p className="text-muted-foreground">No slides generated yet.</p>
-          </div>
-        )}
         {format === 'onepager' && !onePager && !formats.find(f => f.id === 'onepager')?.locked && (
           <div className="text-center py-20">
             <p className="text-muted-foreground mb-4">One-pager not generated yet.</p>
