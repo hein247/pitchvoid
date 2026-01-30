@@ -14,15 +14,13 @@ interface PricingCardProps {
 const FEATURES: Record<PlanType, string[]> = {
   free: [
     '3 pitch generations',
-    'Slides format only',
-    'Up to 4 slides',
+    'One-Pager format only',
     'Basic AI generation',
     'PitchVoid watermark',
   ],
   pro: [
     'Unlimited pitch generations',
-    'All formats: Slides, One-Pager, Script',
-    'Up to 12 slides',
+    'All formats: One-Pager & Script',
     'Priority AI generation',
     'Export & download',
     'No watermarks',
@@ -31,7 +29,6 @@ const FEATURES: Record<PlanType, string[]> = {
   ],
   teams: [
     'Everything in Pro',
-    'Up to 15 slides',
     'Team workspace',
     'Shared pitch library',
     'Admin controls',
