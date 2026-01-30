@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { authenticateRequest, checkPitchLimit, checkFormatAccess, incrementPitchCount } from "../_shared/auth.ts";
 import { validateGeneratePitchInput, sanitizeForPrompt } from "../_shared/validation.ts";
 import { corsHeaders, jsonResponse, errorResponse, handleCors } from "../_shared/cors.ts";
+import { checkRateLimit, rateLimitResponse, RATE_LIMITS } from "../_shared/rateLimit.ts";
 
 interface SlideContent {
   component_type: string;
@@ -34,6 +35,15 @@ serve(async (req) => {
     }
 
     const { user, profile } = authResult!;
+
+    // Rate limiting based on user plan
+    const plan = profile.plan || "free";
+    const rateConfig = plan === "free" ? RATE_LIMITS.aiGeneration.free : RATE_LIMITS.aiGeneration.paid;
+    const rateLimitResult = checkRateLimit(`pitch:${user.id}`, rateConfig);
+    if (!rateLimitResult.allowed) {
+      console.log("Rate limit exceeded for user:", user.id);
+      return rateLimitResponse(rateLimitResult);
+    }
 
     // Check pitch limit (server-side paywall)
     const limitCheck = checkPitchLimit(profile);

@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { checkRateLimit, getClientIP, rateLimitResponse, RATE_LIMITS } from "../_shared/rateLimit.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -28,8 +29,22 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
+    // Rate limiting check
+    const clientIP = getClientIP(req);
+    const rateLimitResult = checkRateLimit(`checkout:${clientIP}`, RATE_LIMITS.checkout.default);
+    if (!rateLimitResult.allowed) {
+      logStep("Rate limit exceeded", { ip: clientIP });
+      return rateLimitResponse(rateLimitResult);
+    }
+
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
+    if (!stripeKey) {
+      console.error("STRIPE_SECRET_KEY is not set");
+      return new Response(
+        JSON.stringify({ error: "Payment service configuration error" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
+      );
+    }
     logStep("Stripe key verified");
 
     const supabaseClient = createClient(
@@ -38,28 +53,64 @@ serve(async (req) => {
     );
 
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header provided");
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: "Authentication required" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
+      );
+    }
     logStep("Authorization header found");
 
     const token = authHeader.replace("Bearer ", "");
     const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
-    if (userError) throw new Error(`Authentication error: ${userError.message}`);
+    if (userError || !userData.user) {
+      console.error("Authentication error:", userError);
+      return new Response(
+        JSON.stringify({ error: "Invalid authentication" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
+      );
+    }
     const user = userData.user;
-    if (!user?.email) throw new Error("User not authenticated or email not available");
-    logStep("User authenticated", { userId: user.id, email: user.email });
+    if (!user?.email) {
+      return new Response(
+        JSON.stringify({ error: "User email not available" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+      );
+    }
+    logStep("User authenticated", { userId: user.id });
 
     // Parse request body
-    const { planType, isYearly, seatCount = 2 } = await req.json();
+    let planType: string;
+    let isYearly: boolean;
+    let seatCount: number;
+    
+    try {
+      const body = await req.json();
+      planType = body.planType;
+      isYearly = body.isYearly;
+      seatCount = body.seatCount || 2;
+      
+      if (!planType || !["pro", "teams"].includes(planType)) {
+        return new Response(
+          JSON.stringify({ error: "Invalid plan type" }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+        );
+      }
+    } catch {
+      return new Response(
+        JSON.stringify({ error: "Invalid request body" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+      );
+    }
+    
     logStep("Request body parsed", { planType, isYearly, seatCount });
 
     // Determine price ID based on plan and interval
     let priceId: string;
     if (planType === "pro") {
       priceId = isYearly ? PRICE_IDS.pro_yearly : PRICE_IDS.pro_monthly;
-    } else if (planType === "teams") {
-      priceId = isYearly ? PRICE_IDS.teams_yearly : PRICE_IDS.teams_monthly;
     } else {
-      throw new Error(`Invalid plan type: ${planType}`);
+      priceId = isYearly ? PRICE_IDS.teams_yearly : PRICE_IDS.teams_monthly;
     }
     logStep("Price ID determined", { priceId });
 
@@ -107,18 +158,17 @@ serve(async (req) => {
       },
     });
 
-    logStep("Checkout session created", { sessionId: session.id, url: session.url });
+    logStep("Checkout session created", { sessionId: session.id });
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    logStep("ERROR", { message: errorMessage });
-    return new Response(JSON.stringify({ error: errorMessage }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 500,
-    });
+    console.error("Checkout error:", error);
+    return new Response(
+      JSON.stringify({ error: "Failed to create checkout session" }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
+    );
   }
 });
