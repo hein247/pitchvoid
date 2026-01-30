@@ -68,6 +68,13 @@ export type Database = {
             foreignKeyName: "profiles_team_id_fkey"
             columns: ["team_id"]
             isOneToOne: false
+            referencedRelation: "team_info_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
             referencedRelation: "teams"
             referencedColumns: ["id"]
           },
@@ -207,10 +214,47 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      team_info_safe: {
+        Row: {
+          created_at: string | null
+          current_period_end: string | null
+          id: string | null
+          name: string | null
+          owner_id: string | null
+          seat_count: number | null
+          subscription_status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_period_end?: string | null
+          id?: string | null
+          name?: string | null
+          owner_id?: string | null
+          seat_count?: number | null
+          subscription_status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          current_period_end?: string | null
+          id?: string | null
+          name?: string | null
+          owner_id?: string | null
+          seat_count?: number | null
+          subscription_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teams_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
-      [_ in never]: never
+      is_team_owner: { Args: { team_uuid: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
