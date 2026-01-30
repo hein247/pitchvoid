@@ -121,6 +121,27 @@ export type Database = {
           },
         ]
       }
+      rate_limits: {
+        Row: {
+          count: number
+          created_at: string
+          key: string
+          reset_time: string
+        }
+        Insert: {
+          count?: number
+          created_at?: string
+          key: string
+          reset_time: string
+        }
+        Update: {
+          count?: number
+          created_at?: string
+          key?: string
+          reset_time?: string
+        }
+        Relationships: []
+      }
       slides: {
         Row: {
           animation_settings: Json | null
@@ -254,6 +275,7 @@ export type Database = {
       }
     }
     Functions: {
+      cleanup_expired_rate_limits: { Args: never; Returns: number }
       is_team_owner: { Args: { team_uuid: string }; Returns: boolean }
     }
     Enums: {

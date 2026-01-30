@@ -1,36 +1,14 @@
 /**
- * Simple in-memory rate limiter for edge functions
- * Uses a Map to track request counts per key (IP or user ID)
- * 
- * Note: This is a basic implementation. In production, consider using
- * Deno KV or an external Redis instance for distributed rate limiting.
+ * Persistent database-backed rate limiter for edge functions
+ * Uses Supabase database for rate limit storage to survive cold starts
  */
+
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 interface RateLimitConfig {
   windowMs: number;      // Time window in milliseconds
   maxRequests: number;   // Max requests per window
 }
-
-interface RateLimitEntry {
-  count: number;
-  resetTime: number;
-}
-
-// In-memory store (reset on function cold start)
-const rateLimitStore = new Map<string, RateLimitEntry>();
-
-// Clean up expired entries periodically
-function cleanupExpiredEntries(): void {
-  const now = Date.now();
-  for (const [key, entry] of rateLimitStore.entries()) {
-    if (now > entry.resetTime) {
-      rateLimitStore.delete(key);
-    }
-  }
-}
-
-// Run cleanup every 5 minutes
-setInterval(cleanupExpiredEntries, 5 * 60 * 1000);
 
 export interface RateLimitResult {
   allowed: boolean;
@@ -40,51 +18,101 @@ export interface RateLimitResult {
 }
 
 /**
- * Check if a request is allowed based on rate limits
- * @param key - Unique identifier (IP address or user ID)
+ * Get Supabase client for rate limit operations (uses service role)
+ */
+function getSupabaseClient() {
+  return createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+    { auth: { persistSession: false } }
+  );
+}
+
+/**
+ * Check if a request is allowed based on rate limits using persistent storage
+ * @param key - Unique identifier (e.g., "pitch:user-id")
  * @param config - Rate limit configuration
  * @returns RateLimitResult with allowed status and metadata
  */
-export function checkRateLimit(
+export async function checkRateLimit(
   key: string,
   config: RateLimitConfig
-): RateLimitResult {
+): Promise<RateLimitResult> {
+  const supabase = getSupabaseClient();
   const now = Date.now();
-  const entry = rateLimitStore.get(key);
+  const resetTime = now + config.windowMs;
 
-  // If no entry exists or window has expired, create new entry
-  if (!entry || now > entry.resetTime) {
-    const newEntry: RateLimitEntry = {
-      count: 1,
-      resetTime: now + config.windowMs,
-    };
-    rateLimitStore.set(key, newEntry);
+  try {
+    // Try to get existing rate limit entry
+    const { data: existing, error: fetchError } = await supabase
+      .from("rate_limits")
+      .select("count, reset_time")
+      .eq("key", key)
+      .single();
+
+    if (fetchError && fetchError.code !== "PGRST116") {
+      // PGRST116 = no rows returned, which is expected for new keys
+      console.error("Rate limit fetch error:", fetchError);
+      // On error, allow the request but log it
+      return { allowed: true, remaining: config.maxRequests - 1, resetTime };
+    }
+
+    // If no entry exists or window has expired, create/reset entry
+    if (!existing || new Date(existing.reset_time).getTime() < now) {
+      const { error: upsertError } = await supabase
+        .from("rate_limits")
+        .upsert({
+          key,
+          count: 1,
+          reset_time: new Date(resetTime).toISOString(),
+          created_at: new Date().toISOString(),
+        }, { onConflict: "key" });
+
+      if (upsertError) {
+        console.error("Rate limit upsert error:", upsertError);
+      }
+
+      return {
+        allowed: true,
+        remaining: config.maxRequests - 1,
+        resetTime,
+      };
+    }
+
+    // Entry exists and is still valid - check if over limit
+    const currentCount = existing.count;
+    const entryResetTime = new Date(existing.reset_time).getTime();
+
+    if (currentCount >= config.maxRequests) {
+      const retryAfterSeconds = Math.ceil((entryResetTime - now) / 1000);
+      return {
+        allowed: false,
+        remaining: 0,
+        resetTime: entryResetTime,
+        retryAfterSeconds: Math.max(1, retryAfterSeconds),
+      };
+    }
+
+    // Increment the count
+    const { error: updateError } = await supabase
+      .from("rate_limits")
+      .update({ count: currentCount + 1 })
+      .eq("key", key);
+
+    if (updateError) {
+      console.error("Rate limit update error:", updateError);
+    }
+
     return {
       allowed: true,
-      remaining: config.maxRequests - 1,
-      resetTime: newEntry.resetTime,
+      remaining: config.maxRequests - currentCount - 1,
+      resetTime: entryResetTime,
     };
+  } catch (error) {
+    console.error("Rate limit check error:", error);
+    // On unexpected error, allow the request
+    return { allowed: true, remaining: config.maxRequests - 1, resetTime };
   }
-
-  // Increment count
-  entry.count++;
-
-  // Check if over limit
-  if (entry.count > config.maxRequests) {
-    const retryAfterSeconds = Math.ceil((entry.resetTime - now) / 1000);
-    return {
-      allowed: false,
-      remaining: 0,
-      resetTime: entry.resetTime,
-      retryAfterSeconds,
-    };
-  }
-
-  return {
-    allowed: true,
-    remaining: config.maxRequests - entry.count,
-    resetTime: entry.resetTime,
-  };
 }
 
 /**

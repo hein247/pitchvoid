@@ -23,7 +23,7 @@ serve(async (req) => {
 
     // Rate limiting check
     const clientIP = getClientIP(req);
-    const rateLimitResult = checkRateLimit(`portal:${clientIP}`, RATE_LIMITS.checkout.default);
+    const rateLimitResult = await checkRateLimit(`portal:${clientIP}`, RATE_LIMITS.checkout.default);
     if (!rateLimitResult.allowed) {
       logStep("Rate limit exceeded", { ip: clientIP });
       return rateLimitResponse(rateLimitResult);

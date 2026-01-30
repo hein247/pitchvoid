@@ -36,7 +36,7 @@ serve(async (req) => {
     const { user, profile } = authResult!;
 
     // Rate limiting
-    const rateLimitResult = checkRateLimit(`parse:${user.id}`, RATE_LIMITS.parseInput.default);
+    const rateLimitResult = await checkRateLimit(`parse:${user.id}`, RATE_LIMITS.parseInput.default);
     if (!rateLimitResult.allowed) {
       console.log("Rate limit exceeded for user:", user.id);
       return rateLimitResponse(rateLimitResult);

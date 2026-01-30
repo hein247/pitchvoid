@@ -22,7 +22,7 @@ serve(async (req) => {
     const { user } = authResult!;
 
     // Rate limiting for image generation
-    const rateLimitResult = checkRateLimit(`images:${user.id}`, RATE_LIMITS.imageGeneration.default);
+    const rateLimitResult = await checkRateLimit(`images:${user.id}`, RATE_LIMITS.imageGeneration.default);
     if (!rateLimitResult.allowed) {
       console.log("Rate limit exceeded for user:", user.id);
       return rateLimitResponse(rateLimitResult);
