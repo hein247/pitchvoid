@@ -12,7 +12,7 @@ interface ParsedContext {
   goal: string;
   tone: string;
   urgency: string;
-  suggested_format: 'slides' | 'one-pager' | 'script';
+  suggested_format: 'one-pager' | 'script';
   suggested_length: 'quick' | 'standard' | 'detailed';
   clarifying_questions: string[];
   summary: string;
@@ -75,13 +75,12 @@ Analyze this pitch request and extract:
 4. TONE: What tone is appropriate? Infer from context. (e.g., formal, confident, humble, casual, urgent, inspirational)
 5. URGENCY: When is this needed? (e.g., immediate, tomorrow, this week, not specified)
 6. FORMAT SUGGESTION: Based on context, suggest output format:
-   - "slides" for formal presentations, investor pitches, conference talks
-   - "one-pager" for quick summaries, email follow-ups, leave-behinds
-   - "script" for interviews, phone calls, in-person meetings, speeches
+   - "one-pager" for written summaries, executive briefs, email follow-ups, leave-behinds, investor decks, proposals
+   - "script" for interviews, phone calls, in-person meetings, speeches, presentations, conference talks
 7. LENGTH SUGGESTION: Based on context:
-   - "quick" for 2-3 slides, 30-second pitch, brief summary
-   - "standard" for 5-6 slides, 2-3 minute pitch, full page
-   - "detailed" for 8-10 slides, 5-7 minute pitch, comprehensive
+   - "quick" for brief summary, 30-second pitch
+   - "standard" for full page, 2-3 minute pitch
+   - "detailed" for comprehensive document, 5-7 minute pitch
 
 Respond in JSON format:
 {
@@ -92,7 +91,7 @@ Respond in JSON format:
   "goal": "",
   "tone": "",
   "urgency": "",
-  "suggested_format": "slides" | "one-pager" | "script",
+  "suggested_format": "one-pager" | "script",
   "suggested_length": "quick" | "standard" | "detailed",
   "clarifying_questions": [],
   "summary": ""
@@ -157,9 +156,9 @@ Respond with ONLY the JSON object, no other text.`;
       return errorResponse("Failed to process your request", 500, "Invalid context structure");
     }
 
-    // Ensure valid format and length values
-    if (!['slides', 'one-pager', 'script'].includes(parsedContext.suggested_format)) {
-      parsedContext.suggested_format = 'slides';
+    // Ensure valid format and length values - default to one-pager
+    if (!['one-pager', 'script'].includes(parsedContext.suggested_format)) {
+      parsedContext.suggested_format = 'one-pager';
     }
     if (!['quick', 'standard', 'detailed'].includes(parsedContext.suggested_length)) {
       parsedContext.suggested_length = 'standard';

@@ -151,15 +151,15 @@ export default function Settings() {
                 <li className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-primary" />
                   <span className="text-muted-foreground">
-                    Up to {planDetails.limits.maxSlides} slides per pitch
-                  </span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                  <span className="text-muted-foreground">
                     Formats: {planDetails.limits.formats.join(', ')}
                   </span>
                 </li>
+                {planDetails.limits.canExport && (
+                  <li className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                    <span className="text-muted-foreground">Export & download</span>
+                  </li>
+                )}
               </ul>
             </div>
 

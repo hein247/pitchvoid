@@ -40,7 +40,7 @@ export interface UsePricingReturn {
   
   // Paywall modal state
   showPaywall: boolean;
-  paywallType: 'pitch_limit' | 'feature_locked' | 'slide_limit' | null;
+  paywallType: 'pitch_limit' | 'feature_locked' | null;
   paywallMessage: string | null;
   setShowPaywall: (show: boolean) => void;
   
@@ -70,7 +70,7 @@ export function usePricing(): UsePricingReturn {
   
   // Paywall modal state
   const [showPaywall, setShowPaywall] = useState(false);
-  const [paywallType, setPaywallType] = useState<'pitch_limit' | 'feature_locked' | 'slide_limit' | null>(null);
+  const [paywallType, setPaywallType] = useState<'pitch_limit' | 'feature_locked' | null>(null);
   const [paywallMessage, setPaywallMessage] = useState<string | null>(null);
   
   // Nudge state
@@ -140,7 +140,7 @@ export function usePricing(): UsePricingReturn {
       const result = canPerformAction(action, options);
       
       if (!result.allowed) {
-        setPaywallType(result.reason as 'pitch_limit' | 'feature_locked' | 'slide_limit');
+        setPaywallType(result.reason === 'pitch_limit' ? 'pitch_limit' : 'feature_locked');
         setPaywallMessage(result.upgradeMessage || null);
         setShowPaywall(true);
         return false;

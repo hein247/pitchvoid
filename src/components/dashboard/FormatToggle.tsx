@@ -1,11 +1,10 @@
-import { Layers, FileText, ScrollText, RefreshCw, Lock } from 'lucide-react';
+import { FileText, ScrollText, RefreshCw, Lock } from 'lucide-react';
 
-type OutputFormat = 'slides' | 'one-pager' | 'script';
+type OutputFormat = 'one-pager' | 'script';
 
 interface FormatToggleProps {
   activeFormat: OutputFormat;
   onFormatChange: (format: OutputFormat) => void;
-  hasSlides: boolean;
   hasOnePager: boolean;
   hasScript: boolean;
   onRegenerate: (format: OutputFormat) => void;
@@ -17,7 +16,6 @@ interface FormatToggleProps {
 const FormatToggle = ({
   activeFormat,
   onFormatChange,
-  hasSlides,
   hasOnePager,
   hasScript,
   onRegenerate,
@@ -25,8 +23,7 @@ const FormatToggle = ({
   lockedFormats = [],
   onLockedClick,
 }: FormatToggleProps) => {
-  const formats: { id: OutputFormat; label: string; icon: typeof Layers; hasContent: boolean }[] = [
-    { id: 'slides', label: 'Slides', icon: Layers, hasContent: hasSlides },
+  const formats: { id: OutputFormat; label: string; icon: typeof FileText; hasContent: boolean }[] = [
     { id: 'one-pager', label: 'One-Pager', icon: FileText, hasContent: hasOnePager },
     { id: 'script', label: 'Script', icon: ScrollText, hasContent: hasScript },
   ];
