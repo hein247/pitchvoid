@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { authenticateRequest } from "../_shared/auth.ts";
 import { validateGeneratePitchImagesInput, sanitizeForPrompt } from "../_shared/validation.ts";
 import { corsHeaders, jsonResponse, errorResponse, handleCors } from "../_shared/cors.ts";
+import { checkRateLimit, rateLimitResponse, RATE_LIMITS } from "../_shared/rateLimit.ts";
 
 serve(async (req) => {
   // Handle CORS preflight
@@ -19,6 +20,13 @@ serve(async (req) => {
     }
 
     const { user } = authResult!;
+
+    // Rate limiting for image generation
+    const rateLimitResult = checkRateLimit(`images:${user.id}`, RATE_LIMITS.imageGeneration.default);
+    if (!rateLimitResult.allowed) {
+      console.log("Rate limit exceeded for user:", user.id);
+      return rateLimitResponse(rateLimitResult);
+    }
 
     // Parse and validate request body
     const body = await req.json();
