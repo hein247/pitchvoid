@@ -206,6 +206,211 @@ const SlidePreview = ({ slide, slideIndex, isGeneratingImage }: SlidePreviewProp
       );
     }
 
+    // Hero Split - Large image with text overlay
+    if (layout === 'hero-split') {
+      return (
+        <div className="relative h-full flex flex-col">
+          {/* Full-width image background */}
+          <div className="absolute inset-0 rounded-lg overflow-hidden">
+            {slide.image_url ? (
+              <img
+                src={slide.image_url}
+                alt={slide.content.title}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-primary/20 via-accent/10 to-background" />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
+          </div>
+          {/* Content overlay */}
+          <div className="relative mt-auto p-6 z-10">
+            <motion.h2
+              key={slide.content.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="font-display text-3xl md:text-4xl font-bold mb-3 tracking-wide text-foreground"
+            >
+              {slide.content.title || <span className="text-muted-foreground/50">Enter a title...</span>}
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-muted-foreground text-lg max-w-2xl font-sans"
+            >
+              {slide.content.description || <span className="text-muted-foreground/30">Add body text...</span>}
+            </motion.p>
+          </div>
+        </div>
+      );
+    }
+
+    // Stats Focus - Highlight key metrics
+    if (layout === 'stats-focus') {
+      const stats = slide.content.bullets.slice(0, 3);
+      return (
+        <div className="flex flex-col h-full">
+          <motion.h2
+            key={slide.content.title}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="font-display text-2xl font-light mb-2 tracking-wide text-foreground text-center"
+          >
+            {slide.content.title || <span className="text-muted-foreground/50">Enter a title...</span>}
+          </motion.h2>
+          <motion.p
+            className="text-muted-foreground text-sm mb-6 text-center font-sans"
+          >
+            {slide.content.description || <span className="text-muted-foreground/30">Add body text...</span>}
+          </motion.p>
+          <div className="grid grid-cols-3 gap-4 flex-1">
+            {stats.map((stat, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: idx * 0.1 }}
+                className="flex flex-col items-center justify-center p-4 bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/20 rounded-xl"
+              >
+                <span className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-display">
+                  {idx === 0 ? '10K+' : idx === 1 ? '99%' : '24/7'}
+                </span>
+                <span className="text-xs text-muted-foreground mt-2 text-center font-sans">
+                  {stat || `Metric ${idx + 1}`}
+                </span>
+              </motion.div>
+            ))}
+          </div>
+          {stats.length === 0 && (
+            <div className="flex items-center justify-center flex-1 text-muted-foreground/50 text-sm">
+              Add bullet points for stats
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Quote Card - Testimonial or quote style
+    if (layout === 'quote-card') {
+      return (
+        <div className="flex flex-col items-center justify-center h-full text-center px-8">
+          <div className="text-6xl text-primary/30 font-serif mb-4">"</div>
+          <motion.blockquote
+            key={slide.content.description}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="font-display text-2xl md:text-3xl italic text-foreground leading-relaxed mb-6"
+          >
+            {slide.content.description || <span className="text-muted-foreground/50">Enter your quote...</span>}
+          </motion.blockquote>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="flex items-center gap-4"
+          >
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground font-bold">
+              {slide.content.title?.charAt(0) || 'A'}
+            </div>
+            <div className="text-left">
+              <p className="text-foreground font-medium font-sans">
+                {slide.content.title || 'Author Name'}
+              </p>
+              <p className="text-sm text-muted-foreground font-sans">
+                {slide.content.bullets[0] || 'Title / Company'}
+              </p>
+            </div>
+          </motion.div>
+        </div>
+      );
+    }
+
+    // Timeline - Sequential steps or process
+    if (layout === 'timeline') {
+      return (
+        <div className="flex flex-col h-full">
+          <motion.h2
+            key={slide.content.title}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="font-display text-2xl font-light mb-6 tracking-wide text-foreground"
+          >
+            {slide.content.title || <span className="text-muted-foreground/50">Enter a title...</span>}
+          </motion.h2>
+          <div className="relative flex-1">
+            {/* Timeline line */}
+            <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary via-accent to-primary/30" />
+            {/* Timeline items */}
+            <div className="space-y-4 pl-12">
+              {slide.content.bullets.map((bullet, idx) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: idx * 0.15 }}
+                  className="relative"
+                >
+                  {/* Timeline dot */}
+                  <div className="absolute -left-[2.1rem] top-1 w-4 h-4 rounded-full bg-gradient-to-r from-primary to-accent shadow-[0_0_10px_hsl(var(--primary)/0.5)]" />
+                  <div className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] rounded-lg p-3">
+                    <span className="text-xs text-primary/80 uppercase tracking-wider font-sans">Step {idx + 1}</span>
+                    <p className="text-foreground text-sm mt-1 font-sans">{bullet || 'Add step description...'}</p>
+                  </div>
+                </motion.div>
+              ))}
+              {slide.content.bullets.length === 0 && (
+                <p className="text-muted-foreground/50 text-sm">Add bullet points for timeline steps</p>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Feature Grid - 3-column feature cards
+    if (layout === 'feature-grid') {
+      const features = slide.content.bullets.slice(0, 6);
+      return (
+        <div className="flex flex-col h-full">
+          <motion.h2
+            key={slide.content.title}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="font-display text-2xl font-light mb-2 tracking-wide text-foreground text-center"
+          >
+            {slide.content.title || <span className="text-muted-foreground/50">Enter a title...</span>}
+          </motion.h2>
+          <motion.p
+            className="text-muted-foreground text-sm mb-6 text-center font-sans"
+          >
+            {slide.content.description || <span className="text-muted-foreground/30">Add body text...</span>}
+          </motion.p>
+          <div className="grid grid-cols-3 gap-3 flex-1">
+            {features.map((feature, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.08 }}
+                className="flex flex-col items-center p-3 bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] rounded-lg text-center"
+              >
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-2">
+                  <span className="text-primary text-sm">✦</span>
+                </div>
+                <span className="text-xs text-foreground font-sans">{feature || `Feature ${idx + 1}`}</span>
+              </motion.div>
+            ))}
+          </div>
+          {features.length === 0 && (
+            <div className="flex items-center justify-center flex-1 text-muted-foreground/50 text-sm">
+              Add bullet points for features
+            </div>
+          )}
+        </div>
+      );
+    }
+
     // Default: Centered layout
     return (
       <>

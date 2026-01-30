@@ -38,6 +38,11 @@ const LAYOUT_OPTIONS = [
   { value: 'centered', label: 'Centered', description: 'Title and content centered' },
   { value: 'side-by-side', label: 'Side-by-Side', description: 'Content in two columns' },
   { value: 'bento-grid', label: 'Bento Grid', description: 'Modern grid layout' },
+  { value: 'hero-split', label: 'Hero Split', description: 'Large image with text overlay' },
+  { value: 'stats-focus', label: 'Stats Focus', description: 'Highlight key metrics' },
+  { value: 'quote-card', label: 'Quote Card', description: 'Testimonial or quote style' },
+  { value: 'timeline', label: 'Timeline', description: 'Sequential steps or process' },
+  { value: 'feature-grid', label: 'Feature Grid', description: '3-column feature cards' },
 ];
 
 interface SlideEditorProps {
