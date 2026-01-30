@@ -7,10 +7,12 @@ import { Loader2, Mic, Plus, ArrowLeft, X, Play, Share2, Home, ChevronLeft, Chev
 import ShareModal from '@/components/dashboard/ShareModal';
 import { Progress } from '@/components/ui/progress';
 import Navbar from '@/components/Navbar';
+import SlideGrid from '@/components/dashboard/SlideGrid';
+import RefinementPanel from '@/components/dashboard/RefinementPanel';
 import OnePager, { OnePagerData } from '@/components/dashboard/OnePager';
+import OnePagerEditor from '@/components/dashboard/OnePagerEditor';
 import ScriptViewer, { ScriptData } from '@/components/dashboard/ScriptViewer';
 import FormatToggle from '@/components/dashboard/FormatToggle';
-import { OutputSlidesView, OutputSlide } from '@/components/dashboard/output';
 import { useSwipeGesture } from '@/hooks/useSwipeGesture';
 import { usePricing } from '@/hooks/usePricing';
 import { PaywallModal } from '@/components/pricing/PaywallModal';
@@ -1054,7 +1056,47 @@ const Dashboard = () => {
               <div ref={messagesEndRef} />
             </div>
             
-            {/* Removed: RefinementPanel and OnePagerEditor (editing functionality removed) */}
+            {/* Refinements Panel - for slides */}
+            {showRefinements && !onePagerData && (
+              <div className="p-3 sm:p-4 border-t border-accent/10 max-h-[50vh] overflow-y-auto">
+                <RefinementPanel
+                  slides={generatedSlides}
+                  projectTitle={activeProject?.title}
+                  onApplyRefinements={(selectedIds) => {
+                    // Save current state for undo
+                    setSlidesHistory(prev => [...prev, generatedSlides]);
+                    setIsApplyingRefinements(true);
+                    
+                    // Simulate applying refinements
+                    setTimeout(() => {
+                      setIsApplyingRefinements(false);
+                      setMessages(prev => [...prev, { 
+                        id: Date.now().toString(), 
+                        type: 'assistant', 
+                        content: `Applied refinements: ${selectedIds.join(', ')}` 
+                      }]);
+                    }, 2000);
+                  }}
+                  onUndo={() => {
+                    if (slidesHistory.length > 0) {
+                      // Could restore slides here if we had actual slide state management
+                      setSlidesHistory(prev => prev.slice(0, -1));
+                    }
+                  }}
+                  isApplying={isApplyingRefinements}
+                />
+              </div>
+            )}
+            
+            {/* One-Pager Editor - for one-pagers */}
+            {onePagerData && (
+              <div className="p-3 sm:p-4 border-t border-accent/10 max-h-[50vh] overflow-y-auto">
+                <OnePagerEditor
+                  data={onePagerData}
+                  onUpdate={(updatedData) => setOnePagerData(updatedData)}
+                />
+              </div>
+            )}
             
             {/* Input */}
             <div className="p-3 sm:p-4 border-t border-accent/10">
@@ -1181,15 +1223,10 @@ const Dashboard = () => {
                   projectTitle={activeProject?.title}
                 />
               ) : outputFormat === 'slides' && showSlides ? (
-                <OutputSlidesView
-                  slides={generatedSlides.map(s => ({
-                    number: s.id,
-                    title: s.title,
-                    content: s.content,
-                    speakerNotes: s.speakerNotes,
-                  }))}
-                  currentSlide={activeSlide}
-                  setCurrentSlide={setActiveSlide}
+                <SlideGrid 
+                  slides={generatedSlides}
+                  activeSlide={activeSlide}
+                  onSlideSelect={setActiveSlide}
                 />
               ) : (
                 <div className="h-full flex items-center justify-center">
