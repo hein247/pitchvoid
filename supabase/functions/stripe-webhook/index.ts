@@ -25,31 +25,42 @@ serve(async (req) => {
 
     const stripeWebhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
     
+    // CRITICAL: Webhook signature verification is mandatory
+    if (!stripeWebhookSecret) {
+      console.error("CRITICAL: STRIPE_WEBHOOK_SECRET not configured");
+      return new Response(
+        JSON.stringify({ error: "Webhook endpoint not properly configured" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
     // Get raw body for signature verification
     const body = await req.text();
     const signature = req.headers.get("stripe-signature");
 
+    if (!signature) {
+      logStep("Missing stripe-signature header");
+      return new Response(
+        JSON.stringify({ error: "Missing stripe-signature header" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     let event: Stripe.Event;
 
-    // Verify webhook signature if secret is configured
-    if (stripeWebhookSecret && signature) {
-      try {
-        event = stripe.webhooks.constructEvent(body, signature, stripeWebhookSecret);
-        logStep("Webhook signature verified");
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : String(err);
-        logStep("Webhook signature verification failed", { error: errorMessage });
-        return new Response(
-          JSON.stringify({ error: "Invalid webhook signature" }),
-          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-    } else {
-      // Log warning if webhook secret is not configured
-      logStep("WARNING: STRIPE_WEBHOOK_SECRET not configured - signature verification skipped");
-      event = JSON.parse(body) as Stripe.Event;
+    // Verify webhook signature (mandatory)
+    try {
+      event = stripe.webhooks.constructEvent(body, signature, stripeWebhookSecret);
+      logStep("Webhook signature verified");
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      logStep("Webhook signature verification failed", { error: errorMessage });
+      return new Response(
+        JSON.stringify({ error: "Invalid webhook signature" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     logStep("Event parsed", { type: event.type, id: event.id });
