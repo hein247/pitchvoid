@@ -26,6 +26,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import LayoutSwitcher from './LayoutSwitcher';
 import GlassCard from '@/components/ui/GlassCard';
 import ShimmerButton from '@/components/ui/ShimmerButton';
 import SlideEditor, { Slide, SlideContent } from './SlideEditor';
@@ -530,16 +531,28 @@ const LiveSlideEditor = ({ projectId, initialSlides, onClose }: LiveSlideEditorP
 
         {/* Right: Live Preview Panel */}
         <div className="bg-[rgba(5,1,13,0.6)] backdrop-blur-sm overflow-y-auto">
-          <div className="p-6 h-full">
-            <div className="flex items-center gap-2 mb-6">
-              <div className="w-6 h-6 bg-accent/10 rounded flex items-center justify-center">
-                <Eye className="w-3.5 h-3.5 text-accent" />
+          <div className="p-6 h-full flex flex-col">
+            {/* Layout Switcher Bar - Always visible */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 bg-accent/10 rounded flex items-center justify-center">
+                  <Eye className="w-3.5 h-3.5 text-accent" />
+                </div>
+                <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-sans font-medium">
+                  Preview
+                </span>
               </div>
-              <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-sans font-medium">
-                Static Preview
-              </span>
+              <LayoutSwitcher
+                currentLayout={currentSlide.layout_type || 'centered'}
+                onLayoutChange={(layout) => {
+                  handleSlideUpdate({
+                    ...currentSlide,
+                    layout_type: layout,
+                  });
+                }}
+              />
             </div>
-            <div className="h-[calc(100%-40px)]">
+            <div className="flex-1 min-h-0">
               <AnimatePresence mode="wait">
                 <SlidePreview
                   key={`${currentSlide.id}-${JSON.stringify(currentSlide.content)}-${currentSlide.image_url}`}
