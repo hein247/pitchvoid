@@ -1,9 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { authenticateRequest, checkPitchLimit, checkFormatAccess, incrementPitchCount } from "../_shared/auth.ts";
+import { validateGenerateScriptInput, sanitizeForPrompt } from "../_shared/validation.ts";
+import { corsHeaders, jsonResponse, errorResponse, handleCors } from "../_shared/cors.ts";
 
 interface ScriptSection {
   name: string;
@@ -20,29 +18,62 @@ interface ScriptData {
 }
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  // Handle CORS preflight
+  const corsResponse = handleCors(req);
+  if (corsResponse) return corsResponse;
 
   try {
-    const { scenario, targetAudience, documentContext, imageDescriptions, tone, length } = await req.json();
+    // Authenticate the request
+    const { result: authResult, error: authError } = await authenticateRequest(req);
+    if (authError) {
+      return new Response(authError.body, {
+        status: authError.status,
+        headers: corsHeaders,
+      });
+    }
+
+    const { user, profile } = authResult!;
+
+    // Check pitch limit (server-side paywall)
+    const limitCheck = checkPitchLimit(profile);
+    if (!limitCheck.allowed) {
+      return jsonResponse({ error: limitCheck.error }, limitCheck.statusCode || 402);
+    }
+
+    // Check format access (script is Pro only)
+    const formatCheck = checkFormatAccess(profile, 'script');
+    if (!formatCheck.allowed) {
+      return jsonResponse({ error: formatCheck.error }, formatCheck.statusCode || 402);
+    }
+
+    // Parse and validate request body
+    const body = await req.json();
+    const validation = validateGenerateScriptInput(body);
+    if (!validation.valid) {
+      return jsonResponse({ error: validation.error }, 400);
+    }
+
+    const { scenario, targetAudience, documentContext, imageDescriptions, tone, length } = body;
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+      return errorResponse("Service configuration error", 500, "LOVABLE_API_KEY is not configured");
     }
 
-    console.log("Generating script for scenario:", scenario);
-    console.log("Target audience:", targetAudience);
-    console.log("Tone:", tone);
-    console.log("Length:", length);
+    console.log("Generating script for user:", user.id);
 
-    const docContext = documentContext
-      ? `\n\n**Document Context:**\n${documentContext}`
+    // Sanitize inputs
+    const sanitizedScenario = sanitizeForPrompt(scenario);
+    const sanitizedAudience = targetAudience ? sanitizeForPrompt(targetAudience) : "";
+    const sanitizedContext = documentContext ? sanitizeForPrompt(documentContext) : "";
+    const sanitizedTone = tone ? sanitizeForPrompt(tone) : "";
+
+    const docContext = sanitizedContext
+      ? `\n\n**Document Context:**\n${sanitizedContext}`
       : '';
 
     const imageContext = imageDescriptions && imageDescriptions.length > 0
-      ? `\n\n**Visual Assets (${imageDescriptions.length} images):**\n${imageDescriptions.map((desc: string, i: number) => `- Image ${i + 1}: ${desc}`).join('\n')}`
+      ? `\n\n**Visual Assets (${imageDescriptions.length} images):**\n${imageDescriptions.map((desc: string, i: number) => `- Image ${i + 1}: ${sanitizeForPrompt(desc)}`).join('\n')}`
       : '';
 
     // Determine duration based on length preference
@@ -87,18 +118,18 @@ SECTION STRUCTURE (${sectionCount} sections):
 
 Adjust sections based on the ${length || 'standard'} length preference.
 
-TONE: ${tone || 'confident and professional'}
+TONE: ${sanitizedTone || 'confident and professional'}
 Keep it human, not robotic. Write like people actually speak.`;
 
     const userPrompt = `Create a speaking script:
 
-**Scenario:** ${scenario}
+**Scenario:** ${sanitizedScenario}
 
-**Audience:** ${targetAudience || "Decision makers"}
+**Audience:** ${sanitizedAudience || "Decision makers"}
 
 **Length:** ${length || 'standard'} (${totalDuration})
 
-**Tone:** ${tone || 'confident'}
+**Tone:** ${sanitizedTone || 'confident'}
 ${docContext}${imageContext}
 
 Generate the JSON now. Output ONLY the JSON object, no other text.`;
@@ -121,32 +152,22 @@ Generate the JSON now. Output ONLY the JSON object, no other text.`;
 
     if (!response.ok) {
       if (response.status === 429) {
-        console.error("Rate limit exceeded");
-        return new Response(
-          JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return jsonResponse({ error: "Rate limit exceeded. Please try again in a moment." }, 429);
       }
       if (response.status === 402) {
-        console.error("Payment required");
-        return new Response(
-          JSON.stringify({ error: "AI credits exhausted. Please add credits to continue." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return jsonResponse({ error: "AI credits exhausted. Please add credits to continue." }, 402);
       }
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      throw new Error(`AI gateway error: ${response.status}`);
+      return errorResponse("Failed to generate script", 500, `AI gateway error: ${response.status}`);
     }
 
     const data = await response.json();
     const aiContent = data.choices?.[0]?.message?.content;
     
     if (!aiContent) {
-      throw new Error("No content received from AI");
+      return errorResponse("Failed to generate script", 500, "No content received from AI");
     }
 
-    console.log("Raw AI response:", aiContent);
+    console.log("AI response received for user:", user.id);
 
     // Parse the JSON from the response
     let script: ScriptData;
@@ -158,27 +179,22 @@ Generate the JSON now. Output ONLY the JSON object, no other text.`;
         script = JSON.parse(aiContent);
       }
     } catch (parseError) {
-      console.error("Failed to parse AI response:", parseError);
-      throw new Error("Failed to parse script content from AI response");
+      return errorResponse("Failed to generate script", 500, parseError);
     }
 
     // Validate structure
     if (!script.title || !script.sections || !Array.isArray(script.sections)) {
-      throw new Error("Invalid script structure received");
+      return errorResponse("Failed to generate script", 500, "Invalid script structure");
     }
 
-    console.log("Generated script:", JSON.stringify(script, null, 2));
+    // Increment pitch count after successful generation
+    await incrementPitchCount(user.id);
 
-    return new Response(
-      JSON.stringify({ script }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    console.log("Generated script for user:", user.id);
+
+    return jsonResponse({ script });
 
   } catch (error) {
-    console.error("Error generating script:", error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error occurred" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return errorResponse("An error occurred while generating your script", 500, error);
   }
 });

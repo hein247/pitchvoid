@@ -1,9 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { authenticateRequest, checkPitchLimit, checkFormatAccess, incrementPitchCount } from "../_shared/auth.ts";
+import { validateGeneratePitchInput, sanitizeForPrompt } from "../_shared/validation.ts";
+import { corsHeaders, jsonResponse, errorResponse, handleCors } from "../_shared/cors.ts";
 
 interface SlideContent {
   component_type: string;
@@ -21,25 +19,59 @@ interface SlideContent {
 }
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  // Handle CORS preflight
+  const corsResponse = handleCors(req);
+  if (corsResponse) return corsResponse;
 
   try {
-    const { scenario, targetAudience, documentContext, imageDescriptions, visualStyle } = await req.json();
+    // Authenticate the request
+    const { result: authResult, error: authError } = await authenticateRequest(req);
+    if (authError) {
+      return new Response(authError.body, {
+        status: authError.status,
+        headers: corsHeaders,
+      });
+    }
+
+    const { user, profile } = authResult!;
+
+    // Check pitch limit (server-side paywall)
+    const limitCheck = checkPitchLimit(profile);
+    if (!limitCheck.allowed) {
+      return jsonResponse({ error: limitCheck.error }, limitCheck.statusCode || 402);
+    }
+
+    // Check format access (slides format)
+    const formatCheck = checkFormatAccess(profile, 'slides');
+    if (!formatCheck.allowed) {
+      return jsonResponse({ error: formatCheck.error }, formatCheck.statusCode || 402);
+    }
+
+    // Parse and validate request body
+    const body = await req.json();
+    const validation = validateGeneratePitchInput(body);
+    if (!validation.valid) {
+      return jsonResponse({ error: validation.error }, 400);
+    }
+
+    const { scenario, targetAudience, documentContext, imageDescriptions, visualStyle } = body;
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+      return errorResponse("Service configuration error", 500, "LOVABLE_API_KEY is not configured");
     }
 
-    console.log("Generating pitch for scenario:", scenario);
-    console.log("Target audience:", targetAudience);
-    console.log("Image descriptions count:", imageDescriptions?.length || 0);
+    console.log("Generating pitch for user:", user.id);
+
+    // Sanitize inputs for AI prompt
+    const sanitizedScenario = sanitizeForPrompt(scenario);
+    const sanitizedAudience = targetAudience ? sanitizeForPrompt(targetAudience) : "";
+    const sanitizedContext = documentContext ? sanitizeForPrompt(documentContext) : "";
+    const sanitizedStyle = visualStyle ? sanitizeForPrompt(visualStyle) : "";
 
     // Build image context for the prompt
     const imageContext = imageDescriptions && imageDescriptions.length > 0
-      ? `\n\n**Uploaded Visual Assets (${imageDescriptions.length} images):**\n${imageDescriptions.map((desc: string, i: number) => `- Image ${i + 1}: ${desc}`).join('\n')}\n\nIMPORTANT: Create visual-heavy slides that prominently feature these product images. Each slide should be designed to showcase these visuals as the primary focus.`
+      ? `\n\n**Uploaded Visual Assets (${imageDescriptions.length} images):**\n${imageDescriptions.map((desc: string, i: number) => `- Image ${i + 1}: ${sanitizeForPrompt(desc)}`).join('\n')}\n\nIMPORTANT: Create visual-heavy slides that prominently feature these product images. Each slide should be designed to showcase these visuals as the primary focus.`
       : '';
 
     const systemPrompt = `You are an expert pitch strategist and presentation designer specializing in luxury brand presentations. Create visual-heavy, elegant slides that prioritize imagery over text.
@@ -48,7 +80,7 @@ DESIGN PRINCIPLES:
 - Typography: Use elegant, editorial typography (Times New Roman Italic for headings, Be Vietnam Pro for body)
 - Layout: Favor asymmetric, magazine-style layouts that let visuals breathe
 - Content: Keep text minimal - let the images speak
-- Tone: ${targetAudience?.includes('sales') ? 'Professional and persuasive' : 'Sophisticated and aspirational'}
+- Tone: ${sanitizedAudience?.includes('sales') ? 'Professional and persuasive' : 'Sophisticated and aspirational'}
 
 Output ONLY a valid JSON array where each object has:
 - component_type: Choose from: 'MovingBorder', 'HoverCard', 'FloatingElement', 'GlowCard', 'ParallaxSection'
@@ -73,13 +105,13 @@ Make content elegant, minimal, and focused on visual storytelling.`;
 
     const userPrompt = `Create a 5-slide visual-heavy pitch presentation:
 
-**Scenario:** ${scenario}
+**Scenario:** ${sanitizedScenario}
 
-**Target Audience:** ${targetAudience || "Jewelry customers"}
+**Target Audience:** ${sanitizedAudience || "Jewelry customers"}
 
 **Goal:** Sales-focused presentation with professional tone
-${documentContext ? `\n**Document Context:** ${documentContext}` : ''}${imageContext}
-${visualStyle ? `\n**Preferred Visual Style:** ${visualStyle}` : ''}
+${sanitizedContext ? `\n**Document Context:** ${sanitizedContext}` : ''}${imageContext}
+${sanitizedStyle ? `\n**Preferred Visual Style:** ${sanitizedStyle}` : ''}
 
 Generate the JSON array now. Remember: output ONLY the JSON array, no other text. Focus on visual storytelling - minimal text, maximum impact.`;
 
@@ -101,37 +133,26 @@ Generate the JSON array now. Remember: output ONLY the JSON array, no other text
 
     if (!response.ok) {
       if (response.status === 429) {
-        console.error("Rate limit exceeded");
-        return new Response(
-          JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return jsonResponse({ error: "Rate limit exceeded. Please try again in a moment." }, 429);
       }
       if (response.status === 402) {
-        console.error("Payment required");
-        return new Response(
-          JSON.stringify({ error: "AI credits exhausted. Please add credits to continue." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return jsonResponse({ error: "AI credits exhausted. Please add credits to continue." }, 402);
       }
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      throw new Error(`AI gateway error: ${response.status}`);
+      return errorResponse("Failed to generate pitch", 500, `AI gateway error: ${response.status}`);
     }
 
     const data = await response.json();
     const aiContent = data.choices?.[0]?.message?.content;
     
     if (!aiContent) {
-      throw new Error("No content received from AI");
+      return errorResponse("Failed to generate pitch", 500, "No content received from AI");
     }
 
-    console.log("Raw AI response:", aiContent);
+    console.log("AI response received for user:", user.id);
 
     // Parse the JSON from the response
     let slides: SlideContent[];
     try {
-      // Try to extract JSON from the response (in case there's extra text)
       const jsonMatch = aiContent.match(/\[[\s\S]*\]/);
       if (jsonMatch) {
         slides = JSON.parse(jsonMatch[0]);
@@ -139,13 +160,12 @@ Generate the JSON array now. Remember: output ONLY the JSON array, no other text
         slides = JSON.parse(aiContent);
       }
     } catch (parseError) {
-      console.error("Failed to parse AI response:", parseError);
-      throw new Error("Failed to parse slide content from AI response");
+      return errorResponse("Failed to generate pitch", 500, parseError);
     }
 
     // Validate and ensure proper structure
     if (!Array.isArray(slides) || slides.length === 0) {
-      throw new Error("Invalid slides structure received");
+      return errorResponse("Failed to generate pitch", 500, "Invalid slides structure received");
     }
 
     // Ensure each slide has required fields with defaults
@@ -155,18 +175,14 @@ Generate the JSON array now. Remember: output ONLY the JSON array, no other text
       visual_style: slide.visual_style || 'Elegant minimalist with soft lighting',
     }));
 
-    console.log("Generated slides:", JSON.stringify(slides, null, 2));
+    // Increment pitch count after successful generation
+    await incrementPitchCount(user.id);
 
-    return new Response(
-      JSON.stringify({ slides }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    console.log("Generated slides for user:", user.id);
+
+    return jsonResponse({ slides });
 
   } catch (error) {
-    console.error("Error generating pitch:", error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error occurred" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return errorResponse("An error occurred while generating your pitch", 500, error);
   }
 });

@@ -1,37 +1,49 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
-
-interface GenerateImageRequest {
-  slideTitle: string;
-  slideDescription: string;
-  visualStyle?: string;
-  slideIndex: number;
-}
+import { authenticateRequest } from "../_shared/auth.ts";
+import { validateGeneratePitchImagesInput, sanitizeForPrompt } from "../_shared/validation.ts";
+import { corsHeaders, jsonResponse, errorResponse, handleCors } from "../_shared/cors.ts";
 
 serve(async (req) => {
   // Handle CORS preflight
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  const corsResponse = handleCors(req);
+  if (corsResponse) return corsResponse;
 
   try {
-    const { slideTitle, slideDescription, visualStyle, slideIndex } = await req.json() as GenerateImageRequest;
+    // Authenticate the request
+    const { result: authResult, error: authError } = await authenticateRequest(req);
+    if (authError) {
+      return new Response(authError.body, {
+        status: authError.status,
+        headers: corsHeaders,
+      });
+    }
+
+    const { user } = authResult!;
+
+    // Parse and validate request body
+    const body = await req.json();
+    const validation = validateGeneratePitchImagesInput(body);
+    if (!validation.valid) {
+      return jsonResponse({ error: validation.error }, 400);
+    }
+
+    const { slideTitle, slideDescription, visualStyle, slideIndex } = body;
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+      return errorResponse("Service configuration error", 500, "LOVABLE_API_KEY is not configured");
     }
 
-    console.log("Generating image for slide:", slideTitle);
-    console.log("Visual style:", visualStyle || "default professional");
+    console.log("Generating image for user:", user.id, "slide:", slideTitle);
+
+    // Sanitize inputs
+    const sanitizedTitle = sanitizeForPrompt(slideTitle);
+    const sanitizedDescription = sanitizeForPrompt(slideDescription);
+    const sanitizedStyle = visualStyle ? sanitizeForPrompt(visualStyle) : "";
 
     // Build a dynamic prompt based on slide content and user's visual style
-    const styleGuide = visualStyle?.trim() 
-      ? `Visual Style Instructions: ${visualStyle}. `
+    const styleGuide = sanitizedStyle?.trim() 
+      ? `Visual Style Instructions: ${sanitizedStyle}. `
       : "Visual Style: Professional, modern, and clean with sophisticated color palette. ";
 
     const imagePrompt = `Create a high-quality, presentation-ready visual for a pitch deck slide.
@@ -39,8 +51,8 @@ serve(async (req) => {
 ${styleGuide}
 
 Slide Context:
-- Title: "${slideTitle}"
-- Description: "${slideDescription}"
+- Title: "${sanitizedTitle}"
+- Description: "${sanitizedDescription}"
 - This is slide ${slideIndex + 1} of the presentation.
 
 Requirements:
@@ -51,7 +63,7 @@ Requirements:
 - Ensure the design is modern, sophisticated, and appropriate for business presentations.
 - Ultra high resolution, 16:9 aspect ratio hero image style.`;
 
-    console.log("Image prompt:", imagePrompt);
+    console.log("Image prompt created for user:", user.id);
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -73,50 +85,31 @@ Requirements:
 
     if (!response.ok) {
       if (response.status === 429) {
-        console.error("Rate limit exceeded");
-        return new Response(
-          JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return jsonResponse({ error: "Rate limit exceeded. Please try again in a moment." }, 429);
       }
       if (response.status === 402) {
-        console.error("Payment required");
-        return new Response(
-          JSON.stringify({ error: "AI credits exhausted. Please add credits to continue." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return jsonResponse({ error: "AI credits exhausted. Please add credits to continue." }, 402);
       }
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      throw new Error(`AI gateway error: ${response.status}`);
+      return errorResponse("Failed to generate image", 500, `AI gateway error: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log("AI response received");
 
     // Extract the image from the response
     const imageData = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
 
     if (!imageData) {
-      console.error("No image in response:", JSON.stringify(data, null, 2));
-      throw new Error("No image generated from AI response");
+      return errorResponse("Failed to generate image", 500, "No image in AI response");
     }
 
-    console.log("Image generated successfully (base64 length):", imageData.length);
+    console.log("Image generated successfully for user:", user.id);
 
-    return new Response(
-      JSON.stringify({ 
-        imageUrl: imageData,
-        prompt: imagePrompt 
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return jsonResponse({ 
+      imageUrl: imageData,
+      prompt: imagePrompt 
+    });
 
   } catch (error) {
-    console.error("Error generating image:", error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error occurred" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return errorResponse("An error occurred while generating the image", 500, error);
   }
 });

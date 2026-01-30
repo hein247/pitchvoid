@@ -1,9 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { authenticateRequest, checkPitchLimit } from "../_shared/auth.ts";
+import { validateParsePitchInput, sanitizeForPrompt } from "../_shared/validation.ts";
+import { corsHeaders, jsonResponse, errorResponse, handleCors } from "../_shared/cors.ts";
 
 interface ParsedContext {
   audience: string;
@@ -20,19 +18,44 @@ interface ParsedContext {
 }
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  // Handle CORS preflight
+  const corsResponse = handleCors(req);
+  if (corsResponse) return corsResponse;
 
   try {
-    const { userInput } = await req.json();
-    
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    // Authenticate the request
+    const { result: authResult, error: authError } = await authenticateRequest(req);
+    if (authError) {
+      return new Response(authError.body, {
+        status: authError.status,
+        headers: corsHeaders,
+      });
     }
 
-    console.log("Parsing pitch input:", userInput);
+    const { profile } = authResult!;
+
+    // Check pitch limit (server-side paywall)
+    const limitCheck = checkPitchLimit(profile);
+    if (!limitCheck.allowed) {
+      return jsonResponse({ error: limitCheck.error }, limitCheck.statusCode || 402);
+    }
+
+    // Parse and validate request body
+    const body = await req.json();
+    const validation = validateParsePitchInput(body);
+    if (!validation.valid) {
+      return jsonResponse({ error: validation.error }, 400);
+    }
+
+    const { userInput } = body;
+    const sanitizedInput = sanitizeForPrompt(userInput);
+
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) {
+      return errorResponse("Service configuration error", 500, "LOVABLE_API_KEY is not configured");
+    }
+
+    console.log("Parsing pitch input for user:", authResult!.user.id);
 
     const systemPrompt = `You are an expert pitch strategist. Analyze the user's pitch request and extract key elements.
 
@@ -69,7 +92,7 @@ Respond in JSON format:
 
 Keep "clarifying_questions" empty unless truly ambiguous.`;
 
-    const userPrompt = `User input: "${userInput}"
+    const userPrompt = `User input: "${sanitizedInput}"
 
 Respond with ONLY the JSON object, no other text.`;
 
@@ -85,36 +108,28 @@ Respond with ONLY the JSON object, no other text.`;
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
-        temperature: 0.3, // Lower temperature for more consistent parsing
+        temperature: 0.3,
       }),
     });
 
     if (!response.ok) {
       if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return jsonResponse({ error: "Rate limit exceeded. Please try again in a moment." }, 429);
       }
       if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: "AI credits exhausted. Please add credits to continue." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return jsonResponse({ error: "AI credits exhausted. Please add credits to continue." }, 402);
       }
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      throw new Error(`AI gateway error: ${response.status}`);
+      return errorResponse("Failed to process your request", 500, `AI gateway error: ${response.status}`);
     }
 
     const data = await response.json();
     const aiContent = data.choices?.[0]?.message?.content;
     
     if (!aiContent) {
-      throw new Error("No content received from AI");
+      return errorResponse("Failed to process your request", 500, "No content received from AI");
     }
 
-    console.log("Raw AI response:", aiContent);
+    console.log("AI response received for user:", authResult!.user.id);
 
     // Parse the JSON from the response
     let parsedContext: ParsedContext;
@@ -126,13 +141,12 @@ Respond with ONLY the JSON object, no other text.`;
         parsedContext = JSON.parse(aiContent);
       }
     } catch (parseError) {
-      console.error("Failed to parse AI response:", parseError);
-      throw new Error("Failed to parse context from AI response");
+      return errorResponse("Failed to process your request", 500, parseError);
     }
 
     // Validate and normalize
     if (!parsedContext.audience || !parsedContext.goal) {
-      throw new Error("Invalid context structure received");
+      return errorResponse("Failed to process your request", 500, "Invalid context structure");
     }
 
     // Ensure valid format and length values
@@ -143,18 +157,9 @@ Respond with ONLY the JSON object, no other text.`;
       parsedContext.suggested_length = 'standard';
     }
 
-    console.log("Parsed context:", JSON.stringify(parsedContext, null, 2));
-
-    return new Response(
-      JSON.stringify({ parsedContext }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return jsonResponse({ parsedContext });
 
   } catch (error) {
-    console.error("Error parsing pitch input:", error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error occurred" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return errorResponse("An error occurred while processing your request", 500, error);
   }
 });
