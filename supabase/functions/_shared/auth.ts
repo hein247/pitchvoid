@@ -20,9 +20,9 @@ export interface PaywallResult {
 }
 
 const PLAN_LIMITS = {
-  free: { maxPitches: 3, formats: ['slides'], maxSlides: 4 },
-  pro: { maxPitches: Infinity, formats: ['slides', 'one-pager', 'script'], maxSlides: 12 },
-  teams: { maxPitches: Infinity, formats: ['slides', 'one-pager', 'script'], maxSlides: 12 },
+  free: { maxPitches: 3, formats: ['one-pager'] },
+  pro: { maxPitches: Infinity, formats: ['one-pager', 'script'] },
+  teams: { maxPitches: Infinity, formats: ['one-pager', 'script'] },
 };
 
 /**

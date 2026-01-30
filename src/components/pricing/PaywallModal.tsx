@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 interface PaywallModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  type: 'pitch_limit' | 'feature_locked' | 'slide_limit' | null;
+  type: 'pitch_limit' | 'feature_locked' | null;
   message?: string | null;
 }
 
@@ -21,8 +21,6 @@ export function PaywallModal({ open, onOpenChange, type, message }: PaywallModal
         return "You've reached your limit";
       case 'feature_locked':
         return 'Unlock this feature';
-      case 'slide_limit':
-        return 'Need more slides?';
       default:
         return 'Upgrade to Pro';
     }
@@ -34,8 +32,6 @@ export function PaywallModal({ open, onOpenChange, type, message }: PaywallModal
         return <Zap className="w-8 h-8 text-primary" />;
       case 'feature_locked':
         return <Lock className="w-8 h-8 text-primary" />;
-      case 'slide_limit':
-        return <Sparkles className="w-8 h-8 text-primary" />;
       default:
         return <Sparkles className="w-8 h-8 text-primary" />;
     }
@@ -76,11 +72,11 @@ export function PaywallModal({ open, onOpenChange, type, message }: PaywallModal
               </li>
               <li className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                <span>All formats: Slides, One-Pager, Script</span>
+                <span>All formats: One-Pager, Script</span>
               </li>
               <li className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                <span>Up to {proLimits.maxSlides} slides per pitch</span>
+                <span>Practice mode with teleprompter</span>
               </li>
               <li className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Check className="w-4 h-4 text-primary flex-shrink-0" />

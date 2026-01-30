@@ -3,22 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Mic, Plus, ArrowLeft, X, Play, Share2, Home, ChevronLeft, ChevronRight, FileText, Layers, Upload, File, Image, ScrollText, Check, Edit2, Users, Target, Sparkles, Clock } from 'lucide-react';
+import { Loader2, Mic, Plus, ArrowLeft, X, Play, Share2, Home, FileText, Upload, File, Image, ScrollText, Check, Edit2, Users, Target, Sparkles, Clock } from 'lucide-react';
 import ShareModal from '@/components/dashboard/ShareModal';
 import { Progress } from '@/components/ui/progress';
 import Navbar from '@/components/Navbar';
-import SlideGrid from '@/components/dashboard/SlideGrid';
 import RefinementPanel from '@/components/dashboard/RefinementPanel';
 import OnePager, { OnePagerData } from '@/components/dashboard/OnePager';
 import OnePagerEditor from '@/components/dashboard/OnePagerEditor';
 import ScriptViewer, { ScriptData } from '@/components/dashboard/ScriptViewer';
 import FormatToggle from '@/components/dashboard/FormatToggle';
-import { useSwipeGesture } from '@/hooks/useSwipeGesture';
 import { usePricing } from '@/hooks/usePricing';
 import { PaywallModal } from '@/components/pricing/PaywallModal';
 import { UpgradeNudge } from '@/components/pricing/UpgradeNudge';
 
-type OutputFormat = 'slides' | 'one-pager' | 'script';
+type OutputFormat = 'one-pager' | 'script';
 
 interface ParsedContext {
   audience: string;
@@ -39,15 +37,7 @@ interface Project {
   title: string;
   tags: string[];
   lastEdited: string;
-  slides: number;
   views: number;
-}
-
-interface Slide {
-  id: number;
-  title: string;
-  content: string;
-  speakerNotes: string;
 }
 
 interface ChatMessage {
@@ -98,13 +88,8 @@ const Dashboard = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationPhase, setGenerationPhase] = useState('');
   
-  // Slides state
-  const [showSlides, setShowSlides] = useState(false);
-  const [activeSlide, setActiveSlide] = useState(0);
-  const [showRefinements, setShowRefinements] = useState(false);
-  
   // Output format state
-  const [outputFormat, setOutputFormat] = useState<OutputFormat>('slides');
+  const [outputFormat, setOutputFormat] = useState<OutputFormat>('one-pager');
   const [onePagerData, setOnePagerData] = useState<OnePagerData | null>(null);
   const [scriptData, setScriptData] = useState<ScriptData | null>(null);
   const [isRegenerating, setIsRegenerating] = useState(false);
@@ -149,7 +134,7 @@ const Dashboard = () => {
   
   // Practice mode
   const [isPracticeMode, setIsPracticeMode] = useState(false);
-  const [practiceSlide, setPracticeSlide] = useState(0);
+  const [practiceSection, setPracticeSection] = useState(0);
   const [practiceTimer, setPracticeTimer] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   
@@ -165,23 +150,10 @@ const Dashboard = () => {
   
   // Mock data
   const [projects, setProjects] = useState<Project[]>([
-    { id: '1', title: 'Senior PM Interview - Google', tags: ['Job interview'], lastEdited: '2 hours ago', slides: 6, views: 47 },
-    { id: '2', title: 'Marketing Proposal - Acme Corp', tags: ['Client pitch'], lastEdited: 'Yesterday', slides: 8, views: 23 },
-    { id: '3', title: 'Series A Investor Deck', tags: ['Fundraising'], lastEdited: '3 days ago', slides: 12, views: 156 },
+    { id: '1', title: 'Senior PM Interview - Google', tags: ['Job interview'], lastEdited: '2 hours ago', views: 47 },
+    { id: '2', title: 'Marketing Proposal - Acme Corp', tags: ['Client pitch'], lastEdited: 'Yesterday', views: 23 },
+    { id: '3', title: 'Series A Investor Deck', tags: ['Fundraising'], lastEdited: '3 days ago', views: 156 },
   ]);
-
-  const generatedSlides: Slide[] = [
-    { id: 1, title: 'About Me', content: 'Product leader with 8+ years scaling consumer apps from 0→1M+ users.', speakerNotes: 'Start with confidence. 15 seconds max.' },
-    { id: 2, title: 'Understanding the Challenge', content: 'Google Search faces evolving user expectations: AI-native experiences.', speakerNotes: 'Pause here for emphasis.' },
-    { id: 3, title: 'My Approach', content: 'User-centric discovery → Data validation → Rapid prototyping.', speakerNotes: 'Use hand gestures. 20 seconds.' },
-    { id: 4, title: 'Key Achievement', content: 'Led mobile app redesign: +47% DAU, -23% churn.', speakerNotes: 'Emphasize the numbers.' },
-    { id: 5, title: 'Why Google, Why Now', content: 'Your mission aligns with my passion for building products at scale.', speakerNotes: 'Be genuine. Show enthusiasm.' },
-    { id: 6, title: "Let's Build Together", content: 'Ready to bring my experience to Google\'s next chapter.', speakerNotes: 'Strong close. Smile.' }
-  ];
-
-  // Refinement state
-  const [isApplyingRefinements, setIsApplyingRefinements] = useState(false);
-  const [slidesHistory, setSlidesHistory] = useState<typeof generatedSlides[]>([]);
 
   const quickTemplates = [
     { id: 1, label: 'Job Interview', icon: '💼', prefill: 'Pitch me for a [Role] at [Company]. Focus on [Key Skills].' },
@@ -239,15 +211,16 @@ const Dashboard = () => {
         e.preventDefault();
         setShowQuickPitch(true);
       }
-      if (isPracticeMode) {
-        if (e.key === 'ArrowRight') setPracticeSlide(prev => Math.min(generatedSlides.length - 1, prev + 1));
-        if (e.key === 'ArrowLeft') setPracticeSlide(prev => Math.max(0, prev - 1));
+      if (isPracticeMode && scriptData) {
+        const totalSections = scriptData.sections.length;
+        if (e.key === 'ArrowRight') setPracticeSection(prev => Math.min(totalSections - 1, prev + 1));
+        if (e.key === 'ArrowLeft') setPracticeSection(prev => Math.max(0, prev - 1));
         if (e.key === ' ') { e.preventDefault(); setIsPlaying(prev => !prev); }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isPracticeMode]);
+  }, [isPracticeMode, scriptData]);
 
   const formatTime = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
 
@@ -258,7 +231,6 @@ const Dashboard = () => {
         title: newProjectName,
         tags: newProjectTags.split(',').map(t => t.trim()).filter(Boolean),
         lastEdited: 'Just now',
-        slides: 0,
         views: 0
       };
       setProjects([newProject, ...projects]);
@@ -272,8 +244,6 @@ const Dashboard = () => {
   const openProject = (project: Project) => {
     setActiveProject(project);
     setMessages([{ id: '1', type: 'system', content: `Welcome to "${project.title}". Describe your scenario to get started.` }]);
-    setShowSlides(project.slides > 0);
-    setShowRefinements(project.slides > 0);
     setCurrentView('project');
   };
 
@@ -282,9 +252,8 @@ const Dashboard = () => {
     setMessages(prev => [...prev, { id: Date.now().toString(), type: 'user', content: inputValue }]);
     setInputValue('');
     setIsGenerating(true);
-    setShowSlides(false);
     
-    const phases = ['Analyzing...', 'Crafting narrative...', 'Designing slides...', 'Finalizing...'];
+    const phases = ['Analyzing...', 'Crafting narrative...', 'Building content...', 'Finalizing...'];
     let delay = 0;
     phases.forEach(phase => { 
       setTimeout(() => setGenerationPhase(phase), delay); 
@@ -294,9 +263,7 @@ const Dashboard = () => {
     setTimeout(() => {
       setIsGenerating(false);
       setGenerationPhase('');
-      setShowSlides(true);
-      setShowRefinements(true);
-      setMessages(prev => [...prev, { id: Date.now().toString(), type: 'assistant', content: 'Your pitch is ready! 6 slides created.' }]);
+      setMessages(prev => [...prev, { id: Date.now().toString(), type: 'assistant', content: 'Your pitch has been updated!' }]);
     }, delay);
   };
 
@@ -342,7 +309,7 @@ const Dashboard = () => {
         goal: 'Persuade',
         tone: 'confident',
         urgency: 'not specified',
-        suggested_format: 'slides',
+        suggested_format: 'one-pager',
         suggested_length: 'standard',
         clarifying_questions: [],
         summary: transcribedText
@@ -373,11 +340,9 @@ const Dashboard = () => {
     return new Promise((resolve) => {
       const reader = new FileReader();
       reader.onload = () => {
-        // For images, return base64; for documents, return a description
         if (file.type.startsWith('image/')) {
           resolve(reader.result as string);
         } else {
-          // For PDFs/docs, we'll just send metadata - actual parsing would need backend
           resolve(`Document: ${file.name} (${formatFileSize(file.size)})`);
         }
       };
@@ -426,7 +391,6 @@ const Dashboard = () => {
       
       setAttachedFiles(prev => [...prev, newFile]);
       
-      // Simulate progress and process file
       const content = await processFile(file);
       
       setAttachedFiles(prev => 
@@ -472,7 +436,6 @@ const Dashboard = () => {
     setIsGenerating(true);
     
     const phasesByFormat: Record<OutputFormat, string[]> = {
-      'slides': ['Understanding your pitch...', 'Processing files...', 'Structuring narrative...', 'Designing slides...', 'Finalizing...'],
       'one-pager': ['Understanding your pitch...', 'Analyzing materials...', 'Crafting narrative...', 'Building one-pager...', 'Finalizing...'],
       'script': ['Understanding your pitch...', 'Analyzing materials...', 'Writing script...', 'Adding delivery cues...', 'Finalizing...']
     };
@@ -525,21 +488,12 @@ const Dashboard = () => {
           documentContext: documentContext || undefined,
           imageDescriptions: imageDescriptions.length > 0 ? imageDescriptions : undefined,
         };
-      } else if (outputFormat === 'one-pager') {
+      } else {
         functionName = 'generate-one-pager';
         body = {
           scenario: transcribedText,
           targetAudience,
           visualStyle: selectedTone,
-          documentContext: documentContext || undefined,
-          imageDescriptions: imageDescriptions.length > 0 ? imageDescriptions : undefined,
-        };
-      } else {
-        functionName = 'generate-pitch';
-        body = {
-          scenario: transcribedText,
-          targetAudience,
-          visualStyle: `${selectedTone}, ${selectedLength === 'quick' ? 'concise' : selectedLength === 'detailed' ? 'comprehensive' : 'balanced'}`,
           documentContext: documentContext || undefined,
           imageDescriptions: imageDescriptions.length > 0 ? imageDescriptions : undefined,
         };
@@ -556,7 +510,6 @@ const Dashboard = () => {
       setCurrentView('project');
       
       const formatLabels: Record<OutputFormat, string> = {
-        'slides': 'Presentation',
         'one-pager': 'One-Pager',
         'script': 'Script'
       };
@@ -566,28 +519,17 @@ const Dashboard = () => {
         title: parsedContext?.summary || 'Quick Pitch', 
         tags: [formatLabels[outputFormat]], 
         lastEdited: 'Just now', 
-        slides: outputFormat === 'slides' ? (data.slides?.length || 6) : 1, 
         views: 0 
       });
 
       if (outputFormat === 'one-pager') {
         setOnePagerData(data.onePager);
         setScriptData(null);
-        setShowSlides(false);
-        setShowRefinements(false);
         setMessages([{ id: '1', type: 'system', content: 'Your one-pager is ready!' }]);
-      } else if (outputFormat === 'script') {
+      } else {
         setScriptData(data.script);
         setOnePagerData(null);
-        setShowSlides(false);
-        setShowRefinements(false);
         setMessages([{ id: '1', type: 'system', content: `Your script is ready! ${data.script?.sections?.length || 5} sections created.` }]);
-      } else {
-        setShowSlides(true);
-        setShowRefinements(true);
-        setOnePagerData(null);
-        setScriptData(null);
-        setMessages([{ id: '1', type: 'system', content: `Your pitch is ready! ${data.slides?.length || 6} slides created.` }]);
       }
       
       // Increment pitch count on successful generation
@@ -604,7 +546,7 @@ const Dashboard = () => {
       // Fallback to mock data
       setShowQuickPitch(false);
       setCurrentView('project');
-      setActiveProject({ id: Date.now().toString(), title: parsedContext?.summary || 'Quick Pitch', tags: [outputFormat], lastEdited: 'Just now', slides: 6, views: 0 });
+      setActiveProject({ id: Date.now().toString(), title: parsedContext?.summary || 'Quick Pitch', tags: [outputFormat], lastEdited: 'Just now', views: 0 });
       
       if (outputFormat === 'one-pager') {
         setOnePagerData({
@@ -617,10 +559,8 @@ const Dashboard = () => {
           ]
         });
         setScriptData(null);
-        setShowSlides(false);
-        setShowRefinements(false);
         setMessages([{ id: '1', type: 'system', content: 'Your one-pager is ready!' }]);
-      } else if (outputFormat === 'script') {
+      } else {
         setScriptData({
           title: parsedContext?.summary || 'Interview Script',
           total_duration: '2-3 minutes',
@@ -633,15 +573,7 @@ const Dashboard = () => {
           key_phrases: ['47% increase in DAU', 'Zero to millions', 'Data-driven decisions']
         });
         setOnePagerData(null);
-        setShowSlides(false);
-        setShowRefinements(false);
         setMessages([{ id: '1', type: 'system', content: 'Your script is ready!' }]);
-      } else {
-        setShowSlides(true);
-        setShowRefinements(true);
-        setOnePagerData(null);
-        setScriptData(null);
-        setMessages([{ id: '1', type: 'system', content: 'Your pitch is ready! 6 slides created.' }]);
       }
       
       resetQuickPitchState();
@@ -657,8 +589,6 @@ const Dashboard = () => {
     setSelectedLength('standard');
     setSelectedTone('balanced');
   };
-
-  // handleCopyLink moved to ShareModal component
 
   // Regenerate content in a different format
   const handleRegenerateInFormat = async (newFormat: OutputFormat) => {
@@ -680,7 +610,6 @@ const Dashboard = () => {
     setOutputFormat(newFormat);
     
     const phasesByFormat: Record<OutputFormat, string[]> = {
-      'slides': ['Restructuring as slides...', 'Designing layouts...', 'Finalizing...'],
       'one-pager': ['Converting to one-pager...', 'Crafting summary...', 'Finalizing...'],
       'script': ['Converting to script...', 'Adding delivery cues...', 'Finalizing...']
     };
@@ -708,21 +637,12 @@ const Dashboard = () => {
           documentContext: ctx.documentContext,
           imageDescriptions: ctx.imageDescriptions,
         };
-      } else if (newFormat === 'one-pager') {
+      } else {
         functionName = 'generate-one-pager';
         body = {
           scenario: ctx.scenario,
           targetAudience: ctx.targetAudience,
           visualStyle: ctx.tone,
-          documentContext: ctx.documentContext,
-          imageDescriptions: ctx.imageDescriptions,
-        };
-      } else {
-        functionName = 'generate-pitch';
-        body = {
-          scenario: ctx.scenario,
-          targetAudience: ctx.targetAudience,
-          visualStyle: `${ctx.tone}, ${ctx.length === 'quick' ? 'concise' : ctx.length === 'detailed' ? 'comprehensive' : 'balanced'}`,
           documentContext: ctx.documentContext,
           imageDescriptions: ctx.imageDescriptions,
         };
@@ -737,12 +657,9 @@ const Dashboard = () => {
       if (newFormat === 'one-pager') {
         setOnePagerData(data.onePager);
         setMessages(prev => [...prev, { id: Date.now().toString(), type: 'assistant', content: 'Regenerated as one-pager!' }]);
-      } else if (newFormat === 'script') {
+      } else {
         setScriptData(data.script);
         setMessages(prev => [...prev, { id: Date.now().toString(), type: 'assistant', content: `Regenerated as script with ${data.script?.sections?.length || 5} sections!` }]);
-      } else {
-        setShowSlides(true);
-        setMessages(prev => [...prev, { id: Date.now().toString(), type: 'assistant', content: `Regenerated as slides!` }]);
       }
 
     } catch (error) {
@@ -764,7 +681,7 @@ const Dashboard = () => {
             { type: 'cta', title: 'Next Steps', content: 'Ready to discuss further.' }
           ]
         });
-      } else if (newFormat === 'script') {
+      } else {
         setScriptData({
           title: 'Speaking Script',
           total_duration: '2-3 minutes',
@@ -774,8 +691,6 @@ const Dashboard = () => {
           ],
           key_phrases: ['Key phrase 1', 'Key phrase 2']
         });
-      } else {
-        setShowSlides(true);
       }
     } finally {
       setIsRegenerating(false);
@@ -789,7 +704,6 @@ const Dashboard = () => {
     
     // If content exists for the format, just switch view
     if (
-      (newFormat === 'slides' && showSlides) ||
       (newFormat === 'one-pager' && onePagerData) ||
       (newFormat === 'script' && scriptData)
     ) {
@@ -805,13 +719,6 @@ const Dashboard = () => {
     navigate('/');
   };
 
-  // Swipe gesture for slide navigation - MUST be called before any returns
-  const { containerRef: swipeRef } = useSwipeGesture({
-    onSwipeLeft: () => setActiveSlide(prev => Math.min(generatedSlides.length - 1, prev + 1)),
-    onSwipeRight: () => setActiveSlide(prev => Math.max(0, prev - 1)),
-    enabled: showSlides && currentView === 'project' && !isPracticeMode && !loading,
-  });
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#0F0518' }}>
@@ -820,8 +727,11 @@ const Dashboard = () => {
     );
   }
 
-  // Practice Mode View
-  if (isPracticeMode) {
+  // Practice Mode View (for Script format)
+  if (isPracticeMode && scriptData) {
+    const totalSections = scriptData.sections.length;
+    const currentSection = scriptData.sections[practiceSection];
+    
     return (
       <div className="min-h-screen flex flex-col bg-black">
         <header className="p-4 sm:p-6 flex items-center justify-between">
@@ -844,25 +754,23 @@ const Dashboard = () => {
         <div className="flex-1 flex items-center justify-center p-4 sm:p-12">
           <div className="max-w-4xl text-center">
             <span className="text-sm text-accent uppercase mb-4 block">
-              Slide {practiceSlide + 1}/{generatedSlides.length}
+              Section {practiceSection + 1}/{totalSections} — {currentSection.name}
             </span>
-            <h2 className="text-3xl sm:text-5xl lg:teleprompter-text text-foreground mb-4 sm:mb-8 font-display">
-              {generatedSlides[practiceSlide].title}
+            <h2 className="text-3xl sm:text-5xl lg:text-6xl text-foreground mb-4 sm:mb-8 font-display leading-tight">
+              {currentSection.content}
             </h2>
-            <p className="text-lg sm:text-2xl text-muted-foreground mb-8 sm:mb-12">
-              {generatedSlides[practiceSlide].content}
-            </p>
             <div className="p-4 sm:p-6 rounded-2xl bg-accent/10 border border-accent/20 max-w-2xl mx-auto">
-              <p className="text-xs text-accent uppercase mb-2">Speaker Notes</p>
-              <p className="text-sm sm:text-base text-muted-foreground">{generatedSlides[practiceSlide].speakerNotes}</p>
+              <p className="text-xs text-accent uppercase mb-2">Delivery Cue</p>
+              <p className="text-sm sm:text-base text-muted-foreground">{currentSection.cue}</p>
+              <p className="text-xs text-primary mt-2">{currentSection.duration}</p>
             </div>
           </div>
         </div>
         
         <div className="p-4 sm:p-8 flex items-center justify-center gap-4 sm:gap-8">
           <button 
-            onClick={() => setPracticeSlide(Math.max(0, practiceSlide - 1))} 
-            disabled={practiceSlide === 0} 
+            onClick={() => setPracticeSection(Math.max(0, practiceSection - 1))} 
+            disabled={practiceSection === 0} 
             className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border border-border flex items-center justify-center text-muted-foreground disabled:opacity-30"
           >
             ←
@@ -874,8 +782,8 @@ const Dashboard = () => {
             {isPlaying ? '⏸' : '▶'}
           </button>
           <button 
-            onClick={() => setPracticeSlide(Math.min(generatedSlides.length - 1, practiceSlide + 1))} 
-            disabled={practiceSlide === generatedSlides.length - 1} 
+            onClick={() => setPracticeSection(Math.min(totalSections - 1, practiceSection + 1))} 
+            disabled={practiceSection === totalSections - 1} 
             className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border border-border flex items-center justify-center text-muted-foreground disabled:opacity-30"
           >
             →
@@ -901,8 +809,12 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-              <button onClick={() => setShowInstallPrompt(false)} className="px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-muted-foreground">Later</button>
-              <button className="px-3 sm:px-5 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm text-white font-medium magenta-gradient">Install</button>
+              <button onClick={() => setShowInstallPrompt(false)} className="text-muted-foreground text-sm hidden sm:block">
+                Not now
+              </button>
+              <button className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-white text-xs sm:text-sm font-medium magenta-gradient">
+                Install
+              </button>
             </div>
           </div>
         </div>
@@ -910,88 +822,91 @@ const Dashboard = () => {
 
       {/* Dashboard View */}
       {currentView === 'dashboard' && (
-        <div className={`min-h-screen grain-bg ${showInstallPrompt ? 'pt-16' : ''}`}>
-          {/* Nav */}
-          <Navbar 
-            variant="dashboard" 
-            credits={credits}
-            onQuickPitch={() => setShowQuickPitch(true)}
-            onSignOut={handleSignOut}
-          />
-
-          {/* Projects Grid */}
-          <main className="px-4 sm:px-6 lg:px-8 py-8 sm:py-10 max-w-7xl mx-auto relative z-10">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 sm:mb-10">
-              <div className="space-y-1">
-                <h2 className="text-2xl sm:text-3xl text-foreground font-display">Your Pitches</h2>
-                <p className="text-sm sm:text-base text-muted-foreground">{projects.length} projects</p>
+        <div className={showInstallPrompt ? 'pt-14 sm:pt-16' : ''}>
+          <Navbar variant="dashboard" onSignOut={handleSignOut} />
+          
+          <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+              <div>
+                <h1 className="text-xl sm:text-2xl font-bold text-foreground font-display">Your Pitches</h1>
+                <p className="text-muted-foreground text-sm">
+                  {remainingPitches !== null 
+                    ? `${remainingPitches} free pitches remaining` 
+                    : 'Unlimited pitches'
+                  }
+                </p>
               </div>
-              <button 
-                onClick={() => setShowNewProjectModal(true)} 
-                className="flex items-center gap-2 px-5 py-3 rounded-xl text-foreground font-medium border border-accent/30 hover:bg-accent/10 transition-colors w-full sm:w-auto justify-center"
-              >
-                <Plus className="w-5 h-5" />
-                New Project
-              </button>
-            </div>
-            
-            {/* Single column on mobile for reduced cognitive load, 2-3 columns on larger screens */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6">
-              {projects.map((project, i) => (
-                <div 
-                  key={project.id} 
-                  onClick={() => openProject(project)} 
-                  className="project-card rounded-2xl overflow-hidden cursor-pointer group"
+              <div className="flex gap-2 sm:gap-3">
+                <button
+                  onClick={() => setShowQuickPitch(true)}
+                  className="flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-white text-sm font-medium magenta-gradient"
                 >
-                  <div className={`h-28 sm:h-32 thumbnail-gradient-${(i % 3) + 1} relative`}>
-                    <div className="absolute bottom-3 left-3">
-                      <span className="text-xs px-3 py-1 rounded-full bg-background/60 backdrop-blur-sm text-foreground/90 font-medium">
-                        {project.tags[0] || 'Pitch'}
+                  <Sparkles className="w-4 h-4" />
+                  <span>Quick Pitch</span>
+                  <span className="text-white/60 text-xs hidden sm:inline">⌘K</span>
+                </button>
+                <button
+                  onClick={() => setShowNewProjectModal(true)}
+                  className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-accent/30 text-foreground text-sm hover:bg-accent/10 transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span className="hidden sm:inline">New Project</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Projects Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {projects.map(project => (
+                <button
+                  key={project.id}
+                  onClick={() => openProject(project)}
+                  className="project-card p-4 sm:p-6 text-left group"
+                >
+                  <h3 className="text-foreground font-medium text-base sm:text-lg mb-2 group-hover:text-primary transition-colors">
+                    {project.title}
+                  </h3>
+                  <div className="flex flex-wrap gap-2 mb-3 sm:mb-4">
+                    {project.tags.map((tag, i) => (
+                      <span key={i} className="px-2 py-1 rounded-full text-xs bg-accent/10 text-accent">
+                        {tag}
                       </span>
-                    </div>
+                    ))}
                   </div>
-                  <div className="p-5 sm:p-6 space-y-2">
-                    <h3 className="text-foreground font-medium text-base sm:text-lg group-hover:text-primary transition-colors leading-tight">
-                      {project.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {project.lastEdited} · {project.slides} slides
-                    </p>
+                  <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
+                    <span>{project.lastEdited}</span>
+                    <span>•</span>
+                    <span>{project.views} views</span>
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           </main>
 
           {/* New Project Modal */}
           {showNewProjectModal && (
-            <div 
-              className="fixed inset-0 z-50 flex items-center justify-center modal-overlay" 
-              onClick={() => setShowNewProjectModal(false)}
-            >
-              <div 
-                className="glassmorphism-dark rounded-2xl p-8 w-full max-w-md animate-scaleIn" 
-                onClick={e => e.stopPropagation()}
-              >
-                <h3 className="text-xl text-foreground mb-6 font-display">Create New Pitch</h3>
+            <div className="fixed inset-0 z-50 flex items-center justify-center modal-overlay p-4" onClick={() => setShowNewProjectModal(false)}>
+              <div className="glassmorphism-dark rounded-2xl p-5 sm:p-8 w-full max-w-md animate-scaleIn" onClick={e => e.stopPropagation()}>
+                <h3 className="text-lg sm:text-xl text-foreground font-display mb-4 sm:mb-6">New Project</h3>
                 <input 
                   type="text" 
                   value={newProjectName} 
                   onChange={e => setNewProjectName(e.target.value)} 
-                  placeholder="Project name..." 
-                  className="input-field w-full px-4 py-3 rounded-xl text-foreground placeholder-muted-foreground mb-4" 
+                  placeholder="Project name" 
+                  className="w-full mb-3 sm:mb-4 p-3 rounded-xl text-foreground input-field text-sm" 
                 />
                 <input 
                   type="text" 
                   value={newProjectTags} 
                   onChange={e => setNewProjectTags(e.target.value)} 
                   placeholder="Tags (comma separated)" 
-                  className="input-field w-full px-4 py-3 rounded-xl text-foreground placeholder-muted-foreground mb-6" 
+                  className="w-full mb-4 sm:mb-6 p-3 rounded-xl text-foreground input-field text-sm" 
                 />
                 <div className="flex gap-3">
                   <button 
                     onClick={() => setShowNewProjectModal(false)} 
-                    className="flex-1 py-3 rounded-xl text-muted-foreground border border-border"
+                    className="flex-1 py-2.5 sm:py-3 rounded-xl text-muted-foreground border border-border"
                   >
                     Cancel
                   </button>
@@ -1056,38 +971,6 @@ const Dashboard = () => {
               <div ref={messagesEndRef} />
             </div>
             
-            {/* Refinements Panel - for slides */}
-            {showRefinements && !onePagerData && (
-              <div className="p-3 sm:p-4 border-t border-accent/10 max-h-[50vh] overflow-y-auto">
-                <RefinementPanel
-                  slides={generatedSlides}
-                  projectTitle={activeProject?.title}
-                  onApplyRefinements={(selectedIds) => {
-                    // Save current state for undo
-                    setSlidesHistory(prev => [...prev, generatedSlides]);
-                    setIsApplyingRefinements(true);
-                    
-                    // Simulate applying refinements
-                    setTimeout(() => {
-                      setIsApplyingRefinements(false);
-                      setMessages(prev => [...prev, { 
-                        id: Date.now().toString(), 
-                        type: 'assistant', 
-                        content: `Applied refinements: ${selectedIds.join(', ')}` 
-                      }]);
-                    }, 2000);
-                  }}
-                  onUndo={() => {
-                    if (slidesHistory.length > 0) {
-                      // Could restore slides here if we had actual slide state management
-                      setSlidesHistory(prev => prev.slice(0, -1));
-                    }
-                  }}
-                  isApplying={isApplyingRefinements}
-                />
-              </div>
-            )}
-            
             {/* One-Pager Editor - for one-pagers */}
             {onePagerData && (
               <div className="p-3 sm:p-4 border-t border-accent/10 max-h-[50vh] overflow-y-auto">
@@ -1127,19 +1010,13 @@ const Dashboard = () => {
           </div>
 
           {/* Preview Panel */}
-          <div 
-            ref={swipeRef as React.RefObject<HTMLDivElement>}
-            className="flex-1 grain-bg flex flex-col relative min-h-[50vh] lg:min-h-0"
-          >
+          <div className="flex-1 grain-bg flex flex-col relative min-h-[50vh] lg:min-h-0">
             <header className="px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:justify-between border-b border-border relative z-10">
               <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
                 <div>
                   <h2 className="text-foreground font-medium font-display text-sm sm:text-base">Preview</h2>
                   {isRegenerating && (
                     <p className="text-xs text-primary animate-pulse">{generationPhase}</p>
-                  )}
-                  {!isRegenerating && outputFormat === 'slides' && showSlides && (
-                    <p className="text-xs text-muted-foreground hidden sm:block">Swipe or use ← → to navigate</p>
                   )}
                   {!isRegenerating && outputFormat === 'one-pager' && onePagerData && (
                     <p className="text-xs text-muted-foreground hidden sm:block">One-pager executive summary</p>
@@ -1150,47 +1027,24 @@ const Dashboard = () => {
                 </div>
                 
                 {/* Format Toggle - Only show when content exists */}
-                {(showSlides || onePagerData || scriptData) && (
+                {(onePagerData || scriptData) && (
                   <FormatToggle
                     activeFormat={outputFormat}
                     onFormatChange={handleFormatChange}
-                    hasSlides={showSlides}
                     hasOnePager={!!onePagerData}
                     hasScript={!!scriptData}
                     onRegenerate={handleRegenerateInFormat}
                     isRegenerating={isRegenerating}
-                    lockedFormats={isFree ? ['one-pager', 'script'] : []}
+                    lockedFormats={isFree ? ['script'] : []}
                     onLockedClick={(format) => checkAndTriggerPaywall('use_format', { format })}
                   />
                 )}
               </div>
               
-              {(showSlides || onePagerData || scriptData) && (
+              {(onePagerData || scriptData) && (
                 <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end">
-                  {/* Mobile navigation arrows - only for slides */}
-                  {outputFormat === 'slides' && showSlides && !onePagerData && !scriptData && (
-                    <div className="flex items-center gap-1 sm:hidden">
-                      <button 
-                        onClick={() => setActiveSlide(prev => Math.max(0, prev - 1))}
-                        disabled={activeSlide === 0}
-                        className="p-2 rounded-lg border border-accent/20 disabled:opacity-30 hover:bg-accent/10 transition-colors"
-                      >
-                        <ChevronLeft className="w-4 h-4" />
-                      </button>
-                      <span className="text-xs font-medium text-foreground min-w-[40px] text-center">
-                        {activeSlide + 1}/{generatedSlides.length}
-                      </span>
-                      <button 
-                        onClick={() => setActiveSlide(prev => Math.min(generatedSlides.length - 1, prev + 1))}
-                        disabled={activeSlide === generatedSlides.length - 1}
-                        className="p-2 rounded-lg border border-accent/20 disabled:opacity-30 hover:bg-accent/10 transition-colors"
-                      >
-                        <ChevronRight className="w-4 h-4" />
-                      </button>
-                    </div>
-                  )}
-                  {/* Practice mode - for slides and scripts */}
-                  {((outputFormat === 'slides' && showSlides) || (outputFormat === 'script' && scriptData)) && !onePagerData && (
+                  {/* Practice mode - for scripts only */}
+                  {outputFormat === 'script' && scriptData && (
                     <button 
                       onClick={() => setIsPracticeMode(true)} 
                       className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm text-accent border border-accent/30 flex items-center gap-1 sm:gap-2 hover:bg-accent/10 transition-colors"
@@ -1211,7 +1065,7 @@ const Dashboard = () => {
             </header>
             
             <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 relative z-10">
-              {/* Render based on active outputFormat, not just data existence */}
+              {/* Render based on active outputFormat */}
               {outputFormat === 'script' && scriptData ? (
                 <ScriptViewer 
                   data={scriptData}
@@ -1222,43 +1076,19 @@ const Dashboard = () => {
                   data={onePagerData}
                   projectTitle={activeProject?.title}
                 />
-              ) : outputFormat === 'slides' && showSlides ? (
-                <SlideGrid 
-                  slides={generatedSlides}
-                  activeSlide={activeSlide}
-                  onSlideSelect={setActiveSlide}
-                />
               ) : (
                 <div className="h-full flex items-center justify-center">
                   <div className="text-center">
                     <div 
                       className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 rounded-2xl flex items-center justify-center bg-gradient-to-br from-accent/15 to-primary/8 border border-dashed border-accent/30"
                     >
-                      <span className="text-3xl sm:text-4xl text-accent/50">📊</span>
+                      <span className="text-3xl sm:text-4xl text-accent/50">📄</span>
                     </div>
                     <p className="text-muted-foreground text-sm">Your pitch will appear here</p>
                   </div>
                 </div>
               )}
             </div>
-            
-            {/* Progress dots for quick navigation */}
-            {showSlides && (
-              <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-border flex justify-center gap-2 relative z-10 bg-card/50 backdrop-blur-sm">
-                {generatedSlides.map((_, i) => (
-                  <button 
-                    key={i} 
-                    onClick={() => setActiveSlide(i)} 
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      activeSlide === i 
-                        ? 'w-8 bg-gradient-to-r from-primary to-accent shadow-[0_0_10px_hsl(var(--primary)/0.5)]' 
-                        : 'w-2 bg-muted-foreground/30 hover:bg-muted-foreground/50'
-                    }`} 
-                    aria-label={`Go to slide ${i + 1}`}
-                  />
-                ))}
-              </div>
-            )}
           </div>
         </div>
       )}
@@ -1405,8 +1235,7 @@ const Dashboard = () => {
                   <div className="flex items-center gap-4 text-sm pt-2 border-t border-accent/10">
                     <span className="text-muted-foreground">Suggested:</span>
                     <span className="px-2 py-1 rounded bg-primary/10 text-primary text-xs font-medium">
-                      {parsedContext.suggested_format === 'slides' ? '📊 Slides' : 
-                       parsedContext.suggested_format === 'one-pager' ? '📄 One-Pager' : '📝 Script'}
+                      {parsedContext.suggested_format === 'one-pager' ? '📄 One-Pager' : '📝 Script'}
                     </span>
                     <span className="px-2 py-1 rounded bg-accent/10 text-accent text-xs font-medium">
                       {parsedContext.suggested_length === 'quick' ? 'Quick' : 
@@ -1418,18 +1247,7 @@ const Dashboard = () => {
                 {/* Format override */}
                 <div className="mb-4 sm:mb-6">
                   <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wider">Output Format</p>
-                  <div className="grid grid-cols-3 gap-2">
-                    <button
-                      onClick={() => setOutputFormat('slides')}
-                      className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all ${
-                        outputFormat === 'slides' 
-                          ? 'border-primary bg-primary/10 text-foreground' 
-                          : 'border-accent/20 text-muted-foreground hover:border-accent/40'
-                      }`}
-                    >
-                      <Layers className="w-5 h-5" />
-                      <span className="text-xs font-medium">Slides</span>
-                    </button>
+                  <div className="grid grid-cols-2 gap-2">
                     <button
                       onClick={() => setOutputFormat('one-pager')}
                       className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all ${
@@ -1443,7 +1261,7 @@ const Dashboard = () => {
                     </button>
                     <button
                       onClick={() => setOutputFormat('script')}
-                      className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all ${
+                      className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all relative ${
                         outputFormat === 'script' 
                           ? 'border-primary bg-primary/10 text-foreground' 
                           : 'border-accent/20 text-muted-foreground hover:border-accent/40'
@@ -1451,6 +1269,11 @@ const Dashboard = () => {
                     >
                       <ScrollText className="w-5 h-5" />
                       <span className="text-xs font-medium">Script</span>
+                      {isFree && (
+                        <span className="absolute -top-1 -right-1 text-[8px] font-bold px-1 py-0.5 rounded bg-primary text-primary-foreground">
+                          PRO
+                        </span>
+                      )}
                     </button>
                   </div>
                 </div>
@@ -1577,9 +1400,9 @@ const Dashboard = () => {
                   <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Length</p>
                   <div className="grid grid-cols-3 gap-2">
                     {[
-                      { id: 'quick', label: 'Quick', desc: '2-3 slides' },
-                      { id: 'standard', label: 'Standard', desc: '5-6 slides' },
-                      { id: 'detailed', label: 'Detailed', desc: '8-10 slides' }
+                      { id: 'quick', label: 'Quick', desc: 'Brief summary' },
+                      { id: 'standard', label: 'Standard', desc: 'Full content' },
+                      { id: 'detailed', label: 'Detailed', desc: 'Comprehensive' }
                     ].map(opt => (
                       <button
                         key={opt.id}

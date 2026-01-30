@@ -5,8 +5,7 @@ export type PlanInterval = 'month' | 'year' | null;
 
 export interface PlanLimits {
   totalPitches: number | null; // null = unlimited
-  maxSlides: number;
-  formats: ('slides' | 'one-pager' | 'script')[];
+  formats: ('one-pager' | 'script')[];
   canExport: boolean;
   hasWatermark: boolean;
   hasPracticeMode: boolean;
@@ -31,8 +30,7 @@ export const PRICING: Record<PlanType, PlanDefinition> = {
     yearlyPrice: 0,
     limits: {
       totalPitches: 3,
-      maxSlides: 4,
-      formats: ['slides'],
+      formats: ['one-pager'],
       canExport: false,
       hasWatermark: true,
       hasPracticeMode: false,
@@ -48,8 +46,7 @@ export const PRICING: Record<PlanType, PlanDefinition> = {
     popular: true,
     limits: {
       totalPitches: null, // unlimited
-      maxSlides: 12,
-      formats: ['slides', 'one-pager', 'script'],
+      formats: ['one-pager', 'script'],
       canExport: true,
       hasWatermark: false,
       hasPracticeMode: true,
@@ -64,8 +61,7 @@ export const PRICING: Record<PlanType, PlanDefinition> = {
     yearlyPrice: 190,
     limits: {
       totalPitches: null, // unlimited
-      maxSlides: 15,
-      formats: ['slides', 'one-pager', 'script'],
+      formats: ['one-pager', 'script'],
       canExport: true,
       hasWatermark: false,
       hasPracticeMode: true,
@@ -78,14 +74,12 @@ export const PRICING: Record<PlanType, PlanDefinition> = {
 export type PaywallAction =
   | 'create_pitch'
   | 'use_format'
-  | 'add_slide'
   | 'export'
   | 'practice_mode'
   | 'version_history';
 
 export interface ActionCheckOptions {
-  format?: 'slides' | 'one-pager' | 'script';
-  currentSlideCount?: number;
+  format?: 'one-pager' | 'script';
 }
 
 export interface PaywallCheckResult {
@@ -125,17 +119,6 @@ export function canUserPerformAction(
           allowed: false,
           reason: 'feature_locked',
           upgradeMessage: `${formatName} is a Pro feature`,
-          requiredPlan: 'pro',
-        };
-      }
-      return { allowed: true };
-
-    case 'add_slide':
-      if (options.currentSlideCount !== undefined && options.currentSlideCount >= limits.maxSlides) {
-        return {
-          allowed: false,
-          reason: 'slide_limit',
-          upgradeMessage: `Free tier is limited to ${limits.maxSlides} slides`,
           requiredPlan: 'pro',
         };
       }
