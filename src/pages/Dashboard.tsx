@@ -15,6 +15,7 @@ import FormatToggle from '@/components/dashboard/FormatToggle';
 import { usePricing } from '@/hooks/usePricing';
 import { PaywallModal } from '@/components/pricing/PaywallModal';
 import { UpgradeNudge } from '@/components/pricing/UpgradeNudge';
+import TypewriterText from '@/components/ui/TypewriterText';
 
 type OutputFormat = 'one-pager' | 'script';
 
@@ -1465,16 +1466,16 @@ const Dashboard = () => {
             {/* Step 5: Generating */}
             {quickPitchStep === 5 && (
               <div className="py-8 sm:py-12 text-center">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 sm:mb-6 relative">
-                  <div className="absolute inset-0 rounded-full magenta-gradient opacity-20 animate-ping" />
+                <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 sm:mb-6 relative flex items-center justify-center">
                   <div 
-                    className="absolute inset-2 rounded-full flex items-center justify-center"
-                    style={{ background: 'rgba(15, 5, 24, 0.9)', border: '2px solid rgba(217, 70, 239, 0.4)' }}
-                  >
-                    <Loader2 className="w-6 h-6 sm:w-8 sm:h-8 text-primary animate-spin" />
-                  </div>
+                    className="absolute inset-0 rounded-full opacity-30 blur-xl"
+                    style={{ background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%)' }}
+                  />
+                  <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 text-primary relative z-10" />
                 </div>
-                <p className="text-foreground font-medium text-sm sm:text-base">{generationPhase}</p>
+                <p className="text-foreground font-medium text-sm sm:text-base">
+                  <TypewriterText text={generationPhase} speed={40} />
+                </p>
                 <p className="text-muted-foreground text-xs mt-2">This usually takes 10-15 seconds</p>
               </div>
             )}
