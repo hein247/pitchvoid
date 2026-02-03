@@ -1,185 +1,157 @@
 
 
-# Plan: Mobile Bottom Footer Edit Button with Area Selector
+# Plan: Add Refinement Input to Mobile Editor Sheet
 
 ## Overview
 
-Move the inline edit interface to a mobile-friendly bottom footer with a floating edit button. When users scroll down, they can tap the edit button to reveal a bottom sheet that lets them choose which area to edit (Header, Sections, Contact Info). This approach reduces cognitive load at the top and follows mobile UX best practices.
+Add a "Refine your pitch" text input box above the area selector options in the mobile bottom sheet. This gives users quick access to AI-driven refinements before or instead of manual editing, all from the same thumb-friendly location.
 
 ## Visual Design
 
-### Current State (Mobile)
 ```text
-┌────────────────────────────┐
-│  Chat Panel Header         │
-├────────────────────────────┤
-│  Messages                  │
-│  ...                       │
-├────────────────────────────┤
-│  ┌──────────────────────┐  │  ← OnePagerEditor here
-│  │ Header Section       │  │    (takes up too much space)
-│  │ Sections (expanded)  │  │
-│  │ Contact Info         │  │
-│  └──────────────────────┘  │
-├────────────────────────────┤
-│  Input Area                │
-└────────────────────────────┘
-```
-
-### Proposed State (Mobile)
-```text
-┌────────────────────────────┐
-│  Chat Panel Header         │
-├────────────────────────────┤
-│  Messages                  │
-│  ...                       │
-├────────────────────────────┤
-│  Input Area                │
-├────────────────────────────┤
-│                    [✏️ Edit]│  ← Floating button
-└────────────────────────────┘
-
-When tapped, bottom sheet appears:
-┌────────────────────────────┐
-│  ─── (drag handle) ───     │
-│                            │
-│  What would you like to    │
-│  edit?                     │
-│                            │
-│  ┌──────────────────────┐  │
-│  │  📝 Header           │  │
-│  │  Headline & subtitle │  │
-│  └──────────────────────┘  │
-│                            │
-│  ┌──────────────────────┐  │
-│  │  📋 Sections         │  │
-│  │  Content blocks      │  │
-│  └──────────────────────┘  │
-│                            │
-│  ┌──────────────────────┐  │
-│  │  📞 Contact Info     │  │
-│  │  Email, phone, web   │  │
-│  └──────────────────────┘  │
-└────────────────────────────┘
+┌────────────────────────────────────┐
+│  ─── (drag handle) ───             │
+├────────────────────────────────────┤
+│  Edit Content                   X  │
+├────────────────────────────────────┤
+│                                    │
+│  ┌──────────────────────────────┐  │
+│  │  Refine your pitch...     ➤  │  │  ← NEW: Refinement input
+│  └──────────────────────────────┘  │
+│                                    │
+│  Quick edits:                      │
+│  [Shorter] [Bolder] [More data]    │  ← NEW: Quick chips
+│                                    │
+│  ─── or edit manually ───          │  ← Divider
+│                                    │
+│  ┌──────────────────────────────┐  │
+│  │  📝 Header                   │  │
+│  │  Headline & subtitle         │  │
+│  └──────────────────────────────┘  │
+│                                    │
+│  ┌──────────────────────────────┐  │
+│  │  📋 Sections                 │  │
+│  │  Content blocks              │  │
+│  └──────────────────────────────┘  │
+│                                    │
+│  ┌──────────────────────────────┐  │
+│  │  📞 Contact Info             │  │
+│  │  Email, phone, website       │  │
+│  └──────────────────────────────┘  │
+└────────────────────────────────────┘
 ```
 
 ## Implementation
 
-### 1. Create MobileEditorSheet Component
+### 1. Update MobileEditorSheet Component
 
-**File:** `src/components/dashboard/MobileEditorSheet.tsx` (new file)
+**File:** `src/components/dashboard/MobileEditorSheet.tsx`
 
-A bottom sheet component that:
-- Shows a floating "Edit" button above the input area
-- Opens a drawer/bottom sheet when tapped
-- Displays edit area options (Header, Sections, Contact Info)
-- Selecting an area opens a focused edit panel for that section
-- Uses the existing `OnePagerEditor` logic but split into focused views
+Add new props for refinement:
+- `onRefine: (prompt: string) => void` — callback when user submits a refinement
+- `isRefining?: boolean` — loading state during refinement
 
-### 2. Create EditorAreaPanel Component
+Add to the component:
+- Refinement input box with submit button above the area options
+- Quick edit chips row (Shorter, Bolder, More data, etc.)
+- Visual divider between refinement and manual edit sections
 
-**File:** `src/components/dashboard/EditorAreaPanel.tsx` (new file)
-
-A focused panel for editing a single area:
-- Header Panel: headline + subheadline fields
-- Sections Panel: collapsible section list
-- Contact Panel: email, phone, website fields
-- Back button to return to area selector
-
-### 3. Update Dashboard for Mobile
+### 2. Update Dashboard to Pass Refinement Handler
 
 **File:** `src/pages/Dashboard.tsx`
 
-Changes:
-- Import `useIsMobile` hook
-- Hide inline `OnePagerEditor` on mobile
-- Show `MobileEditorSheet` on mobile when `onePagerData` exists
-- Keep desktop behavior unchanged
-
-### 4. Styling Updates
-
-**File:** `src/index.css`
-
-Add bottom sheet animations:
-- Slide-up animation for sheet appearance
-- Smooth transitions for area selection
+Pass the existing `handleSubmit` logic to `MobileEditorSheet`:
+- Add `onRefine` prop that sets input value and triggers generation
+- Pass `isGenerating` as `isRefining` prop
 
 ## Technical Details
 
-### MobileEditorSheet Component Structure
+### Updated MobileEditorSheet Interface
 
 ```typescript
 interface MobileEditorSheetProps {
   data: OnePagerData;
   onUpdate: (data: OnePagerData) => void;
-  isOpen: boolean;
-  onClose: () => void;
+  onRefine: (prompt: string) => void;  // NEW
+  isRefining?: boolean;                 // NEW
 }
-
-// Internal state
-const [selectedArea, setSelectedArea] = useState<'selector' | 'header' | 'sections' | 'contact'>('selector');
 ```
 
-### Area Options
-
-| Area | Icon | Label | Description |
-|------|------|-------|-------------|
-| Header | 📝 | Header | Headline & subtitle |
-| Sections | 📋 | Sections | Content blocks |
-| Contact | 📞 | Contact Info | Email, phone, website |
-
-### Dashboard Integration
+### Quick Chips
 
 ```typescript
-// In Dashboard.tsx
-const isMobile = useIsMobile();
-const [showMobileEditor, setShowMobileEditor] = useState(false);
+const QUICK_CHIPS = ['Shorter', 'Bolder', 'More data', 'Softer tone'];
+```
 
-// In JSX
-{onePagerData && (
-  <>
-    {/* Desktop: inline editor */}
-    {!isMobile && (
-      <div className="p-3 sm:p-4 border-t border-accent/10 max-h-[50vh] overflow-y-auto">
-        <OnePagerEditor data={onePagerData} onUpdate={setOnePagerData} />
+### Refinement Input (inside selector view)
+
+```typescript
+{selectedArea === 'selector' && (
+  <div className="space-y-4">
+    {/* Refinement Input */}
+    <div className="space-y-3">
+      <form onSubmit={handleRefineSubmit} className="relative">
+        <input
+          type="text"
+          value={refineValue}
+          onChange={(e) => setRefineValue(e.target.value)}
+          placeholder="Refine your pitch..."
+          className="input-field w-full pr-12"
+        />
+        <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2">
+          <Send className="w-4 h-4" />
+        </button>
+      </form>
+      
+      {/* Quick Chips */}
+      <div className="flex gap-2 overflow-x-auto pb-1">
+        {QUICK_CHIPS.map(chip => (
+          <button key={chip} onClick={() => onRefine(chip)}>
+            {chip}
+          </button>
+        ))}
       </div>
-    )}
+    </div>
     
-    {/* Mobile: floating button + sheet */}
-    {isMobile && (
-      <MobileEditorSheet
-        data={onePagerData}
-        onUpdate={setOnePagerData}
-        isOpen={showMobileEditor}
-        onClose={() => setShowMobileEditor(false)}
-      />
-    )}
-  </>
+    {/* Divider */}
+    <div className="flex items-center gap-3">
+      <div className="flex-1 h-px bg-border" />
+      <span className="text-xs text-muted-foreground">or edit manually</span>
+      <div className="flex-1 h-px bg-border" />
+    </div>
+    
+    {/* Area Options */}
+    {areaOptions.map(...)}
+  </div>
 )}
 ```
 
-## Files to Create/Modify
+## Files to Modify
 
 | Action | File | Description |
 |--------|------|-------------|
-| Create | `src/components/dashboard/MobileEditorSheet.tsx` | Bottom sheet with edit button and area selector |
-| Create | `src/components/dashboard/EditorAreaPanel.tsx` | Focused editing panels for each area |
-| Edit | `src/pages/Dashboard.tsx` | Add mobile detection and conditional rendering |
-| Edit | `src/index.css` | Add bottom sheet animations |
+| Edit | `src/components/dashboard/MobileEditorSheet.tsx` | Add refinement input, chips, and divider above area options |
+| Edit | `src/pages/Dashboard.tsx` | Pass `onRefine` and `isRefining` props to MobileEditorSheet |
 
-## UX Benefits
+## UX Flow
 
-- **Reduced Cognitive Load**: Clean view on mobile without crowded edit fields
-- **Thumb-Friendly**: Edit button positioned in comfortable bottom zone
-- **Progressive Disclosure**: Only shows edit options when user wants to edit
-- **Focused Editing**: One area at a time reduces overwhelm
-- **Consistent with Mobile Patterns**: Uses familiar bottom sheet interaction
+1. User taps "Edit" button at bottom
+2. Bottom sheet opens showing:
+   - Refinement input at top
+   - Quick edit chips below input
+   - "or edit manually" divider
+   - Area selection options (Header, Sections, Contact)
+3. User can either:
+   - Type a refinement prompt and submit
+   - Tap a quick chip for instant refinement
+   - Tap an area to manually edit fields
+4. Sheet closes after refinement is submitted
 
-## Accessibility
+## Benefits
 
-- Bottom sheet has proper focus trap when open
-- Escape key closes the sheet
-- Tap outside to close
-- Large touch targets (60px minimum)
-- Clear visual hierarchy for area selection
+- Single entry point for all mobile editing actions
+- AI refinement is prominently placed (most common action)
+- Quick chips reduce typing on mobile
+- Clear visual hierarchy between AI refinement and manual editing
+- Maintains existing area-based editing for detailed changes
 
