@@ -5,7 +5,7 @@ import { ArrowLeft } from 'lucide-react';
 const tourSteps = [
   { 
     title: 'Create a Project', 
-    description: "Start by naming your pitch—whether it's for a job interview, client proposal, or investor meeting.", 
+    description: "Start by naming your pitch—whether it's for a job interview, client proposal, or team presentation.", 
     icon: '📁' 
   },
   { 

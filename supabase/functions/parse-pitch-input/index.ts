@@ -75,7 +75,7 @@ Analyze this pitch request and extract:
 4. TONE: What tone is appropriate? Infer from context. (e.g., formal, confident, humble, casual, urgent, inspirational)
 5. URGENCY: When is this needed? (e.g., immediate, tomorrow, this week, not specified)
 6. FORMAT SUGGESTION: Based on context, suggest output format:
-   - "one-pager" for written summaries, executive briefs, email follow-ups, leave-behinds, investor decks, proposals
+   - "one-pager" for written summaries, executive briefs, email follow-ups, leave-behinds, proposals
    - "script" for interviews, phone calls, in-person meetings, speeches, presentations, conference talks
 7. LENGTH SUGGESTION: Based on context:
    - "quick" for brief summary, 30-second pitch
