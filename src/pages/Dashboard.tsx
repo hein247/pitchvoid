@@ -10,12 +10,14 @@ import Navbar from '@/components/Navbar';
 import RefinementPanel from '@/components/dashboard/RefinementPanel';
 import OnePager, { OnePagerData } from '@/components/dashboard/OnePager';
 import OnePagerEditor from '@/components/dashboard/OnePagerEditor';
+import MobileEditorSheet from '@/components/dashboard/MobileEditorSheet';
 import ScriptViewer, { ScriptData } from '@/components/dashboard/ScriptViewer';
 import FormatToggle from '@/components/dashboard/FormatToggle';
 import { usePricing } from '@/hooks/usePricing';
 import { PaywallModal } from '@/components/pricing/PaywallModal';
 import { UpgradeNudge } from '@/components/pricing/UpgradeNudge';
 import TypewriterText from '@/components/ui/TypewriterText';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 type OutputFormat = 'one-pager' | 'script';
 
@@ -52,6 +54,7 @@ const Dashboard = () => {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   
   // Pricing & paywall state
   const {
@@ -972,14 +975,22 @@ const Dashboard = () => {
               <div ref={messagesEndRef} />
             </div>
             
-            {/* One-Pager Editor - for one-pagers */}
-            {onePagerData && (
+            {/* One-Pager Editor - Desktop only */}
+            {onePagerData && !isMobile && (
               <div className="p-3 sm:p-4 border-t border-accent/10 max-h-[50vh] overflow-y-auto">
                 <OnePagerEditor
                   data={onePagerData}
                   onUpdate={(updatedData) => setOnePagerData(updatedData)}
                 />
               </div>
+            )}
+            
+            {/* Mobile Editor Sheet - Floating button + bottom sheet */}
+            {onePagerData && isMobile && (
+              <MobileEditorSheet
+                data={onePagerData}
+                onUpdate={(updatedData) => setOnePagerData(updatedData)}
+              />
             )}
             
             {/* Input */}
