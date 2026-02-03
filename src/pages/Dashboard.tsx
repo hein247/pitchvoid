@@ -152,13 +152,13 @@ const Dashboard = () => {
   const [projects, setProjects] = useState<Project[]>([
     { id: '1', title: 'Senior PM Interview - Google', tags: ['Job interview'], lastEdited: '2 hours ago', views: 47 },
     { id: '2', title: 'Marketing Proposal - Acme Corp', tags: ['Client pitch'], lastEdited: 'Yesterday', views: 23 },
-    { id: '3', title: 'Series A Investor Deck', tags: ['Fundraising'], lastEdited: '3 days ago', views: 156 },
+    { id: '3', title: 'Q1 Product Launch Brief', tags: ['Product'], lastEdited: '3 days ago', views: 156 },
   ]);
 
   const quickTemplates = [
     { id: 1, label: 'Job Interview', icon: '💼', prefill: 'Pitch me for a [Role] at [Company]. Focus on [Key Skills].' },
     { id: 2, label: 'Client Pitch', icon: '🤝', prefill: 'Create a proposal for [Client] about [Project].' },
-    { id: 3, label: 'Investor Deck', icon: '📈', prefill: 'Build a Series [X] pitch for [Startup].' },
+    { id: 3, label: 'Team Update', icon: '📈', prefill: 'Create an update for [Team] about [Project/Initiative].' },
     { id: 4, label: 'Conference Talk', icon: '🎤', prefill: 'Prepare a talk on [Topic] for [Event].' },
   ];
 
