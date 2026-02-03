@@ -990,6 +990,11 @@ const Dashboard = () => {
               <MobileEditorSheet
                 data={onePagerData}
                 onUpdate={(updatedData) => setOnePagerData(updatedData)}
+                onRefine={(prompt) => {
+                  setInputValue(prompt);
+                  setTimeout(() => handleSubmit(), 0);
+                }}
+                isRefining={isGenerating}
               />
             )}
             
