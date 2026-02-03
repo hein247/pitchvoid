@@ -998,32 +998,34 @@ const Dashboard = () => {
               />
             )}
             
-            {/* Input */}
-            <div className="p-3 sm:p-4 border-t border-accent/10">
-              <div className="input-area rounded-xl p-2 sm:p-3">
-                <textarea 
-                  value={inputValue} 
-                  onChange={e => setInputValue(e.target.value)} 
-                  onKeyDown={e => { 
-                    if (e.key === 'Enter' && !e.shiftKey) { 
-                      e.preventDefault(); 
-                      handleSubmit(); 
-                    }
-                  }} 
-                  placeholder="Refine your pitch..." 
-                  className="w-full bg-transparent text-foreground placeholder-muted-foreground text-sm resize-none focus:outline-none min-h-[50px] sm:min-h-[60px]" 
-                />
-                <div className="flex items-center justify-end mt-2 pt-2 border-t border-accent/10">
-                  <button 
-                    onClick={handleSubmit} 
-                    disabled={isGenerating || !inputValue.trim()} 
-                    className="px-4 py-2 rounded-lg text-white text-sm font-medium magenta-gradient disabled:opacity-50"
-                  >
-                    Send
-                  </button>
+            {/* Input - Hidden on mobile when onePagerData exists (refinement is in MobileEditorSheet) */}
+            {!(onePagerData && isMobile) && (
+              <div className="p-3 sm:p-4 border-t border-accent/10">
+                <div className="input-area rounded-xl p-2 sm:p-3">
+                  <textarea 
+                    value={inputValue} 
+                    onChange={e => setInputValue(e.target.value)} 
+                    onKeyDown={e => { 
+                      if (e.key === 'Enter' && !e.shiftKey) { 
+                        e.preventDefault(); 
+                        handleSubmit(); 
+                      }
+                    }} 
+                    placeholder="Refine your pitch..." 
+                    className="w-full bg-transparent text-foreground placeholder-muted-foreground text-sm resize-none focus:outline-none min-h-[50px] sm:min-h-[60px]" 
+                  />
+                  <div className="flex items-center justify-end mt-2 pt-2 border-t border-accent/10">
+                    <button 
+                      onClick={handleSubmit} 
+                      disabled={isGenerating || !inputValue.trim()} 
+                      className="px-4 py-2 rounded-lg text-white text-sm font-medium magenta-gradient disabled:opacity-50"
+                    >
+                      Send
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Preview Panel */}
