@@ -1,117 +1,185 @@
 
 
-# Plan: Typewriter Progress Loading Animation
+# Plan: Mobile Bottom Footer Edit Button with Area Selector
 
 ## Overview
 
-Replace the current loading animation (pulsing ring + spinner) with an elegant typewriter effect that types out the generation phase messages letter-by-letter with a blinking cursor, creating an "AI thinking" aesthetic.
+Move the inline edit interface to a mobile-friendly bottom footer with a floating edit button. When users scroll down, they can tap the edit button to reveal a bottom sheet that lets them choose which area to edit (Header, Sections, Contact Info). This approach reduces cognitive load at the top and follows mobile UX best practices.
 
 ## Visual Design
 
+### Current State (Mobile)
 ```text
-┌─────────────────────────────────────┐
-│                                     │
-│            ✨ (Sparkles icon)       │
-│                                     │
-│   Crafting narrative...|            │
-│        (typewriter text + cursor)   │
-│                                     │
-│   This usually takes 10-15 seconds  │
-│                                     │
-└─────────────────────────────────────┘
+┌────────────────────────────┐
+│  Chat Panel Header         │
+├────────────────────────────┤
+│  Messages                  │
+│  ...                       │
+├────────────────────────────┤
+│  ┌──────────────────────┐  │  ← OnePagerEditor here
+│  │ Header Section       │  │    (takes up too much space)
+│  │ Sections (expanded)  │  │
+│  │ Contact Info         │  │
+│  └──────────────────────┘  │
+├────────────────────────────┤
+│  Input Area                │
+└────────────────────────────┘
+```
+
+### Proposed State (Mobile)
+```text
+┌────────────────────────────┐
+│  Chat Panel Header         │
+├────────────────────────────┤
+│  Messages                  │
+│  ...                       │
+├────────────────────────────┤
+│  Input Area                │
+├────────────────────────────┤
+│                    [✏️ Edit]│  ← Floating button
+└────────────────────────────┘
+
+When tapped, bottom sheet appears:
+┌────────────────────────────┐
+│  ─── (drag handle) ───     │
+│                            │
+│  What would you like to    │
+│  edit?                     │
+│                            │
+│  ┌──────────────────────┐  │
+│  │  📝 Header           │  │
+│  │  Headline & subtitle │  │
+│  └──────────────────────┘  │
+│                            │
+│  ┌──────────────────────┐  │
+│  │  📋 Sections         │  │
+│  │  Content blocks      │  │
+│  └──────────────────────┘  │
+│                            │
+│  ┌──────────────────────┐  │
+│  │  📞 Contact Info     │  │
+│  │  Email, phone, web   │  │
+│  └──────────────────────┘  │
+└────────────────────────────┘
 ```
 
 ## Implementation
 
-### 1. Create TypewriterText Component
+### 1. Create MobileEditorSheet Component
 
-**File:** `src/components/ui/TypewriterText.tsx` (new file)
+**File:** `src/components/dashboard/MobileEditorSheet.tsx` (new file)
 
-A reusable component that:
-- Accepts `text` prop and types it character-by-character
-- Shows a blinking cursor (`|`) at the end
-- Resets and retypes when `text` changes
-- Configurable typing speed (default ~50ms per character)
+A bottom sheet component that:
+- Shows a floating "Edit" button above the input area
+- Opens a drawer/bottom sheet when tapped
+- Displays edit area options (Header, Sections, Contact Info)
+- Selecting an area opens a focused edit panel for that section
+- Uses the existing `OnePagerEditor` logic but split into focused views
 
-### 2. Update Dashboard Loading State
+### 2. Create EditorAreaPanel Component
+
+**File:** `src/components/dashboard/EditorAreaPanel.tsx` (new file)
+
+A focused panel for editing a single area:
+- Header Panel: headline + subheadline fields
+- Sections Panel: collapsible section list
+- Contact Panel: email, phone, website fields
+- Back button to return to area selector
+
+### 3. Update Dashboard for Mobile
 
 **File:** `src/pages/Dashboard.tsx`
 
-Replace the current Step 5 loading UI (lines 1466-1479):
+Changes:
+- Import `useIsMobile` hook
+- Hide inline `OnePagerEditor` on mobile
+- Show `MobileEditorSheet` on mobile when `onePagerData` exists
+- Keep desktop behavior unchanged
 
-**Current:**
-- Pulsing magenta ring with `animate-ping`
-- Spinning `Loader2` icon
-- Static phase text
-
-**New:**
-- Central `Sparkles` icon with subtle glow animation
-- TypewriterText component displaying phase messages
-- Same helper text below
-
-### 3. Add CSS Animation for Cursor Blink
+### 4. Styling Updates
 
 **File:** `src/index.css`
 
-Add keyframe animation for the blinking cursor effect:
-```css
-@keyframes blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
-}
-```
+Add bottom sheet animations:
+- Slide-up animation for sheet appearance
+- Smooth transitions for area selection
 
 ## Technical Details
 
-### TypewriterText Component Logic
+### MobileEditorSheet Component Structure
 
 ```typescript
-// Pseudocode
-const TypewriterText = ({ text, speed = 50 }) => {
-  const [displayedText, setDisplayedText] = useState('');
-  
-  useEffect(() => {
-    setDisplayedText(''); // Reset on text change
-    let index = 0;
-    const interval = setInterval(() => {
-      if (index < text.length) {
-        setDisplayedText(text.slice(0, index + 1));
-        index++;
-      } else {
-        clearInterval(interval);
-      }
-    }, speed);
-    return () => clearInterval(interval);
-  }, [text, speed]);
-  
-  return (
-    <span>
-      {displayedText}
-      <span className="animate-blink">|</span>
-    </span>
-  );
-};
+interface MobileEditorSheetProps {
+  data: OnePagerData;
+  onUpdate: (data: OnePagerData) => void;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+// Internal state
+const [selectedArea, setSelectedArea] = useState<'selector' | 'header' | 'sections' | 'contact'>('selector');
 ```
 
-### Dashboard Changes
+### Area Options
 
-Replace lines 1466-1479 with:
-- Sparkles icon with gradient glow effect
-- TypewriterText component with `generationPhase` as input
-- Maintain existing helper text
+| Area | Icon | Label | Description |
+|------|------|-------|-------------|
+| Header | 📝 | Header | Headline & subtitle |
+| Sections | 📋 | Sections | Content blocks |
+| Contact | 📞 | Contact Info | Email, phone, website |
+
+### Dashboard Integration
+
+```typescript
+// In Dashboard.tsx
+const isMobile = useIsMobile();
+const [showMobileEditor, setShowMobileEditor] = useState(false);
+
+// In JSX
+{onePagerData && (
+  <>
+    {/* Desktop: inline editor */}
+    {!isMobile && (
+      <div className="p-3 sm:p-4 border-t border-accent/10 max-h-[50vh] overflow-y-auto">
+        <OnePagerEditor data={onePagerData} onUpdate={setOnePagerData} />
+      </div>
+    )}
+    
+    {/* Mobile: floating button + sheet */}
+    {isMobile && (
+      <MobileEditorSheet
+        data={onePagerData}
+        onUpdate={setOnePagerData}
+        isOpen={showMobileEditor}
+        onClose={() => setShowMobileEditor(false)}
+      />
+    )}
+  </>
+)}
+```
 
 ## Files to Create/Modify
 
 | Action | File | Description |
 |--------|------|-------------|
-| Create | `src/components/ui/TypewriterText.tsx` | New typewriter component |
-| Edit | `src/pages/Dashboard.tsx` | Update Step 5 loading UI |
-| Edit | `src/index.css` | Add blink animation keyframe |
+| Create | `src/components/dashboard/MobileEditorSheet.tsx` | Bottom sheet with edit button and area selector |
+| Create | `src/components/dashboard/EditorAreaPanel.tsx` | Focused editing panels for each area |
+| Edit | `src/pages/Dashboard.tsx` | Add mobile detection and conditional rendering |
+| Edit | `src/index.css` | Add bottom sheet animations |
 
-## Benefits
+## UX Benefits
 
-- Creates an "AI thinking" aesthetic that feels more intelligent
-- Letter-by-letter reveal builds anticipation
-- Blinking cursor is universally recognized as "processing"
-- Matches the premium, minimal design language of PitchVoid
+- **Reduced Cognitive Load**: Clean view on mobile without crowded edit fields
+- **Thumb-Friendly**: Edit button positioned in comfortable bottom zone
+- **Progressive Disclosure**: Only shows edit options when user wants to edit
+- **Focused Editing**: One area at a time reduces overwhelm
+- **Consistent with Mobile Patterns**: Uses familiar bottom sheet interaction
+
+## Accessibility
+
+- Bottom sheet has proper focus trap when open
+- Escape key closes the sheet
+- Tap outside to close
+- Large touch targets (60px minimum)
+- Clear visual hierarchy for area selection
 
