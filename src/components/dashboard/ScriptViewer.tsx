@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Play, Pause, RotateCcw, Clock, Quote } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Clock, Quote, Copy, Check, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export interface ScriptSection {
   name: string;
@@ -22,141 +23,134 @@ interface ScriptViewerProps {
 
 const ScriptViewer = ({ data, onUpdate }: ScriptViewerProps) => {
   const [activeSection, setActiveSection] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [timer, setTimer] = useState(0);
+  const [copied, setCopied] = useState(false);
 
-  const formatTime = (s: number) => 
-    `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
-
-  const handleReset = () => {
-    setTimer(0);
-    setActiveSection(0);
-    setIsPlaying(false);
+  const handleCopy = () => {
+    const text = data.sections.map(s => `[${s.name}]\n${s.content}${s.cue ? `\n\n(${s.cue})` : ''}`).join('\n\n---\n\n');
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
-    <div className="h-full flex flex-col">
-      {/* Header */}
-      <div className="p-4 sm:p-6 border-b border-accent/10">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-xl sm:text-2xl font-display text-foreground">
-              {data.title}
-            </h2>
-            <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
-              <Clock className="w-4 h-4" />
-              {data.total_duration} • {data.sections.length} sections
-            </p>
-          </div>
-          
-          {/* Playback controls */}
-          <div className="flex items-center gap-4 sm:gap-6">
-            <span className="text-2xl sm:text-3xl font-mono text-foreground tracking-wider">
-              {formatTime(timer)}
-            </span>
-            <button
-              onClick={() => setIsPlaying(!isPlaying)}
-              className="w-12 h-12 sm:w-14 sm:h-14 rounded-full magenta-gradient flex items-center justify-center shadow-lg"
-            >
-              {isPlaying ? (
-                <Pause className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-              ) : (
-                <Play className="w-5 h-5 sm:w-6 sm:h-6 text-white ml-0.5" />
-              )}
-            </button>
-            <button
-              onClick={handleReset}
-              className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl border border-border hover:bg-accent/10 transition-colors flex items-center justify-center"
-            >
-              <RotateCcw className="w-5 h-5 text-muted-foreground" />
-            </button>
-          </div>
+    <div className="max-w-3xl mx-auto">
+      {/* Document Preview - matches One-Pager style */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-card text-card-foreground rounded-2xl shadow-2xl border border-border overflow-hidden"
+      >
+        {/* Header */}
+        <div className="p-8 md:p-12 text-center border-b-2 border-border">
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3 font-display">
+            {data.title}
+          </h1>
+          <p className="text-muted-foreground flex items-center justify-center gap-2">
+            <Clock className="w-4 h-4" />
+            {data.total_duration} • {data.sections.length} sections
+          </p>
         </div>
 
         {/* Section tabs */}
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
+        <div className="flex gap-2 overflow-x-auto p-4 border-b border-border bg-muted/30 scrollbar-thin">
           {data.sections.map((section, i) => (
             <button
               key={i}
               onClick={() => setActiveSection(i)}
-              className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm transition-all ${
+              className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 activeSection === i
-                  ? 'magenta-gradient text-white'
-                  : 'border border-accent/20 text-muted-foreground hover:text-foreground hover:border-accent/40'
+                  ? 'bg-gradient-to-r from-primary to-accent text-primary-foreground'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-accent/10'
               }`}
             >
               {section.name}
             </button>
           ))}
         </div>
-      </div>
 
-      {/* Active Section Content */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-        <div className="max-w-3xl mx-auto">
+        {/* Active Section Content */}
+        <div className="p-8 md:p-12">
           {/* Duration badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/10 border border-accent/20 mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/10 border border-accent/20 mb-6">
             <Clock className="w-4 h-4 text-accent" />
             <span className="text-sm text-accent">{data.sections[activeSection].duration}</span>
           </div>
 
-          {/* Main content - teleprompter style */}
-          <div className="mb-6">
-            <p className="text-xl sm:text-2xl lg:text-3xl text-foreground leading-relaxed font-light">
+          {/* Main content */}
+          <motion.div
+            key={activeSection}
+            initial={{ opacity: 0, x: 10 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="mb-6"
+          >
+            <p className="text-xl md:text-2xl text-foreground leading-relaxed font-light">
               {data.sections[activeSection].content}
             </p>
-          </div>
+          </motion.div>
 
           {/* Stage direction / Cue */}
           {data.sections[activeSection].cue && (
             <div className="p-4 rounded-xl bg-accent/5 border border-accent/20">
-              <p className="text-xs uppercase tracking-wider text-accent mb-2">Stage Direction</p>
+              <p className="text-xs uppercase tracking-wider text-accent mb-2 font-medium">Stage Direction</p>
               <p className="text-sm text-muted-foreground italic">
                 {data.sections[activeSection].cue}
               </p>
             </div>
           )}
         </div>
-      </div>
 
-      {/* Key Phrases Footer */}
-      {data.key_phrases && data.key_phrases.length > 0 && (
-        <div className="p-4 sm:p-6 border-t border-accent/10 bg-accent/5">
-          <div className="flex items-center gap-2 mb-3">
-            <Quote className="w-4 h-4 text-primary" />
-            <span className="text-xs uppercase tracking-wider text-muted-foreground">Key Phrases to Emphasize</span>
+        {/* Key Phrases */}
+        {data.key_phrases && data.key_phrases.length > 0 && (
+          <div className="p-6 md:p-8 border-t border-border bg-muted/20">
+            <div className="flex items-center gap-2 mb-4">
+              <Quote className="w-4 h-4 text-primary" />
+              <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">Key Phrases to Emphasize</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {data.key_phrases.map((phrase, i) => (
+                <span
+                  key={i}
+                  className="px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 text-sm text-foreground"
+                >
+                  "{phrase}"
+                </span>
+              ))}
+            </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {data.key_phrases.map((phrase, i) => (
-              <span
-                key={i}
-                className="px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 text-sm text-foreground"
-              >
-                "{phrase}"
-              </span>
-            ))}
-          </div>
+        )}
+
+        {/* Navigation */}
+        <div className="p-4 border-t border-border flex items-center justify-between bg-card">
+          <button
+            onClick={() => setActiveSection(Math.max(0, activeSection - 1))}
+            disabled={activeSection === 0}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm disabled:opacity-30 hover:bg-accent/10 transition-colors text-muted-foreground hover:text-foreground"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Previous
+          </button>
+          <span className="text-sm text-muted-foreground">
+            {activeSection + 1} / {data.sections.length}
+          </span>
+          <button
+            onClick={() => setActiveSection(Math.min(data.sections.length - 1, activeSection + 1))}
+            disabled={activeSection === data.sections.length - 1}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm disabled:opacity-30 hover:bg-accent/10 transition-colors text-muted-foreground hover:text-foreground"
+          >
+            Next
+            <ChevronRight className="w-4 h-4" />
+          </button>
         </div>
-      )}
+      </motion.div>
 
-      {/* Navigation */}
-      <div className="p-4 border-t border-accent/10 flex items-center justify-between">
+      {/* Actions - matches One-Pager style */}
+      <div className="flex items-center justify-center gap-3 mt-6">
         <button
-          onClick={() => setActiveSection(Math.max(0, activeSection - 1))}
-          disabled={activeSection === 0}
-          className="px-4 py-2 rounded-lg border border-accent/20 text-sm disabled:opacity-30 hover:bg-accent/10 transition-colors"
+          onClick={handleCopy}
+          className="flex items-center gap-2 px-5 py-2.5 bg-card hover:bg-accent/10 border border-border rounded-xl transition-colors"
         >
-          ← Previous
-        </button>
-        <span className="text-sm text-muted-foreground">
-          {activeSection + 1} / {data.sections.length}
-        </span>
-        <button
-          onClick={() => setActiveSection(Math.min(data.sections.length - 1, activeSection + 1))}
-          disabled={activeSection === data.sections.length - 1}
-          className="px-4 py-2 rounded-lg border border-accent/20 text-sm disabled:opacity-30 hover:bg-accent/10 transition-colors"
-        >
-          Next →
+          {copied ? <Check className="w-4 h-4 text-primary" /> : <Copy className="w-4 h-4" />}
+          <span>{copied ? 'Copied!' : 'Copy text'}</span>
         </button>
       </div>
     </div>
