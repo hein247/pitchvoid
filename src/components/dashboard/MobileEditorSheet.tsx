@@ -70,14 +70,15 @@ const MobileEditorSheet = ({ data, onUpdate, onRefine, isRefining = false }: Mob
 
   return (
     <>
-      {/* Floating Edit Button */}
-      <div className="fixed bottom-20 right-4 z-40">
+      {/* Floating Edit Button - positioned with safe spacing from screen edges */}
+      <div className="fixed bottom-6 right-4 z-40">
         <Drawer open={isOpen} onOpenChange={setIsOpen}>
           <DrawerTrigger asChild>
             <button
               className={cn(
-                "flex items-center gap-2 px-4 py-3 rounded-full",
-                "bg-primary text-primary-foreground shadow-lg",
+                "flex items-center gap-2 px-5 py-3 rounded-full",
+                "bg-primary text-primary-foreground",
+                "shadow-xl shadow-primary/25",
                 "hover:bg-primary/90 transition-all",
                 "active:scale-95"
               )}
