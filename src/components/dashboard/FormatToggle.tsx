@@ -47,9 +47,9 @@ const FormatToggle = ({
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center">
       {/* Format tabs */}
-      <div className="flex items-center rounded-lg border border-accent/20 p-1 bg-background/50 backdrop-blur-sm">
+      <div className="flex items-center">
         {formats.map(({ id, label, icon: Icon, hasContent }) => {
           const isLocked = lockedFormats.includes(id);
           

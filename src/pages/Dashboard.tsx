@@ -1047,40 +1047,43 @@ const Dashboard = () => {
                 
                 {/* Format Toggle - Only show when content exists */}
                 {(onePagerData || scriptData) && (
-                  <FormatToggle
-                    activeFormat={outputFormat}
-                    onFormatChange={handleFormatChange}
-                    hasOnePager={!!onePagerData}
-                    hasScript={!!scriptData}
-                    onRegenerate={handleRegenerateInFormat}
-                    isRegenerating={isRegenerating}
-                    lockedFormats={isFree ? ['script'] : []}
-                    onLockedClick={(format) => checkAndTriggerPaywall('use_format', { format })}
-                  />
+                  <div className="flex items-center rounded-xl border border-border p-1 bg-card/50 backdrop-blur-sm">
+                    <FormatToggle
+                      activeFormat={outputFormat}
+                      onFormatChange={handleFormatChange}
+                      hasOnePager={!!onePagerData}
+                      hasScript={!!scriptData}
+                      onRegenerate={handleRegenerateInFormat}
+                      isRegenerating={isRegenerating}
+                      lockedFormats={isFree ? ['script'] : []}
+                      onLockedClick={(format) => checkAndTriggerPaywall('use_format', { format })}
+                    />
+                    
+                    {/* Divider */}
+                    <div className="w-px h-6 bg-border mx-1" />
+                    
+                    {/* Practice mode - for scripts only */}
+                    {outputFormat === 'script' && scriptData && (
+                      <button 
+                        onClick={() => setIsPracticeMode(true)} 
+                        className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/10 transition-colors"
+                        title="Practice"
+                      >
+                        <Play className="w-4 h-4" />
+                      </button>
+                    )}
+                    
+                    {/* Share button */}
+                    <button 
+                      onClick={() => setShowShareModal(true)} 
+                      className="p-2 rounded-lg text-primary hover:bg-primary/10 transition-colors"
+                      title="Share"
+                    >
+                      <Share2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 )}
               </div>
-              
-              {(onePagerData || scriptData) && (
-                <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end">
-                  {/* Practice mode - for scripts only */}
-                  {outputFormat === 'script' && scriptData && (
-                    <button 
-                      onClick={() => setIsPracticeMode(true)} 
-                      className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm text-accent border border-accent/30 flex items-center gap-1 sm:gap-2 hover:bg-accent/10 transition-colors"
-                    >
-                      <Play className="w-3 h-3 sm:w-4 sm:h-4" />
-                      <span className="hidden sm:inline">Practice</span>
-                    </button>
-                  )}
-                  <button 
-                    onClick={() => setShowShareModal(true)} 
-                    className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm text-white magenta-gradient flex items-center gap-1 sm:gap-2"
-                  >
-                    <Share2 className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span className="hidden sm:inline">Share</span>
-                  </button>
-                </div>
-              )}
             </header>
             
             <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 relative z-10">
