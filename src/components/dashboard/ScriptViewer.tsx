@@ -50,23 +50,23 @@ const ScriptViewer = ({ data, onUpdate }: ScriptViewerProps) => {
           </div>
           
           {/* Playback controls */}
-          <div className="flex items-center gap-3">
-            <span className="text-2xl font-mono text-foreground">
+          <div className="flex items-center gap-4 sm:gap-6">
+            <span className="text-2xl sm:text-3xl font-mono text-foreground tracking-wider">
               {formatTime(timer)}
             </span>
             <button
               onClick={() => setIsPlaying(!isPlaying)}
-              className="w-12 h-12 rounded-full magenta-gradient flex items-center justify-center"
+              className="w-12 h-12 sm:w-14 sm:h-14 rounded-full magenta-gradient flex items-center justify-center shadow-lg"
             >
               {isPlaying ? (
-                <Pause className="w-5 h-5 text-white" />
+                <Pause className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               ) : (
-                <Play className="w-5 h-5 text-white ml-0.5" />
+                <Play className="w-5 h-5 sm:w-6 sm:h-6 text-white ml-0.5" />
               )}
             </button>
             <button
               onClick={handleReset}
-              className="p-2 rounded-lg border border-accent/20 hover:bg-accent/10 transition-colors"
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl border border-border hover:bg-accent/10 transition-colors flex items-center justify-center"
             >
               <RotateCcw className="w-5 h-5 text-muted-foreground" />
             </button>
