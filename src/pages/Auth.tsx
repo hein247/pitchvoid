@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { lovable } from '@/integrations/lovable';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+ import ShaderBackground from '@/components/ui/ShaderBackground';
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -89,16 +90,19 @@ const Auth = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#0F0518' }}>
+       <div className="min-h-screen flex items-center justify-center relative">
+         <ShaderBackground />
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen grain-bg hero-gradient flex flex-col" style={{ backgroundColor: '#0F0518' }}>
-      {/* Back navigation */}
-      <nav className="relative z-10 px-8 py-6">
+     <div className="min-h-screen flex flex-col relative">
+       <ShaderBackground />
+       <div className="relative z-10 flex flex-col flex-1">
+         {/* Back navigation */}
+         <nav className="px-8 py-6">
         <button 
           onClick={() => navigate('/')}
           className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
@@ -106,9 +110,9 @@ const Auth = () => {
           <ArrowLeft className="w-4 h-4" />
           Back to home
         </button>
-      </nav>
+         </nav>
 
-      <div className="flex-1 flex items-center justify-center p-4">
+         <div className="flex-1 flex items-center justify-center p-4">
         <div className="glassmorphism-dark rounded-2xl p-8 w-full max-w-md animate-slideUp">
           {/* Header */}
           <div className="text-center mb-8">
@@ -196,6 +200,7 @@ const Auth = () => {
             {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
           </button>
         </div>
+         </div>
       </div>
     </div>
   );

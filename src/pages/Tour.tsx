@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+ import ShaderBackground from '@/components/ui/ShaderBackground';
 
 const tourSteps = [
   { 
@@ -43,9 +44,11 @@ const Tour = () => {
   };
 
   return (
-    <div className="min-h-screen grain-bg hero-gradient flex flex-col" style={{ backgroundColor: '#0F0518' }}>
-      {/* Navigation */}
-      <nav className="relative z-10 px-8 py-6 flex items-center justify-between">
+     <div className="min-h-screen flex flex-col relative">
+       <ShaderBackground />
+       <div className="relative z-10 flex flex-col flex-1">
+         {/* Navigation */}
+         <nav className="px-8 py-6 flex items-center justify-between">
         <button 
           onClick={() => navigate('/auth')}
           className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
@@ -65,9 +68,9 @@ const Tour = () => {
           PitchVoid
         </button>
         <div className="w-16" /> {/* Spacer for centering */}
-      </nav>
+         </nav>
 
-      <div className="flex-1 flex items-center justify-center p-4">
+         <div className="flex-1 flex items-center justify-center p-4">
         <div className="glassmorphism-dark rounded-2xl p-8 w-full max-w-2xl animate-slideUp">
           {/* Progress Header */}
           <div className="flex items-center justify-between mb-8">
@@ -127,6 +130,7 @@ const Tour = () => {
             </div>
           </div>
         </div>
+         </div>
       </div>
     </div>
   );
