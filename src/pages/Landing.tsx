@@ -1,17 +1,20 @@
 import { useNavigate } from 'react-router-dom';
 import { Mic } from 'lucide-react';
 import Navbar from '@/components/Navbar';
+ import ShaderBackground from '@/components/ui/ShaderBackground';
 
 const Landing = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen grain-bg hero-gradient relative" style={{ backgroundColor: '#0F0518' }}>
+     <div className="min-h-screen relative">
+       <ShaderBackground />
       {/* Navigation */}
-      <Navbar variant="landing" />
+       <div className="relative z-10">
+         <Navbar variant="landing" />
 
-      {/* Hero Section */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 pt-8 sm:pt-16 pb-16 sm:pb-24">
+         {/* Hero Section */}
+         <section className="max-w-7xl mx-auto px-4 sm:px-8 pt-8 sm:pt-16 pb-16 sm:pb-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
           {/* Left - Copy */}
           <div className="animate-slideUp text-center lg:text-left">
@@ -100,10 +103,10 @@ const Landing = () => {
             </div>
           </div>
         </div>
-      </section>
+         </section>
 
-      {/* Features Section */}
-      <section id="features" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
+         {/* Features Section */}
+         <section id="features" className="max-w-7xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
         <div className="text-center mb-10 sm:mb-16">
           <h3 className="text-2xl sm:text-3xl text-foreground mb-4 font-display">How It Works</h3>
           <p className="text-muted-foreground max-w-xl mx-auto text-sm sm:text-base">
@@ -129,10 +132,10 @@ const Landing = () => {
             </div>
           ))}
         </div>
-      </section>
+         </section>
 
-      {/* CTA Section */}
-      <section id="pricing" className="relative z-10 max-w-3xl mx-auto px-4 sm:px-8 py-16 sm:py-24 text-center">
+         {/* CTA Section */}
+         <section id="pricing" className="max-w-3xl mx-auto px-4 sm:px-8 py-16 sm:py-24 text-center">
         <h3 className="text-3xl sm:text-4xl text-foreground mb-4 sm:mb-6 font-display">Ready to create your pitch?</h3>
         <p className="text-muted-foreground mb-6 sm:mb-8 text-sm sm:text-base">
           Sign up now and get 10 free credits to start creating stunning presentations.
@@ -143,10 +146,10 @@ const Landing = () => {
         >
           Get Started Free
         </button>
-      </section>
+         </section>
 
-      {/* Footer */}
-      <footer className="relative z-10 border-t border-accent/10 py-6 sm:py-8 px-4 sm:px-8">
+         {/* Footer */}
+         <footer className="border-t border-accent/10 py-6 sm:py-8 px-4 sm:px-8">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <span 
             className="text-lg font-display"
@@ -160,7 +163,8 @@ const Landing = () => {
           </span>
           <p className="text-sm text-muted-foreground">© 2024 PitchVoid. All rights reserved.</p>
         </div>
-      </footer>
+         </footer>
+       </div>
     </div>
   );
 };
