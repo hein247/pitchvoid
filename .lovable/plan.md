@@ -1,157 +1,97 @@
 
-
-# Plan: Add Refinement Input to Mobile Editor Sheet
+# Plan: Add WebGL Shader Background Component
 
 ## Overview
+Create a new `ShaderBackground` component using WebGL for animated, procedural background effects. This will provide a more dynamic, immersive visual experience compared to the current CSS-based `GridBackground` component.
 
-Add a "Refine your pitch" text input box above the area selector options in the mobile bottom sheet. This gives users quick access to AI-driven refinements before or instead of manual editing, all from the same thumb-friendly location.
+## Current State
+- **GridBackground.tsx** exists with Framer Motion-based starfield and floating particles animations
+- Pages currently use CSS classes (`grain-bg hero-gradient`) with inline background colors (`#0F0518`)
+- `GridBackground` is not actively imported anywhere in the codebase
 
-## Visual Design
+## Implementation Steps
+
+### Step 1: Create the ShaderBackground Component
+Create `src/components/ui/ShaderBackground.tsx` with the WebGL plasma line shader provided.
+
+Key features of the shader:
+- Animated plasma-like flowing lines
+- Purple/violet color scheme matching brand colors
+- Edge fade for clean blending with content
+- Performance-optimized with 16 lines per group
+
+### Step 2: Update Shader Colors to Match Brand
+Modify the shader's color constants to align with PitchVoid brand:
+- `lineColor` → Deep Violet (`hsl(258 90% 66%)` → `vec4(0.55, 0.36, 0.96, 1.0)`)
+- `bgColor1` → Midnight Purple (`#0F0518` → `vec3(0.06, 0.02, 0.09)`)
+- `bgColor2` → Surface color (`#1A0A2E` → `vec3(0.1, 0.04, 0.18)`)
+
+### Step 3: Integrate into Landing Page
+Replace the current background approach in `Landing.tsx`:
 
 ```text
+Before:
 ┌────────────────────────────────────┐
-│  ─── (drag handle) ───             │
-├────────────────────────────────────┤
-│  Edit Content                   X  │
-├────────────────────────────────────┤
-│                                    │
-│  ┌──────────────────────────────┐  │
-│  │  Refine your pitch...     ➤  │  │  ← NEW: Refinement input
-│  └──────────────────────────────┘  │
-│                                    │
-│  Quick edits:                      │
-│  [Shorter] [Bolder] [More data]    │  ← NEW: Quick chips
-│                                    │
-│  ─── or edit manually ───          │  ← Divider
-│                                    │
-│  ┌──────────────────────────────┐  │
-│  │  📝 Header                   │  │
-│  │  Headline & subtitle         │  │
-│  └──────────────────────────────┘  │
-│                                    │
-│  ┌──────────────────────────────┐  │
-│  │  📋 Sections                 │  │
-│  │  Content blocks              │  │
-│  └──────────────────────────────┘  │
-│                                    │
-│  ┌──────────────────────────────┐  │
-│  │  📞 Contact Info             │  │
-│  │  Email, phone, website       │  │
-│  └──────────────────────────────┘  │
+│ <div className="grain-bg hero-     │
+│   gradient" style={{backgroundColor│
+│   : '#0F0518'}}>                   │
+│   [content]                        │
+│ </div>                             │
+└────────────────────────────────────┘
+
+After:
+┌────────────────────────────────────┐
+│ <div className="relative min-h-    │
+│   screen">                         │
+│   <ShaderBackground />             │
+│   <div className="relative z-10">  │
+│     [content]                      │
+│   </div>                           │
+│ </div>                             │
 └────────────────────────────────────┘
 ```
 
-## Implementation
+### Step 4: Optional Integration for Other Pages
+- **Auth.tsx**: Add shader for visual consistency
+- **Tour.tsx**: Add shader for onboarding flow
+- Keep **Dashboard.tsx** and **Pricing.tsx** with current styling (cleaner for functional pages)
 
-### 1. Update MobileEditorSheet Component
+---
 
-**File:** `src/components/dashboard/MobileEditorSheet.tsx`
+## Technical Considerations
 
-Add new props for refinement:
-- `onRefine: (prompt: string) => void` — callback when user submits a refinement
-- `isRefining?: boolean` — loading state during refinement
+### Performance
+- WebGL runs on GPU, minimal CPU impact
+- Uses `requestAnimationFrame` for smooth 60fps
+- Canvas resizes responsively with window
+- Cleanup on component unmount prevents memory leaks
 
-Add to the component:
-- Refinement input box with submit button above the area options
-- Quick edit chips row (Shorter, Bolder, More data, etc.)
-- Visual divider between refinement and manual edit sections
+### Accessibility
+- `pointer-events: none` ensures content remains interactive
+- `inset-0` positioning places it behind all content
+- No impact on screen readers (decorative element)
 
-### 2. Update Dashboard to Pass Refinement Handler
+### Browser Support
+- WebGL is supported in 97%+ of browsers
+- Falls back gracefully if WebGL unavailable (just shows no background animation)
 
-**File:** `src/pages/Dashboard.tsx`
+---
 
-Pass the existing `handleSubmit` logic to `MobileEditorSheet`:
-- Add `onRefine` prop that sets input value and triggers generation
-- Pass `isGenerating` as `isRefining` prop
+## Files to Create/Modify
 
-## Technical Details
+| File | Action |
+|------|--------|
+| `src/components/ui/ShaderBackground.tsx` | Create new |
+| `src/pages/Landing.tsx` | Modify - integrate shader |
+| `src/pages/Auth.tsx` | Optional - integrate shader |
+| `src/pages/Tour.tsx` | Optional - integrate shader |
 
-### Updated MobileEditorSheet Interface
+---
 
-```typescript
-interface MobileEditorSheetProps {
-  data: OnePagerData;
-  onUpdate: (data: OnePagerData) => void;
-  onRefine: (prompt: string) => void;  // NEW
-  isRefining?: boolean;                 // NEW
-}
-```
-
-### Quick Chips
-
-```typescript
-const QUICK_CHIPS = ['Shorter', 'Bolder', 'More data', 'Softer tone'];
-```
-
-### Refinement Input (inside selector view)
-
-```typescript
-{selectedArea === 'selector' && (
-  <div className="space-y-4">
-    {/* Refinement Input */}
-    <div className="space-y-3">
-      <form onSubmit={handleRefineSubmit} className="relative">
-        <input
-          type="text"
-          value={refineValue}
-          onChange={(e) => setRefineValue(e.target.value)}
-          placeholder="Refine your pitch..."
-          className="input-field w-full pr-12"
-        />
-        <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2">
-          <Send className="w-4 h-4" />
-        </button>
-      </form>
-      
-      {/* Quick Chips */}
-      <div className="flex gap-2 overflow-x-auto pb-1">
-        {QUICK_CHIPS.map(chip => (
-          <button key={chip} onClick={() => onRefine(chip)}>
-            {chip}
-          </button>
-        ))}
-      </div>
-    </div>
-    
-    {/* Divider */}
-    <div className="flex items-center gap-3">
-      <div className="flex-1 h-px bg-border" />
-      <span className="text-xs text-muted-foreground">or edit manually</span>
-      <div className="flex-1 h-px bg-border" />
-    </div>
-    
-    {/* Area Options */}
-    {areaOptions.map(...)}
-  </div>
-)}
-```
-
-## Files to Modify
-
-| Action | File | Description |
-|--------|------|-------------|
-| Edit | `src/components/dashboard/MobileEditorSheet.tsx` | Add refinement input, chips, and divider above area options |
-| Edit | `src/pages/Dashboard.tsx` | Pass `onRefine` and `isRefining` props to MobileEditorSheet |
-
-## UX Flow
-
-1. User taps "Edit" button at bottom
-2. Bottom sheet opens showing:
-   - Refinement input at top
-   - Quick edit chips below input
-   - "or edit manually" divider
-   - Area selection options (Header, Sections, Contact)
-3. User can either:
-   - Type a refinement prompt and submit
-   - Tap a quick chip for instant refinement
-   - Tap an area to manually edit fields
-4. Sheet closes after refinement is submitted
-
-## Benefits
-
-- Single entry point for all mobile editing actions
-- AI refinement is prominently placed (most common action)
-- Quick chips reduce typing on mobile
-- Clear visual hierarchy between AI refinement and manual editing
-- Maintains existing area-based editing for detailed changes
-
+## Testing Checklist
+After implementation:
+- [ ] Verify animation runs smoothly on desktop
+- [ ] Check mobile performance (consider reduced lines for mobile)
+- [ ] Confirm content remains readable over shader
+- [ ] Test WebGL fallback behavior
+- [ ] Verify no layout shifts or z-index conflicts
