@@ -1,4 +1,5 @@
-import { Check, Sparkles } from 'lucide-react';
+import { useState } from 'react';
+import { Check, Sparkles, Clock, Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { PlanType, PRICING, getYearlySavings } from '@/lib/pricing';
@@ -11,29 +12,35 @@ interface PricingCardProps {
   isLoading?: boolean;
 }
 
+const OUTCOME_LINES: Record<PlanType, string> = {
+  free: 'See what AI-crafted pitches feel like.',
+  pro: 'Every pitch, polished and ready to send.',
+  teams: "One workspace for your whole team's pitches.",
+};
+
 const FEATURES: Record<PlanType, string[]> = {
   free: [
     '3 pitch generations',
-    'One-Pager format only',
+    'One-Pager format',
     'Basic AI generation',
-    'PitchVoid watermark',
+    'Shareable links (watermark)',
   ],
   pro: [
     'Unlimited pitch generations',
     'All formats: One-Pager & Script',
     'Priority AI generation',
-    'Export & download',
+    'Export to PDF',
     'No watermarks',
-    'Practice mode',
+    'Practice mode with teleprompter',
     'Version history',
   ],
   teams: [
     'Everything in Pro',
-    'Team workspace',
+    'Shared team workspace',
     'Shared pitch library',
-    'Admin controls',
+    'Admin controls & analytics',
     'Priority support',
-    'Custom branding (soon)',
+    'Custom branding',
   ],
 };
 
@@ -44,15 +51,30 @@ export function PricingCard({
   onSelect,
   isLoading,
 }: PricingCardProps) {
+  const [waitlistEmail, setWaitlistEmail] = useState('');
+  const [waitlistSubmitted, setWaitlistSubmitted] = useState(false);
+  const [waitlistLoading, setWaitlistLoading] = useState(false);
+
   const planData = PRICING[plan];
   const features = FEATURES[plan];
-  const price = isYearly ? planData.yearlyPrice : planData.monthlyPrice;
   const monthlyEquivalent = isYearly ? Math.round(planData.yearlyPrice / 12) : planData.monthlyPrice;
+  const price = isYearly ? planData.yearlyPrice : planData.monthlyPrice;
   const savings = getYearlySavings(plan);
 
   const isPopular = planData.popular;
   const isFree = plan === 'free';
   const isTeams = plan === 'teams';
+
+  const handleWaitlistSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!waitlistEmail) return;
+    setWaitlistLoading(true);
+    // Simulate submission — replace with real endpoint later
+    setTimeout(() => {
+      setWaitlistSubmitted(true);
+      setWaitlistLoading(false);
+    }, 800);
+  };
 
   return (
     <div
@@ -60,7 +82,7 @@ export function PricingCard({
         'relative rounded-2xl border p-6 flex flex-col',
         isPopular
           ? 'border-primary bg-gradient-to-b from-primary/10 to-transparent shadow-lg shadow-primary/10'
-          : 'border-border bg-white/[0.02]',
+          : 'border-border bg-[rgba(255,255,255,0.02)]',
         isCurrentPlan && 'ring-2 ring-primary/50'
       )}
     >
@@ -74,8 +96,18 @@ export function PricingCard({
         </div>
       )}
 
+      {/* Coming Soon badge for Teams */}
+      {isTeams && (
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+          <span className="bg-accent text-accent-foreground text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1">
+            <Clock className="w-3 h-3" />
+            Coming Soon
+          </span>
+        </div>
+      )}
+
       {/* Current plan badge */}
-      {isCurrentPlan && (
+      {isCurrentPlan && !isTeams && (
         <div className="absolute -top-3 right-4">
           <span className="bg-muted text-muted-foreground text-xs font-medium px-3 py-1 rounded-full">
             Current Plan
@@ -84,9 +116,11 @@ export function PricingCard({
       )}
 
       {/* Header */}
-      <div className="mb-6">
+      <div className="mb-5">
         <h3 className="text-xl font-bold text-foreground">{planData.name}</h3>
-        <p className="text-sm text-muted-foreground mt-1">{planData.description}</p>
+        <p className="text-sm text-primary/80 mt-1.5 font-medium italic">
+          {OUTCOME_LINES[plan]}
+        </p>
       </div>
 
       {/* Price */}
@@ -115,7 +149,7 @@ export function PricingCard({
           </p>
         )}
         {isTeams && (
-          <p className="text-xs text-muted-foreground mt-1">per user</p>
+          <p className="text-xs text-muted-foreground mt-1">per user · min 2 seats</p>
         )}
       </div>
 
@@ -130,24 +164,65 @@ export function PricingCard({
       </ul>
 
       {/* CTA */}
-      <Button
-        onClick={() => onSelect(plan)}
-        disabled={isCurrentPlan || isLoading}
-        className={cn(
-          'w-full h-11',
-          isPopular
-            ? 'bg-gradient-to-r from-primary to-accent hover:opacity-90'
-            : isFree
-            ? 'bg-muted hover:bg-muted/80 text-foreground'
-            : 'bg-white/10 hover:bg-white/15 text-foreground'
-        )}
-      >
-        {isCurrentPlan
-          ? 'Current Plan'
-          : isFree
-          ? 'Get Started Free'
-          : `Get ${planData.name}`}
-      </Button>
+      {isTeams ? (
+        // Waitlist email capture for Teams
+        <div className="mt-auto">
+          {waitlistSubmitted ? (
+            <div className="text-center py-3 px-4 rounded-xl bg-primary/10 border border-primary/30">
+              <p className="text-sm text-primary font-medium">You're on the list! 🎉</p>
+              <p className="text-xs text-muted-foreground mt-1">We'll notify you at launch.</p>
+            </div>
+          ) : (
+            <form onSubmit={handleWaitlistSubmit} className="space-y-2">
+              <input
+                type="email"
+                required
+                placeholder="your@email.com"
+                value={waitlistEmail}
+                onChange={(e) => setWaitlistEmail(e.target.value)}
+                className="w-full h-11 px-4 rounded-xl text-sm bg-background border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 transition-colors"
+              />
+              <Button
+                type="submit"
+                disabled={waitlistLoading}
+                className="w-full h-11 bg-accent/20 hover:bg-accent/30 text-foreground"
+              >
+                {waitlistLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <>
+                    <Send className="w-4 h-4 mr-2" />
+                    Join Waitlist
+                  </>
+                )}
+              </Button>
+            </form>
+          )}
+        </div>
+      ) : (
+        <Button
+          onClick={() => onSelect(plan)}
+          disabled={isCurrentPlan || isLoading}
+          className={cn(
+            'w-full h-11 mt-auto',
+            isPopular
+              ? 'bg-gradient-to-r from-primary to-accent hover:opacity-90'
+              : isFree
+              ? 'bg-muted hover:bg-muted/80 text-foreground'
+              : 'bg-[rgba(255,255,255,0.1)] hover:bg-[rgba(255,255,255,0.15)] text-foreground'
+          )}
+        >
+          {isLoading ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : isCurrentPlan ? (
+            'Current Plan'
+          ) : isFree ? (
+            'Get Started Free'
+          ) : (
+            `Get ${planData.name}`
+          )}
+        </Button>
+      )}
     </div>
   );
 }
