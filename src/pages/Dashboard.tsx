@@ -857,7 +857,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen transition-colors duration-300" style={{ background: 'linear-gradient(145deg, hsl(270 12% 4%) 0%, hsl(260 20% 8%) 40%, hsl(270 12% 4%) 70%, hsl(25 30% 8%) 100%)' }}>
+    <div className="min-h-screen relative transition-colors duration-300" style={{ background: 'linear-gradient(180deg, hsl(270 12% 4%) 0%, hsl(270 12% 4%) 55%, hsl(260 35% 12%) 75%, hsl(25 60% 18%) 90%, hsl(25 75% 45% / 0.6) 100%)' }}>
       {/* Install Banner */}
       {showInstallPrompt && currentView === 'dashboard' && (
         <div className="fixed top-0 left-0 right-0 z-50 p-2 sm:p-3 install-banner animate-slideDown">
