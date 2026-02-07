@@ -21,20 +21,17 @@ export default function Pricing() {
 
   const handleSelectPlan = async (plan: PlanType) => {
     if (plan === 'free') {
-      // Already on free or downgrading - redirect to dashboard
       navigate('/dashboard');
       return;
     }
 
     if (!user) {
-      // Redirect to auth if not logged in
       navigate('/auth?redirect=/pricing');
       return;
     }
 
-    // For pro/teams, initiate Stripe checkout
     setCheckoutLoading(plan);
-    
+
     try {
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: {
@@ -77,22 +74,32 @@ export default function Pricing() {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Button>
-          
-          <div className="font-bold text-xl text-foreground">PitchVoid</div>
-          
-          <div className="w-20" /> {/* Spacer for centering */}
+
+          <button
+            onClick={() => navigate('/')}
+            className="font-bold text-xl font-display"
+            style={{
+              background: 'linear-gradient(135deg, #fff 0%, hsl(292 91% 58%) 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}
+          >
+            PitchVoid
+          </button>
+
+          <div className="w-20" />
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-12">
         {/* Hero */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-            Simple, transparent pricing
+        <div className="text-center mb-6">
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4 font-display">
+            Stop paying $500 per pitch deck.
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Choose the plan that works for you. Upgrade anytime to unlock more
-            features and unlimited pitch generations.
+            A freelance pitch consultant charges $200–500 per deck.
+            PitchVoid gives you unlimited, AI-tailored pitches for a fraction of that.
           </p>
         </div>
 
@@ -100,7 +107,7 @@ export default function Pricing() {
         <div className="flex items-center justify-center gap-4 mb-10">
           <Label
             htmlFor="billing-toggle"
-            className={`text-sm cursor-pointer ${!isYearly ? 'text-foreground' : 'text-muted-foreground'}`}
+            className={`text-sm cursor-pointer transition-colors ${!isYearly ? 'text-foreground' : 'text-muted-foreground'}`}
           >
             Monthly
           </Label>
@@ -111,7 +118,7 @@ export default function Pricing() {
           />
           <Label
             htmlFor="billing-toggle"
-            className={`text-sm cursor-pointer ${isYearly ? 'text-foreground' : 'text-muted-foreground'}`}
+            className={`text-sm cursor-pointer transition-colors ${isYearly ? 'text-foreground' : 'text-muted-foreground'}`}
           >
             Yearly
             <span className="ml-1 text-xs text-primary font-medium">
@@ -121,7 +128,7 @@ export default function Pricing() {
         </div>
 
         {/* Pricing cards */}
-        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-16">
+        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-10">
           <PricingCard
             plan="free"
             isYearly={isYearly}
@@ -145,9 +152,25 @@ export default function Pricing() {
           />
         </div>
 
+        {/* Trust badges — inline pills */}
+        <div className="flex flex-wrap items-center justify-center gap-3 mb-16">
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-[rgba(255,255,255,0.02)] text-sm text-muted-foreground">
+            <Shield className="w-4 h-4 text-primary" />
+            Cancel anytime
+          </div>
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-[rgba(255,255,255,0.02)] text-sm text-muted-foreground">
+            <RotateCcw className="w-4 h-4 text-primary" />
+            7-day money-back guarantee
+          </div>
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-[rgba(255,255,255,0.02)] text-sm text-muted-foreground">
+            <CreditCard className="w-4 h-4 text-primary" />
+            No credit card for Free
+          </div>
+        </div>
+
         {/* Guarantees */}
-        <div className="bg-white/[0.02] border border-border rounded-2xl p-8 max-w-3xl mx-auto">
-          <h2 className="text-xl font-semibold text-center text-foreground mb-6">
+        <div className="bg-[rgba(255,255,255,0.02)] border border-border rounded-2xl p-8 max-w-3xl mx-auto">
+          <h2 className="text-xl font-semibold text-center text-foreground mb-6 font-display">
             Our guarantees
           </h2>
           <div className="grid sm:grid-cols-3 gap-6">
@@ -157,7 +180,7 @@ export default function Pricing() {
               </div>
               <h3 className="font-medium text-foreground mb-1">No CC required</h3>
               <p className="text-sm text-muted-foreground">
-                Try free tier without entering payment info
+                Try the free tier without entering payment info
               </p>
             </div>
             <div className="text-center">
@@ -173,9 +196,9 @@ export default function Pricing() {
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
                 <RotateCcw className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="font-medium text-foreground mb-1">7-day refund</h3>
+              <h3 className="font-medium text-foreground mb-1">7-day money-back</h3>
               <p className="text-sm text-muted-foreground">
-                Not satisfied? Get a full refund, no questions
+                Not satisfied? Full refund, no questions asked
               </p>
             </div>
           </div>
