@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -21,6 +21,9 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import GenerationError from '@/components/dashboard/GenerationError';
 import GenerationSkeleton from '@/components/dashboard/GenerationSkeleton';
 import PitchUsageBanner from '@/components/dashboard/PitchUsageBanner';
+import ProjectCard from '@/components/dashboard/ProjectCard';
+import VersionHistoryDropdown from '@/components/dashboard/VersionHistoryDropdown';
+import { useProjects, type ProjectRecord, type DraftState } from '@/hooks/useProjects';
 import { validateFiles, FILE_UPLOAD_CONFIG, formatFileSize as formatFileSizeUtil } from '@/lib/fileValidation';
 
 type OutputFormat = 'one-pager' | 'script';
@@ -39,13 +42,7 @@ interface ParsedContext {
   summary: string;
 }
 
-interface Project {
-  id: string;
-  title: string;
-  tags: string[];
-  lastEdited: string;
-  views: number;
-}
+// Project interface is now from useProjects hook
 
 interface ChatMessage {
   id: string;
@@ -78,9 +75,22 @@ const Dashboard = () => {
     planLimits,
   } = usePricing();
   
+  // Projects hook
+  const {
+    projects,
+    isLoading: projectsLoading,
+    createProject,
+    saveDraftState,
+    saveProjectOutput,
+    duplicateProject,
+    fetchVersions,
+    deleteProject,
+  } = useProjects();
+  
   // Dashboard state
   const [currentView, setCurrentView] = useState<'dashboard' | 'project'>('dashboard');
-  const [activeProject, setActiveProject] = useState<Project | null>(null);
+  const [activeProject, setActiveProject] = useState<ProjectRecord | null>(null);
+  const [activeVersionId, setActiveVersionId] = useState<string | undefined>(undefined);
   const [showNewProjectModal, setShowNewProjectModal] = useState(false);
   const [showQuickPitch, setShowQuickPitch] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
@@ -155,20 +165,13 @@ const Dashboard = () => {
   
   // Share modal - generate real URL based on active project
   const shareUrl = activeProject 
-    ? `https://pitchvoid.lovable.app/p/${activeProject.id}` 
+    ? `https://pitchvoid.lovable.app/p/${activeProject.public_id || activeProject.id}` 
     : 'https://pitchvoid.lovable.app/p/demo';
   
   // Credits
   const credits = { used: 48, total: 50 };
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  
-  // Mock data
-  const [projects, setProjects] = useState<Project[]>([
-    { id: '1', title: 'Senior PM Interview - Google', tags: ['Job interview'], lastEdited: '2 hours ago', views: 47 },
-    { id: '2', title: 'Marketing Proposal - Acme Corp', tags: ['Client pitch'], lastEdited: 'Yesterday', views: 23 },
-    { id: '3', title: 'Q1 Product Launch Brief', tags: ['Product'], lastEdited: '3 days ago', views: 156 },
-  ]);
 
   const quickTemplates = [
     { id: 1, label: 'Job Interview', icon: '💼', prefill: 'Pitch me for a [Role] at [Company]. Focus on [Key Skills].' },
@@ -214,6 +217,7 @@ const Dashboard = () => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        if (showQuickPitch) autoSaveDraft();
         setShowQuickPitch(false);
         setShowShareModal(false);
         setShowNewProjectModal(false);
@@ -239,28 +243,76 @@ const Dashboard = () => {
 
   const formatTime = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
 
-  const handleCreateProject = () => {
+  const handleCreateProject = async () => {
     if (newProjectName.trim()) {
-      const newProject: Project = {
-        id: Date.now().toString(),
-        title: newProjectName,
-        tags: newProjectTags.split(',').map(t => t.trim()).filter(Boolean),
-        lastEdited: 'Just now',
-        views: 0
-      };
-      setProjects([newProject, ...projects]);
+      const newProject = await createProject(newProjectName, newProjectTags || undefined);
       setNewProjectName('');
       setNewProjectTags('');
       setShowNewProjectModal(false);
-      openProject(newProject);
+      if (newProject) openProject(newProject);
     }
   };
 
-  const openProject = (project: Project) => {
+  const openProject = (project: ProjectRecord) => {
     setActiveProject(project);
-    setMessages([{ id: '1', type: 'system', content: `Welcome to "${project.title}". Describe your scenario to get started.` }]);
+    setActiveVersionId(undefined);
+    
+    // If project has output, restore it
+    if (project.output_data) {
+      const outputData = project.output_data;
+      if (project.output_format === 'script' && outputData.script) {
+        setScriptData(outputData.script as unknown as ScriptData);
+        setOnePagerData(null);
+        setOutputFormat('script');
+      } else if (outputData.onePager) {
+        setOnePagerData(outputData.onePager as unknown as OnePagerData);
+        setScriptData(null);
+        setOutputFormat('one-pager');
+      }
+      setMessages([{ id: '1', type: 'system', content: `Opened "${project.title}".` }]);
+    } else {
+      setOnePagerData(null);
+      setScriptData(null);
+      setMessages([{ id: '1', type: 'system', content: `Welcome to "${project.title}". Describe your scenario to get started.` }]);
+    }
     setCurrentView('project');
   };
+
+  const handleContinueDraft = (project: ProjectRecord) => {
+    if (project.draft_state) {
+      const ds = project.draft_state;
+      setTranscribedText(ds.transcribedText || '');
+      setParsedContext(ds.parsedContext as unknown as ParsedContext | null);
+      setOutputFormat(ds.outputFormat || 'one-pager');
+      setSelectedTone((ds.selectedTone as 'confident' | 'humble' | 'balanced' | 'bold') || 'balanced');
+      setSelectedLength((ds.selectedLength as 'quick' | 'standard' | 'detailed') || 'standard');
+      setHighlightNotes(ds.highlightNotes || '');
+      setQuickPitchStep(ds.step || 1);
+      setActiveProject(project);
+      setShowQuickPitch(true);
+    } else {
+      openProject(project);
+    }
+  };
+
+  // Auto-save draft state when user exits quick pitch mid-flow
+  const autoSaveDraft = useCallback(() => {
+    if (!activeProject || quickPitchStep < 1 || quickPitchStep >= 5) return;
+    if (!transcribedText.trim()) return;
+
+    const draftState: DraftState = {
+      step: quickPitchStep,
+      transcribedText,
+      parsedContext: parsedContext as unknown as Record<string, unknown> | null,
+      outputFormat,
+      selectedTone,
+      selectedLength,
+      highlightNotes,
+      attachedFileNames: attachedFiles.map(f => f.name),
+    };
+
+    saveDraftState(activeProject.id, draftState);
+  }, [activeProject, quickPitchStep, transcribedText, parsedContext, outputFormat, selectedTone, selectedLength, highlightNotes, attachedFiles, saveDraftState]);
 
   const handleSubmit = () => {
     if (!inputValue.trim()) return;
@@ -307,6 +359,13 @@ const Dashboard = () => {
       setOutputFormat(parsed.suggested_format);
       setSelectedLength(parsed.suggested_length);
       setSelectedTone(parsed.tone as 'confident' | 'humble' | 'balanced' | 'bold' || 'balanced');
+      
+      // Create project early so auto-save works
+      if (!activeProject) {
+        const newProject = await createProject(parsed.summary || 'Quick Pitch', transcribedText);
+        if (newProject) setActiveProject(newProject);
+      }
+      
       setQuickPitchStep(2); // Move to confirmation step
     } catch (error) {
       console.error('Parse error:', error);
@@ -516,28 +575,35 @@ const Dashboard = () => {
       setIsGenerating(false);
       setShowQuickPitch(false);
       setCurrentView('project');
-      
-      const formatLabels: Record<OutputFormat, string> = {
-        'one-pager': 'One-Pager',
-        'script': 'Script'
-      };
-      
-      setActiveProject({ 
-        id: Date.now().toString(), 
-        title: parsedContext?.summary || 'Quick Pitch', 
-        tags: [formatLabels[outputFormat]], 
-        lastEdited: 'Just now', 
-        views: 0 
-      });
 
+      // Create or update project in DB
+      const projectTitle = parsedContext?.summary || 'Quick Pitch';
+      let project = activeProject;
+      
+      if (!project || project.status === 'draft') {
+        // Create new project if none exists
+        if (!project) {
+          project = await createProject(projectTitle, transcribedText);
+        }
+      }
+
+      const outputPayload: Record<string, unknown> = {};
       if (outputFormat === 'one-pager') {
         setOnePagerData(data.onePager);
         setScriptData(null);
         setMessages([{ id: '1', type: 'system', content: 'Your one-pager is ready!' }]);
+        outputPayload.onePager = data.onePager;
       } else {
         setScriptData(data.script);
         setOnePagerData(null);
         setMessages([{ id: '1', type: 'system', content: `Your script is ready! ${data.script?.sections?.length || 5} sections created.` }]);
+        outputPayload.script = data.script;
+      }
+
+      if (project) {
+        setActiveProject({ ...project, title: projectTitle, status: 'complete', output_format: outputFormat, output_data: outputPayload });
+        // Save to DB and create version
+        await saveProjectOutput(project.id, outputFormat, outputPayload, lastGenerationContext as unknown as Record<string, unknown>);
       }
       
       // Increment pitch count on successful generation
@@ -864,29 +930,36 @@ const Dashboard = () => {
 
             {/* Projects Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {projects.map(project => (
-                <button
-                  key={project.id}
-                  onClick={() => openProject(project)}
-                  className="project-card p-4 sm:p-6 text-left group"
-                >
-                  <h3 className="text-foreground font-medium text-base sm:text-lg mb-2 group-hover:text-primary transition-colors">
-                    {project.title}
-                  </h3>
-                  <div className="flex flex-wrap gap-2 mb-3 sm:mb-4">
-                    {project.tags.map((tag, i) => (
-                      <span key={i} className="px-2 py-1 rounded-full text-xs bg-accent/10 text-accent">
-                        {tag}
-                      </span>
-                    ))}
+              {projectsLoading ? (
+                <div className="col-span-full text-center py-12">
+                  <Loader2 className="w-6 h-6 animate-spin mx-auto text-primary mb-2" />
+                  <p className="text-muted-foreground text-sm">Loading projects...</p>
+                </div>
+              ) : projects.length === 0 ? (
+                <div className="col-span-full text-center py-16">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center bg-gradient-to-br from-accent/15 to-primary/8 border border-dashed border-accent/30">
+                    <span className="text-3xl text-accent/50">📄</span>
                   </div>
-                  <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
-                    <span>{project.lastEdited}</span>
-                    <span>•</span>
-                    <span>{project.views} views</span>
-                  </div>
-                </button>
-              ))}
+                  <p className="text-foreground font-medium mb-1">No pitches yet</p>
+                  <p className="text-muted-foreground text-sm">Create your first pitch with Quick Pitch</p>
+                </div>
+              ) : (
+                projects.map(project => (
+                  <ProjectCard
+                    key={project.id}
+                    id={project.id}
+                    title={project.title}
+                    status={project.status}
+                    scenarioDescription={project.scenario_description}
+                    createdAt={project.created_at}
+                    isPublished={project.is_published}
+                    onOpen={() => openProject(project)}
+                    onContinue={project.status === 'draft' && project.draft_state ? () => handleContinueDraft(project) : undefined}
+                    onDuplicate={project.status !== 'draft' ? () => duplicateProject(project.id) : undefined}
+                    onDelete={() => deleteProject(project.id)}
+                  />
+                ))
+              )}
             </div>
           </main>
 
@@ -1083,6 +1156,26 @@ const Dashboard = () => {
                     >
                       <Share2 className="w-4 h-4" />
                     </button>
+                    
+                    {/* Version History */}
+                    {activeProject && (
+                      <VersionHistoryDropdown
+                        projectId={activeProject.id}
+                        currentVersionId={activeVersionId}
+                        fetchVersions={fetchVersions}
+                        onSelectVersion={(version) => {
+                          setActiveVersionId(version.id);
+                          const vData = version.output_data;
+                          if (version.output_format === 'script' && vData.script) {
+                            setScriptData(vData.script as unknown as ScriptData);
+                            setOutputFormat('script');
+                          } else if (vData.onePager) {
+                            setOnePagerData(vData.onePager as unknown as OnePagerData);
+                            setOutputFormat('one-pager');
+                          }
+                        }}
+                      />
+                    )}
                   </div>
                 )}
               </div>
@@ -1123,7 +1216,7 @@ const Dashboard = () => {
       {showQuickPitch && (
         <div 
           className="fixed inset-0 z-50 flex items-center justify-center modal-overlay p-4" 
-          onClick={() => { setShowQuickPitch(false); resetQuickPitchState(); }}
+          onClick={() => { autoSaveDraft(); setShowQuickPitch(false); resetQuickPitchState(); }}
         >
           <div 
             className="glassmorphism-dark rounded-2xl p-4 sm:p-8 w-full max-w-2xl animate-scaleIn max-h-[90vh] overflow-y-auto" 
@@ -1140,7 +1233,7 @@ const Dashboard = () => {
                 </p>
               </div>
               <button 
-                onClick={() => { setShowQuickPitch(false); resetQuickPitchState(); }} 
+                onClick={() => { autoSaveDraft(); setShowQuickPitch(false); resetQuickPitchState(); }} 
                 className="text-muted-foreground hover:text-foreground"
               >
                 <X className="w-5 h-5" />
@@ -1233,7 +1326,7 @@ const Dashboard = () => {
             {quickPitchStep === 2 && parsedContext && (
               <div>
                 <div className="flex items-center gap-2 mb-4">
-                  <Check className="w-5 h-5 text-green-500" />
+                  <Check className="w-5 h-5 text-primary" />
                   <p className="text-sm text-foreground">Here's what I understood:</p>
                 </div>
                 

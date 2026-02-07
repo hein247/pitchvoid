@@ -80,33 +80,83 @@ export type Database = {
           },
         ]
       }
+      project_versions: {
+        Row: {
+          created_at: string
+          generation_context: Json | null
+          id: string
+          output_data: Json
+          output_format: string
+          project_id: string
+          version_number: number
+        }
+        Insert: {
+          created_at?: string
+          generation_context?: Json | null
+          id?: string
+          output_data: Json
+          output_format: string
+          project_id: string
+          version_number?: number
+        }
+        Update: {
+          created_at?: string
+          generation_context?: Json | null
+          id?: string
+          output_data?: Json
+          output_format?: string
+          project_id?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_versions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           created_at: string | null
+          draft_state: Json | null
           id: string
           is_published: boolean | null
+          output_data: Json | null
+          output_format: string | null
           public_id: string | null
           scenario_description: string | null
+          status: string
           target_audience: string | null
           title: string
           user_id: string
         }
         Insert: {
           created_at?: string | null
+          draft_state?: Json | null
           id?: string
           is_published?: boolean | null
+          output_data?: Json | null
+          output_format?: string | null
           public_id?: string | null
           scenario_description?: string | null
+          status?: string
           target_audience?: string | null
           title: string
           user_id: string
         }
         Update: {
           created_at?: string | null
+          draft_state?: Json | null
           id?: string
           is_published?: boolean | null
+          output_data?: Json | null
+          output_format?: string | null
           public_id?: string | null
           scenario_description?: string | null
+          status?: string
           target_audience?: string | null
           title?: string
           user_id?: string
