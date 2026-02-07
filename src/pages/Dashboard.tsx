@@ -18,6 +18,10 @@ import { PaywallModal } from '@/components/pricing/PaywallModal';
 import { UpgradeNudge } from '@/components/pricing/UpgradeNudge';
 import TypewriterText from '@/components/ui/TypewriterText';
 import { useIsMobile } from '@/hooks/use-mobile';
+import GenerationError from '@/components/dashboard/GenerationError';
+import GenerationSkeleton from '@/components/dashboard/GenerationSkeleton';
+import PitchUsageBanner from '@/components/dashboard/PitchUsageBanner';
+import { validateFiles, FILE_UPLOAD_CONFIG, formatFileSize as formatFileSizeUtil } from '@/lib/fileValidation';
 
 type OutputFormat = 'one-pager' | 'script';
 
@@ -97,6 +101,13 @@ const Dashboard = () => {
   const [onePagerData, setOnePagerData] = useState<OnePagerData | null>(null);
   const [scriptData, setScriptData] = useState<ScriptData | null>(null);
   const [isRegenerating, setIsRegenerating] = useState(false);
+  
+  // Generation error state
+  const [generationError, setGenerationError] = useState<{
+    error: string;
+    errorType: 'rate_limit' | 'credits' | 'network' | 'generic';
+    retryCount: number;
+  } | null>(null);
   
   // Store last generation context for regenerating in different formats
   const [lastGenerationContext, setLastGenerationContext] = useState<{
@@ -325,15 +336,10 @@ const Dashboard = () => {
   };
 
   // File upload handlers
-  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-  const MAX_FILES = 5;
-  const ACCEPTED_TYPES = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/png', 'image/jpeg', 'image/webp'];
+  const MAX_FILES = FILE_UPLOAD_CONFIG.maxFiles;
+  const ACCEPTED_TYPES_LIST = Object.keys(FILE_UPLOAD_CONFIG.acceptedTypes);
   
-  const formatFileSize = (bytes: number): string => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
+  const formatFileSize = formatFileSizeUtil;
 
   const getFileIcon = (type: string) => {
     if (type.startsWith('image/')) return Image;
@@ -364,22 +370,19 @@ const Dashboard = () => {
     if (!files) return;
     
     const fileArray = Array.from(files);
-    const validFiles = fileArray.filter(file => {
-      if (!ACCEPTED_TYPES.includes(file.type)) {
-        toast({ title: 'Invalid file type', description: `${file.name} is not supported`, variant: 'destructive' });
-        return false;
-      }
-      if (file.size > MAX_FILE_SIZE) {
-        toast({ title: 'File too large', description: `${file.name} exceeds 10MB limit`, variant: 'destructive' });
-        return false;
-      }
-      return true;
-    });
+    const { validFiles, errors, overLimit } = validateFiles(fileArray, attachedFiles.length);
 
-    if (attachedFiles.length + validFiles.length > MAX_FILES) {
-      toast({ title: 'Too many files', description: `Maximum ${MAX_FILES} files allowed`, variant: 'destructive' });
+    // Show each validation error as a toast
+    for (const err of errors) {
+      toast({ title: 'File rejected', description: err.message, variant: 'destructive' });
+    }
+
+    if (overLimit) {
+      toast({ title: 'Too many files', description: `Maximum ${FILE_UPLOAD_CONFIG.maxFiles} files allowed`, variant: 'destructive' });
       return;
     }
+
+    if (validFiles.length === 0) return;
 
     setIsProcessingFiles(true);
     
@@ -438,6 +441,7 @@ const Dashboard = () => {
     
     setQuickPitchStep(5); // Generation step
     setIsGenerating(true);
+    setGenerationError(null);
     
     const phasesByFormat: Record<OutputFormat, string[]> = {
       'one-pager': ['Understanding your pitch...', 'Analyzing materials...', 'Crafting narrative...', 'Building one-pager...', 'Finalizing...'],
@@ -542,45 +546,38 @@ const Dashboard = () => {
       // Reset Quick Pitch state
       resetQuickPitchState();
       
-    } catch (error) {
+    } catch (error: any) {
       clearInterval(phaseInterval);
       console.error('Generation error:', error);
       setIsGenerating(false);
       
-      // Fallback to mock data
-      setShowQuickPitch(false);
-      setCurrentView('project');
-      setActiveProject({ id: Date.now().toString(), title: parsedContext?.summary || 'Quick Pitch', tags: [outputFormat], lastEdited: 'Just now', views: 0 });
+      // Determine error type from the error response
+      let errorType: 'rate_limit' | 'credits' | 'network' | 'generic' = 'generic';
+      let errorMessage = 'Generation failed. Please try again.';
       
-      if (outputFormat === 'one-pager') {
-        setOnePagerData({
-          headline: "Senior Product Manager Ready to Scale",
-          subheadline: "8+ years leading consumer products from 0 to 1M+ users with proven expertise in AI-powered features",
-          sections: [
-            { type: 'key-points', title: 'Key Achievements', content: 'Proven track record of shipping products that scale', bullets: ['Led mobile app redesign: +47% DAU, -23% churn', 'Launched AI features to 50M+ users', 'Managed cross-functional teams of 15+'] },
-            { type: 'value-prop', title: 'Why Me', content: 'Unique blend of technical depth and product intuition', bullets: ['User-centric discovery methodology', 'Data-driven decision making', 'Rapid prototyping expertise'] },
-            { type: 'cta', title: "Let's Connect", content: 'Ready to bring my experience to your next chapter. Schedule a conversation today.' }
-          ]
-        });
-        setScriptData(null);
-        setMessages([{ id: '1', type: 'system', content: 'Your one-pager is ready!' }]);
-      } else {
-        setScriptData({
-          title: parsedContext?.summary || 'Interview Script',
-          total_duration: '2-3 minutes',
-          sections: [
-            { name: 'Opening', duration: '15 seconds', content: 'Thank you for having me. I\'m excited to share why I believe I\'m the right fit for this role.', cue: 'Make eye contact, smile, project confidence.' },
-            { name: 'Background', duration: '30 seconds', content: 'I\'ve spent the last 8 years scaling consumer products from zero to millions of users. Most recently, I led a mobile redesign that increased daily active users by 47%.', cue: 'Lean in slightly, emphasize the numbers.' },
-            { name: 'Value', duration: '45 seconds', content: 'What sets me apart is my approach: I combine deep user research with rapid experimentation. I don\'t just build features—I validate them with data first.', cue: 'Use hand gestures to illustrate points.' },
-            { name: 'Close', duration: '20 seconds', content: 'I\'m ready to bring this experience to your team. I\'d love to discuss how I can contribute to your next chapter.', cue: 'End with genuine enthusiasm. Pause for effect.' }
-          ],
-          key_phrases: ['47% increase in DAU', 'Zero to millions', 'Data-driven decisions']
-        });
-        setOnePagerData(null);
-        setMessages([{ id: '1', type: 'system', content: 'Your script is ready!' }]);
+      const errorBody = typeof error?.message === 'string' ? error.message : '';
+      const errorContext = typeof error?.context?.body === 'string' ? error.context.body : '';
+      const combinedError = `${errorBody} ${errorContext}`.toLowerCase();
+      
+      if (combinedError.includes('rate limit') || combinedError.includes('429')) {
+        errorType = 'rate_limit';
+        errorMessage = 'You\'re sending requests too quickly. Please wait a moment before trying again.';
+      } else if (combinedError.includes('credits') || combinedError.includes('402')) {
+        errorType = 'credits';
+        errorMessage = 'AI credits have been exhausted. Please add credits or upgrade your plan.';
+      } else if (combinedError.includes('fetch') || combinedError.includes('network') || combinedError.includes('timeout')) {
+        errorType = 'network';
+        errorMessage = 'Couldn\'t reach the server. Check your connection and try again.';
       }
       
-      resetQuickPitchState();
+      setGenerationError({
+        error: errorMessage,
+        errorType,
+        retryCount: (generationError?.retryCount || 0) + 1,
+      });
+      
+      // Stay on step 5 to show the error UI
+      setQuickPitchStep(5);
     }
   };
 
@@ -666,36 +663,32 @@ const Dashboard = () => {
         setMessages(prev => [...prev, { id: Date.now().toString(), type: 'assistant', content: `Regenerated as script with ${data.script?.sections?.length || 5} sections!` }]);
       }
 
-    } catch (error) {
+    } catch (error: any) {
       clearInterval(phaseInterval);
       console.error('Regeneration error:', error);
+      
+      // Determine error type
+      let errorType: 'rate_limit' | 'credits' | 'network' | 'generic' = 'generic';
+      let errorMessage = 'Regeneration failed. Please try again.';
+      
+      const combinedError = `${error?.message || ''} ${error?.context?.body || ''}`.toLowerCase();
+      
+      if (combinedError.includes('rate limit') || combinedError.includes('429')) {
+        errorType = 'rate_limit';
+        errorMessage = 'Too many requests. Please wait a moment.';
+      } else if (combinedError.includes('credits') || combinedError.includes('402')) {
+        errorType = 'credits';
+        errorMessage = 'AI credits exhausted.';
+      } else if (combinedError.includes('fetch') || combinedError.includes('network')) {
+        errorType = 'network';
+        errorMessage = 'Connection issue. Check your network.';
+      }
+      
       toast({ 
-        title: 'Regeneration failed', 
-        description: 'Using fallback content', 
+        title: errorType === 'rate_limit' ? 'Slow down' : errorType === 'credits' ? 'Credits exhausted' : 'Regeneration failed', 
+        description: errorMessage, 
         variant: 'destructive' 
       });
-      
-      // Fallback content
-      if (newFormat === 'one-pager') {
-        setOnePagerData({
-          headline: "Your Pitch, Reimagined",
-          subheadline: "A concise executive summary based on your original content",
-          sections: [
-            { type: 'key-points', title: 'Key Points', content: 'Your main strengths and value proposition', bullets: ['Point 1', 'Point 2', 'Point 3'] },
-            { type: 'cta', title: 'Next Steps', content: 'Ready to discuss further.' }
-          ]
-        });
-      } else {
-        setScriptData({
-          title: 'Speaking Script',
-          total_duration: '2-3 minutes',
-          sections: [
-            { name: 'Opening', duration: '20 seconds', content: 'Your opening hook goes here.', cue: 'Make eye contact.' },
-            { name: 'Close', duration: '15 seconds', content: 'Your closing statement.', cue: 'Pause for effect.' }
-          ],
-          key_phrases: ['Key phrase 1', 'Key phrase 2']
-        });
-      }
     } finally {
       setIsRegenerating(false);
       setGenerationPhase('');
@@ -831,7 +824,7 @@ const Dashboard = () => {
           
           <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold text-foreground font-display">Your Pitches</h1>
                 <p className="text-muted-foreground text-sm">
@@ -858,6 +851,15 @@ const Dashboard = () => {
                   <span className="hidden sm:inline">New Project</span>
                 </button>
               </div>
+            </div>
+
+            {/* Pitch Usage Banner */}
+            <div className="mb-6 sm:mb-8">
+              <PitchUsageBanner 
+                pitchCount={pitchCount} 
+                maxPitches={planLimits.totalPitches} 
+                plan={userPlan} 
+              />
             </div>
 
             {/* Projects Grid */}
@@ -1087,8 +1089,10 @@ const Dashboard = () => {
             </header>
             
             <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 relative z-10">
-              {/* Render based on active outputFormat */}
-              {outputFormat === 'script' && scriptData ? (
+              {/* Show skeleton during regeneration */}
+              {isRegenerating ? (
+                <GenerationSkeleton format={outputFormat} />
+              ) : outputFormat === 'script' && scriptData ? (
                 <ScriptViewer 
                   data={scriptData}
                   onUpdate={(updatedData) => setScriptData(updatedData)}
@@ -1327,7 +1331,7 @@ const Dashboard = () => {
                   ref={fileInputRef}
                   type="file"
                   multiple
-                  accept=".pdf,.docx,.doc,.png,.jpg,.jpeg,.webp"
+                  accept={FILE_UPLOAD_CONFIG.acceptString}
                   onChange={(e) => handleFileSelect(e.target.files)}
                   className="hidden"
                 />
@@ -1349,7 +1353,7 @@ const Dashboard = () => {
                     {isDragging ? 'Drop files here' : 'Drop files here or click to browse'}
                   </p>
                   <p className="text-muted-foreground text-xs">
-                    PDF, DOCX, PNG, JPG up to 10MB
+                    {FILE_UPLOAD_CONFIG.formatLabels} up to {FILE_UPLOAD_CONFIG.maxSizeLabel}
                   </p>
                 </div>
                 
@@ -1484,21 +1488,40 @@ const Dashboard = () => {
               </div>
             )}
 
-            {/* Step 5: Generating */}
+            {/* Step 5: Generating / Error */}
             {quickPitchStep === 5 && (
-              <div className="py-8 sm:py-12 text-center">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 sm:mb-6 relative flex items-center justify-center">
-                  <div 
-                    className="absolute inset-0 rounded-full opacity-30 blur-xl"
-                    style={{ background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%)' }}
+              <>
+                {generationError && !isGenerating ? (
+                  <GenerationError
+                    error={generationError.error}
+                    errorType={generationError.errorType}
+                    retryCount={generationError.retryCount}
+                    onRetry={() => {
+                      setGenerationError(null);
+                      handleQuickGenerate();
+                    }}
                   />
-                  <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 text-primary relative z-10" />
-                </div>
-                <p className="text-foreground font-medium text-sm sm:text-base">
-                  <TypewriterText text={generationPhase} speed={40} />
-                </p>
-                <p className="text-muted-foreground text-xs mt-2">This usually takes 10-15 seconds</p>
-              </div>
+                ) : (
+                  <div className="py-8 sm:py-12 text-center">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 sm:mb-6 relative flex items-center justify-center">
+                      <div 
+                        className="absolute inset-0 rounded-full opacity-30 blur-xl"
+                        style={{ background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%)' }}
+                      />
+                      <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 text-primary relative z-10" />
+                    </div>
+                    <p className="text-foreground font-medium text-sm sm:text-base">
+                      <TypewriterText text={generationPhase} speed={40} />
+                    </p>
+                    <p className="text-muted-foreground text-xs mt-2">This usually takes 10-15 seconds</p>
+                    
+                    {/* Generation skeleton preview */}
+                    <div className="mt-8 max-w-lg mx-auto text-left">
+                      <GenerationSkeleton format={outputFormat} />
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
