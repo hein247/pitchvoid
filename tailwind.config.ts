@@ -71,7 +71,7 @@ export default {
         "surface-light": "hsl(var(--surface-light))",
       },
       fontFamily: {
-        display: ["'Times New Roman'", "Georgia", "serif"],
+        display: ["'Playfair Display'", "Georgia", "serif"],
         sans: ["'Be Vietnam Pro'", "system-ui", "-apple-system", "sans-serif"],
       },
       borderRadius: {

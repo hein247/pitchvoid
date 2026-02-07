@@ -77,12 +77,7 @@ export default function Pricing() {
 
           <button
             onClick={() => navigate('/')}
-            className="font-bold text-xl font-display"
-            style={{
-              background: 'linear-gradient(135deg, #fff 0%, hsl(292 91% 58%) 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}
+            className="font-bold text-xl font-display brand-gradient-text"
           >
             PitchVoid
           </button>
