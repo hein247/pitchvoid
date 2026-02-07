@@ -155,7 +155,7 @@ const HeroDemoInput = () => {
                       transition={{ delay: i * 0.1 }}
                       className="flex items-center gap-2 px-3 py-2 rounded-lg bg-accent/5 border border-border/40"
                     >
-                      <span className={`flex items-center justify-center w-5 h-5 rounded-full bg-gradient-to-r ${tag.color} text-white shrink-0`}>
+                      <span className={`flex items-center justify-center w-5 h-5 rounded-full bg-gradient-to-r ${tag.color} text-primary-foreground shrink-0`}>
                         {tag.icon}
                       </span>
                       <div className="min-w-0">

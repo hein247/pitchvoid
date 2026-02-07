@@ -36,12 +36,7 @@ const Navbar = ({
       <nav className="relative z-10 px-4 sm:px-8 py-4 sm:py-6 flex items-center justify-between max-w-7xl mx-auto">
         <button
           onClick={() => navigate('/')}
-          className="text-xl sm:text-2xl font-semibold font-display"
-          style={{
-            background: 'linear-gradient(135deg, #fff 0%, #D946EF 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent'
-          }}
+          className="text-xl sm:text-2xl font-semibold font-display brand-gradient-text"
         >
           PitchVoid
         </button>
@@ -65,7 +60,7 @@ const Navbar = ({
           </button>
           <button
             onClick={() => navigate('/auth')}
-            className="px-5 py-2.5 rounded-xl text-sm text-white font-medium magenta-gradient hover:opacity-90 transition-opacity"
+            className="px-5 py-2.5 rounded-xl text-sm text-primary-foreground font-medium magenta-gradient hover:opacity-90 transition-opacity"
           >
             Get Started Free
           </button>
@@ -80,14 +75,7 @@ const Navbar = ({
           </SheetTrigger>
           <SheetContent side="right" className="w-[280px] bg-background border-l border-accent/20">
             <SheetHeader>
-              <SheetTitle
-                className="text-left font-display"
-                style={{
-                  background: 'linear-gradient(135deg, #fff 0%, #D946EF 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent'
-                }}
-              >
+              <SheetTitle className="text-left font-display brand-gradient-text">
                 PitchVoid
               </SheetTitle>
             </SheetHeader>
@@ -109,7 +97,7 @@ const Navbar = ({
               </button>
               <button
                 onClick={() => navigate('/auth')}
-                className="mt-4 px-5 py-3 rounded-xl text-sm text-white font-medium magenta-gradient hover:opacity-90 transition-opacity w-full"
+                className="mt-4 px-5 py-3 rounded-xl text-sm text-primary-foreground font-medium magenta-gradient hover:opacity-90 transition-opacity w-full"
               >
                 Get Started Free
               </button>
@@ -127,12 +115,7 @@ const Navbar = ({
         <div className="flex items-center gap-4 sm:gap-8">
           <button
             onClick={() => navigate('/')}
-            className="text-lg sm:text-xl font-semibold font-display"
-            style={{
-              background: 'linear-gradient(135deg, #fff 0%, #D946EF 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent'
-            }}
+            className="text-lg sm:text-xl font-semibold font-display brand-gradient-text"
           >
             PitchVoid
           </button>
@@ -153,7 +136,7 @@ const Navbar = ({
           {onQuickPitch && (
             <button
               onClick={onQuickPitch}
-              className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl text-white text-sm font-medium magenta-gradient hover:opacity-90 transition-opacity"
+              className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl text-primary-foreground text-sm font-medium magenta-gradient hover:opacity-90 transition-opacity"
             >
               <Mic className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="hidden sm:inline">Quick Pitch</span>
@@ -208,7 +191,7 @@ const Navbar = ({
           {user && (
             <div
               onClick={onSignOut}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full magenta-gradient flex items-center justify-center text-white text-sm font-medium cursor-pointer hover:opacity-90 transition-opacity"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full magenta-gradient flex items-center justify-center text-primary-foreground text-sm font-medium cursor-pointer hover:opacity-90 transition-opacity"
               title="Sign out"
             >
               {user.email?.charAt(0).toUpperCase()}
@@ -224,12 +207,7 @@ const Navbar = ({
     <nav className="relative z-10 px-4 sm:px-8 py-4 sm:py-6 flex items-center justify-center">
       <button
         onClick={() => navigate('/')}
-        className="text-xl sm:text-2xl font-semibold font-display"
-        style={{
-          background: 'linear-gradient(135deg, #fff 0%, #D946EF 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent'
-        }}
+        className="text-xl sm:text-2xl font-semibold font-display brand-gradient-text"
       >
         PitchVoid
       </button>

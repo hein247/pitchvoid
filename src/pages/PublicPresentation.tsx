@@ -205,14 +205,14 @@ const PublicPresentation = () => {
       return (
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 h-full">
           {/* Title takes full width on first row */}
-          <div className="col-span-2 lg:col-span-3 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] rounded-lg p-8 flex items-center">
+          <div className="col-span-2 lg:col-span-3 bg-foreground/[0.03] border border-foreground/[0.08] rounded-lg p-8 flex items-center">
             <h1 className="font-display text-4xl md:text-5xl font-light tracking-wide text-foreground">
               {slide.content.title}
             </h1>
           </div>
           {/* Image */}
           {slide.image_url && (
-            <div className="col-span-2 lg:col-span-1 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] rounded-lg overflow-hidden">
+            <div className="col-span-2 lg:col-span-1 bg-foreground/[0.03] border border-foreground/[0.08] rounded-lg overflow-hidden">
               <img
                 src={slide.image_url}
                 alt={`Visual for ${slide.content.title}`}
@@ -221,7 +221,7 @@ const PublicPresentation = () => {
             </div>
           )}
           {/* Description */}
-          <div className={`${slide.image_url ? '' : 'col-span-2 lg:col-span-1'} bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] rounded-lg p-6 flex items-center`}>
+          <div className={`${slide.image_url ? '' : 'col-span-2 lg:col-span-1'} bg-foreground/[0.03] border border-foreground/[0.08] rounded-lg p-6 flex items-center`}>
             <p className="text-lg text-muted-foreground font-sans">
               {slide.content.description}
             </p>
@@ -312,13 +312,13 @@ const PublicPresentation = () => {
     <div className="min-h-screen bg-background flex flex-col overflow-hidden">
       {/* Header with Logo Glow - hidden in fullscreen */}
       {!isFullscreen && (
-        <header className="border-b border-[rgba(255,255,255,0.08)] bg-[rgba(5,1,13,0.9)] backdrop-blur-xl sticky top-0 z-50">
+        <header className="border-b border-foreground/[0.08] bg-background/90 backdrop-blur-xl sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="relative">
                 <div className="absolute inset-0 bg-primary/30 blur-xl rounded-full" />
                 <div className="relative w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center shadow-[0_0_25px_hsl(var(--primary)/0.5)]">
-                  <Sparkles className="w-4 h-4 text-white" />
+                  <Sparkles className="w-4 h-4 text-primary-foreground" />
                 </div>
               </div>
               <span className="font-display text-lg font-medium tracking-wide">PitchVoid</span>
@@ -349,8 +349,8 @@ const PublicPresentation = () => {
       {/* Navigation Footer - Floating glassmorphism style in fullscreen */}
       <footer className={`
         ${isFullscreen 
-          ? 'fixed bottom-6 left-1/2 -translate-x-1/2 rounded-full px-6 py-3 bg-[rgba(5,1,13,0.8)] border border-[rgba(255,255,255,0.15)] shadow-[0_8px_32px_rgba(0,0,0,0.4)]'
-          : 'border-t border-[rgba(255,255,255,0.08)] bg-[rgba(5,1,13,0.9)] py-4 px-6'
+          ? 'fixed bottom-6 left-1/2 -translate-x-1/2 rounded-full px-6 py-3 bg-background/80 border border-foreground/[0.15] shadow-[0_8px_32px_rgba(0,0,0,0.4)]'
+          : 'border-t border-foreground/[0.08] bg-background/90 py-4 px-6'
         }
         backdrop-blur-xl z-50
       `}>
