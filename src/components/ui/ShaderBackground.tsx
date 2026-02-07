@@ -5,7 +5,6 @@ const ShaderBackground = () => {
   const [reducedMotion, setReducedMotion] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Detect prefers-reduced-motion and viewport width
   useEffect(() => {
     const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
     setReducedMotion(mql.matches);
@@ -22,8 +21,6 @@ const ShaderBackground = () => {
     };
   }, []);
 
-  const lineCount = isMobile ? 8 : 16;
-
   const vsSource = `
     attribute vec4 aVertexPosition;
     void main() {
@@ -31,174 +28,189 @@ const ShaderBackground = () => {
     }
   `;
 
-  const createFsSource = (lines: number) => `
+  /**
+   * Fragment shader: domain-warped FBM "liquid smoke" with glowing wisp contours,
+   * slow undulating twist, and visible film grain.
+   * Palette: warm peach/amber → cool purple-blue on near-black.
+   */
+  const createFsSource = (octaves: number) => `
     precision highp float;
     uniform vec2 iResolution;
     uniform float iTime;
 
-    const float overallSpeed = 0.2;
-    const float gridSmoothWidth = 0.015;
-    const float axisWidth = 0.05;
-    const float majorLineWidth = 0.025;
-    const float minorLineWidth = 0.0125;
-    const float majorLineFrequency = 5.0;
-    const float minorLineFrequency = 1.0;
-    const vec4 gridColor = vec4(0.5);
-    const float scale = 5.0;
-    const vec4 lineColor = vec4(0.78, 0.58, 0.40, 1.0);
-    const float minLineWidth = 0.01;
-    const float maxLineWidth = 0.2;
-    const float lineSpeed = 1.0 * overallSpeed;
-    const float lineAmplitude = 1.0;
-    const float lineFrequency = 0.2;
-    const float warpSpeed = 0.2 * overallSpeed;
-    const float warpFrequency = 0.5;
-    const float warpAmplitude = 1.0;
-    const float offsetFrequency = 0.5;
-    const float offsetSpeed = 1.33 * overallSpeed;
-    const float minOffsetSpread = 0.6;
-    const float maxOffsetSpread = 2.0;
-    const int linesPerGroup = ${lines};
+    const int OCTAVES = ${octaves};
 
-    #define drawCircle(pos, radius, coord) smoothstep(radius + gridSmoothWidth, radius, length(coord - (pos)))
-    #define drawSmoothLine(pos, halfWidth, t) smoothstep(halfWidth, 0.0, abs(pos - (t)))
-    #define drawCrispLine(pos, halfWidth, t) smoothstep(halfWidth + gridSmoothWidth, halfWidth, abs(pos - (t)))
-    #define drawPeriodicLine(freq, width, t) drawCrispLine(freq / 2.0, width, abs(mod(t, freq) - (freq) / 2.0))
+    /* ── noise primitives ── */
 
-    float drawGridLines(float axis) {
-      return drawCrispLine(0.0, axisWidth, axis)
-            + drawPeriodicLine(majorLineFrequency, majorLineWidth, axis)
-            + drawPeriodicLine(minorLineFrequency, minorLineWidth, axis);
+    float hash21(vec2 p) {
+      p = fract(p * vec2(234.34, 435.345));
+      p += dot(p, p + 34.23);
+      return fract(p.x * p.y);
     }
 
-    float drawGrid(vec2 space) {
-      return min(1.0, drawGridLines(space.x) + drawGridLines(space.y));
+    float noise(vec2 p) {
+      vec2 i = floor(p);
+      vec2 f = fract(p);
+      vec2 u = f * f * (3.0 - 2.0 * f);
+
+      return mix(
+        mix(hash21(i),                hash21(i + vec2(1.0, 0.0)), u.x),
+        mix(hash21(i + vec2(0.0,1.0)),hash21(i + vec2(1.0, 1.0)), u.x),
+        u.y
+      );
     }
 
-    float random(float t) {
-      return (cos(t) + cos(t * 1.3 + 1.3) + cos(t * 1.4 + 1.4)) / 3.0;
+    float fbm(vec2 p) {
+      float val = 0.0;
+      float amp = 0.5;
+      float freq = 1.0;
+      for (int i = 0; i < OCTAVES; i++) {
+        val += amp * noise(p * freq);
+        freq *= 2.0;
+        amp  *= 0.5;
+      }
+      return val;
     }
 
-    float getPlasmaY(float x, float horizontalFade, float offset) {
-      return random(x * lineFrequency + iTime * lineSpeed) * horizontalFade * lineAmplitude + offset;
+    /* ── rotation for the slow twist ── */
+
+    mat2 rot(float a) {
+      float s = sin(a), c = cos(a);
+      return mat2(c, -s, s, c);
     }
+
+    /* ── main ── */
 
     void main() {
-      vec2 fragCoord = gl_FragCoord.xy;
-      vec4 fragColor;
-      vec2 uv = fragCoord.xy / iResolution.xy;
-      vec2 space = (fragCoord - iResolution.xy / 2.0) / iResolution.x * 2.0 * scale;
+      vec2 uv = gl_FragCoord.xy / iResolution.xy;
+      vec2 p  = (gl_FragCoord.xy * 2.0 - iResolution.xy) / min(iResolution.x, iResolution.y);
 
-      float horizontalFade = 1.0 - (cos(uv.x * 6.28) * 0.5 + 0.5);
-      float verticalFade = 1.0 - (cos(uv.y * 6.28) * 0.5 + 0.5);
+      float t = iTime * 0.12;   /* very slow for ethereal feel */
 
-      space.y += random(space.x * warpFrequency + iTime * warpSpeed) * warpAmplitude * (0.5 + horizontalFade);
-      space.x += random(space.y * warpFrequency + iTime * warpSpeed + 2.0) * warpAmplitude * horizontalFade;
+      /* slow, undulating twist that radiates from the centre */
+      p *= rot(t * 0.3 + length(p) * 0.25);
 
-      vec4 lines = vec4(0.0);
-      vec4 bgColor1 = vec4(0.03, 0.02, 0.05, 1.0);
-      vec4 bgColor2 = vec4(0.06, 0.04, 0.10, 1.0);
+      /* ── domain warping (two passes → deeply organic) ── */
 
-      for(int l = 0; l < linesPerGroup; l++) {
-        float normalizedLineIndex = float(l) / float(linesPerGroup);
-        float offsetTime = iTime * offsetSpeed;
-        float offsetPosition = float(l) + space.x * offsetFrequency;
-        float rand = random(offsetPosition + offsetTime) * 0.5 + 0.5;
-        float halfWidth = mix(minLineWidth, maxLineWidth, rand * horizontalFade) / 2.0;
-        float offset = random(offsetPosition + offsetTime * (1.0 + normalizedLineIndex)) * mix(minOffsetSpread, maxOffsetSpread, horizontalFade);
-        float linePosition = getPlasmaY(space.x, horizontalFade, offset);
-        float line = drawSmoothLine(linePosition, halfWidth, space.y) / 2.0 + drawCrispLine(linePosition, halfWidth * 0.15, space.y);
+      vec2 q = vec2(
+        fbm(p + vec2(0.0, 0.0) + t * 0.6),
+        fbm(p + vec2(5.2, 1.3) + t * 0.5)
+      );
 
-        float circleX = mod(float(l) + iTime * lineSpeed, 25.0) - 12.0;
-        vec2 circlePosition = vec2(circleX, getPlasmaY(circleX, horizontalFade, offset));
-        float circle = drawCircle(circlePosition, 0.01, space) * 4.0;
+      vec2 r = vec2(
+        fbm(p + 3.5 * q + vec2(1.7, 9.2) + t * 0.3),
+        fbm(p + 3.5 * q + vec2(8.3, 2.8) + t * 0.35)
+      );
 
-        line = line + circle;
-        vec4 coolTint = vec4(0.35, 0.25, 0.65, 1.0);
-        vec4 blended = mix(lineColor, coolTint, normalizedLineIndex);
-        lines += line * blended * rand;
-      }
+      float f = fbm(p + 3.0 * r);
 
-      fragColor = mix(bgColor1, bgColor2, uv.x);
-      fragColor *= verticalFade;
-      fragColor.a = 1.0;
-      fragColor += lines;
+      /* ── wisp contour lines (neon outlines of the smoke) ── */
 
-      gl_FragColor = fragColor;
+      float contour1 = pow(abs(sin(f * 6.2832 * 1.5)),        12.0);
+      float contour2 = pow(abs(sin((f + q.x * 0.5) * 6.2832 * 2.0)), 8.0);
+      float contour3 = pow(abs(sin((f + r.y * 0.3) * 6.2832)),       16.0);
+
+      /* soft under-glow */
+      float glow = smoothstep(0.2, 0.8, f * f * 1.5);
+
+      /* ── brand palette ── */
+
+      vec3 warmPeach   = vec3(0.85, 0.55, 0.35);          /* ≈ HSL 25 75% 65% */
+      vec3 coolPurple  = vec3(0.40, 0.28, 0.72);          /* ≈ HSL 260 45% 50% */
+      vec3 brightWhite = vec3(0.95, 0.92, 0.88);
+      vec3 deepBlack   = vec3(0.020, 0.015, 0.030);       /* near-black */
+
+      /* ── compositing ── */
+
+      vec3 col = deepBlack;
+
+      /* subtle ambient glow */
+      col += warmPeach  * glow         * 0.06;
+      col += coolPurple * (1.0 - glow) * 0.04;
+
+      /* bright wisp lines */
+      col += warmPeach   * contour1 * 0.70;
+      col += coolPurple  * contour2 * 0.50;
+      col += brightWhite * contour3 * 0.40;
+
+      /* soft halo around wisp centres */
+      float halo = smoothstep(0.5, 0.0, abs(f - 0.5)) * 0.15;
+      col += mix(warmPeach, coolPurple, q.x) * halo;
+
+      /* ── vignette ── */
+      vec2 vigUv = uv * (1.0 - uv);
+      float vig  = clamp(pow(vigUv.x * vigUv.y * 15.0, 0.25), 0.0, 1.0);
+      col *= vig;
+
+      /* ── film grain ── */
+      float grain = (hash21(gl_FragCoord.xy + fract(iTime) * 1000.0) - 0.5) * 0.12;
+      col += grain;
+
+      col = clamp(col, 0.0, 1.0);
+      gl_FragColor = vec4(col, 1.0);
     }
   `;
 
   const loadShader = (gl: WebGLRenderingContext, type: number, source: string) => {
     const shader = gl.createShader(type);
     if (!shader) return null;
-
     gl.shaderSource(shader, source);
     gl.compileShader(shader);
-
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-      console.error('Shader compile error: ', gl.getShaderInfoLog(shader));
+      console.error('Shader compile error:', gl.getShaderInfoLog(shader));
       gl.deleteShader(shader);
       return null;
     }
-
     return shader;
   };
 
-  const initShaderProgram = (gl: WebGLRenderingContext, vsSource: string, fsSource: string) => {
-    const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
-    const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
-
+  const initShaderProgram = (gl: WebGLRenderingContext, vs: string, fs: string) => {
+    const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vs);
+    const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fs);
     if (!vertexShader || !fragmentShader) return null;
 
-    const shaderProgram = gl.createProgram();
-    if (!shaderProgram) return null;
+    const program = gl.createProgram();
+    if (!program) return null;
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+    gl.linkProgram(program);
 
-    gl.attachShader(shaderProgram, vertexShader);
-    gl.attachShader(shaderProgram, fragmentShader);
-    gl.linkProgram(shaderProgram);
-
-    if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-      console.error('Shader program link error: ', gl.getProgramInfoLog(shaderProgram));
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      console.error('Shader link error:', gl.getProgramInfoLog(program));
       return null;
     }
-
-    return shaderProgram;
+    return program;
   };
+
+  const octaves = isMobile ? 4 : 6;
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // If reduced motion, render one static frame then stop
     const gl = canvas.getContext('webgl');
     if (!gl) {
       console.warn('WebGL not supported.');
       return;
     }
 
-    const fsSource = createFsSource(lineCount);
+    const fsSource = createFsSource(octaves);
     const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
     if (!shaderProgram) return;
 
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    const positions = [
-      -1.0, -1.0,
-       1.0, -1.0,
-      -1.0,  1.0,
-       1.0,  1.0,
-    ];
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]),
+      gl.STATIC_DRAW
+    );
 
-    const programInfo = {
+    const info = {
       program: shaderProgram,
-      attribLocations: {
-        vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
-      },
-      uniformLocations: {
-        resolution: gl.getUniformLocation(shaderProgram, 'iResolution'),
-        time: gl.getUniformLocation(shaderProgram, 'iTime'),
-      },
+      attrib: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
+      uResolution: gl.getUniformLocation(shaderProgram, 'iResolution'),
+      uTime: gl.getUniformLocation(shaderProgram, 'iTime'),
     };
 
     const resizeCanvas = () => {
@@ -218,18 +230,17 @@ const ShaderBackground = () => {
       gl.clearColor(0.0, 0.0, 0.0, 1.0);
       gl.clear(gl.COLOR_BUFFER_BIT);
 
-      gl.useProgram(programInfo.program);
-      gl.uniform2f(programInfo.uniformLocations.resolution, canvas.width, canvas.height);
-      gl.uniform1f(programInfo.uniformLocations.time, time);
+      gl.useProgram(info.program);
+      gl.uniform2f(info.uResolution, canvas.width, canvas.height);
+      gl.uniform1f(info.uTime, time);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-      gl.vertexAttribPointer(programInfo.attribLocations.vertexPosition, 2, gl.FLOAT, false, 0, 0);
-      gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
+      gl.vertexAttribPointer(info.attrib, 2, gl.FLOAT, false, 0, 0);
+      gl.enableVertexAttribArray(info.attrib);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     };
 
     if (reducedMotion) {
-      // Render a single static frame at t=2 for a nice still
       drawFrame(2.0);
     } else {
       const render = () => {
@@ -244,7 +255,7 @@ const ShaderBackground = () => {
       window.removeEventListener('resize', resizeCanvas);
       if (animationId) cancelAnimationFrame(animationId);
     };
-  }, [lineCount, reducedMotion, isMobile]);
+  }, [octaves, reducedMotion, isMobile]);
 
   return (
     <>
