@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { authenticateRequest, checkPitchLimit, checkFormatAccess, incrementPitchCount } from "../_shared/auth.ts";
 import { validateGenerateScriptInput, sanitizeForPrompt } from "../_shared/validation.ts";
 import { corsHeaders, jsonResponse, errorResponse, handleCors } from "../_shared/cors.ts";

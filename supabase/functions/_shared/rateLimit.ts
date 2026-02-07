@@ -138,10 +138,16 @@ export function getClientIP(req: Request): string {
  * Create rate limit response with proper headers
  */
 export function rateLimitResponse(result: RateLimitResult): Response {
+  const resetDate = new Date(result.resetTime);
+  const resetTimeStr = resetDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  
   return new Response(
     JSON.stringify({ 
-      error: "Too many requests. Please try again later.",
+      error: `Rate limit exceeded. Please try again after ${resetTimeStr}.`,
+      errorType: "rate_limit",
       retryAfter: result.retryAfterSeconds,
+      resetTime: result.resetTime,
+      resetTimeFormatted: resetTimeStr,
     }),
     {
       status: 429,
