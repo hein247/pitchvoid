@@ -1022,7 +1022,7 @@ const Dashboard = () => {
                     <ArrowLeft className="w-5 h-5" />
                   </button>
                   <div>
-                    <h2 className="text-foreground font-medium font-display text-sm sm:text-base">{activeProject.title}</h2>
+                    <h2 className="text-foreground font-medium font-display text-sm sm:text-base truncate max-w-[200px] sm:max-w-[300px] lg:max-w-[400px]" title={activeProject.title}>{activeProject.title}</h2>
                     {isRegenerating && (
                       <p className="text-xs text-primary animate-pulse">{generationPhase}</p>
                     )}
