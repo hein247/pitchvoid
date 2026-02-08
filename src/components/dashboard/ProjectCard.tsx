@@ -91,12 +91,9 @@ const ProjectCard = ({
 
       {/* Title */}
       <button onClick={onOpen} className="text-left w-full">
-        <h3 className="text-foreground font-medium text-base sm:text-lg mb-1.5 group-hover:text-primary transition-colors line-clamp-2">
+        <h3 className="text-foreground font-medium text-base sm:text-lg group-hover:text-primary transition-colors truncate">
           {title}
         </h3>
-        {scenarioDescription && (
-          <p className="text-muted-foreground text-xs line-clamp-2 mb-3">{scenarioDescription}</p>
-        )}
       </button>
 
       {/* Footer */}
