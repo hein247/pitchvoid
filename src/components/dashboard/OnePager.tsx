@@ -56,7 +56,7 @@ const OnePager = ({
           </div>
         </div>
 
-        {/* ── Main Note: 3 columns ── */}
+        {/* ── Main Note: 2 columns ── */}
         {mainSection && <motion.div initial={{
         opacity: 0,
         y: 10
@@ -65,7 +65,7 @@ const OnePager = ({
         y: 0
       }} transition={{
         delay: 0.1
-      }} className="md:col-span-3 p-6 sm:p-8 border-b md:border-b-0 md:border-r border-border">
+      }} className="md:col-span-2 p-6 sm:p-8 border-b md:border-b-0 md:border-r border-border">
             <div className="flex items-center gap-3 mb-4">
               
               <h2 className="text-xl sm:text-2xl font-display text-foreground">
@@ -83,7 +83,7 @@ const OnePager = ({
               </ul>}
           </motion.div>}
 
-        {/* ── Priority Tag: 1 column ── */}
+        {/* ── Priority Tag: 2 columns ── */}
         <motion.div initial={{
         opacity: 0,
         y: 10
@@ -92,7 +92,7 @@ const OnePager = ({
         y: 0
       }} transition={{
         delay: 0.2
-      }} className="md:col-span-1 p-6 sm:p-8 border-b border-border flex items-center justify-center">
+      }} className="md:col-span-2 p-6 sm:p-8 border-b border-border flex items-center justify-center">
           <div className="flex flex-col items-center gap-2">
             <div className="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center">
               <span className="text-accent text-lg">⚡</span>
