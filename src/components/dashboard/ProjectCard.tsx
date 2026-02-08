@@ -123,12 +123,17 @@ const ProjectCard = ({
 
       {/* Content area */}
       <div className="p-4 sm:p-5 space-y-4">
-        {/* Title */}
-        <button onClick={onOpen} className="text-left w-full">
+        {/* Title + Description + Time */}
+        <button onClick={onOpen} className="text-left w-full space-y-1.5">
           <h3 className="text-foreground font-semibold text-base sm:text-lg group-hover:text-primary transition-colors truncate font-display">
             {title}
           </h3>
-          <span className="text-xs text-muted-foreground mt-1 block">{timeAgo}</span>
+          {scenarioDescription && (
+            <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+              {scenarioDescription}
+            </p>
+          )}
+          <span className="text-[11px] text-muted-foreground/60 block">{timeAgo}</span>
         </button>
 
         {/* CTA Button */}
