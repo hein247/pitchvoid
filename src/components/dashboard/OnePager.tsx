@@ -112,9 +112,7 @@ const OnePager = ({
         delay: 0.3
       }} className="md:col-span-2 p-6 sm:p-8 md:border-r border-border">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                <span className="text-primary font-bold text-sm">◆</span>
-              </div>
+              
               <h2 className="text-xl sm:text-2xl font-display text-foreground">
                 {secondarySection.title}
               </h2>
