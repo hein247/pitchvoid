@@ -79,7 +79,7 @@ const OnePager = ({ data, projectTitle }: OnePagerProps) => {
             </p>
             {mainSection.bullets && mainSection.bullets.length > 0 && (
               <ul className="space-y-2 ml-11">
-                {mainSection.bullets.map((bullet, i) => (
+                {mainSection.bullets.slice(0, 3).map((bullet, i) => (
                   <li key={i} className="flex items-start gap-2 text-foreground/80">
                     <span className="text-primary mt-1.5">•</span>
                     <span>{bullet}</span>
@@ -95,19 +95,13 @@ const OnePager = ({ data, projectTitle }: OnePagerProps) => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="md:col-span-1 p-6 sm:p-8 border-b border-border flex flex-col justify-center"
+          className="md:col-span-1 p-6 sm:p-8 border-b border-border flex items-center justify-center"
         >
-          <div className="space-y-4">
-            <div className="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center mx-auto md:mx-0">
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center">
               <span className="text-accent text-lg">⚡</span>
             </div>
-            <div className="text-center md:text-left">
-              <h3 className="text-sm uppercase tracking-[0.15em] text-muted-foreground mb-2">Priority</h3>
-              <p className="text-foreground font-display text-lg">High Impact</p>
-              <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-                {secondarySection ? secondarySection.content.slice(0, 80) + (secondarySection.content.length > 80 ? '…' : '') : 'Key strategic initiative'}
-              </p>
-            </div>
+            <p className="text-foreground font-display text-base">High Impact</p>
           </div>
         </motion.div>
 
@@ -132,7 +126,7 @@ const OnePager = ({ data, projectTitle }: OnePagerProps) => {
             </p>
             {secondarySection.bullets && secondarySection.bullets.length > 0 && (
               <ul className="space-y-3">
-                {secondarySection.bullets.map((bullet, i) => (
+                {secondarySection.bullets.slice(0, 3).map((bullet, i) => (
                   <li key={i} className="flex items-start gap-3 text-foreground/80">
                     <div className="w-5 h-5 rounded border border-primary/30 flex items-center justify-center shrink-0 mt-0.5">
                       <span className="text-primary text-xs">✓</span>
@@ -153,20 +147,17 @@ const OnePager = ({ data, projectTitle }: OnePagerProps) => {
           className="md:col-span-2 p-6 sm:p-8 flex flex-col justify-center"
         >
           {cta ? (
-            <div className="p-6 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 text-center">
-              <div className="flex items-center justify-center gap-3 mb-3">
+            <div className="p-5 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 text-center">
+              <div className="flex items-center justify-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
                   <span className="text-primary font-bold text-sm">→</span>
                 </div>
                 <h2 className="text-xl font-display text-foreground">{cta.title}</h2>
               </div>
-              <p className="text-muted-foreground leading-relaxed">{cta.content}</p>
             </div>
           ) : (
-            <div className="p-6 rounded-xl bg-foreground/[0.03] border border-border text-center">
-              <h3 className="text-sm uppercase tracking-[0.15em] text-muted-foreground mb-2">Success Metric</h3>
-              <p className="text-2xl font-display text-foreground">Ready to Launch</p>
-              <p className="text-xs text-muted-foreground mt-2">All key points covered</p>
+            <div className="p-5 rounded-xl bg-foreground/[0.03] border border-border text-center">
+              <p className="text-xl font-display text-foreground">Ready to Launch</p>
             </div>
           )}
         </motion.div>
