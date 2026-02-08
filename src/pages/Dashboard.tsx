@@ -577,7 +577,7 @@ const Dashboard = () => {
       setCurrentView('project');
 
       // Create or update project in DB
-      const projectTitle = parsedContext?.summary || 'Quick Pitch';
+      const projectTitle = (parsedContext?.summary || 'Quick Pitch').split(/\s+/).slice(0, 5).join(' ');
       let project = activeProject;
       
       if (!project || project.status === 'draft') {

@@ -94,7 +94,7 @@ Respond in JSON format:
   "suggested_format": "one-pager" | "script",
   "suggested_length": "quick" | "standard" | "detailed",
   "clarifying_questions": [],
-  "summary": ""
+  "summary": "MAX 5 WORDS. A punchy, short title for this pitch. Examples: 'Job Interview Pitch', 'Startup Funding Ask', 'Team Project Proposal', 'Product Launch Brief'"
 }
 
 Keep "clarifying_questions" empty unless truly ambiguous.`;
