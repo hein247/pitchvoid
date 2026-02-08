@@ -44,9 +44,6 @@ const OnePager = ({
         {/* ── Header: Full width (4 columns) ── */}
         <div className="p-8 sm:p-10 bg-gradient-to-br from-primary/20 via-accent/10 to-background border-b border-border">
           <div className="text-center space-y-3">
-            {projectTitle && <span className="text-xs uppercase tracking-[0.2em] text-primary font-medium">
-                {projectTitle}
-              </span>}
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display text-foreground leading-tight">
               {data.headline}
             </h1>
