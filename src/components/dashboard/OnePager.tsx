@@ -39,10 +39,10 @@ const OnePager = ({
     duration: 0.5
   }} className="max-w-5xl mx-auto bg-card border border-border rounded-2xl overflow-hidden shadow-xl">
       {/* GRID LAYOUT: 4-column system */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-0">
+      <div className="grid grid-cols-1 gap-0">
 
         {/* ── Header: Full width (4 columns) ── */}
-        <div className="md:col-span-4 p-8 sm:p-10 bg-gradient-to-br from-primary/20 via-accent/10 to-background border-b border-border">
+        <div className="p-8 sm:p-10 bg-gradient-to-br from-primary/20 via-accent/10 to-background border-b border-border">
           <div className="text-center space-y-3">
             {projectTitle && <span className="text-xs uppercase tracking-[0.2em] text-primary font-medium">
                 {projectTitle}
@@ -65,7 +65,7 @@ const OnePager = ({
         y: 0
       }} transition={{
         delay: 0.1
-      }} className="md:col-span-2 p-6 sm:p-8 border-b md:border-b-0 md:border-r border-border">
+      }} className="p-6 sm:p-8 border-b border-border">
             <div className="flex items-center gap-3 mb-4">
               
               <h2 className="text-xl sm:text-2xl font-display text-foreground">
@@ -92,7 +92,7 @@ const OnePager = ({
         y: 0
       }} transition={{
         delay: 0.2
-      }} className="md:col-span-2 p-6 sm:p-8 border-b border-border flex items-center justify-center">
+      }} className="p-6 sm:p-8 border-b border-border flex items-center justify-center">
           <div className="flex flex-col items-center gap-2">
             <div className="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center">
               <span className="text-accent text-lg">⚡</span>
@@ -110,7 +110,7 @@ const OnePager = ({
         y: 0
       }} transition={{
         delay: 0.3
-      }} className="md:col-span-2 p-6 sm:p-8 md:border-r border-border">
+      }} className="p-6 sm:p-8 border-b border-border">
             <div className="flex items-center gap-3 mb-4">
               
               <h2 className="text-xl sm:text-2xl font-display text-foreground">
@@ -139,7 +139,7 @@ const OnePager = ({
         y: 0
       }} transition={{
         delay: 0.4
-      }} className="md:col-span-2 p-6 sm:p-8 flex flex-col justify-center">
+      }} className="p-6 sm:p-8 flex flex-col justify-center">
           {cta ? <div className="p-5 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 text-center">
               <div className="flex items-center justify-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
