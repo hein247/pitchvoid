@@ -1027,10 +1027,10 @@ const Dashboard = () => {
                       <p className="text-xs text-primary animate-pulse">{generationPhase}</p>
                     )}
                     {!isRegenerating && outputFormat === 'one-pager' && onePagerData && (
-                      <p className="text-xs text-muted-foreground hidden sm:block">One-pager executive summary</p>
+                      <p className="text-xs text-muted-foreground hidden sm:block">One-pager summary</p>
                     )}
                     {!isRegenerating && outputFormat === 'script' && scriptData && (
-                      <p className="text-xs text-muted-foreground hidden sm:block">Speaking script with delivery cues</p>
+                      <p className="text-xs text-muted-foreground hidden sm:block">Speaking script</p>
                     )}
                   </div>
                 </div>
