@@ -182,9 +182,9 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (!loading && !user) {
-      // Allow guest access for now
+      navigate('/auth');
     }
-  }, [user, loading]);
+  }, [user, loading, navigate]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -788,6 +788,10 @@ const Dashboard = () => {
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
+  }
+
+  if (!user) {
+    return null;
   }
 
   // Practice Mode View (for Script format)
