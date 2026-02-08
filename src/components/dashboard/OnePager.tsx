@@ -24,85 +24,157 @@ interface OnePagerProps {
 }
 
 const OnePager = ({ data, projectTitle }: OnePagerProps) => {
+  // Separate sections by type for grid placement
+  const keyPoints = data.sections.find(s => s.type === 'key-points');
+  const valueProp = data.sections.find(s => s.type === 'value-prop');
+  const cta = data.sections.find(s => s.type === 'cta');
+  const mainSection = data.sections.find(s => s.type !== 'cta' && s.type !== 'hero') || keyPoints;
+  const secondarySection = data.sections.find(s => s !== mainSection && s.type !== 'cta' && s.type !== 'hero') || valueProp;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="max-w-4xl mx-auto bg-card border border-border rounded-2xl overflow-hidden shadow-xl"
+      className="max-w-5xl mx-auto bg-card border border-border rounded-2xl overflow-hidden shadow-xl"
     >
-      {/* Hero Section */}
-      <div className="p-8 sm:p-12 bg-gradient-to-br from-primary/20 via-accent/10 to-background border-b border-border">
-        <div className="text-center space-y-4">
-          {projectTitle && (
-            <span className="text-xs uppercase tracking-[0.2em] text-primary font-medium">
-              {projectTitle}
-            </span>
-          )}
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display text-foreground leading-tight">
-            {data.headline}
-          </h1>
-          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
-            {data.subheadline}
-          </p>
-        </div>
-      </div>
+      {/* GRID LAYOUT: 4-column system */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-0">
 
-      {/* Content Sections */}
-      <div className="p-6 sm:p-10 space-y-8">
-        {data.sections.map((section, index) => (
+        {/* ── Header: Full width (4 columns) ── */}
+        <div className="md:col-span-4 p-8 sm:p-10 bg-gradient-to-br from-primary/20 via-accent/10 to-background border-b border-border">
+          <div className="text-center space-y-3">
+            {projectTitle && (
+              <span className="text-xs uppercase tracking-[0.2em] text-primary font-medium">
+                {projectTitle}
+              </span>
+            )}
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display text-foreground leading-tight">
+              {data.headline}
+            </h1>
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
+              {data.subheadline}
+            </p>
+          </div>
+        </div>
+
+        {/* ── Main Note: 3 columns ── */}
+        {mainSection && (
           <motion.div
-            key={index}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 * (index + 1) }}
-            className={`${
-              section.type === 'cta' 
-                ? 'text-center p-6 sm:p-8 rounded-xl bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20' 
-                : ''
-            }`}
+            transition={{ delay: 0.1 }}
+            className="md:col-span-3 p-6 sm:p-8 border-b md:border-b-0 md:border-r border-border"
           >
-            {section.type !== 'hero' && (
-              <>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                    <span className="text-primary font-bold text-sm">
-                      {section.type === 'key-points' && '✦'}
-                      {section.type === 'value-prop' && '◆'}
-                      {section.type === 'cta' && '→'}
-                    </span>
-                  </div>
-                  <h2 className="text-xl sm:text-2xl font-display text-foreground">
-                    {section.title}
-                  </h2>
-                </div>
-                
-                <p className="text-muted-foreground mb-4 leading-relaxed">
-                  {section.content}
-                </p>
-
-                {section.bullets && section.bullets.length > 0 && (
-                  <ul className="space-y-2 ml-11">
-                    {section.bullets.map((bullet, bulletIndex) => (
-                      <li 
-                        key={bulletIndex}
-                        className="flex items-start gap-2 text-foreground/80"
-                      >
-                        <span className="text-primary mt-1.5">•</span>
-                        <span>{bullet}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                <span className="text-primary font-bold text-sm">✦</span>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-display text-foreground">
+                {mainSection.title}
+              </h2>
+            </div>
+            <p className="text-muted-foreground mb-4 leading-relaxed">
+              {mainSection.content}
+            </p>
+            {mainSection.bullets && mainSection.bullets.length > 0 && (
+              <ul className="space-y-2 ml-11">
+                {mainSection.bullets.map((bullet, i) => (
+                  <li key={i} className="flex items-start gap-2 text-foreground/80">
+                    <span className="text-primary mt-1.5">•</span>
+                    <span>{bullet}</span>
+                  </li>
+                ))}
+              </ul>
             )}
           </motion.div>
-        ))}
+        )}
+
+        {/* ── Priority Tag: 1 column ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="md:col-span-1 p-6 sm:p-8 border-b border-border flex flex-col justify-center"
+        >
+          <div className="space-y-4">
+            <div className="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center mx-auto md:mx-0">
+              <span className="text-accent text-lg">⚡</span>
+            </div>
+            <div className="text-center md:text-left">
+              <h3 className="text-sm uppercase tracking-[0.15em] text-muted-foreground mb-2">Priority</h3>
+              <p className="text-foreground font-display text-lg">High Impact</p>
+              <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+                {secondarySection ? secondarySection.content.slice(0, 80) + (secondarySection.content.length > 80 ? '…' : '') : 'Key strategic initiative'}
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* ── Action Checklist: 2 columns ── */}
+        {secondarySection && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="md:col-span-2 p-6 sm:p-8 md:border-r border-border"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                <span className="text-primary font-bold text-sm">◆</span>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-display text-foreground">
+                {secondarySection.title}
+              </h2>
+            </div>
+            <p className="text-muted-foreground mb-4 leading-relaxed">
+              {secondarySection.content}
+            </p>
+            {secondarySection.bullets && secondarySection.bullets.length > 0 && (
+              <ul className="space-y-3">
+                {secondarySection.bullets.map((bullet, i) => (
+                  <li key={i} className="flex items-start gap-3 text-foreground/80">
+                    <div className="w-5 h-5 rounded border border-primary/30 flex items-center justify-center shrink-0 mt-0.5">
+                      <span className="text-primary text-xs">✓</span>
+                    </div>
+                    <span>{bullet}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </motion.div>
+        )}
+
+        {/* ── Success Metric / CTA: 2 columns ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="md:col-span-2 p-6 sm:p-8 flex flex-col justify-center"
+        >
+          {cta ? (
+            <div className="p-6 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 text-center">
+              <div className="flex items-center justify-center gap-3 mb-3">
+                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                  <span className="text-primary font-bold text-sm">→</span>
+                </div>
+                <h2 className="text-xl font-display text-foreground">{cta.title}</h2>
+              </div>
+              <p className="text-muted-foreground leading-relaxed">{cta.content}</p>
+            </div>
+          ) : (
+            <div className="p-6 rounded-xl bg-foreground/[0.03] border border-border text-center">
+              <h3 className="text-sm uppercase tracking-[0.15em] text-muted-foreground mb-2">Success Metric</h3>
+              <p className="text-2xl font-display text-foreground">Ready to Launch</p>
+              <p className="text-xs text-muted-foreground mt-2">All key points covered</p>
+            </div>
+          )}
+        </motion.div>
       </div>
 
-      {/* Contact Footer */}
+      {/* Contact Footer — full width */}
       {data.contactInfo && (
-        <div className="px-6 sm:px-10 py-6 bg-muted/30 border-t border-border">
+        <div className="px-6 sm:px-10 py-5 bg-muted/30 border-t border-border">
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-sm text-muted-foreground">
             {data.contactInfo.email && (
               <a href={`mailto:${data.contactInfo.email}`} className="hover:text-primary transition-colors">
