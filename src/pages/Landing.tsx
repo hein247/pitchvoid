@@ -15,7 +15,9 @@ const Landing = () => {
         <section className="max-w-7xl mx-auto px-4 sm:px-8 pt-8 sm:pt-20 pb-16 sm:pb-28">
           <div className="max-w-2xl mx-auto text-center">
             <div className="animate-slideUp">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl leading-[1.1] text-foreground mb-5 sm:mb-7" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl leading-[1.1] text-foreground mb-5 sm:mb-7" style={{
+              fontFamily: "'Cormorant Garamond', Georgia, serif"
+            }}>
                 Too much to say.
                 <br />
                 <span className="brand-gradient-text">
@@ -30,9 +32,7 @@ const Landing = () => {
                   Try it free
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
                 </button>
-                <button onClick={() => navigate('/auth')} className="w-full sm:w-auto px-6 py-3.5 sm:py-4 rounded-xl bg-white text-background font-medium hover:bg-white/90 transition-colors">
-                  Create Account
-                </button>
+                
               </div>
 
               <p className="text-sm text-muted-foreground">
