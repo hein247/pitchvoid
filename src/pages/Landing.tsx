@@ -30,7 +30,7 @@ Not enough time to think.</span>
                   Try it free
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
                 </button>
-                <button onClick={() => navigate('/auth')} className="w-full sm:w-auto px-6 py-3.5 sm:py-4 rounded-xl text-foreground/80 border border-border hover:bg-accent/10 transition-colors">
+                <button onClick={() => navigate('/auth')} className="w-full sm:w-auto px-6 py-3.5 sm:py-4 rounded-xl bg-white text-background font-medium hover:bg-white/90 transition-colors">
                   Create Account
                 </button>
               </div>
