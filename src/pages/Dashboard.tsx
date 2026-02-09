@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Mic, Plus, ArrowLeft, X, Play, Share2, Home, FileText, Upload, File, Image, ScrollText, Check, Edit2, Users, Target, Sparkles, Clock } from 'lucide-react';
+import { Loader2, Mic, Plus, ArrowLeft, X, Play, Share2, Home, FileText, Upload, File, Image, ScrollText, Check, Edit2, Users, Target, Sparkles, Clock, Briefcase, Handshake, TrendingUp, Presentation } from 'lucide-react';
 import ShareModal from '@/components/dashboard/ShareModal';
 import { Progress } from '@/components/ui/progress';
 import Navbar from '@/components/Navbar';
@@ -174,10 +174,10 @@ const Dashboard = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const quickTemplates = [
-    { id: 1, label: 'Job Interview', icon: '💼', prefill: 'Pitch me for a [Role] at [Company]. Focus on [Key Skills].' },
-    { id: 2, label: 'Client Pitch', icon: '🤝', prefill: 'Create a proposal for [Client] about [Project].' },
-    { id: 3, label: 'Team Update', icon: '📈', prefill: 'Create an update for [Team] about [Project/Initiative].' },
-    { id: 4, label: 'Conference Talk', icon: '🎤', prefill: 'Prepare a talk on [Topic] for [Event].' },
+    { id: 1, label: 'Job Interview', icon: 'briefcase' as const, prefill: 'Pitch me for a [Role] at [Company]. Focus on [Key Skills].' },
+    { id: 2, label: 'Client Pitch', icon: 'handshake' as const, prefill: 'Create a proposal for [Client] about [Project].' },
+    { id: 3, label: 'Team Update', icon: 'trending-up' as const, prefill: 'Create an update for [Team] about [Project/Initiative].' },
+    { id: 4, label: 'Conference Talk', icon: 'presentation' as const, prefill: 'Prepare a talk on [Topic] for [Event].' },
   ];
 
   useEffect(() => {
@@ -942,7 +942,7 @@ const Dashboard = () => {
               ) : projects.length === 0 ? (
                 <div className="col-span-full text-center py-16">
                   <div className="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center bg-gradient-to-br from-accent/15 to-primary/8 border border-dashed border-accent/30">
-                    <span className="text-3xl text-accent/50">📄</span>
+                    <FileText className="w-7 h-7 text-accent/50" />
                   </div>
                   <p className="text-foreground font-medium mb-1">No pitches yet</p>
                   <p className="text-muted-foreground text-sm">Create your first pitch with Quick Pitch</p>
@@ -1116,7 +1116,7 @@ const Dashboard = () => {
                     <div 
                       className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 rounded-2xl flex items-center justify-center bg-gradient-to-br from-accent/15 to-primary/8 border border-dashed border-accent/30"
                     >
-                      <span className="text-3xl sm:text-4xl text-accent/50">📄</span>
+                      <FileText className="w-8 h-8 sm:w-9 sm:h-9 text-accent/50" />
                     </div>
                     <p className="text-muted-foreground text-sm">Your pitch will appear here</p>
                     <p className="text-muted-foreground/60 text-xs mt-1">Describe your scenario below to get started</p>
@@ -1259,7 +1259,7 @@ const Dashboard = () => {
             {/* Step 1: Describe */}
             {quickPitchStep === 1 && (
               <div>
-                <p className="text-sm text-muted-foreground mb-4">🎯 What do you need to pitch?</p>
+                <p className="text-sm text-muted-foreground mb-4">What do you need to pitch?</p>
                 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4 sm:mb-6">
                   {quickTemplates.map(t => (
@@ -1268,7 +1268,10 @@ const Dashboard = () => {
                       onClick={() => setTranscribedText(t.prefill)} 
                       className="p-3 sm:p-4 rounded-xl text-center border border-accent/20 hover:border-accent/40 transition-colors"
                     >
-                      <span className="text-xl sm:text-2xl mb-1 sm:mb-2 block">{t.icon}</span>
+                      {t.icon === 'briefcase' && <Briefcase className="w-5 h-5 sm:w-6 sm:h-6 text-primary mb-1 sm:mb-2 mx-auto" />}
+                      {t.icon === 'handshake' && <Handshake className="w-5 h-5 sm:w-6 sm:h-6 text-primary mb-1 sm:mb-2 mx-auto" />}
+                      {t.icon === 'trending-up' && <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-primary mb-1 sm:mb-2 mx-auto" />}
+                      {t.icon === 'presentation' && <Presentation className="w-5 h-5 sm:w-6 sm:h-6 text-primary mb-1 sm:mb-2 mx-auto" />}
                       <span className="text-xs text-muted-foreground">{t.label}</span>
                     </button>
                   ))}
@@ -1360,7 +1363,7 @@ const Dashboard = () => {
                   <div className="flex items-center gap-4 text-sm pt-2 border-t border-accent/10">
                     <span className="text-muted-foreground">Suggested:</span>
                     <span className="px-2 py-1 rounded bg-primary/10 text-primary text-xs font-medium">
-                      {parsedContext.suggested_format === 'one-pager' ? '📄 One-Pager' : '📝 Script'}
+                      {parsedContext.suggested_format === 'one-pager' ? 'One-Pager' : 'Script'}
                     </span>
                     <span className="px-2 py-1 rounded bg-accent/10 text-accent text-xs font-medium">
                       {parsedContext.suggested_length === 'quick' ? 'Quick' : 
@@ -1423,7 +1426,7 @@ const Dashboard = () => {
             {/* Step 3: Context / Files */}
             {quickPitchStep === 3 && (
               <div>
-                <p className="text-sm text-muted-foreground mb-4">📎 Anything to help me help you? (optional)</p>
+                <p className="text-sm text-muted-foreground mb-4">Anything to help me help you? (optional)</p>
                 
                 {/* Hidden file input */}
                 <input
@@ -1488,7 +1491,7 @@ const Dashboard = () => {
                 
                 {/* Highlight notes */}
                 <div className="mb-4">
-                  <p className="text-xs text-muted-foreground mb-2">💡 Specific points to highlight (optional)</p>
+                  <p className="text-xs text-muted-foreground mb-2">Specific points to highlight (optional)</p>
                   <textarea
                     value={highlightNotes}
                     onChange={(e) => setHighlightNotes(e.target.value)}
@@ -1518,7 +1521,7 @@ const Dashboard = () => {
             {/* Step 4: Quick Tune */}
             {quickPitchStep === 4 && (
               <div>
-                <p className="text-sm text-muted-foreground mb-4">⚙️ Any preferences? (or use smart defaults)</p>
+                <p className="text-sm text-muted-foreground mb-4">Any preferences? (or use smart defaults)</p>
                 
                 {/* Length */}
                 <div className="mb-4">
