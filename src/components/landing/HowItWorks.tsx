@@ -259,7 +259,7 @@ export default function HowItWorks() {
             How It Works
           </motion.p>
           <h2 className="font-display text-foreground leading-[1.15] m-0" style={{ fontSize: "clamp(38px, 5.2vw, 60px)", fontWeight: 400 }}>
-            From idea to pitch-ready
+            From scattered to structured —
             <br />
             <motion.span
               initial={{ opacity: 0, filter: "blur(8px)" }}
