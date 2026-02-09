@@ -3,7 +3,7 @@ import { ArrowRight } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import HowItWorks from '@/components/landing/HowItWorks';
 import ShaderBackground from '@/components/ui/ShaderBackground';
-import HeroDemoInput from '@/components/landing/HeroDemoInput';
+
 const Landing = () => {
   const navigate = useNavigate();
   return <div className="min-h-screen relative">
@@ -14,9 +14,8 @@ const Landing = () => {
 
         {/* Hero Section */}
         <section className="max-w-7xl mx-auto px-4 sm:px-8 pt-8 sm:pt-20 pb-16 sm:pb-28">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-            {/* Left - Copy */}
-            <div className="animate-slideUp text-center lg:text-left">
+          <div className="max-w-2xl mx-auto lg:mx-0 text-center lg:text-left">
+            <div className="animate-slideUp">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl leading-[1.1] text-foreground mb-5 sm:mb-7 font-display">
                 Describe your pitch.{' '}
                 <span className="brand-gradient-text">
@@ -41,13 +40,6 @@ const Landing = () => {
               <p className="text-sm text-muted-foreground">
                 No signup required · <span className="kbd">⌘K</span> to quick pitch anywhere
               </p>
-            </div>
-
-            {/* Right - Live Demo */}
-            <div className="animate-slideUp" style={{
-            animationDelay: '0.15s'
-          }}>
-              <HeroDemoInput />
             </div>
           </div>
         </section>
