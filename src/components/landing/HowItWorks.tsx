@@ -29,7 +29,7 @@ const OUTPUT_SECTIONS = [{
 }];
 const STEPS = [{
   num: "01",
-  title: "Describe Your Pitch",
+  title: "Describe Your Scenario",
   sub: "Natural language in, structured pitch out"
 }, {
   num: "02",
