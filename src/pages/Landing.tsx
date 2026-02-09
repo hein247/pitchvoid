@@ -16,7 +16,7 @@ const Landing = () => {
           <div className="max-w-2xl mx-auto text-center">
             <div className="animate-slideUp">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl leading-[1.1] text-foreground mb-5 sm:mb-7 font-display">
-                Describe your pitch.{' '}
+                Too much to say.{' '}
                 <span className="brand-gradient-text">
 Not enough time to think.</span>
               </h1>
