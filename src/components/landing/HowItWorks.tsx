@@ -29,7 +29,7 @@ const OUTPUT_SECTIONS = [{
 }];
 const STEPS = [{
   num: "01",
-  title: "Describe Your Scenario",
+  title: "Describe Your Pitch",
   sub: "Natural language in, structured pitch out"
 }, {
   num: "02",
@@ -386,8 +386,8 @@ in seconds<br />
             duration: 1,
             delay: 0.3,
             ease: appleEase
-          }} className="text-primary font-serif">
-              in seconds
+          }} className="text-primary font-serif text-9xl font-medium text-center">
+              In Seconds!!!
             </motion.span>
           </h2>
         </motion.div>
