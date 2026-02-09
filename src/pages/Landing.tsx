@@ -14,7 +14,7 @@ const Landing = () => {
 
         {/* Hero Section */}
         <section className="max-w-7xl mx-auto px-4 sm:px-8 pt-8 sm:pt-20 pb-16 sm:pb-28">
-          <div className="max-w-2xl mx-auto lg:mx-0 text-center lg:text-left">
+          <div className="max-w-2xl mx-auto text-center">
             <div className="animate-slideUp">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl leading-[1.1] text-foreground mb-5 sm:mb-7 font-display">
                 Describe your pitch.{' '}
@@ -23,11 +23,11 @@ const Landing = () => {
                 </span>
               </h1>
 
-              <p className="text-base sm:text-lg text-muted-foreground mb-8 sm:mb-10 max-w-md mx-auto lg:mx-0 leading-relaxed">
+              <p className="text-base sm:text-lg text-muted-foreground mb-8 sm:mb-10 max-w-md mx-auto leading-relaxed">
                 Tell us the scenario in plain English. PitchVoid figures out who you're pitching, why it matters, and crafts it for you.
               </p>
 
-              <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 mb-5 justify-center lg:justify-start">
+              <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 mb-5 justify-center">
                 <button onClick={() => navigate('/dashboard')} className="w-full sm:w-auto px-7 sm:px-8 py-3.5 sm:py-4 rounded-xl text-primary-foreground font-medium magenta-gradient text-base sm:text-lg flex items-center justify-center gap-3 hover:opacity-90 transition-opacity group">
                   Try it free
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
