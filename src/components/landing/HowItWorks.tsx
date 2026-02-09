@@ -318,7 +318,7 @@ export default function HowItWorks() {
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    padding: "100px 24px"
+    padding: "clamp(48px, 10vw, 100px) 16px"
   }}>
       {/* Ambient glow */}
       <motion.div animate={{
@@ -342,7 +342,7 @@ export default function HowItWorks() {
 
       {/* Header */}
       <ParallaxLayer depth={0.5} mouseX={mouseX} mouseY={mouseY} className="text-center relative z-[1]" style={{
-      marginBottom: 72
+      marginBottom: "clamp(36px, 6vw, 72px)"
     }}>
         <motion.div initial={{
         opacity: 0,
@@ -370,10 +370,10 @@ export default function HowItWorks() {
             How It Works
           </motion.p>
           <h2 className="font-display text-foreground leading-[1.15] m-0" style={{
-          fontSize: "clamp(38px, 5.2vw, 60px)",
+          fontSize: "clamp(28px, 5.2vw, 60px)",
           fontWeight: 400
         }}>From scattered to structured
-in seconds<br />
+            <br />
             <motion.span initial={{
             opacity: 0,
             filter: "blur(8px)"
@@ -386,7 +386,9 @@ in seconds<br />
             duration: 1,
             delay: 0.3,
             ease: appleEase
-          }} className="text-primary font-serif text-9xl font-medium text-center">
+          }} className="text-primary font-serif font-medium text-center" style={{
+            fontSize: "clamp(36px, 8vw, 128px)"
+          }}>
               In Seconds!!!
             </motion.span>
           </h2>
@@ -394,9 +396,9 @@ in seconds<br />
       </ParallaxLayer>
 
       {/* Main layout */}
-      <div className="flex gap-14 max-w-[1400px] w-full relative z-[1] flex-wrap">
+      <div className="flex gap-6 lg:gap-14 max-w-[1400px] w-full relative z-[1] flex-col lg:flex-row">
         {/* Left: Step selector */}
-        <ParallaxLayer depth={0.3} mouseX={mouseX} mouseY={mouseY} className="flex flex-col gap-1 min-w-[360px] flex-[0_0_360px] max-lg:flex-[1_1_100%] max-lg:min-w-0">
+        <ParallaxLayer depth={0.3} mouseX={mouseX} mouseY={mouseY} className="flex flex-col gap-1 w-full lg:min-w-[360px] lg:flex-[0_0_360px]">
           {STEPS.map((step, idx) => {
           const isActive = idx === activeStep;
           return <motion.button key={idx} onClick={() => handleStepClick(idx)} animate={{
@@ -408,7 +410,7 @@ in seconds<br />
           }} transition={{
             duration: 0.5,
             ease: appleEase
-          }} className="flex items-start gap-5 p-7 rounded-[20px] border border-transparent cursor-pointer text-left relative overflow-hidden outline-none">
+          }} className="flex items-start gap-4 sm:gap-5 p-5 sm:p-7 rounded-[20px] border border-transparent cursor-pointer text-left relative overflow-hidden outline-none">
                 {/* progress bar */}
                 <motion.div className="absolute bottom-0 left-4 right-4 h-[2px] rounded-[1px]" style={{
               background: "rgba(168,85,247,0.4)",
@@ -449,14 +451,14 @@ in seconds<br />
         </ParallaxLayer>
 
         {/* Right: Demo viewport */}
-        <ParallaxLayer depth={0.8} mouseX={mouseX} mouseY={mouseY} className="flex-1 min-w-[420px] min-h-[550px] relative max-lg:min-w-0 max-lg:min-h-[470px]">
+        <ParallaxLayer depth={0.8} mouseX={mouseX} mouseY={mouseY} className="flex-1 min-h-[400px] sm:min-h-[470px] lg:min-h-[550px] relative">
           <motion.div animate={{
           boxShadow: ["0 0 60px rgba(168,85,247,0.04), 0 0 120px rgba(168,85,247,0.02)", "0 0 80px rgba(168,85,247,0.06), 0 0 160px rgba(168,85,247,0.03)", "0 0 60px rgba(168,85,247,0.04), 0 0 120px rgba(168,85,247,0.02)"]
         }} transition={{
           duration: 4,
           repeat: Infinity,
           ease: "easeInOut"
-        }} className="rounded-3xl relative overflow-hidden h-full min-h-[550px] max-lg:min-h-[470px]" style={{
+        }} className="rounded-3xl relative overflow-hidden h-full min-h-[400px] sm:min-h-[470px] lg:min-h-[550px]" style={{
           border: "1px solid rgba(168,85,247,0.12)",
           background: "rgba(14,12,24,0.85)",
           backdropFilter: "blur(24px)"
@@ -479,7 +481,7 @@ in seconds<br />
 
             <AnimatePresence mode="wait">
               {/* STEP 0: Typing */}
-              {activeStep === 0 && <motion.div key="typing" variants={dofVariants} initial="enter" animate="center" exit="exit" className="absolute inset-0 p-10 sm:p-12 flex flex-col justify-center z-[1]">
+              {activeStep === 0 && <motion.div key="typing" variants={dofVariants} initial="enter" animate="center" exit="exit" className="absolute inset-0 p-6 sm:p-10 lg:p-12 flex flex-col justify-center z-[1]">
                   <motion.p initial={{
                 opacity: 0,
                 y: -6
@@ -561,7 +563,7 @@ in seconds<br />
                 </motion.div>}
 
               {/* STEP 1: Parsed Cards */}
-              {activeStep === 1 && <motion.div key="cards" variants={dofVariants} initial="enter" animate="center" exit="exit" className="absolute inset-0 p-10 sm:p-12 flex flex-col justify-center z-[1]">
+              {activeStep === 1 && <motion.div key="cards" variants={dofVariants} initial="enter" animate="center" exit="exit" className="absolute inset-0 p-6 sm:p-10 lg:p-12 flex flex-col justify-center z-[1]">
                   <motion.p initial={{
                 opacity: 0,
                 y: -6
@@ -638,7 +640,7 @@ in seconds<br />
                 </motion.div>}
 
               {/* STEP 2: Output Preview */}
-              {activeStep === 2 && <motion.div key="output" variants={dofVariants} initial="enter" animate="center" exit="exit" className="absolute inset-0 p-10 sm:p-12 flex flex-col justify-center z-[1]">
+              {activeStep === 2 && <motion.div key="output" variants={dofVariants} initial="enter" animate="center" exit="exit" className="absolute inset-0 p-6 sm:p-10 lg:p-12 flex flex-col justify-center z-[1]">
                   {/* format tabs */}
                   <motion.div initial={{
                 opacity: 0,
