@@ -16,9 +16,11 @@ const Landing = () => {
           <div className="max-w-2xl mx-auto text-center">
             <div className="animate-slideUp">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl leading-[1.1] text-foreground mb-5 sm:mb-7 font-display">
-                Too much to say.{' '}
+                Too much to say.
+                <br />
                 <span className="brand-gradient-text">
-Not enough time to think.</span>
+                  Not enough time to think.
+                </span>
               </h1>
 
               <p className="text-base sm:text-lg text-muted-foreground mb-8 sm:mb-10 max-w-md mx-auto leading-relaxed">Tell us the scenario in plain English. PitchVoid figures out who you're pitching or talking, why it matters, and crafts it for you.</p>
