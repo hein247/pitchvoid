@@ -3,7 +3,6 @@ import { ArrowRight } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import HowItWorks from '@/components/landing/HowItWorks';
 import ShaderBackground from '@/components/ui/ShaderBackground';
-
 const Landing = () => {
   const navigate = useNavigate();
   return <div className="min-h-screen relative">
@@ -17,22 +16,28 @@ const Landing = () => {
           <div className="max-w-2xl mx-auto text-center">
             <div className="animate-slideUp">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl leading-[1.1] text-foreground mb-5 sm:mb-7 font-display">
-                Too much to say.{' '}
+                Describe your pitch.{' '}
                 <span className="brand-gradient-text">
-                  Not enough time to think.
-                </span>
+Not enough time to think.</span>
               </h1>
 
               <p className="text-base sm:text-lg text-muted-foreground mb-8 sm:mb-10 max-w-md mx-auto leading-relaxed">
-                Dump your half-formed thoughts, bullet points, or voice notes. Get back a clear, structured message for whoever needs to hear it.
+                Tell us the scenario in plain English. PitchVoid figures out who you're pitching, why it matters, and crafts it for you.
               </p>
 
-              <div className="flex items-center gap-3 sm:gap-4 mb-5 justify-center">
-                <button onClick={() => navigate('/dashboard')} className="px-7 sm:px-8 py-3.5 sm:py-4 rounded-xl text-primary-foreground font-medium magenta-gradient text-base sm:text-lg flex items-center justify-center gap-3 hover:opacity-90 transition-opacity group">
-                  Try it — it's free
+              <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 mb-5 justify-center">
+                <button onClick={() => navigate('/dashboard')} className="w-full sm:w-auto px-7 sm:px-8 py-3.5 sm:py-4 rounded-xl text-primary-foreground font-medium magenta-gradient text-base sm:text-lg flex items-center justify-center gap-3 hover:opacity-90 transition-opacity group">
+                  Try it free
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
                 </button>
+                <button onClick={() => navigate('/auth')} className="w-full sm:w-auto px-6 py-3.5 sm:py-4 rounded-xl text-foreground/80 border border-border hover:bg-accent/10 transition-colors">
+                  Create Account
+                </button>
               </div>
+
+              <p className="text-sm text-muted-foreground">
+                No signup required · <span className="kbd">⌘K</span> to quick pitch anywhere
+              </p>
             </div>
           </div>
         </section>
