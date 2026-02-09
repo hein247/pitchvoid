@@ -358,7 +358,8 @@ export default function HowItWorks() {
         ease: appleEase
       }}>
           
-          <h2 className="font-display text-foreground leading-[1.15] m-0" style={{
+           <h2 className="text-foreground leading-[1.15] m-0" style={{
+          fontFamily: "'Cormorant Garamond', Georgia, serif",
           fontSize: "clamp(28px, 5.2vw, 60px)",
           fontWeight: 400
         }}>From scattered to structured
