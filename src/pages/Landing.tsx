@@ -17,29 +17,22 @@ const Landing = () => {
           <div className="max-w-2xl mx-auto text-center">
             <div className="animate-slideUp">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl leading-[1.1] text-foreground mb-5 sm:mb-7 font-display">
-                Describe your pitch.{' '}
+                Too much to say.{' '}
                 <span className="brand-gradient-text">
-                  We build it.
+                  Not enough time to think.
                 </span>
               </h1>
 
               <p className="text-base sm:text-lg text-muted-foreground mb-8 sm:mb-10 max-w-md mx-auto leading-relaxed">
-                Tell us the scenario in plain English. PitchVoid figures out who you're pitching, why it matters, and crafts it for you.
+                Dump your half-formed thoughts, bullet points, or voice notes. Get back a clear, structured message for whoever needs to hear it.
               </p>
 
-              <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 mb-5 justify-center">
-                <button onClick={() => navigate('/dashboard')} className="w-full sm:w-auto px-7 sm:px-8 py-3.5 sm:py-4 rounded-xl text-primary-foreground font-medium magenta-gradient text-base sm:text-lg flex items-center justify-center gap-3 hover:opacity-90 transition-opacity group">
-                  Try it free
+              <div className="flex items-center gap-3 sm:gap-4 mb-5 justify-center">
+                <button onClick={() => navigate('/dashboard')} className="px-7 sm:px-8 py-3.5 sm:py-4 rounded-xl text-primary-foreground font-medium magenta-gradient text-base sm:text-lg flex items-center justify-center gap-3 hover:opacity-90 transition-opacity group">
+                  Try it — it's free
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
                 </button>
-                <button onClick={() => navigate('/auth')} className="w-full sm:w-auto px-6 py-3.5 sm:py-4 rounded-xl text-foreground/80 border border-border hover:bg-accent/10 transition-colors">
-                  Create Account
-                </button>
               </div>
-
-              <p className="text-sm text-muted-foreground">
-                No signup required · <span className="kbd">⌘K</span> to quick pitch anywhere
-              </p>
             </div>
           </div>
         </section>
