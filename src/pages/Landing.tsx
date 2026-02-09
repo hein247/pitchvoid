@@ -2,11 +2,11 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import HowItWorks from '@/components/landing/HowItWorks';
-import ShaderBackground from '@/components/ui/ShaderBackground';
+import AnimatedShaderBackground from '@/components/ui/animated-shader-background';
 const Landing = () => {
   const navigate = useNavigate();
   return <div className="min-h-screen relative">
-      <ShaderBackground />
+      <AnimatedShaderBackground />
       {/* Navigation */}
       <div className="relative z-10">
         <Navbar variant="landing" />
