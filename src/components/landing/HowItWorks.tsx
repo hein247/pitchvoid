@@ -389,7 +389,7 @@ export default function HowItWorks() {
           }} className="text-primary font-serif font-medium text-center" style={{
             fontSize: "clamp(36px, 8vw, 128px)"
           }}>
-              In Seconds!!!
+              in seconds.
             </motion.span>
           </h2>
         </motion.div>
