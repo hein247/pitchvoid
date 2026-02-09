@@ -9,10 +9,10 @@ const SCENARIO_TEXT =
   "I'm pitching our Series A to Sequoia partners next Tuesday. We have $2M ARR, 40% MoM growth, and need to raise $15M...";
 
 const PARSED_CARDS = [
-  { label: "WHO", value: "Sequoia Partners", icon: "👤" },
-  { label: "WHAT", value: "Series A — $15M Raise", icon: "🎯" },
-  { label: "WHY", value: "$2M ARR, 40% MoM Growth", icon: "📈" },
-  { label: "HOW", value: "Data-Driven Narrative", icon: "⚡" },
+  { label: "WHO", value: "Sequoia Partners" },
+  { label: "WHAT", value: "Series A — $15M Raise" },
+  { label: "WHY", value: "$2M ARR, 40% MoM Growth" },
+  { label: "HOW", value: "Data-Driven Narrative" },
 ];
 
 const OUTPUT_SECTIONS = [
@@ -24,7 +24,7 @@ const OUTPUT_SECTIONS = [
 const STEPS = [
   { num: "01", title: "Describe Your Pitch", sub: "Natural language in, structured pitch out" },
   { num: "02", title: "AI Extracts Your Story", sub: "Audience, objective, and talking points — parsed instantly" },
-  { num: "03", title: "Choose Your Format", sub: "One-pager, script, or deck — ready in seconds" },
+  { num: "03", title: "Choose Your Format", sub: "One-pager or script — ready in seconds" },
 ];
 
 /* ── Apple-style motion config ── */
@@ -428,7 +428,7 @@ export default function HowItWorks() {
                     transition={{ duration: 0.8, delay: 0.5, ease: appleEase }}
                     className="flex gap-2 mt-5 flex-wrap"
                   >
-                    {["🎤 Voice", "📎 Files", "🔗 URL"].map((label, i) => (
+                    {["Voice", "Files", "URL"].map((label, i) => (
                       <motion.span
                         key={label}
                         initial={{ opacity: 0, y: 6 }}
@@ -503,7 +503,6 @@ export default function HowItWorks() {
                           }}
                         />
                         <div className="flex items-center gap-[10px] mb-[10px] relative">
-                          <span className="text-lg">{card.icon}</span>
                           <span className="text-[10px] font-bold text-primary tracking-[0.1em]">{card.label}</span>
                         </div>
                         <p className="text-sm text-foreground/90 m-0 leading-[1.45] font-medium relative">{card.value}</p>
@@ -547,7 +546,7 @@ export default function HowItWorks() {
                     transition={{ duration: 0.7, delay: 0.15, ease: appleEase }}
                     className="flex gap-1 mb-[22px]"
                   >
-                    {["One-Pager", "Script", "Deck"].map((fmt, i) => (
+                    {["One-Pager", "Script"].map((fmt, i) => (
                       <motion.span
                         key={fmt}
                         whileHover={{ scale: 1.04, transition: appleFast }}
@@ -621,7 +620,7 @@ export default function HowItWorks() {
                     transition={{ duration: 0.7, delay: 0.7, ease: appleEase }}
                     className="flex gap-2 mt-[18px] flex-wrap"
                   >
-                    {["✨ Shorter", "🔥 Bolder", "📊 More Data", "💬 Refine..."].map((chip, i) => (
+                    {["Shorter", "Bolder", "More Data", "Refine..."].map((chip, i) => (
                       <motion.span
                         key={chip}
                         initial={{ opacity: 0, scale: 0.9 }}
