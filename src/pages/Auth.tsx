@@ -96,7 +96,7 @@ const Auth = () => {
         </nav>
 
         <div className="flex-1 flex items-center justify-center p-4">
-          <div className="glassmorphism-dark rounded-2xl p-8 w-full max-w-md animate-slideUp">
+          <div className="bg-white rounded-2xl p-8 w-full max-w-md animate-slideUp">
             {/* Header */}
             <div className="text-center mb-8">
               <button 
