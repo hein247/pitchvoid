@@ -357,18 +357,7 @@ export default function HowItWorks() {
         duration: 1,
         ease: appleEase
       }}>
-          <motion.p initial={{
-          opacity: 0
-        }} whileInView={{
-          opacity: 1
-        }} viewport={{
-          once: true
-        }} transition={{
-          duration: 1.2,
-          delay: 0.1
-        }} className="text-base font-medium tracking-[0.15em] uppercase text-primary mb-5 font-sans">
-            How It Works
-          </motion.p>
+          
           <h2 className="font-display text-foreground leading-[1.15] m-0" style={{
           fontSize: "clamp(28px, 5.2vw, 60px)",
           fontWeight: 400
