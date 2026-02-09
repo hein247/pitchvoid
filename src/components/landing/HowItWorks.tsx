@@ -254,11 +254,11 @@ export default function HowItWorks() {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 1.2, delay: 0.1 }}
-            className="text-[13px] font-medium tracking-[0.15em] uppercase text-primary mb-5"
+            className="text-base font-medium tracking-[0.15em] uppercase text-primary mb-5 font-sans"
           >
             How It Works
           </motion.p>
-          <h2 className="font-display text-foreground leading-[1.15] m-0" style={{ fontSize: "clamp(30px, 4.2vw, 48px)", fontWeight: 400 }}>
+          <h2 className="font-display text-foreground leading-[1.15] m-0" style={{ fontSize: "clamp(38px, 5.2vw, 60px)", fontWeight: 400 }}>
             From idea to pitch-ready
             <br />
             <motion.span
@@ -275,9 +275,9 @@ export default function HowItWorks() {
       </ParallaxLayer>
 
       {/* Main layout */}
-      <div className="flex gap-14 max-w-[1120px] w-full relative z-[1] flex-wrap">
+      <div className="flex gap-14 max-w-[1400px] w-full relative z-[1] flex-wrap">
         {/* Left: Step selector */}
-        <ParallaxLayer depth={0.3} mouseX={mouseX} mouseY={mouseY} className="flex flex-col gap-1 min-w-[290px] flex-[0_0_290px] max-lg:flex-[1_1_100%] max-lg:min-w-0">
+        <ParallaxLayer depth={0.3} mouseX={mouseX} mouseY={mouseY} className="flex flex-col gap-1 min-w-[360px] flex-[0_0_360px] max-lg:flex-[1_1_100%] max-lg:min-w-0">
           {STEPS.map((step, idx) => {
             const isActive = idx === activeStep;
             return (
@@ -293,7 +293,7 @@ export default function HowItWorks() {
                   x: 3,
                 }}
                 transition={{ duration: 0.5, ease: appleEase }}
-                className="flex items-start gap-[18px] p-[22px] rounded-[18px] border border-transparent cursor-pointer text-left relative overflow-hidden outline-none"
+                className="flex items-start gap-5 p-7 rounded-[20px] border border-transparent cursor-pointer text-left relative overflow-hidden outline-none"
               >
                 {/* progress bar */}
                 <motion.div
@@ -310,7 +310,7 @@ export default function HowItWorks() {
                 <motion.span
                   animate={{ color: isActive ? "#a855f7" : "rgba(168,85,247,0.18)", scale: isActive ? 1 : 0.95 }}
                   transition={appleSlow}
-                  className="font-display text-[30px] font-normal leading-none relative"
+                  className="font-display text-4xl font-normal leading-none relative"
                 >
                   {step.num}
                 </motion.span>
@@ -319,7 +319,7 @@ export default function HowItWorks() {
                   <motion.p
                     animate={{ color: isActive ? "#f0edf6" : "rgba(240,237,246,0.25)" }}
                     transition={appleMedium}
-                    className="text-[15px] font-semibold m-0 leading-[1.3]"
+                    className="text-lg font-semibold m-0 leading-[1.3] font-sans"
                   >
                     {step.title}
                   </motion.p>
@@ -331,7 +331,7 @@ export default function HowItWorks() {
                       marginTop: isActive ? 8 : 0,
                     }}
                     transition={appleMedium}
-                    className="text-[13px] m-0 leading-[1.4] overflow-hidden"
+                    className="text-base m-0 leading-[1.4] overflow-hidden font-sans"
                   >
                     {step.sub}
                   </motion.p>
@@ -342,7 +342,7 @@ export default function HowItWorks() {
         </ParallaxLayer>
 
         {/* Right: Demo viewport */}
-        <ParallaxLayer depth={0.8} mouseX={mouseX} mouseY={mouseY} className="flex-1 min-w-[340px] min-h-[440px] relative max-lg:min-w-0 max-lg:min-h-[380px]">
+        <ParallaxLayer depth={0.8} mouseX={mouseX} mouseY={mouseY} className="flex-1 min-w-[420px] min-h-[550px] relative max-lg:min-w-0 max-lg:min-h-[470px]">
           <motion.div
             animate={{
               boxShadow: [
@@ -352,7 +352,7 @@ export default function HowItWorks() {
               ],
             }}
             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            className="rounded-3xl relative overflow-hidden h-full min-h-[440px] max-lg:min-h-[380px]"
+            className="rounded-3xl relative overflow-hidden h-full min-h-[550px] max-lg:min-h-[470px]"
             style={{
               border: "1px solid rgba(168,85,247,0.12)",
               background: "rgba(14,12,24,0.85)",
@@ -382,13 +382,13 @@ export default function HowItWorks() {
                   initial="enter"
                   animate="center"
                   exit="exit"
-                  className="absolute inset-0 p-8 sm:p-10 flex flex-col justify-center z-[1]"
+                  className="absolute inset-0 p-10 sm:p-12 flex flex-col justify-center z-[1]"
                 >
                   <motion.p
                     initial={{ opacity: 0, y: -6 }}
                     animate={{ opacity: 0.6, y: 0 }}
                     transition={{ ...appleMedium, delay: 0.2 }}
-                    className="text-[11px] font-semibold text-primary uppercase tracking-[0.12em] mb-[18px]"
+                    className="text-sm font-semibold text-primary uppercase tracking-[0.12em] mb-5 font-sans"
                   >
                     Describe your scenario
                   </motion.p>
@@ -397,23 +397,23 @@ export default function HowItWorks() {
                     initial={{ opacity: 0, y: 16, filter: "blur(6px)" }}
                     animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                     transition={{ duration: 0.8, delay: 0.25, ease: appleEase }}
-                    className="rounded-2xl relative min-h-[170px]"
+                    className="rounded-2xl relative min-h-[210px]"
                     style={{
                       border: "1px solid rgba(168,85,247,0.15)",
                       background: "linear-gradient(135deg, rgba(168,85,247,0.04), rgba(168,85,247,0.01))",
-                      padding: "28px",
+                      padding: "35px",
                     }}
                   >
                     <div
                       className="absolute inset-0 rounded-2xl pointer-events-none"
                       style={{ background: "radial-gradient(ellipse at top left, rgba(168,85,247,0.05), transparent 60%)" }}
                     />
-                    <p className="text-base text-foreground/90 leading-[1.75] m-0 relative">
+                    <p className="text-lg text-foreground/90 leading-[1.75] m-0 relative font-sans">
                       {typedText}
                       <motion.span
                         animate={{ opacity: cursorVisible ? 1 : 0 }}
                         transition={{ duration: 0.06 }}
-                        className="inline-block w-[2px] h-[19px] ml-[1px] align-text-bottom rounded-[1px]"
+                        className="inline-block w-[2px] h-[24px] ml-[1px] align-text-bottom rounded-[1px]"
                         style={{
                           background: "linear-gradient(180deg, #a855f7, #7c3aed)",
                           boxShadow: "0 0 8px rgba(168,85,247,0.4)",
@@ -435,10 +435,10 @@ export default function HowItWorks() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.6 + i * 0.08, ease: appleEase }}
                         whileHover={{ borderColor: "rgba(168,85,247,0.3)", color: "rgba(240,237,246,0.6)", transition: appleFast }}
-                        className="text-xs cursor-pointer"
+                        className="text-sm cursor-pointer font-sans"
                         style={{
                           color: "rgba(240,237,246,0.3)",
-                          padding: "7px 16px",
+                          padding: "9px 20px",
                           borderRadius: 24,
                           border: "1px solid rgba(168,85,247,0.1)",
                         }}
@@ -458,13 +458,13 @@ export default function HowItWorks() {
                   initial="enter"
                   animate="center"
                   exit="exit"
-                  className="absolute inset-0 p-8 sm:p-10 flex flex-col justify-center z-[1]"
+                  className="absolute inset-0 p-10 sm:p-12 flex flex-col justify-center z-[1]"
                 >
                   <motion.p
                     initial={{ opacity: 0, y: -6 }}
                     animate={{ opacity: 0.6, y: 0 }}
                     transition={{ ...appleMedium, delay: 0.2 }}
-                    className="text-[11px] font-semibold text-primary uppercase tracking-[0.12em] mb-[22px]"
+                    className="text-sm font-semibold text-primary uppercase tracking-[0.12em] mb-6 font-sans"
                   >
                     AI-parsed structure
                   </motion.p>
@@ -473,7 +473,7 @@ export default function HowItWorks() {
                     variants={cardMorphContainer}
                     initial="hidden"
                     animate="visible"
-                    className="grid grid-cols-2 gap-[14px]"
+                    className="grid grid-cols-2 gap-4"
                     style={{ perspective: 1000 }}
                   >
                     {PARSED_CARDS.map((card) => (
@@ -490,7 +490,7 @@ export default function HowItWorks() {
                         style={{
                           border: "1px solid rgba(168,85,247,0.18)",
                           background: "linear-gradient(145deg, rgba(168,85,247,0.08), rgba(168,85,247,0.02))",
-                          padding: "22px 20px",
+                          padding: "28px 25px",
                           transformStyle: "preserve-3d",
                         }}
                       >
@@ -502,10 +502,10 @@ export default function HowItWorks() {
                             background: "radial-gradient(circle, rgba(168,85,247,0.08), transparent)",
                           }}
                         />
-                        <div className="flex items-center gap-[10px] mb-[10px] relative">
-                          <span className="text-[10px] font-bold text-primary tracking-[0.1em]">{card.label}</span>
+                        <div className="flex items-center gap-3 mb-3 relative">
+                          <span className="text-xs font-bold text-primary tracking-[0.1em] font-sans">{card.label}</span>
                         </div>
-                        <p className="text-sm text-foreground/90 m-0 leading-[1.45] font-medium relative">{card.value}</p>
+                        <p className="text-base text-foreground/90 m-0 leading-[1.45] font-medium relative font-sans">{card.value}</p>
                       </motion.div>
                     ))}
                   </motion.div>
@@ -514,15 +514,15 @@ export default function HowItWorks() {
                     initial={{ opacity: 0, x: -16, filter: "blur(4px)" }}
                     animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
                     transition={{ duration: 0.7, delay: 1, ease: appleEase }}
-                    className="flex items-center gap-[10px] mt-[22px]"
+                    className="flex items-center gap-3 mt-6"
                   >
                     <motion.div
                       animate={{ boxShadow: ["0 0 0px rgba(34,197,94,0.3)", "0 0 10px rgba(34,197,94,0.5)", "0 0 0px rgba(34,197,94,0.3)"] }}
                       transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                      className="w-[7px] h-[7px] rounded-full flex-shrink-0"
+                      className="w-2 h-2 rounded-full flex-shrink-0"
                       style={{ background: "#22c55e" }}
                     />
-                    <span className="text-xs font-medium" style={{ color: "rgba(34,197,94,0.7)" }}>
+                    <span className="text-sm font-medium font-sans" style={{ color: "rgba(34,197,94,0.7)" }}>
                       Structure confirmed — ready to generate
                     </span>
                   </motion.div>
@@ -537,24 +537,24 @@ export default function HowItWorks() {
                   initial="enter"
                   animate="center"
                   exit="exit"
-                  className="absolute inset-0 p-8 sm:p-10 flex flex-col justify-center z-[1]"
+                  className="absolute inset-0 p-10 sm:p-12 flex flex-col justify-center z-[1]"
                 >
                   {/* format tabs */}
                   <motion.div
                     initial={{ opacity: 0, y: -8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.7, delay: 0.15, ease: appleEase }}
-                    className="flex gap-1 mb-[22px]"
+                    className="flex gap-1.5 mb-6"
                   >
                     {["One-Pager", "Script"].map((fmt, i) => (
                       <motion.span
                         key={fmt}
                         whileHover={{ scale: 1.04, transition: appleFast }}
-                        className="text-xs cursor-pointer"
+                        className="text-sm cursor-pointer font-sans"
                         style={{
                           fontWeight: i === 0 ? 600 : 400,
                           color: i === 0 ? "#f0edf6" : "rgba(240,237,246,0.3)",
-                          padding: "8px 18px",
+                          padding: "10px 22px",
                           borderRadius: 12,
                           background: i === 0 ? "rgba(168,85,247,0.12)" : "transparent",
                           border: `1px solid ${i === 0 ? "rgba(168,85,247,0.2)" : "transparent"}`,
@@ -575,9 +575,9 @@ export default function HowItWorks() {
                   >
                     <div
                       className="flex items-center justify-between"
-                      style={{ padding: "18px 22px", borderBottom: "1px solid rgba(168,85,247,0.08)" }}
+                      style={{ padding: "22px 28px", borderBottom: "1px solid rgba(168,85,247,0.08)" }}
                     >
-                      <h4 className="font-display text-lg text-foreground m-0 font-normal tracking-[-0.01em]">
+                      <h4 className="font-display text-xl text-foreground m-0 font-normal tracking-[-0.01em]">
                         Series A Pitch — Sequoia
                       </h4>
                       <div className="flex gap-1.5">
@@ -585,8 +585,8 @@ export default function HowItWorks() {
                           <motion.span
                             key={a}
                             whileHover={{ background: "rgba(168,85,247,0.1)", scale: 1.05, transition: appleFast }}
-                            className="text-[10px] font-semibold text-primary cursor-pointer"
-                            style={{ padding: "5px 12px", borderRadius: 8, border: "1px solid rgba(168,85,247,0.2)" }}
+                            className="text-xs font-semibold text-primary cursor-pointer font-sans"
+                            style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid rgba(168,85,247,0.2)" }}
                           >
                             {a}
                           </motion.span>
@@ -600,14 +600,14 @@ export default function HowItWorks() {
                           key={section.title}
                           variants={outputItem}
                           style={{
-                            padding: "16px 22px",
+                            padding: "20px 28px",
                             borderBottom: idx < OUTPUT_SECTIONS.length - 1 ? "1px solid rgba(168,85,247,0.05)" : "none",
                           }}
                         >
-                          <p className="text-[10px] font-bold text-primary/70 tracking-[0.08em] uppercase m-0 mb-[5px]">
+                          <p className="text-xs font-bold text-primary/70 tracking-[0.08em] uppercase m-0 mb-1.5 font-sans">
                             {section.title}
                           </p>
-                          <p className="text-[13px] text-muted-foreground m-0 leading-[1.55]">{section.preview}</p>
+                          <p className="text-base text-muted-foreground m-0 leading-[1.55] font-sans">{section.preview}</p>
                         </motion.div>
                       ))}
                     </motion.div>
@@ -618,7 +618,7 @@ export default function HowItWorks() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.7, delay: 0.7, ease: appleEase }}
-                    className="flex gap-2 mt-[18px] flex-wrap"
+                    className="flex gap-2.5 mt-5 flex-wrap"
                   >
                     {["Shorter", "Bolder", "More Data", "Refine..."].map((chip, i) => (
                       <motion.span
@@ -627,10 +627,10 @@ export default function HowItWorks() {
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.5, delay: 0.75 + i * 0.06, ease: appleEase }}
                         whileHover={{ borderColor: "rgba(168,85,247,0.3)", color: "rgba(240,237,246,0.65)", scale: 1.05, transition: appleFast }}
-                        className="text-xs cursor-pointer"
+                        className="text-sm cursor-pointer font-sans"
                         style={{
                           color: "rgba(240,237,246,0.35)",
-                          padding: "7px 16px",
+                          padding: "9px 20px",
                           borderRadius: 24,
                           border: "1px solid rgba(168,85,247,0.1)",
                         }}
