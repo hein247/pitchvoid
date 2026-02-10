@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, Play, Share2, Lock, FileText, ScrollText } from 'lucide-react';
+import { ArrowLeft, Play, Share2, Lock, FileText, ScrollText, Download } from 'lucide-react';
 import FeedbackBar from './FeedbackBar';
 import OutputOnePagerView, { OutputOnePagerData } from './OutputOnePagerView';
 import OutputScriptView, { OutputScriptData } from './OutputScriptView';
@@ -96,6 +96,23 @@ const PitchOutputView = ({
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                if (!isPro) return;
+                window.print();
+              }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${
+                isPro
+                  ? 'border-primary/30 hover:bg-primary/10'
+                  : 'border-border text-muted-foreground cursor-not-allowed'
+              }`}
+              title={isPro ? 'Download as PDF' : 'Upgrade to Pro to export'}
+            >
+              <Download className="w-4 h-4" />
+              <span>PDF</span>
+              {!isPro && <Lock className="w-3 h-3" />}
+            </button>
+
             <button
               onClick={onPractice}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${

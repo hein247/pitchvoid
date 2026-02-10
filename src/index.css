@@ -364,3 +364,46 @@
     border-radius: 3px;
   }
 }
+
+/* Print styles for PDF export */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Hide non-content elements */
+  header, nav, footer,
+  [data-print-hide],
+  .sticky {
+    display: none !important;
+  }
+
+  /* Show only the main content area */
+  main {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Clean card styling for print */
+  .bg-card {
+    background: white !important;
+    border: 1px solid #ddd !important;
+    box-shadow: none !important;
+  }
+
+  .text-foreground,
+  .text-card-foreground {
+    color: #111 !important;
+  }
+
+  .text-muted-foreground {
+    color: #555 !important;
+  }
+
+  .border-border {
+    border-color: #ddd !important;
+  }
+}
