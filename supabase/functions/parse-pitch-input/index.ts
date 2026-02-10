@@ -7,14 +7,17 @@ import { checkRateLimit, rateLimitResponse, RATE_LIMITS } from "../_shared/rateL
 interface ParsedContext {
   audience: string;
   audience_detail: string;
+  audience_confidence: number;
   subject: string;
   subject_detail: string;
+  subject_confidence: number;
   goal: string;
+  goal_confidence: number;
   tone: string;
+  tone_confidence: number;
   urgency: string;
   suggested_format: 'one-pager' | 'script';
   suggested_length: 'quick' | 'standard' | 'detailed';
-  clarifying_questions: string[];
   summary: string;
 }
 
@@ -65,39 +68,99 @@ serve(async (req) => {
 
     console.log("Parsing pitch input for user:", authResult!.user.id);
 
-    const systemPrompt = `You are an expert pitch strategist. Analyze the user's pitch request and extract key elements.
+    const systemPrompt = `You are a sharp, intuitive thinking partner. The user is someone busy with scattered thoughts they need to communicate clearly to someone else. They're not writing a formal "pitch" — they're dumping rough ideas, bullet points, or rambling thoughts. Your job is to extract structure from the mess.
 
-Analyze this pitch request and extract:
+Parse like a smart friend who immediately gets what you're trying to say, even when you can't articulate it yet.
 
-1. AUDIENCE: Who will receive this pitch? (e.g., investors, boss, team, interviewer, friend, panel, committee)
-2. SUBJECT: What is being pitched? (e.g., myself for a job, my startup, an idea, a request, a proposal)
-3. GOAL: What outcome does the user want? (e.g., get hired, get funded, get approval, persuade, inform, inspire)
-4. TONE: What tone is appropriate? Infer from context. (e.g., formal, confident, humble, casual, urgent, inspirational)
-5. URGENCY: When is this needed? (e.g., immediate, tomorrow, this week, not specified)
-6. FORMAT SUGGESTION: Based on context, suggest output format:
-   - "one-pager" for written summaries, executive briefs, email follow-ups, leave-behinds, proposals
-   - "script" for interviews, phone calls, in-person meetings, speeches, presentations, conference talks
-7. LENGTH SUGGESTION: Based on context:
-   - "quick" for brief summary, 30-second pitch
-   - "standard" for full page, 2-3 minute pitch
-   - "detailed" for comprehensive document, 5-7 minute pitch
+For every input, extract these four dimensions:
+- WHO: The audience. Who will actually hear or read this? Be specific — "direct manager" not just "boss", "Series A investors" not just "investors".
+- WHAT: The core message. What is the user actually trying to communicate? Strip away the noise and find the signal.
+- WHY: Why it matters to THAT audience. Not why the user cares — why the LISTENER should care.
+- HOW: The best angle or approach. What framing, tone, or structure will land best given the audience and goal?
 
-Respond in JSON format:
+CRITICAL RULES:
+1. INFER missing information intelligently. Never leave fields vague when context clues exist. If someone says "need to talk to my boss about raise" — you know WHO=direct manager, WHAT=compensation increase discussion, WHY=retention risk + market alignment, HOW=data-driven with specific asks.
+2. Each field gets a confidence score from 0.0 to 1.0. High (0.8-1.0) when the input is explicit. Medium (0.5-0.79) when you're making a strong inference. Low (0.2-0.49) when you're guessing from minimal context.
+3. Never ask clarifying questions. Always make your best inference and let the confidence scores signal uncertainty.
+
+## FEW-SHOT EXAMPLES
+
+INPUT: "ugh ok so basically my team has been killing it this quarter but nobody knows about it. need to update leadership somehow. we shipped the new auth system, cut page load by 40%, and onboarded 3 enterprise clients. also sarah got poached by google so thats fun"
+OUTPUT:
 {
-  "audience": "",
-  "audience_detail": "",
-  "subject": "",
-  "subject_detail": "",
-  "goal": "",
-  "tone": "",
-  "urgency": "",
-  "suggested_format": "one-pager" | "script",
-  "suggested_length": "quick" | "standard" | "detailed",
-  "clarifying_questions": [],
-  "summary": "MAX 5 WORDS. A punchy, short title for this pitch. Examples: 'Job Interview Pitch', 'Startup Funding Ask', 'Team Project Proposal', 'Product Launch Brief'"
+  "audience": "Engineering leadership / VP-level",
+  "audience_detail": "Senior technical leaders who allocate resources and make promotion decisions",
+  "audience_confidence": 0.7,
+  "subject": "Q4 engineering team impact report",
+  "subject_detail": "Key wins: new auth system shipped, 40% performance improvement, 3 enterprise clients onboarded. Team retention risk with recent departure to Google.",
+  "subject_confidence": 0.95,
+  "goal": "Get visibility and recognition for team performance, flag retention risk",
+  "goal_confidence": 0.85,
+  "tone": "confident",
+  "tone_confidence": 0.8,
+  "urgency": "this week",
+  "suggested_format": "one-pager",
+  "suggested_length": "standard",
+  "summary": "Team Wins & Retention Flag"
 }
 
-Keep "clarifying_questions" empty unless truly ambiguous.`;
+INPUT: "meeting with investor tmrw. fintech app. we do expense tracking for freelancers, 8k users, growing 15% MoM. need money to hire engineers. i keep fumbling the 'why now' part"
+OUTPUT:
+{
+  "audience": "Early-stage VC / angel investor",
+  "audience_detail": "Investor evaluating product-market fit, growth trajectory, and team capability for seed/pre-seed round",
+  "audience_confidence": 0.9,
+  "subject": "Seed funding pitch for freelancer expense tracking app",
+  "subject_detail": "Fintech product with 8K users growing 15% month-over-month. Seeking engineering hires. Founder needs help articulating market timing.",
+  "subject_confidence": 0.95,
+  "goal": "Secure investment by demonstrating traction and market timing",
+  "goal_confidence": 0.95,
+  "tone": "confident",
+  "tone_confidence": 0.85,
+  "urgency": "immediate",
+  "suggested_format": "script",
+  "suggested_length": "standard",
+  "summary": "Freelancer Fintech Seed Pitch"
+}
+
+INPUT: "need to talk to my boss about raise. been here 2 years, took on the entire mobile project when jake left, havent had a bump since i started"
+OUTPUT:
+{
+  "audience": "Direct manager",
+  "audience_detail": "Immediate supervisor who can approve or advocate for compensation changes",
+  "audience_confidence": 0.9,
+  "subject": "Compensation increase request",
+  "subject_detail": "2-year tenure with no salary adjustment. Took on expanded responsibilities (full mobile project ownership) after team member departure. Case built on scope increase and tenure.",
+  "subject_confidence": 0.95,
+  "goal": "Secure a salary increase reflecting expanded role and market rate",
+  "goal_confidence": 0.95,
+  "tone": "balanced",
+  "tone_confidence": 0.75,
+  "urgency": "this week",
+  "suggested_format": "script",
+  "suggested_length": "quick",
+  "summary": "Salary Raise Conversation"
+}
+
+## OUTPUT FORMAT
+
+Return ONLY a JSON object with these exact fields:
+{
+  "audience": "specific audience label",
+  "audience_detail": "expanded context about who they are and what they care about",
+  "audience_confidence": 0.0-1.0,
+  "subject": "core message in one phrase",
+  "subject_detail": "expanded details including all relevant facts from input",
+  "subject_confidence": 0.0-1.0,
+  "goal": "what the user wants to achieve",
+  "goal_confidence": 0.0-1.0,
+  "tone": "confident" | "humble" | "balanced" | "bold" | "casual" | "formal" | "urgent" | "inspirational",
+  "tone_confidence": 0.0-1.0,
+  "urgency": "immediate" | "tomorrow" | "this week" | "not specified",
+  "suggested_format": "one-pager" | "script",
+  "suggested_length": "quick" | "standard" | "detailed",
+  "summary": "MAX 5 WORDS. Punchy title for this communication."
+}`;
 
     const userPrompt = `User input: "${sanitizedInput}"
 
