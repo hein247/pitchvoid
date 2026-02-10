@@ -3,42 +3,50 @@ import type { MotionValue } from "framer-motion";
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from "framer-motion";
 const STEP_DURATION = 6000;
 const TYPING_SPEED = 32;
-const SCENARIO_TEXT = "I'm pitching our Series A to Sequoia partners next Tuesday. We have $2M ARR, 40% MoM growth, and need to raise $15M...";
+const SCENARIO_TEXT = "interview at tiffany for design role, i know adobe well, good at print production, can handle pressure and tight deadlines, want to discuss portfolio";
 const PARSED_CARDS = [{
   label: "WHO",
-  value: "Sequoia Partners"
+  value: "Tiffany & Co. Hiring Manager"
 }, {
   label: "WHAT",
-  value: "Series A — $15M Raise"
+  value: "Design Role Interview"
 }, {
   label: "WHY",
-  value: "$2M ARR, 40% MoM Growth"
+  value: "Adobe Expertise + Print Production"
 }, {
   label: "HOW",
-  value: "Data-Driven Narrative"
+  value: "Portfolio-Led, Confident"
 }];
 const OUTPUT_SECTIONS = [{
-  title: "The Opportunity",
-  preview: "The AI infrastructure market is projected to reach $407B by 2028..."
+  title: "Technical Mastery",
+  points: [
+    "**Expert-level Adobe Creative Suite** — non-destructive editing, clean layer hierarchy.",
+    "**Rigorous pre-flight for print**: ink density control, spot-color accuracy (PMS 1837)."
+  ]
 }, {
-  title: "Traction & Metrics",
-  preview: "$2M ARR with 40% month-over-month growth across 127 enterprise..."
+  title: "Working Under Pressure",
+  points: [
+    "Navigate tight production windows by **catching bottlenecks early** in prototyping.",
+    "Reconciled **conflicting stakeholder feedback** into a single cohesive direction."
+  ]
 }, {
-  title: "The Ask",
-  preview: "We're raising $15M to expand our engineering team and accelerate..."
+  title: "Next Step",
+  points: [
+    "Walk through the portfolio — **show how this translates** to the team's current needs."
+  ]
 }];
 const STEPS = [{
   num: "01",
-  title: "Describe Your Pitch",
-  sub: "Natural language in, structured pitch out"
+  title: "Drop Your Thoughts",
+  sub: "Messy notes in, structured talking points out"
 }, {
   num: "02",
-  title: "AI Extracts Your Story",
-  sub: "Audience, objective, and talking points — parsed instantly"
+  title: "AI Organizes Your Story",
+  sub: "Audience, goal, and key points — parsed instantly"
 }, {
   num: "03",
-  title: "Choose Your Format",
-  sub: "One-pager or script — ready in seconds"
+  title: "Your Cheat Sheet, Ready",
+  sub: "One-pager or script — glance and go"
 }];
 
 /* ── Apple-style motion config ── */
@@ -676,26 +684,16 @@ export default function HowItWorks() {
                 border: "1px solid rgba(168,85,247,0.12)",
                 background: "rgba(8,6,16,0.5)"
               }}>
-                    <div className="flex items-center justify-between" style={{
+                    <div className="flex flex-col gap-1" style={{
                   padding: "22px 28px",
                   borderBottom: "1px solid rgba(168,85,247,0.08)"
                 }}>
                       <h4 className="font-display text-xl text-foreground m-0 font-normal tracking-[-0.01em]">
-                        Series A Pitch — Sequoia
+                        Tiffany Design Interview
                       </h4>
-                      <div className="flex gap-1.5">
-                        {["PDF", "Share"].map(a => <motion.span key={a} whileHover={{
-                      background: "rgba(168,85,247,0.1)",
-                      scale: 1.05,
-                      transition: appleFast
-                    }} className="text-xs font-semibold text-primary cursor-pointer font-sans" style={{
-                      padding: "6px 14px",
-                      borderRadius: 8,
-                      border: "1px solid rgba(168,85,247,0.2)"
-                    }}>
-                            {a}
-                          </motion.span>)}
-                      </div>
+                      <span className="text-xs font-sans" style={{ color: "rgba(240,237,246,0.25)" }}>
+                        Design capability overview for hiring manager
+                      </span>
                     </div>
 
                     <motion.div variants={outputStagger} initial="hidden" animate="visible">
@@ -703,10 +701,20 @@ export default function HowItWorks() {
                     padding: "20px 28px",
                     borderBottom: idx < OUTPUT_SECTIONS.length - 1 ? "1px solid rgba(168,85,247,0.05)" : "none"
                   }}>
-                          <p className="text-xs font-bold text-primary/70 tracking-[0.08em] uppercase m-0 mb-1.5 font-sans">
+                          <p className="text-[11px] font-medium uppercase tracking-[0.15em] m-0 mb-3 font-sans" style={{ color: "rgba(168,85,247,0.45)" }}>
                             {section.title}
                           </p>
-                          <p className="text-base text-muted-foreground m-0 leading-[1.55] font-sans">{section.preview}</p>
+                          <div className="space-y-2">
+                            {section.points.map((point, pIdx) => (
+                              <div key={pIdx} className="flex items-start gap-3">
+                                <div className="w-[3px] rounded-full flex-shrink-0 mt-1" style={{
+                                  height: 16,
+                                  background: "linear-gradient(180deg, rgba(168,85,247,0.6), rgba(168,85,247,0.15))"
+                                }} />
+                                <p className="text-sm text-muted-foreground m-0 leading-[1.55] font-sans">{point.replace(/\*\*/g, '')}</p>
+                              </div>
+                            ))}
+                          </div>
                         </motion.div>)}
                     </motion.div>
                   </motion.div>
@@ -721,7 +729,7 @@ export default function HowItWorks() {
                 delay: 0.7,
                 ease: appleEase
               }} className="flex gap-2.5 mt-5 flex-wrap">
-                    {["Shorter", "Bolder", "More Data", "Refine..."].map((chip, i) => <motion.span key={chip} initial={{
+                    {["Shorter", "Bolder", "Simpler", "Refine..."].map((chip, i) => <motion.span key={chip} initial={{
                   opacity: 0,
                   scale: 0.9
                 }} animate={{
