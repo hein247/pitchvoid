@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ArrowLeft, Play, Share2, Lock, FileText, ScrollText } from 'lucide-react';
+import FeedbackBar from './FeedbackBar';
 import OutputOnePagerView, { OutputOnePagerData } from './OutputOnePagerView';
 import OutputScriptView, { OutputScriptData } from './OutputScriptView';
 import RefinementBar from './RefinementBar';
@@ -11,6 +12,7 @@ type OutputFormat = 'onepager' | 'script';
 interface PitchOutputViewProps {
   title: string;
   subtitle?: string;
+  projectId?: string;
   onePager?: OutputOnePagerData;
   script?: OutputScriptData;
   onBack?: () => void;
@@ -27,6 +29,7 @@ interface PitchOutputViewProps {
 const PitchOutputView = ({
   title,
   subtitle,
+  projectId,
   onePager,
   script,
   onBack,
@@ -157,6 +160,16 @@ const PitchOutputView = ({
             data={script}
             onStartTeleprompter={onPractice}
           />
+        )}
+
+        {/* Feedback Bar - show when content is available */}
+        {projectId && ((format === 'onepager' && onePager) || (format === 'script' && script)) && (
+          <div className="mt-8 max-w-2xl mx-auto">
+            <FeedbackBar
+              projectId={projectId}
+              generatedOutput={format === 'onepager' ? (onePager as unknown as Record<string, unknown>) : (script as unknown as Record<string, unknown>)}
+            />
+          </div>
         )}
 
         {/* Loading/Empty states */}
