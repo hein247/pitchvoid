@@ -5,62 +5,48 @@ import { corsHeaders, jsonResponse, errorResponse, handleCors } from "../_shared
 import { checkRateLimit, rateLimitResponse, RATE_LIMITS } from "../_shared/rateLimit.ts";
 
 interface OnePagerSection {
-  type: 'hero' | 'key-points' | 'value-prop' | 'cta';
   title: string;
-  content: string;
-  bullets?: string[];
+  points: string[];
 }
 
 interface OnePagerData {
-  headline: string;
-  subheadline: string;
+  title: string;
+  context_line: string;
   sections: OnePagerSection[];
-  contactInfo?: {
-    email?: string;
-    phone?: string;
-    website?: string;
-  };
+  generated_at?: string;
+  format?: string;
+  version?: number;
 }
 
 serve(async (req) => {
-  // Handle CORS preflight
   const corsResponse = handleCors(req);
   if (corsResponse) return corsResponse;
 
   try {
-    // Authenticate the request
     const { result: authResult, error: authError } = await authenticateRequest(req);
     if (authError) {
-      return new Response(authError.body, {
-        status: authError.status,
-        headers: corsHeaders,
-      });
+      return new Response(authError.body, { status: authError.status, headers: corsHeaders });
     }
 
     const { user, profile } = authResult!;
 
-    // Rate limiting based on user plan
     const plan = profile.plan || "free";
     const rateConfig = plan === "free" ? RATE_LIMITS.aiGeneration.free : RATE_LIMITS.aiGeneration.paid;
     const rateLimitResult = await checkRateLimit(`onepager:${user.id}`, rateConfig);
     if (!rateLimitResult.allowed) {
-      console.log("Rate limit exceeded for user:", user.id);
       return rateLimitResponse(rateLimitResult);
     }
 
-    // Check pitch limit (server-side paywall)
     const limitCheck = checkPitchLimit(profile);
     if (!limitCheck.allowed) {
       return jsonResponse({ error: limitCheck.error }, limitCheck.statusCode || 402);
     }
 
-    // Check format access (one-pager is Pro only)
     const formatCheck = checkFormatAccess(profile, 'one-pager');
     if (!formatCheck.allowed) {
       return jsonResponse({ error: formatCheck.error }, formatCheck.statusCode || 402);
     }
 
-    // Parse and validate request body
     const body = await req.json();
     const validation = validateGenerateOnePagerInput(body);
     if (!validation.valid) {
@@ -68,7 +54,7 @@ serve(async (req) => {
     }
 
     const { scenario, targetAudience, documentContext, imageDescriptions, visualStyle } = body;
-    
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       return errorResponse("Service configuration error", 500, "LOVABLE_API_KEY is not configured");
@@ -76,7 +62,6 @@ serve(async (req) => {
 
     console.log("Generating one-pager for user:", user.id);
 
-    // Sanitize inputs
     const sanitizedScenario = sanitizeForPrompt(scenario);
     const sanitizedAudience = targetAudience ? sanitizeForPrompt(targetAudience) : "";
     const sanitizedContext = documentContext ? sanitizeForPrompt(documentContext) : "";
@@ -86,65 +71,137 @@ serve(async (req) => {
       ? `\n\n**Uploaded Visual Assets (${imageDescriptions.length} images):**\n${imageDescriptions.map((desc: string, i: number) => `- Image ${i + 1}: ${sanitizeForPrompt(desc)}`).join('\n')}`
       : '';
 
-    const systemPrompt = `You are an expert pitch strategist creating compelling one-pager documents. Create a single-page executive summary that is concise, impactful, and scannable.
+    const systemPrompt = `You are a smart friend who just organized someone's scattered notes into clear talking points. You create clarity cheat sheets — structured points someone glances at before a meeting, interview, call, or email.
 
-QUALITY GUIDELINES (from user feedback):
-- Users dislike: overly corporate tone, generic filler phrases, and vague statements. Prioritize specificity and natural language.
-- Avoid: "In today's fast-paced world", "leverage synergies", "cutting-edge solutions", or any templated corporate speak.
-- Instead: Use concrete numbers, specific examples, and language a smart person would actually use in conversation.
+VOICE & TONE:
+- Write like a smart friend, not a consultant. No corporate filler.
+- No "In today's fast-paced world", "leverage synergies", "cutting-edge solutions", or templated speak.
+- Every sentence must contain at least one specific detail from the user's input.
+- If the user said something vague, make it concrete. "Good growth" → "40% month-over-month growth."
+- Use the user's own language. If they said "boss", don't upgrade to "senior leadership."
 
-DESIGN PRINCIPLES:
-- Headline: Bold, attention-grabbing, benefit-focused (under 10 words)
-- Subheadline: Clear value proposition (under 25 words)
-- Sections: 3-4 focused sections with clear hierarchy
-- Bullets: 2-4 per section, action-oriented
-- CTA: Clear next step with urgency
+STRUCTURE RULES:
+- 2-4 sections, each with a clear thematic label (2-5 words).
+- 1-4 points per section. Fewer is better. If you can say it in 2, don't use 4.
+- Each point: 1-2 sentences max, self-contained.
+- Bold the key phrase in each point using markdown **bold** — the one thing worth highlighting.
+- Last section should always be the next step or ask. Label it "Next Step", "The Ask", or "Action Item" — whatever fits.
 
-Output ONLY a valid JSON object with this structure:
+WHAT NOT TO GENERATE:
+- No introduction or preamble paragraph.
+- No conclusion or summary paragraph.
+- No contact information.
+- No "Dear [Name]" or letter formatting.
+- No bullet symbols in text.
+- No section numbering.
+
+FEW-SHOT EXAMPLES:
+
+Example 1 — User input: "interview at tiffany for design role, i know adobe well, good at print production, can handle pressure and tight deadlines, want to discuss portfolio"
 {
-  "headline": "Bold attention-grabbing headline",
-  "subheadline": "Clear value proposition that explains the benefit",
+  "title": "Tiffany Design Interview",
+  "context_line": "Design capability overview for Tiffany & Co. hiring manager",
   "sections": [
     {
-      "type": "key-points",
-      "title": "Section Title",
-      "content": "Brief description",
-      "bullets": ["Point 1", "Point 2", "Point 3"]
+      "title": "Technical Mastery",
+      "points": [
+        "**Expert-level Adobe Creative Suite** — non-destructive editing, clean layer hierarchy for team collaboration.",
+        "**Rigorous pre-flight for print**: ink density control, bleed management, spot-color accuracy (PMS 1837).",
+        "Digital optimization — **high-fidelity rendering with fast load times** for premium web experiences."
+      ]
     },
     {
-      "type": "value-prop",
-      "title": "Why Choose Us",
-      "content": "Value proposition",
-      "bullets": ["Benefit 1", "Benefit 2"]
+      "title": "Working Under Pressure",
+      "points": [
+        "Navigate tight production windows by **catching bottlenecks early** in wireframing and prototyping.",
+        "Reconciled **conflicting stakeholder feedback** into a single cohesive visual direction on high-stakes projects."
+      ]
     },
     {
-      "type": "cta",
-      "title": "Ready to Get Started?",
-      "content": "Clear call to action with next steps"
+      "title": "Next Step",
+      "points": [
+        "Walk through the portfolio — **show how this translates** to the team's current needs."
+      ]
     }
-  ],
-  "contactInfo": {
-    "email": "contact@example.com",
-    "website": "https://example.com"
-  }
+  ]
 }
 
-ONE-PAGER STRUCTURE:
-1. Key Points - 3-4 most important facts/benefits
-2. Value Proposition - Why this matters to the reader
-3. Call to Action - Clear next steps
+Example 2 — User input: "need to present Q3 to board, revenue up 40%, got 12 new enterprise deals, expanding to APAC next quarter, need them to approve budget for 20 new hires"
+{
+  "title": "Q3 Board Review",
+  "context_line": "Quarterly performance and hiring request for the board of directors",
+  "sections": [
+    {
+      "title": "Q3 Performance",
+      "points": [
+        "Revenue grew **40% quarter-over-quarter**, driven by 12 new enterprise deals.",
+        "Net retention hit **135%** — existing customers are expanding faster than new ones are signing."
+      ]
+    },
+    {
+      "title": "APAC Expansion",
+      "points": [
+        "Market entry planned for Q4 with **projected 60% growth** in the region.",
+        "Initial partnerships already signed with **3 regional distributors**."
+      ]
+    },
+    {
+      "title": "The Ask",
+      "points": [
+        "Approve budget for **20 new hires** across engineering and sales to support expansion timeline.",
+        "Without headcount, APAC launch slips to Q2 — **$4M projected revenue at risk**."
+      ]
+    }
+  ]
+}
 
-Keep everything scannable and impactful. Less is more.`;
+Example 3 — User input: "pitching a rebrand to a bakery owner, they have no online presence, their current logo looks dated, i can do logo + website + social templates, budget friendly"
+{
+  "title": "Bakery Rebrand Pitch",
+  "context_line": "Brand refresh proposal for local bakery owner",
+  "sections": [
+    {
+      "title": "The Problem",
+      "points": [
+        "Current branding looks **dated compared to competitors** — customers are choosing newer spots with stronger visual identity.",
+        "**Zero online presence** means missing foot traffic from people searching 'bakery near me'."
+      ]
+    },
+    {
+      "title": "What I'd Do",
+      "points": [
+        "**Modern logo redesign** that keeps the warmth of the original but feels fresh and Instagram-ready.",
+        "Simple **one-page website** with menu, hours, and online ordering link.",
+        "**Social media templates** — 10 ready-to-use designs for Instagram and Facebook."
+      ]
+    },
+    {
+      "title": "Next Step",
+      "points": [
+        "Start with the logo — **2-week turnaround, budget-friendly flat fee**. Website and social follow from there."
+      ]
+    }
+  ]
+}
 
-    const userPrompt = `Create a one-pager executive summary:
+Output ONLY a valid JSON object matching this structure:
+{
+  "title": "short label, max 8 words",
+  "context_line": "one sentence: [what] for [who]",
+  "sections": [
+    {
+      "title": "2-5 word label",
+      "points": ["1-2 sentences with **one bold key phrase**"]
+    }
+  ]
+}`;
+
+    const userPrompt = `Create a clarity cheat sheet from this input:
 
 **Scenario:** ${sanitizedScenario}
-
-**Target Audience:** ${sanitizedAudience || "Decision makers"}
-
-**Goal:** Concise, scannable single-page document
-${sanitizedContext ? `\n**Document Context:** ${sanitizedContext}` : ''}${imageContext}
-${sanitizedStyle ? `\n**Tone/Style:** ${sanitizedStyle}` : ''}
+${sanitizedAudience ? `**Target Audience:** ${sanitizedAudience}` : ''}
+${sanitizedContext ? `**Additional Context:** ${sanitizedContext}` : ''}${imageContext}
+${sanitizedStyle ? `**Tone/Style:** ${sanitizedStyle}` : ''}
 
 Generate the JSON now. Output ONLY the JSON object, no other text.`;
 
@@ -174,16 +231,15 @@ Generate the JSON now. Output ONLY the JSON object, no other text.`;
       return errorResponse("Failed to generate one-pager", 500, `AI gateway error: ${response.status}`);
     }
 
-    const data = await response.json();
-    const aiContent = data.choices?.[0]?.message?.content;
-    
+    const aiData = await response.json();
+    const aiContent = aiData.choices?.[0]?.message?.content;
+
     if (!aiContent) {
       return errorResponse("Failed to generate one-pager", 500, "No content received from AI");
     }
 
     console.log("AI response received for user:", user.id);
 
-    // Parse the JSON from the response
     let onePager: OnePagerData;
     try {
       const jsonMatch = aiContent.match(/\{[\s\S]*\}/);
@@ -197,13 +253,16 @@ Generate the JSON now. Output ONLY the JSON object, no other text.`;
     }
 
     // Validate structure
-    if (!onePager.headline || !onePager.subheadline || !Array.isArray(onePager.sections)) {
+    if (!onePager.title || !onePager.context_line || !Array.isArray(onePager.sections)) {
       return errorResponse("Failed to generate one-pager", 500, "Invalid one-pager structure");
     }
 
-    // Increment pitch count after successful generation
-    await incrementPitchCount(user.id);
+    // Add metadata
+    onePager.generated_at = new Date().toISOString();
+    onePager.format = "one-pager";
+    onePager.version = 1;
 
+    await incrementPitchCount(user.id);
     console.log("Generated one-pager for user:", user.id);
 
     return jsonResponse({ onePager });
