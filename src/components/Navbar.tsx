@@ -43,9 +43,6 @@ const Navbar = ({
         
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-8">
-          <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-            Features
-          </a>
           <button
             onClick={() => navigate('/pricing')}
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -80,9 +77,6 @@ const Navbar = ({
               </SheetTitle>
             </SheetHeader>
             <nav className="flex flex-col gap-4 mt-8">
-              <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-3 border-b border-accent/10">
-                Features
-              </a>
               <button
                 onClick={() => navigate('/pricing')}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors py-3 text-left border-b border-accent/10"
