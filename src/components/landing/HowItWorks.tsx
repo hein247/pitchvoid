@@ -3,10 +3,10 @@ import type { MotionValue } from "framer-motion";
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from "framer-motion";
 const STEP_DURATION = 6000;
 const TYPING_SPEED = 32;
-const SCENARIO_TEXT = "interview at tiffany for design role, i know adobe well, good at print production, can handle pressure and tight deadlines, want to discuss portfolio";
+const SCENARIO_TEXT = "interview at a luxury brand for design role, i know adobe well, good at print production, can handle pressure and tight deadlines, want to discuss portfolio";
 const PARSED_CARDS = [{
   label: "WHO",
-  value: "Tiffany & Co. Hiring Manager"
+  value: "Creative Director, Luxury Brand"
 }, {
   label: "WHAT",
   value: "Design Role Interview"
@@ -21,7 +21,7 @@ const OUTPUT_SECTIONS = [{
   title: "Technical Mastery",
   points: [
     "**Expert-level Adobe Creative Suite** — non-destructive editing, clean layer hierarchy.",
-    "**Rigorous pre-flight for print**: ink density control, spot-color accuracy (PMS 1837)."
+    "**Rigorous pre-flight for print**: ink density control, spot-color accuracy."
   ]
 }, {
   title: "Working Under Pressure",
