@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Mic, Plus, ArrowLeft, X, Play, Share2, Home, FileText, Upload, File, Image, ScrollText, Check, Edit2, Users, Target, Sparkles, Clock, Briefcase, Handshake, TrendingUp, Presentation } from 'lucide-react';
+import { Loader2, Mic, Plus, ArrowLeft, X, Play, Share2, Home, FileText, Upload, File, Image, ScrollText, Check, Edit2, Users, Target, Sparkles, Clock, Briefcase, Handshake, TrendingUp, Presentation, Download, Lock } from 'lucide-react';
 import ShareModal from '@/components/dashboard/ShareModal';
 import { Progress } from '@/components/ui/progress';
 import Navbar from '@/components/Navbar';
@@ -1051,6 +1051,26 @@ const Dashboard = () => {
                     
                     {/* Divider */}
                     <div className="w-px h-6 bg-border mx-1" />
+
+                    {/* PDF Export */}
+                    <button 
+                      onClick={() => {
+                        if (isFree) {
+                          checkAndTriggerPaywall('export');
+                          return;
+                        }
+                        window.print();
+                      }}
+                      className={`p-2 rounded-lg transition-colors relative ${
+                        isFree
+                          ? 'text-muted-foreground/50 cursor-not-allowed'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-accent/10'
+                      }`}
+                      title={isFree ? 'Upgrade to Pro to export PDF' : 'Download as PDF'}
+                    >
+                      <Download className="w-4 h-4" />
+                      {isFree && <Lock className="w-2.5 h-2.5 absolute -top-0.5 -right-0.5" />}
+                    </button>
                     
                     {/* Practice mode - for scripts only */}
                     {outputFormat === 'script' && scriptData && (
