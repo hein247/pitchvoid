@@ -36,9 +36,33 @@ const renderPoint = (text: string) => {
   });
 };
 
-const OnePager = ({ data }: OnePagerProps) => {
+const OnePager = ({ data: rawData }: OnePagerProps) => {
   const [copiedIndex, setCopiedIndex] = useState<string | null>(null);
   const [copiedAll, setCopiedAll] = useState(false);
+
+  // Migrate old schema (headline/subheadline/bullets) to new (title/context_line/points)
+  const data: OnePagerData = (() => {
+    const d = rawData as any;
+    if (d.title && d.context_line && Array.isArray(d.sections)) {
+      // New schema — ensure points arrays exist
+      return {
+        ...d,
+        sections: (d.sections || []).map((s: any) => ({
+          title: s.title || '',
+          points: s.points || s.bullets || [],
+        })),
+      };
+    }
+    // Old schema migration
+    return {
+      title: d.headline || d.title || 'Untitled',
+      context_line: d.subheadline || d.context_line || '',
+      sections: (d.sections || []).map((s: any) => ({
+        title: s.title || '',
+        points: s.points || s.bullets || (s.content ? [s.content] : []),
+      })),
+    };
+  })();
 
   const copyPoint = (point: string, key: string) => {
     // Strip markdown bold for clipboard
