@@ -88,6 +88,11 @@ serve(async (req) => {
 
     const systemPrompt = `You are an expert pitch strategist creating compelling one-pager documents. Create a single-page executive summary that is concise, impactful, and scannable.
 
+QUALITY GUIDELINES (from user feedback):
+- Users dislike: overly corporate tone, generic filler phrases, and vague statements. Prioritize specificity and natural language.
+- Avoid: "In today's fast-paced world", "leverage synergies", "cutting-edge solutions", or any templated corporate speak.
+- Instead: Use concrete numbers, specific examples, and language a smart person would actually use in conversation.
+
 DESIGN PRINCIPLES:
 - Headline: Bold, attention-grabbing, benefit-focused (under 10 words)
 - Subheadline: Clear value proposition (under 25 words)

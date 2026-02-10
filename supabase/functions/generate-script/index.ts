@@ -96,6 +96,11 @@ serve(async (req) => {
 
     const systemPrompt = `You are an expert speech writer and presentation coach. Create a timed speaking script with natural delivery cues.
 
+QUALITY GUIDELINES (from user feedback):
+- Users dislike: overly corporate tone, generic filler phrases, and vague statements. Prioritize specificity and natural language.
+- Avoid: "In today's fast-paced world", "leverage synergies", "cutting-edge solutions", or any templated corporate speak.
+- Instead: Write how real people actually talk. Be specific, be direct, be memorable.
+
 SCRIPT PRINCIPLES:
 - Conversational yet polished language
 - Clear timing for each section
