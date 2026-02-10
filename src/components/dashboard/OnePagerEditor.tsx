@@ -10,7 +10,17 @@ interface OnePagerEditorProps {
   className?: string;
 }
 
-const OnePagerEditor = ({ data, onUpdate, className }: OnePagerEditorProps) => {
+const OnePagerEditor = ({ data: rawData, onUpdate, className }: OnePagerEditorProps) => {
+  // Migrate old schema
+  const data: OnePagerData = {
+    title: (rawData as any).title || (rawData as any).headline || 'Untitled',
+    context_line: (rawData as any).context_line || (rawData as any).subheadline || '',
+    sections: ((rawData as any).sections || []).map((s: any) => ({
+      title: s.title || '',
+      points: s.points || s.bullets || (s.content ? [s.content] : []),
+    })),
+  };
+
   const [editingField, setEditingField] = useState<string | null>(null);
   const [tempValue, setTempValue] = useState('');
   const [expandedSection, setExpandedSection] = useState<number | null>(null);
