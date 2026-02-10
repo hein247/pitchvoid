@@ -365,8 +365,11 @@
   }
 }
 
-/* Print styles for PDF export */
+/* Print styles for PDF export — show ONLY the one-pager/script content */
 @media print {
+  /* Reset page */
+  @page { margin: 1.5cm; }
+
   body {
     background: white !important;
     color: black !important;
@@ -374,36 +377,83 @@
     print-color-adjust: exact;
   }
 
-  /* Hide non-content elements */
-  header, nav, footer,
-  [data-print-hide],
-  .sticky {
+  /* Hide everything by default */
+  body > * {
     display: none !important;
   }
 
-  /* Show only the main content area */
-  main {
+  /* Show only the root React mount */
+  #root {
+    display: block !important;
+  }
+
+  /* Hide all chrome: navbar, header bar, chat panel, editor, refinement, modals, buttons, FABs */
+  header, nav, footer,
+  [data-print-hide],
+  .sticky,
+  [class*="border-t"][class*="border-accent"],
+  [class*="fixed"] {
+    display: none !important;
+  }
+
+  /* The output scroll area — make it visible and unstyled */
+  .overflow-y-auto {
+    overflow: visible !important;
     padding: 0 !important;
-    max-width: 100% !important;
+  }
+
+  /* Hide the entire bottom panel (chat + editor + input) */
+  .flex.flex-col.border-t {
+    display: none !important;
   }
 
   /* Clean card styling for print */
-  .bg-card {
+  .bg-card, [class*="bg-card"] {
     background: white !important;
-    border: 1px solid #ddd !important;
     box-shadow: none !important;
   }
 
-  .text-foreground,
-  .text-card-foreground {
+  /* Text colors for print */
+  .text-foreground, .text-card-foreground, [class*="text-foreground"] {
     color: #111 !important;
   }
 
-  .text-muted-foreground {
+  .text-muted-foreground, [class*="text-muted-foreground"] {
     color: #555 !important;
   }
 
-  .border-border {
-    border-color: #ddd !important;
+  /* Left accent bars — keep purple for visual interest */
+  [style*="linear-gradient"] {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Section labels — keep purple tint */
+  [class*="uppercase"][class*="tracking"] {
+    color: #7c3aed !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Point cards — clean borders */
+  button[class*="rounded-xl"][class*="border"] {
+    border: 1px solid #e5e5e5 !important;
+    background: white !important;
+  }
+
+  /* Bold key phrases */
+  strong {
+    color: #111 !important;
+  }
+
+  /* Hide copy buttons, copy-all, interactive elements */
+  [class*="Copy"], [class*="copy"],
+  .text-green-400 {
+    display: none !important;
+  }
+
+  /* Remove max-width constraint for full page use */
+  .max-w-\\[680px\\] {
+    max-width: 100% !important;
   }
 }
