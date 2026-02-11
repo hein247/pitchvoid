@@ -365,95 +365,203 @@
   }
 }
 
-/* Print styles for PDF export — show ONLY the one-pager/script content */
+/* Print styles for PDF export — clean, professional paper output */
 @media print {
-  /* Reset page */
-  @page { margin: 1.5cm; }
+  @page {
+    margin: 0.75in;
+    size: letter;
+  }
+
+  /* ── Reset everything to white ── */
+  *,
+  *::before,
+  *::after {
+    background: white !important;
+    background-image: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
 
   body {
     background: white !important;
-    color: black !important;
+    color: #333 !important;
+    font-family: system-ui, -apple-system, sans-serif !important;
+    font-size: 11pt !important;
+    line-height: 1.5 !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
 
-  /* Hide everything by default */
-  body > * {
+  /* ── Typography ── */
+  h1, h2, h3, h4, h5, h6,
+  .font-display {
+    font-family: Georgia, serif !important;
+    color: #1a1a1a !important;
+  }
+
+  p, span, div, button, li, label {
+    font-family: system-ui, -apple-system, sans-serif !important;
+  }
+
+  /* Title block */
+  [data-print-title] {
+    font-size: 16pt !important;
+    font-weight: 700 !important;
+    color: #1a1a1a !important;
+    margin-bottom: 4px !important;
+  }
+
+  [data-print-context] {
+    font-size: 10pt !important;
+    font-style: italic !important;
+    color: #888 !important;
+    padding-bottom: 12px !important;
+    border-bottom: 1px solid #ddd !important;
+    margin-bottom: 24px !important;
+  }
+
+  /* Section labels */
+  [data-print-section-label],
+  .uppercase.tracking-wider,
+  .uppercase.tracking-wide {
+    font-size: 9pt !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    color: #555 !important;
+    font-weight: 600 !important;
+  }
+
+  /* Point text */
+  [data-print-point] {
+    color: #333 !important;
+    font-size: 11pt !important;
+    line-height: 1.5 !important;
+  }
+
+  /* Muted/secondary text */
+  .text-muted-foreground,
+  [class*="text-muted"] {
+    color: #888 !important;
+  }
+
+  /* ── Point cards: strip to minimal left-border style ── */
+  [data-print-point-card],
+  button[class*="rounded-xl"][class*="border"],
+  .slide-card,
+  .project-card {
+    background: white !important;
+    border: none !important;
+    border-radius: 0 !important;
+    border-left: 2px solid #333 !important;
+    padding: 4px 0 4px 12px !important;
+    margin-bottom: 8px !important;
+    break-inside: avoid;
+  }
+
+  /* Accent bars — solid dark line */
+  [data-print-accent],
+  [style*="linear-gradient"] {
+    background: #333 !important;
+    background-image: none !important;
+    width: 2px !important;
+  }
+
+  /* ── Sections spacing ── */
+  [data-print-section] {
+    margin-bottom: 24px !important;
+    break-inside: avoid;
+  }
+
+  /* ── Hide UI chrome ── */
+  header, nav, footer,
+  [data-print-hide],
+  .sticky,
+  [class*="fixed"],
+  [class*="bottom-0"],
+  [role="dialog"],
+  [class*="toast"],
+  .recording-pulse,
+  .animate-gradient-x {
     display: none !important;
   }
 
-  /* Show only the root React mount */
+  /* Hide specific interactive elements */
+  button:not([data-print-keep]),
+  [class*="hover\\:"],
+  [class*="Copy"],
+  [class*="copy"],
+  [class*="Share"],
+  [class*="share"],
+  [class*="chip"],
+  [class*="badge"],
+  [class*="Copied"],
+  .text-green-400,
+  .text-green-500 {
+    display: none !important;
+  }
+
+  /* ── Show content properly ── */
   #root {
     display: block !important;
   }
 
-  /* Hide all chrome: navbar, header bar, chat panel, editor, refinement, modals, buttons, FABs */
-  header, nav, footer,
-  [data-print-hide],
-  .sticky,
-  [class*="border-t"][class*="border-accent"],
-  [class*="fixed"] {
-    display: none !important;
-  }
-
-  /* The output scroll area — make it visible and unstyled */
-  .overflow-y-auto {
+  .overflow-y-auto,
+  .overflow-x-auto,
+  .overflow-hidden {
     overflow: visible !important;
+    max-height: none !important;
     padding: 0 !important;
   }
 
-  /* Hide the entire bottom panel (chat + editor + input) */
-  .flex.flex-col.border-t {
-    display: none !important;
+  .max-w-3xl,
+  .max-w-\[680px\],
+  .max-w-2xl {
+    max-width: 100% !important;
   }
 
-  /* Clean card styling for print */
-  .bg-card, [class*="bg-card"] {
-    background: white !important;
-    box-shadow: none !important;
+  /* ── Script-specific: keep durations & transitions ── */
+  [data-print-duration] {
+    font-size: 9pt !important;
+    color: #888 !important;
   }
 
-  /* Text colors for print */
-  .text-foreground, .text-card-foreground, [class*="text-foreground"] {
-    color: #111 !important;
+  [data-print-transition] {
+    font-size: 9pt !important;
+    font-style: italic !important;
+    color: #888 !important;
   }
 
-  .text-muted-foreground, [class*="text-muted-foreground"] {
-    color: #555 !important;
+  /* ── Print footer: date line ── */
+  [data-print-footer] {
+    display: block !important;
+    font-size: 8pt !important;
+    color: #888 !important;
+    margin-top: 32px !important;
+    padding-top: 8px !important;
+    border-top: 1px solid #ddd !important;
+    text-align: left !important;
   }
 
-  /* Left accent bars — keep purple for visual interest */
-  [style*="linear-gradient"] {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  /* Section labels — keep purple tint */
-  [class*="uppercase"][class*="tracking"] {
-    color: #7c3aed !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  /* Point cards — clean borders */
-  button[class*="rounded-xl"][class*="border"] {
-    border: 1px solid #e5e5e5 !important;
-    background: white !important;
+  /* Card foreground colors */
+  .text-foreground,
+  .text-card-foreground,
+  [class*="text-foreground"] {
+    color: #1a1a1a !important;
   }
 
   /* Bold key phrases */
-  strong {
-    color: #111 !important;
+  strong, b {
+    color: #1a1a1a !important;
+    font-weight: 700 !important;
   }
 
-  /* Hide copy buttons, copy-all, interactive elements */
-  [class*="Copy"], [class*="copy"],
-  .text-green-400 {
-    display: none !important;
-  }
-
-  /* Remove max-width constraint for full page use */
-  .max-w-\\[680px\\] {
-    max-width: 100% !important;
+  /* Links in print */
+  a {
+    color: #333 !important;
+    text-decoration: none !important;
   }
 }
