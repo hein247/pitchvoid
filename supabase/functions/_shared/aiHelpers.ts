@@ -105,6 +105,10 @@ export async function callAIWithRetry(
 
   try {
     const parsed = parseJsonFromAI(first.data as string);
+    // Check for edge case "needs_more" response
+    if (parsed && typeof parsed === "object" && (parsed as Record<string, unknown>).needs_more) {
+      return { data: parsed };
+    }
     return { data: parsed };
   } catch {
     console.warn("First AI response was invalid JSON, retrying...");
@@ -137,7 +141,49 @@ DO NOT:
 - DO NOT invent numbers or metrics not in the input.
 - DO NOT add company names or titles not mentioned.
 - DO NOT generate more than 4 sections or 4 points per section.
-- DO NOT use phrases: "in today's fast-paced world", "leverage", "synergy", "passionate about", "excited to".`;
+- DO NOT use phrases: "in today's fast-paced world", "leverage", "synergy", "passionate about", "excited to".
+
+AUDIENCE AWARENESS:
+- Adapt tone based on audience type inferred from input:
+  - Manager → direct, brief, action-oriented
+  - Executive/Board → strategic, numbers-first, bottom-line impact
+  - Client → benefit-focused, what's in it for them
+  - Interviewer → capability + concrete examples
+  - Peer/colleague → casual, practical, skip the formality
+
+CONCISENESS:
+- Each point: 15-25 words, scannable in 3 seconds.
+- Front-load the key detail in the first 5 words.
+- If a point exceeds 30 words, split it or cut the fluff.
+
+NO REPETITION:
+- Never restate the same fact across points, even rephrased.
+- Every point must add NEW information. If you've said it, move on.
+
+"SO WHAT" RULE:
+- Every fact needs its implication. Format: [WHAT happened] — [WHY it matters].
+- Never state a metric alone. "$2.1M revenue" → "$2.1M revenue — 40% above target."
+
+OPENER QUALITY:
+- Never open with greetings, thank yous, or generic industry statements.
+- Open with a surprising fact, bold claim, or specific detail that shows you understand the audience.
+
+SMART INFERENCE:
+- When input is sparse, infer context from roles, companies, meeting types, and goals mentioned.
+- Never ask for more info — always generate something useful.
+- Mark inferred details subtly (e.g., use softer language like "likely" or "typically").
+
+STRUCTURAL VARIETY — pick the pattern that fits the scenario:
+- Persuasion: Problem → Solution → Evidence → Ask
+- Updates: Results → Insights → Next Steps
+- Introductions: Capability → Proof → Fit
+- Proposals: Opportunity → Approach → Cost → Ask
+Do not default to the same structure every time.
+
+EDGE CASES:
+- If input is fewer than 5 words, return: { "needs_more": true, "suggestion": "Try describing who you're talking to and what you need to communicate." }
+- If input is non-English, respond in the same language as the input.
+- If input has contradictions, use the most specific detail and ignore the vague one.`;
 
 /**
  * Shared few-shot examples for generation functions.
