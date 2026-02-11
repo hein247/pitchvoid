@@ -824,11 +824,11 @@ const Dashboard = () => {
               Section {practiceSection + 1}/{totalSections} — {currentSection.name}
             </span>
             <h2 className="text-3xl sm:text-5xl lg:text-6xl text-foreground mb-4 sm:mb-8 font-display leading-tight">
-              {currentSection.content}
+              {(currentSection as any).content || ((currentSection as any).points || []).join(' ')}
             </h2>
             <div className="p-4 sm:p-6 rounded-2xl bg-accent/10 border border-accent/20 max-w-2xl mx-auto">
               <p className="text-xs text-accent uppercase mb-2">Delivery Cue</p>
-              <p className="text-sm sm:text-base text-muted-foreground">{currentSection.cue}</p>
+              <p className="text-sm sm:text-base text-muted-foreground">{(currentSection as any).cue || (currentSection as any).transition || ''}</p>
               <p className="text-xs text-primary mt-2">{currentSection.duration}</p>
             </div>
           </div>

@@ -209,15 +209,30 @@ export const FEW_SHOT_EXAMPLES = {
         ]}
       ]
     },
-    script: {
+    scriptV2: {
       title: "Product Manager Interview Script",
       total_duration: "2-3 minutes",
+      opener: {
+        line: "I've spent **5 years shipping products** — most recently leading a team of 8 through 3 major launches last year.",
+        delivery_note: "Eye contact, confident"
+      },
       sections: [
-        { name: "Opening", duration: "15 seconds", content: "Thanks for meeting with me. I've spent 5 years in product management, most recently leading a team of 8.", cue: "Make eye contact, confident posture" },
-        { name: "Track Record", duration: "45 seconds", content: "Last year my team shipped 3 major features. Each one started with user research — real conversations with customers — then validated with data before we committed engineering resources.", cue: "Slow down on the number '3 major features'" },
-        { name: "The Ask", duration: "20 seconds", content: "I'd love to hear about what your team is working on and where my experience with data-driven product decisions could contribute.", cue: "Lean forward, genuine curiosity" }
+        { name: "Track Record", duration: "~45 sec", points: [
+          "Last year my team shipped **3 major features**. Each started with real user conversations, then validated with data before we committed resources.",
+          "I led a **team of 8** — product designers, engineers, analysts. My job was clearing blockers and keeping us focused on what users actually needed."
+        ]},
+        { name: "How I Work", duration: "~30 sec", points: [
+          "Every roadmap decision starts with **usage metrics and user interviews** — not gut feelings.",
+          "I run **lightweight discovery sprints** — talk to 5 users, find the pattern, build the spec."
+        ]},
+        { name: "The Ask", duration: "~20 sec", points: [
+          "I'd love to hear what your team is tackling right now — and where **data-driven product thinking** could help."
+        ], transition: "That's the short version — happy to dig into any of these." }
       ],
-      key_phrases: ["team of 8", "3 major features", "data-driven"]
+      closer: {
+        line: "The best products come from teams that **listen before they build** — that's how I work.",
+        delivery_note: "Lean in, genuine"
+      }
     },
     parsed: {
       audience: "Hiring manager",
@@ -255,16 +270,31 @@ export const FEW_SHOT_EXAMPLES = {
         ]}
       ]
     },
-    script: {
+    scriptV2: {
       title: "Q4 Board Update Script",
       total_duration: "2-3 minutes",
+      opener: {
+        line: "We hit **$2.1M this quarter** — that's 40% above last quarter's $1.5M.",
+        delivery_note: "Lead with the number"
+      },
       sections: [
-        { name: "Opening", duration: "15 seconds", content: "Good morning. This quarter we hit $2.1M in revenue, up 40% from $1.5M last quarter.", cue: "Start with the strongest number" },
-        { name: "Metrics", duration: "30 seconds", content: "Churn dropped to 3%. Customers are staying and expanding. This gives us a solid foundation for what's next.", cue: "Pause after the churn number" },
-        { name: "Mobile Launch", duration: "30 seconds", content: "Next month we're launching our mobile app. This is our biggest growth lever — it meets users where they already are.", cue: "Show confidence about the timeline" },
-        { name: "The Ask", duration: "20 seconds", content: "To maximize this launch, I'm requesting a $500K marketing budget. This funds paid acquisition, content, and launch events.", cue: "Direct eye contact with the board" }
+        { name: "Metrics", duration: "~30 sec", points: [
+          "Churn dropped to **3%** — customers are staying and expanding.",
+          "This gives us a **solid foundation** for the growth play we're about to make."
+        ], transition: "Which brings me to what's next." },
+        { name: "Mobile Launch", duration: "~30 sec", points: [
+          "Next month we're launching **the mobile app** — our biggest growth lever.",
+          "It meets users where they already are — **60% of our traffic is mobile** but we've had no native experience."
+        ], transition: "To make this work, here's what I need." },
+        { name: "The Ask", duration: "~20 sec", points: [
+          "I'm requesting a **$500K marketing budget** — paid acquisition, content, and launch events.",
+          "Based on our current CAC, that funds **roughly 2,000 new customers** in the first quarter."
+        ]}
       ],
-      key_phrases: ["$2.1M", "3% churn", "$500K marketing budget"]
+      closer: {
+        line: "We've got the momentum, the product, and the plan. **The $500K unlocks the next phase.**",
+        delivery_note: "Direct eye contact"
+      }
     },
     parsed: {
       audience: "Board of directors",
@@ -303,15 +333,26 @@ export const FEW_SHOT_EXAMPLES = {
         ]}
       ]
     },
-    script: {
+    scriptV2: {
       title: "Restaurant Web Design Pitch",
       total_duration: "30-60 seconds",
+      opener: {
+        line: "I checked your website on my phone — it **doesn't load properly on mobile**, and that's where most of your customers are looking.",
+        delivery_note: "Direct, not critical"
+      },
       sections: [
-        { name: "Opening", duration: "10 seconds", content: "I took a look at your current website. It's not showing up well on phones, and that's where most of your customers are searching.", cue: "Be direct but not critical" },
-        { name: "Solution", duration: "20 seconds", content: "I'd rebuild it from scratch — mobile-first design, proper SEO so you show up in local searches, and a layout that makes it easy to find your menu and hours.", cue: "Focus on their benefit, not your skills" },
-        { name: "The Ask", duration: "15 seconds", content: "It's $3,000, takes 4 weeks. I'll show you a mockup first so you know exactly what you're getting before we start.", cue: "Confident, no hedging on the price" }
+        { name: "Solution", duration: "~20 sec", points: [
+          "I'd rebuild it **mobile-first** — clean layout, easy to find your menu and hours.",
+          "**SEO setup included** so you show up when people search 'restaurants near me.'"
+        ], transition: "Here's what it looks like in practice." },
+        { name: "The Offer", duration: "~15 sec", points: [
+          "It's **$3,000, 4-week turnaround**. I'll show you a mockup first so you know exactly what you're getting."
+        ]}
       ],
-      key_phrases: ["mobile-first", "$3,000", "4 weeks"]
+      closer: {
+        line: "Your food's already great — your website should be too. **Let's make it easy for people to find you.**",
+        delivery_note: "Warm, confident"
+      }
     },
     parsed: {
       audience: "Restaurant owner",
@@ -355,10 +396,13 @@ export function validateScriptOutput(data: unknown): { valid: boolean; error?: s
   const d = data as Record<string, unknown>;
   if (!d.title || typeof d.title !== "string") return { valid: false, error: "Missing or invalid title" };
   if (!Array.isArray(d.sections)) return { valid: false, error: "Missing sections array" };
-  if (d.sections.length > 7) return { valid: false, error: "Too many sections (max 7)" };
+  if (d.sections.length > 4) return { valid: false, error: "Too many sections (max 4)" };
   for (const s of d.sections as Array<Record<string, unknown>>) {
-    if (!s.name || !s.content || !s.duration) return { valid: false, error: "Invalid section structure" };
+    if (!s.name) return { valid: false, error: "Invalid section structure: missing name" };
+    // Accept both old (content string) and new (points array) schema
+    if (!s.content && !Array.isArray(s.points)) return { valid: false, error: "Invalid section structure: missing content or points" };
   }
+  // opener/closer are optional for validation (old schema won't have them)
   return { valid: true };
 }
 
