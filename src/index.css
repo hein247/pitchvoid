@@ -365,203 +365,126 @@
   }
 }
 
-/* Print styles for PDF export — clean, professional paper output */
+/* Print styles for PDF export */
 @media print {
+  /* Reset everything */
+  *, *::before, *::after {
+    background: white !important;
+    color: #1a1a1a !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* Page setup */
   @page {
     margin: 0.75in;
     size: letter;
   }
 
-  /* ── Reset everything to white ── */
-  *,
-  *::before,
-  *::after {
-    background: white !important;
-    background-image: none !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    box-shadow: none !important;
-    text-shadow: none !important;
-    animation: none !important;
-    transition: none !important;
-  }
-
   body {
-    background: white !important;
-    color: #333 !important;
-    font-family: system-ui, -apple-system, sans-serif !important;
-    font-size: 11pt !important;
-    line-height: 1.5 !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  /* ── Typography ── */
-  h1, h2, h3, h4, h5, h6,
-  .font-display {
-    font-family: Georgia, serif !important;
-    color: #1a1a1a !important;
-  }
-
-  p, span, div, button, li, label {
-    font-family: system-ui, -apple-system, sans-serif !important;
-  }
-
-  /* Title block */
-  [data-print-title] {
-    font-size: 16pt !important;
-    font-weight: 700 !important;
-    color: #1a1a1a !important;
-    margin-bottom: 4px !important;
-  }
-
-  [data-print-context] {
-    font-size: 10pt !important;
-    font-style: italic !important;
-    color: #888 !important;
-    padding-bottom: 12px !important;
-    border-bottom: 1px solid #ddd !important;
-    margin-bottom: 24px !important;
-  }
-
-  /* Section labels */
-  [data-print-section-label],
-  .uppercase.tracking-wider,
-  .uppercase.tracking-wide {
-    font-size: 9pt !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.05em !important;
-    color: #555 !important;
-    font-weight: 600 !important;
-  }
-
-  /* Point text */
-  [data-print-point] {
-    color: #333 !important;
-    font-size: 11pt !important;
-    line-height: 1.5 !important;
-  }
-
-  /* Muted/secondary text */
-  .text-muted-foreground,
-  [class*="text-muted"] {
-    color: #888 !important;
-  }
-
-  /* ── Point cards: strip to minimal left-border style ── */
-  [data-print-point-card],
-  button[class*="rounded-xl"][class*="border"],
-  .slide-card,
-  .project-card {
-    background: white !important;
-    border: none !important;
-    border-radius: 0 !important;
-    border-left: 2px solid #333 !important;
-    padding: 4px 0 4px 12px !important;
-    margin-bottom: 8px !important;
-    break-inside: avoid;
-  }
-
-  /* Accent bars — solid dark line */
-  [data-print-accent],
-  [style*="linear-gradient"] {
-    background: #333 !important;
-    background-image: none !important;
-    width: 2px !important;
-  }
-
-  /* ── Sections spacing ── */
-  [data-print-section] {
-    margin-bottom: 24px !important;
-    break-inside: avoid;
-  }
-
-  /* ── Hide UI chrome ── */
-  header, nav, footer,
-  [data-print-hide],
-  .sticky,
-  [class*="fixed"],
-  [class*="bottom-0"],
-  [role="dialog"],
-  [class*="toast"],
-  .recording-pulse,
-  .animate-gradient-x {
-    display: none !important;
-  }
-
-  /* Hide specific interactive elements */
-  button:not([data-print-keep]),
-  [class*="hover\\:"],
-  [class*="Copy"],
-  [class*="copy"],
-  [class*="Share"],
-  [class*="share"],
-  [class*="chip"],
-  [class*="badge"],
-  [class*="Copied"],
-  .text-green-400,
-  .text-green-500 {
-    display: none !important;
-  }
-
-  /* ── Show content properly ── */
-  #root {
-    display: block !important;
-  }
-
-  .overflow-y-auto,
-  .overflow-x-auto,
-  .overflow-hidden {
-    overflow: visible !important;
-    max-height: none !important;
+    width: 100% !important;
+    margin: 0 !important;
     padding: 0 !important;
+    font-family: Georgia, 'Times New Roman', serif !important;
   }
 
-  .max-w-3xl,
-  .max-w-\[680px\],
-  .max-w-2xl {
+  /* Hide ALL app chrome */
+  nav,
+  header,
+  [class*='sidebar'],
+  [class*='Sidebar'],
+  [class*='editor'],
+  [class*='Editor'],
+  [class*='refine'],
+  [class*='Refine'],
+  [class*='topbar'],
+  [class*='TopBar'],
+  [class*='top-bar'],
+  [class*='sticky'],
+  [class*='toolbar'],
+  button,
+  input,
+  textarea,
+  [class*='chip'],
+  [class*='Chip'],
+  [class*='badge'],
+  [class*='copy'],
+  [class*='Copy'],
+  [class*='share'],
+  [class*='Share'],
+  [class*='credits'],
+  [class*='Credits'],
+  [role='navigation'],
+  [class*='navigation'] {
+    display: none !important;
+  }
+
+  /* Force single-column full-width layout */
+  [class*='flex'],
+  [class*='grid'] {
+    display: block !important;
+    width: 100% !important;
     max-width: 100% !important;
   }
 
-  /* ── Script-specific: keep durations & transitions ── */
-  [data-print-duration] {
+  /* Content area takes full width */
+  main, [class*='content'], [class*='Content'], [class*='output'], [class*='Output'] {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Section titles */
+  [class*='section-title'], [class*='sectionTitle'] {
+    color: #555 !important;
     font-size: 9pt !important;
-    color: #888 !important;
+    letter-spacing: 0.1em !important;
+    text-transform: uppercase !important;
+    margin-bottom: 8px !important;
+    border-bottom: 1px solid #ddd !important;
+    padding-bottom: 4px !important;
   }
 
-  [data-print-transition] {
-    font-size: 9pt !important;
-    font-style: italic !important;
-    color: #888 !important;
+  /* Point cards become simple text blocks */
+  [class*='point'], [class*='Point'], [class*='card'], [class*='Card'] {
+    border: none !important;
+    border-left: 2px solid #333 !important;
+    border-radius: 0 !important;
+    padding: 4px 0 4px 12px !important;
+    margin-bottom: 6px !important;
+    background: white !important;
+    page-break-inside: avoid !important;
   }
 
-  /* ── Print footer: date line ── */
-  [data-print-footer] {
-    display: block !important;
-    font-size: 8pt !important;
-    color: #888 !important;
-    margin-top: 32px !important;
-    padding-top: 8px !important;
-    border-top: 1px solid #ddd !important;
-    text-align: left !important;
+  /* Text sizing for print */
+  p, span, li {
+    font-size: 11pt !important;
+    line-height: 1.5 !important;
+    color: #333 !important;
   }
 
-  /* Card foreground colors */
-  .text-foreground,
-  .text-card-foreground,
-  [class*="text-foreground"] {
+  h1, h2, h3 {
     color: #1a1a1a !important;
   }
 
   /* Bold key phrases */
   strong, b {
-    color: #1a1a1a !important;
+    color: #000 !important;
     font-weight: 700 !important;
   }
 
-  /* Links in print */
-  a {
-    color: #333 !important;
-    text-decoration: none !important;
+  /* Prevent page breaks inside sections */
+  section, [class*='section'], [class*='Section'] {
+    page-break-inside: avoid !important;
+  }
+
+  /* Remove all animations */
+  * {
+    animation: none !important;
+    transition: none !important;
   }
 }
