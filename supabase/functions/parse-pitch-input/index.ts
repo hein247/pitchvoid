@@ -100,11 +100,17 @@ Respond with ONLY the JSON object, no other text.`;
 
     const parsedContext = data as Record<string, unknown>;
 
-    // Validate structure
-    const structureCheck = validateParsedContextOutput(parsedContext);
-    if (!structureCheck.valid) {
-      return errorResponse("AI generated invalid output: " + structureCheck.error, 500, structureCheck.error);
+    // Handle edge case: input too sparse
+    if (parsedContext.needs_more) {
+      return jsonResponse({ needs_more: true, suggestion: parsedContext.suggestion || "Try describing who you're talking to and what you need to communicate." });
     }
+
+    // Fill defaults for any missing fields instead of hard-failing
+    if (!parsedContext.audience || typeof parsedContext.audience !== "string") parsedContext.audience = "General audience";
+    if (!parsedContext.subject || typeof parsedContext.subject !== "string") parsedContext.subject = "Not specified";
+    if (!parsedContext.goal || typeof parsedContext.goal !== "string") parsedContext.goal = "Communicate effectively";
+    if (!parsedContext.tone || typeof parsedContext.tone !== "string") parsedContext.tone = "balanced";
+    if (!parsedContext.summary || typeof parsedContext.summary !== "string") parsedContext.summary = "Pitch overview";
 
     // Ensure valid format and length values
     if (!['one-pager', 'script'].includes(parsedContext.suggested_format as string)) {
