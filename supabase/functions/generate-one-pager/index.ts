@@ -122,6 +122,11 @@ Generate the JSON now. Output ONLY the JSON object, no other text.`;
 
     const onePager = data as Record<string, unknown>;
 
+    // Handle edge case: input too sparse
+    if (onePager.needs_more) {
+      return jsonResponse({ needs_more: true, suggestion: onePager.suggestion || "Try describing who you're talking to and what you need to communicate." });
+    }
+
     // Validate structure
     const structureCheck = validateOnePagerOutput(onePager);
     if (!structureCheck.valid) {

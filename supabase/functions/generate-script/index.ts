@@ -124,6 +124,11 @@ Generate the JSON now. Output ONLY the JSON object, no other text.`;
 
     const script = data as Record<string, unknown>;
 
+    // Handle edge case: input too sparse
+    if (script.needs_more) {
+      return jsonResponse({ needs_more: true, suggestion: script.suggestion || "Try describing who you're talking to and what you need to communicate." });
+    }
+
     // Validate structure
     const structureCheck = validateScriptOutput(script);
     if (!structureCheck.valid) {
