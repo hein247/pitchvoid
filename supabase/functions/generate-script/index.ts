@@ -60,56 +60,63 @@ serve(async (req) => {
       : '';
 
     const durationMap: Record<string, { sections: number; total: string }> = {
-      'quick': { sections: 3, total: '30-60 seconds' },
-      'standard': { sections: 5, total: '2-3 minutes' },
-      'detailed': { sections: 7, total: '5-7 minutes' }
+      'quick': { sections: 2, total: '30-60 seconds' },
+      'standard': { sections: 3, total: '2-3 minutes' },
+      'detailed': { sections: 4, total: '5-7 minutes' }
     };
     const { sections: sectionCount, total: totalDuration } = durationMap[length] || durationMap['standard'];
 
     const ex = FEW_SHOT_EXAMPLES;
 
-    const systemPrompt = `You are an expert speech writer and presentation coach. Create a timed speaking script with natural delivery cues.
+    const systemPrompt = `You are a sharp speaking coach who writes how real people actually talk. No formal presentation language. No corporate speak. Write like a smart person explaining something over coffee — clear, direct, specific.
 
-SCRIPT PRINCIPLES:
-- Conversational yet polished language
-- Clear timing for each section
-- Stage directions and delivery cues
-- Memorable phrases to emphasize
-- Natural transitions between sections
-- Write how real people actually talk. Be specific, be direct, be memorable.
+SCRIPT RULES:
+- Use contractions. Short sentences. Front-load the key detail.
+- Every point must contain a specific detail from the user's input.
+- Max 2 sentences per point. If it needs more, split into two points.
+- Bold the key phrase in each point using **markdown bold**.
+- Never open with greetings, thank yous, or "Good morning."
+- Never say "We are looking at" or "I'd like to present" — just say the thing.
 
 ${SHARED_PROMPT_RULES}
 
 FEW-SHOT EXAMPLES:
 
 Example 1 (Job Interview) — Input: "${ex.jobInterview.input}"
-${JSON.stringify(ex.jobInterview.script, null, 2)}
+${JSON.stringify(ex.jobInterview.scriptV2, null, 2)}
 
 Example 2 (Board Presentation) — Input: "${ex.boardPresentation.input}"
-${JSON.stringify(ex.boardPresentation.script, null, 2)}
+${JSON.stringify(ex.boardPresentation.scriptV2, null, 2)}
 
 Example 3 (Client Pitch) — Input: "${ex.clientPitch.input}"
-${JSON.stringify(ex.clientPitch.script, null, 2)}
+${JSON.stringify(ex.clientPitch.scriptV2, null, 2)}
 
-Output ONLY a valid JSON object with this structure:
+Output ONLY a valid JSON object with this EXACT structure:
 {
   "title": "Script title",
   "total_duration": "${totalDuration}",
+  "opener": {
+    "line": "A bold, specific opening line that hooks attention immediately",
+    "delivery_note": "Brief delivery tip in 5 words or fewer"
+  },
   "sections": [
     {
       "name": "Section name",
-      "duration": "15 seconds",
-      "content": "What to say word-for-word",
-      "cue": "Stage direction"
+      "duration": "~60 sec",
+      "points": ["First talking point with **bold key phrase**", "Second talking point"],
+      "transition": "Optional bridge sentence to the next section"
     }
   ],
-  "key_phrases": ["Memorable phrase 1", "Memorable phrase 2"]
+  "closer": {
+    "line": "A memorable closing line — the thing you want them to remember",
+    "delivery_note": "Brief delivery tip"
+  }
 }
 
-Generate ${sectionCount} sections for a ${length || 'standard'} length (${totalDuration}).
-TONE: ${sanitizedTone || 'confident and professional'}`;
+Generate EXACTLY ${sectionCount} sections (max 4). Each section has 2-4 points.
+TONE: ${sanitizedTone || 'confident and conversational'}`;
 
-    const userPrompt = `Create a speaking script:
+    const userPrompt = `Write a speaking script:
 
 **Scenario:** ${sanitizedScenario}
 **Audience:** ${sanitizedAudience || "Decision makers"}
@@ -129,7 +136,7 @@ Generate the JSON now. Output ONLY the JSON object, no other text.`;
       return jsonResponse({ needs_more: true, suggestion: script.suggestion || "Try describing who you're talking to and what you need to communicate." });
     }
 
-    // Validate structure
+    // Validate structure (updated validator handles new schema)
     const structureCheck = validateScriptOutput(script);
     if (!structureCheck.valid) {
       return errorResponse("AI generated invalid output: " + structureCheck.error, 500, structureCheck.error);
