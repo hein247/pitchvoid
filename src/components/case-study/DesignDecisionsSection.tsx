@@ -8,7 +8,7 @@ const decisions = [
     title: "Dark-first interface",
     rationale:
       "Users creating pitches often work late or in focused sessions. A dark theme reduces eye strain, feels premium, and differentiates from typical SaaS tools.",
-    tradeoff: "Required careful contrast testing — every text element meets WCAG AA.",
+    tradeoff: "Required careful contrast testing. Every text element meets WCAG AA.",
   },
   {
     icon: <Type className="w-5 h-5" />,
@@ -29,7 +29,7 @@ const decisions = [
     title: "Progressive disclosure flow",
     rationale:
       "Instead of a single complex form, the 5-step Quick Pitch flow reveals options gradually. Steps 2–3 are optional, reducing friction for quick use cases.",
-    tradeoff: "More steps can feel longer — countered with clear progress indicators and skip options.",
+    tradeoff: "More steps can feel longer, countered with clear progress indicators and skip options.",
   },
 ];
 
@@ -47,7 +47,7 @@ const DesignDecisionsSection = () => {
           className="mb-16"
         >
           <p className="text-xs tracking-[0.3em] uppercase mb-4 text-primary">
-            04 — Design Decisions
+            04 // Design Decisions
           </p>
           <h2 className="text-3xl md:text-4xl font-display mb-4 text-foreground">
             Why it looks & works this way

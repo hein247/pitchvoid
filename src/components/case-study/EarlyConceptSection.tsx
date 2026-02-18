@@ -31,7 +31,7 @@ const EarlyConceptSection = () => {
           className="mb-16"
         >
           <p className="text-xs tracking-[0.3em] uppercase mb-4 text-primary">
-            01 — Early Concept
+            01 // Early Concept
           </p>
           <h2 className="text-3xl md:text-4xl font-display mb-4 text-foreground">
             Where it started
@@ -46,7 +46,7 @@ const EarlyConceptSection = () => {
             transition={{ duration: 0.6, delay: 0.15 }}
           >
             <p className="text-base md:text-lg leading-relaxed text-muted-foreground mb-6">
-              I noticed a recurring struggle — people have great ideas but can't organize them into clear formats. Whether it's:
+              I noticed a recurring struggle: people have great ideas but can't organize them into clear formats. Whether it's:
             </p>
             <ul className="space-y-3 mb-6">
               {[

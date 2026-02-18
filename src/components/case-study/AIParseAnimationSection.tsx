@@ -109,7 +109,7 @@ const AIParseAnimationSection = () => {
             The initial vision
           </h3>
           <p className="text-sm text-muted-foreground max-w-lg">
-            Before building, I sketched out the core loop — upload a file, let AI extract insights, and produce talking points automatically.
+            Before building, I sketched out the core loop: upload a file, let AI extract insights, and produce talking points automatically.
           </p>
         </motion.div>
 

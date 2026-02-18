@@ -28,7 +28,7 @@ const UserFlowSection = () => {
           className="mb-16"
         >
           <p className="text-xs tracking-[0.3em] uppercase mb-4 text-primary">
-            02 — User Flow
+            02 // User Flow
           </p>
           <h2 className="text-3xl md:text-4xl font-display mb-4 text-foreground">
             End-to-end journey

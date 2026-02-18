@@ -3,7 +3,7 @@ import { ExternalLink } from "lucide-react";
 const CaseStudyFooter = () => (
   <footer className="py-16 px-6 text-center bg-background border-t border-border">
     <p className="text-sm mb-2 text-muted-foreground">
-      This is a UX case study for PitchVoid — an AI pitch generator.
+      This is a UX case study for PitchVoid, an AI pitch generator.
     </p>
     <a
       href="https://pitchvoid.lovable.app"

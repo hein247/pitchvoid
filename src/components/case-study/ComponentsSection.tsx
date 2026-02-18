@@ -15,7 +15,7 @@ const ComponentsSection = () => {
           className="mb-16"
         >
           <p className="text-xs tracking-[0.3em] uppercase mb-4 text-primary">
-            05 — Component System
+            05 // Component System
           </p>
           <h2 className="text-3xl md:text-4xl font-display mb-4 text-foreground">
             Building blocks
