@@ -7,12 +7,18 @@ const EarlyConceptSection = () => {
   const isInView = useInView(ref, { once: true, margin: "-80px" });
 
   const stickyNotes = [
-    { text: "idea for intro??", rotate: -6, color: "bg-yellow-400/80", x: 0, y: 0 },
-    { text: "need stats", rotate: 4, color: "bg-pink-400/70", x: 120, y: -10 },
-    { text: "who's the audience", rotate: -3, color: "bg-blue-400/70", x: 40, y: 80 },
-    { text: "too long!!", rotate: 7, color: "bg-green-400/70", x: 160, y: 70 },
-    { text: "rewrite slide 3", rotate: -5, color: "bg-orange-400/70", x: 80, y: 150 },
-    { text: "add CTA?", rotate: 3, color: "bg-purple-400/70", x: 200, y: 130 },
+    { text: "idea for intro??", rotate: -4, color: "bg-yellow-400/80", col: 0, row: 0 },
+    { text: "need stats", rotate: 3, color: "bg-pink-400/70", col: 1, row: 0 },
+    { text: "who's the audience", rotate: -2, color: "bg-blue-400/70", col: 2, row: 0 },
+    { text: "too long!!", rotate: 5, color: "bg-orange-400/70", col: 0, row: 1 },
+    { text: "rewrite slide 3", rotate: -3, color: "bg-green-400/70", col: 1, row: 1 },
+    { text: "add CTA?", rotate: 2, color: "bg-purple-400/70", col: 2, row: 1 },
+    { text: "wrong order", rotate: -5, color: "bg-red-400/70", col: 0, row: 2 },
+    { text: "more visuals?", rotate: 4, color: "bg-teal-400/70", col: 1, row: 2 },
+    { text: "cut this part", rotate: -2, color: "bg-amber-400/80", col: 2, row: 2 },
+    { text: "check competitor", rotate: 3, color: "bg-indigo-400/70", col: 0, row: 3 },
+    { text: "deadline tmrw!", rotate: -4, color: "bg-rose-400/70", col: 1, row: 3 },
+    { text: "ask for feedback", rotate: 2, color: "bg-cyan-400/70", col: 2, row: 3 },
   ];
 
   return (
@@ -69,24 +75,22 @@ const EarlyConceptSection = () => {
             className="flex flex-col items-center gap-6"
           >
             {/* Chaos */}
-            <div className="relative w-full h-56 md:h-64 rounded-2xl border border-border bg-background/40 overflow-hidden p-4">
-              <p className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground/60 mb-2">Chaos</p>
-              {stickyNotes.map((note, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, scale: 0.7 }}
-                  animate={isInView ? { opacity: 1, scale: 1 } : {}}
-                  transition={{ duration: 0.4, delay: 0.4 + i * 0.08 }}
-                  className={`absolute ${note.color} text-black/80 text-[10px] md:text-xs font-medium px-3 py-2 rounded shadow-md`}
-                  style={{
-                    left: `clamp(8px, ${note.x * 0.35}px, 60%)`,
-                    top: `${24 + note.y * 0.85}px`,
-                    transform: `rotate(${note.rotate}deg)`,
-                  }}
-                >
-                  {note.text}
-                </motion.div>
-              ))}
+            <div className="relative w-full rounded-2xl border border-border bg-background/40 overflow-hidden p-4">
+              <p className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground/60 mb-3">Chaos</p>
+              <div className="grid grid-cols-3 gap-2">
+                {stickyNotes.map((note, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, scale: 0.7 }}
+                    animate={isInView ? { opacity: 1, scale: 1 } : {}}
+                    transition={{ duration: 0.4, delay: 0.4 + i * 0.06 }}
+                    className={`${note.color} text-black/80 text-[10px] md:text-xs font-medium px-3 py-2 rounded shadow-md`}
+                    style={{ transform: `rotate(${note.rotate}deg)` }}
+                  >
+                    {note.text}
+                  </motion.div>
+                ))}
+              </div>
             </div>
 
             {/* Arrow */}
