@@ -1,97 +1,93 @@
 
-# Plan: Add WebGL Shader Background Component
+
+# Case Study Page: PitchVoid UX Redesign Exploration
 
 ## Overview
-Create a new `ShaderBackground` component using WebGL for animated, procedural background effects. This will provide a more dynamic, immersive visual experience compared to the current CSS-based `GridBackground` component.
+A standalone, self-contained page at `/case-study` that presents your UX redesign thinking for PitchVoid. It uses a completely different design system (Teal/Deep Blue/Gold on white) to visually separate it from the live product, making it clear this is a design exploration, not part of the app itself.
 
-## Current State
-- **GridBackground.tsx** exists with Framer Motion-based starfield and floating particles animations
-- Pages currently use CSS classes (`grain-bg hero-gradient`) with inline background colors (`#0F0518`)
-- `GridBackground` is not actively imported anywhere in the codebase
+## Route
+- Path: `/case-study`
+- Not linked from the main navigation or landing page -- accessible only by direct URL
+- Added to `App.tsx` routes above the catch-all
 
-## Implementation Steps
+## Design System (isolated to this page only)
+- **Background**: White (#FFFFFF) with light gray sections (#F8FAFC)
+- **Primary**: Teal (#2DD4BF)
+- **Secondary**: Deep Blue (#1E3A8A)
+- **Accent**: Gold (#F59E0B)
+- **Typography**: Inter for headings, system-ui for body
+- All colors applied via inline Tailwind classes -- no changes to the global theme
 
-### Step 1: Create the ShaderBackground Component
-Create `src/components/ui/ShaderBackground.tsx` with the WebGL plasma line shader provided.
+## Page Structure (single scrollable page, 7 sections)
 
-Key features of the shader:
-- Animated plasma-like flowing lines
-- Purple/violet color scheme matching brand colors
-- Edge fade for clean blending with content
-- Performance-optimized with 16 lines per group
+### 1. Hero / Introduction
+- "DESIGN CASE STUDY" label in small uppercase teal
+- Title: "Redesigning PitchVoid" in large Deep Blue text
+- Subtitle explaining context: this is a design exploration of an existing live product
+- A "View Live Product" link to pitchvoid.lovable.app
+- Clean white background, max-width ~900px centered
 
-### Step 2: Update Shader Colors to Match Brand
-Modify the shader's color constants to align with PitchVoid brand:
-- `lineColor` → Deep Violet (`hsl(258 90% 66%)` → `vec4(0.55, 0.36, 0.96, 1.0)`)
-- `bgColor1` → Midnight Purple (`#0F0518` → `vec3(0.06, 0.02, 0.09)`)
-- `bgColor2` → Surface color (`#1A0A2E` → `vec3(0.1, 0.04, 0.18)`)
+### 2. The Problem
+- Brief analysis of current UX pain points (dark theme accessibility, unclear flow, format confusion)
+- 3 problem cards with icons highlighting specific issues
+- Light gray background section
 
-### Step 3: Integrate into Landing Page
-Replace the current background approach in `Landing.tsx`:
+### 3. Proposed Flow (5 steps)
+Each step is a numbered card showing:
+- Step number + title
+- Description of the improvement
+- A simple wireframe-style mockup built with styled divs (not images)
 
-```text
-Before:
-┌────────────────────────────────────┐
-│ <div className="grain-bg hero-     │
-│   gradient" style={{backgroundColor│
-│   : '#0F0518'}}>                   │
-│   [content]                        │
-│ </div>                             │
-└────────────────────────────────────┘
+Steps:
+1. **Enhanced Landing** -- cleaner headline hierarchy, prominent CTA
+2. **Redesigned Input** -- larger textarea, character counter, progress indicator
+3. **Format Selection** -- side-by-side comparison cards with previews
+4. **Processing Experience** -- transparent 3-phase progress with time estimate
+5. **Output View** -- before/after split-screen concept
 
-After:
-┌────────────────────────────────────┐
-│ <div className="relative min-h-    │
-│   screen">                         │
-│   <ShaderBackground />             │
-│   <div className="relative z-10">  │
-│     [content]                      │
-│   </div>                           │
-│ </div>                             │
-└────────────────────────────────────┘
-```
+### 4. Design Decisions
+- Cards explaining key decisions: why teal over purple, why white backgrounds for a productivity tool, typography choices, accessibility considerations (WCAG AA contrast ratios)
 
-### Step 4: Optional Integration for Other Pages
-- **Auth.tsx**: Add shader for visual consistency
-- **Tour.tsx**: Add shader for onboarding flow
-- Keep **Dashboard.tsx** and **Pricing.tsx** with current styling (cleaner for functional pages)
+### 5. Interactive Mockups
+- Static but styled UI mockups built directly in React:
+  - A mock input screen with character counter and "AI Ready" indicator
+  - A mock format selection with two side-by-side cards (One-Pager vs Script)
+  - A mock processing screen with phased progress bar
+- These are visual-only components, no real functionality
 
----
+### 6. Before vs After
+- Side-by-side comparison showing current dark UI description vs proposed clean UI description
+- Framer Motion scroll-triggered animations
 
-## Technical Considerations
+### 7. Footer
+- "This is a design exploration by [Your Name]"
+- Link back to the live product
+- Date
 
-### Performance
-- WebGL runs on GPU, minimal CPU impact
-- Uses `requestAnimationFrame` for smooth 60fps
-- Canvas resizes responsively with window
-- Cleanup on component unmount prevents memory leaks
+## Files to Create
 
-### Accessibility
-- `pointer-events: none` ensures content remains interactive
-- `inset-0` positioning places it behind all content
-- No impact on screen readers (decorative element)
+| File | Purpose |
+|------|---------|
+| `src/pages/CaseStudy.tsx` | Main page component, imports all sections |
+| `src/components/case-study/CaseStudyHero.tsx` | Hero/intro section |
+| `src/components/case-study/ProblemSection.tsx` | Current UX pain points |
+| `src/components/case-study/ProposedFlowSection.tsx` | 5-step redesigned flow |
+| `src/components/case-study/DesignDecisions.tsx` | Rationale cards |
+| `src/components/case-study/InteractiveMockups.tsx` | Static UI mockups |
+| `src/components/case-study/BeforeAfterSection.tsx` | Comparison section |
+| `src/components/case-study/CaseStudyFooter.tsx` | Footer with attribution |
 
-### Browser Support
-- WebGL is supported in 97%+ of browsers
-- Falls back gracefully if WebGL unavailable (just shows no background animation)
+## Files to Modify
 
----
-
-## Files to Create/Modify
-
-| File | Action |
+| File | Change |
 |------|--------|
-| `src/components/ui/ShaderBackground.tsx` | Create new |
-| `src/pages/Landing.tsx` | Modify - integrate shader |
-| `src/pages/Auth.tsx` | Optional - integrate shader |
-| `src/pages/Tour.tsx` | Optional - integrate shader |
+| `src/App.tsx` | Add `Route path="/case-study"` with lazy import |
 
----
+## Technical Notes
+- Uses `framer-motion` (already installed) for scroll-triggered animations via `useInView`
+- Follows the same component pattern as the existing Portfolio page (section-based composition)
+- All styling is self-contained via Tailwind utility classes with hardcoded hex values -- zero impact on the existing PitchVoid dark theme
+- Inter font loaded via Google Fonts import within the component (scoped)
+- Responsive: stacks to single column on mobile, side-by-side on desktop
+- No backend or database involvement
 
-## Testing Checklist
-After implementation:
-- [ ] Verify animation runs smoothly on desktop
-- [ ] Check mobile performance (consider reduced lines for mobile)
-- [ ] Confirm content remains readable over shader
-- [ ] Test WebGL fallback behavior
-- [ ] Verify no layout shifts or z-index conflicts
