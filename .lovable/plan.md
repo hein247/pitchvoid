@@ -1,93 +1,45 @@
 
 
-# Case Study Page: PitchVoid UX Redesign Exploration
+# Add "Early Concept" AI Parse Animation
 
 ## Overview
-A standalone, self-contained page at `/case-study` that presents your UX redesign thinking for PitchVoid. It uses a completely different design system (Teal/Deep Blue/Gold on white) to visually separate it from the live product, making it clear this is a design exploration, not part of the app itself.
+Add a short, looping animation showing the early concept of PitchVoid's core flow: **Upload PDF -> AI Parses -> AI Thinks -> Talking Points Created**. This is presented as an early concept sketch -- rough, wireframe-style -- so interviewers understand this was the initial vision. When they visit the live product, they'll see how it evolved.
 
-## Route
-- Path: `/case-study`
-- Not linked from the main navigation or landing page -- accessible only by direct URL
-- Added to `App.tsx` routes above the catch-all
+## Placement
+Right after the existing "Where it started" section, still under the **01 -- Early Concept** umbrella. It will be a sub-section within the same conceptual area, not a new numbered section. Think of it as "here's the problem" (existing) followed by "here's what I initially envisioned" (new).
 
-## Design System (isolated to this page only)
-- **Background**: White (#FFFFFF) with light gray sections (#F8FAFC)
-- **Primary**: Teal (#2DD4BF)
-- **Secondary**: Deep Blue (#1E3A8A)
-- **Accent**: Gold (#F59E0B)
-- **Typography**: Inter for headings, system-ui for body
-- All colors applied via inline Tailwind classes -- no changes to the global theme
+## Visual Style
+- **Sketch / lo-fi aesthetic** to reinforce "early concept" -- dashed borders, hand-drawn feel, muted colors
+- Matches the lo-fi wireframe style already used in `WireframesSection` (dashed borders, skeleton shapes)
+- A small label like *"Early concept sketch"* to make it clear this isn't the final product
+- Dark theme consistent with the rest of the case study
 
-## Page Structure (single scrollable page, 7 sections)
+## Animation Sequence (auto-plays on scroll, loops every ~8s)
 
-### 1. Hero / Introduction
-- "DESIGN CASE STUDY" label in small uppercase teal
-- Title: "Redesigning PitchVoid" in large Deep Blue text
-- Subtitle explaining context: this is a design exploration of an existing live product
-- A "View Live Product" link to pitchvoid.lovable.app
-- Clean white background, max-width ~900px centered
+| Phase | Duration | Visual |
+|-------|----------|--------|
+| **1. Upload** | 0-2s | A dashed file drop zone. A "pitch_deck.pdf" file icon slides in. A thin progress bar fills. |
+| **2. Parse** | 2-4s | The file "opens" -- skeleton text lines shimmer in one by one, simulating content extraction. |
+| **3. Think** | 4-5.5s | A sparkles icon pulses. Typewriter text cycles through: "Analyzing audience...", "Finding key points...", "Structuring narrative..." |
+| **4. Output** | 5.5-7.5s | 3 talking-point cards fade/slide up: rough bullet items like "Market size: $2.4B", "3x faster", "Live demo ready" |
+| **Reset** | 7.5-8s | Brief fade, then loop |
 
-### 2. The Problem
-- Brief analysis of current UX pain points (dark theme accessibility, unclear flow, format confusion)
-- 3 problem cards with icons highlighting specific issues
-- Light gray background section
+## Files to Change
 
-### 3. Proposed Flow (5 steps)
-Each step is a numbered card showing:
-- Step number + title
-- Description of the improvement
-- A simple wireframe-style mockup built with styled divs (not images)
+### New file: `src/components/case-study/AIParseAnimationSection.tsx`
+- Uses `framer-motion` for all animations and `useInView` to trigger
+- `useState` + `useEffect` with a timer to cycle through 4 phases
+- Icons from `lucide-react`: `FileUp`, `Sparkles`, `MessageSquare`
+- Lo-fi dashed-border styling (matching `LoFiFrame` pattern from WireframesSection)
+- Labeled "Early concept sketch" so it reads as a design artifact, not a finished feature
 
-Steps:
-1. **Enhanced Landing** -- cleaner headline hierarchy, prominent CTA
-2. **Redesigned Input** -- larger textarea, character counter, progress indicator
-3. **Format Selection** -- side-by-side comparison cards with previews
-4. **Processing Experience** -- transparent 3-phase progress with time estimate
-5. **Output View** -- before/after split-screen concept
+### Modified file: `src/pages/CaseStudy.tsx`
+- Import `AIParseAnimationSection`
+- Place it directly after `EarlyConceptSection`, before `UserFlowSection`
 
-### 4. Design Decisions
-- Cards explaining key decisions: why teal over purple, why white backgrounds for a productivity tool, typography choices, accessibility considerations (WCAG AA contrast ratios)
-
-### 5. Interactive Mockups
-- Static but styled UI mockups built directly in React:
-  - A mock input screen with character counter and "AI Ready" indicator
-  - A mock format selection with two side-by-side cards (One-Pager vs Script)
-  - A mock processing screen with phased progress bar
-- These are visual-only components, no real functionality
-
-### 6. Before vs After
-- Side-by-side comparison showing current dark UI description vs proposed clean UI description
-- Framer Motion scroll-triggered animations
-
-### 7. Footer
-- "This is a design exploration by [Your Name]"
-- Link back to the live product
-- Date
-
-## Files to Create
-
-| File | Purpose |
-|------|---------|
-| `src/pages/CaseStudy.tsx` | Main page component, imports all sections |
-| `src/components/case-study/CaseStudyHero.tsx` | Hero/intro section |
-| `src/components/case-study/ProblemSection.tsx` | Current UX pain points |
-| `src/components/case-study/ProposedFlowSection.tsx` | 5-step redesigned flow |
-| `src/components/case-study/DesignDecisions.tsx` | Rationale cards |
-| `src/components/case-study/InteractiveMockups.tsx` | Static UI mockups |
-| `src/components/case-study/BeforeAfterSection.tsx` | Comparison section |
-| `src/components/case-study/CaseStudyFooter.tsx` | Footer with attribution |
-
-## Files to Modify
-
-| File | Change |
-|------|--------|
-| `src/App.tsx` | Add `Route path="/case-study"` with lazy import |
-
-## Technical Notes
-- Uses `framer-motion` (already installed) for scroll-triggered animations via `useInView`
-- Follows the same component pattern as the existing Portfolio page (section-based composition)
-- All styling is self-contained via Tailwind utility classes with hardcoded hex values -- zero impact on the existing PitchVoid dark theme
-- Inter font loaded via Google Fonts import within the component (scoped)
-- Responsive: stacks to single column on mobile, side-by-side on desktop
-- No backend or database involvement
-
+## Technical Details
+- Phase state managed by a `useEffect` interval that cycles through `'upload' | 'parse' | 'think' | 'output'`
+- Each phase uses `AnimatePresence` with fade/slide transitions
+- The `TypewriterText` component (already exists at `src/components/ui/TypewriterText.tsx`) will be reused for the "thinking" phase text
+- Loops automatically with `setInterval`, resets state cleanly
+- All styling uses existing dark theme tokens (`bg-background`, `border-border`, `text-muted-foreground`)
