@@ -1,35 +1,23 @@
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
-import { Lightbulb, MessageSquare, Zap } from "lucide-react";
-
-const concepts = [
-  {
-    icon: <Lightbulb className="w-5 h-5" />,
-    title: "The Problem",
-    description:
-      "People pitch constantly — investors, clients, managers — but crafting a compelling narrative takes hours. Most tools focus on slide design, not the actual story.",
-  },
-  {
-    icon: <MessageSquare className="w-5 h-5" />,
-    title: "The Insight",
-    description:
-      'What if you could just describe the situation in one sentence? "I\'m pitching my startup to a VC who focuses on climate tech" — and get a full pitch tailored to that context.',
-  },
-  {
-    icon: <Zap className="w-5 h-5" />,
-    title: "The Solution",
-    description:
-      "PitchVoid: a universal pitch generator. Describe any scenario, add optional context (files, URLs), and get polished output in the format you need — slides, one-pagers, or scripts.",
-  },
-];
+import { ArrowDown, FileText, StickyNote, Presentation, FileCheck } from "lucide-react";
 
 const EarlyConceptSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-80px" });
 
+  const stickyNotes = [
+    { text: "idea for intro??", rotate: -6, color: "bg-yellow-400/80", x: 0, y: 0 },
+    { text: "need stats", rotate: 4, color: "bg-pink-400/70", x: 120, y: -10 },
+    { text: "who's the audience", rotate: -3, color: "bg-blue-400/70", x: 40, y: 80 },
+    { text: "too long!!", rotate: 7, color: "bg-green-400/70", x: 160, y: 70 },
+    { text: "rewrite slide 3", rotate: -5, color: "bg-orange-400/70", x: 80, y: 150 },
+    { text: "add CTA?", rotate: 3, color: "bg-purple-400/70", x: 200, y: 130 },
+  ];
+
   return (
     <section ref={ref} className="py-20 md:py-28 px-6 bg-[hsl(270,10%,7%)]">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -42,31 +30,103 @@ const EarlyConceptSection = () => {
           <h2 className="text-3xl md:text-4xl font-display mb-4 text-foreground">
             Where it started
           </h2>
-          <p className="text-base text-muted-foreground">
-            The initial hypothesis and framing that guided the entire design process.
-          </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          {concepts.map((c, i) => (
+        <div className="grid md:grid-cols-[40%_1fr] gap-10 md:gap-14 items-start">
+          {/* Left — Text */}
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.15 }}
+          >
+            <p className="text-base md:text-lg leading-relaxed text-muted-foreground mb-6">
+              I noticed a recurring struggle — people have great ideas but can't organize them into clear formats. Whether it's:
+            </p>
+            <ul className="space-y-3 mb-6">
+              {[
+                { icon: <Presentation className="w-4 h-4" />, label: "Preparing for a pitch" },
+                { icon: <FileText className="w-4 h-4" />, label: "Writing a one-pager" },
+                { icon: <FileCheck className="w-4 h-4" />, label: "Scripting a presentation" },
+              ].map((item) => (
+                <li key={item.label} className="flex items-center gap-3 text-foreground/90">
+                  <span className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                    {item.icon}
+                  </span>
+                  <span className="text-sm md:text-base">{item.label}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="text-base md:text-lg leading-relaxed text-muted-foreground">
+              The initial chaos of scattered thoughts blocks progress.
+            </p>
+          </motion.div>
+
+          {/* Right — Visual: Chaos → Clarity */}
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="flex flex-col items-center gap-6"
+          >
+            {/* Chaos */}
+            <div className="relative w-full h-56 md:h-64 rounded-2xl border border-border bg-background/40 overflow-hidden p-4">
+              <p className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground/60 mb-2">Chaos</p>
+              {stickyNotes.map((note, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, scale: 0.7 }}
+                  animate={isInView ? { opacity: 1, scale: 1 } : {}}
+                  transition={{ duration: 0.4, delay: 0.4 + i * 0.08 }}
+                  className={`absolute ${note.color} text-black/80 text-[10px] md:text-xs font-medium px-3 py-2 rounded shadow-md`}
+                  style={{
+                    left: `clamp(8px, ${note.x * 0.35}px, 60%)`,
+                    top: `${24 + note.y * 0.85}px`,
+                    transform: `rotate(${note.rotate}deg)`,
+                  }}
+                >
+                  {note.text}
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Arrow */}
             <motion.div
-              key={c.title}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: -10 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: 0.15 * i }}
-              className="p-6 rounded-2xl border border-border glassmorphism"
+              transition={{ duration: 0.4, delay: 0.9 }}
+              className="flex flex-col items-center gap-1 text-primary"
             >
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 bg-primary/10 text-primary">
-                {c.icon}
-              </div>
-              <h3 className="text-lg font-semibold mb-2 text-foreground">
-                {c.title}
-              </h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                {c.description}
-              </p>
+              <ArrowDown className="w-6 h-6" />
+              <span className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground/60">PitchVoid</span>
             </motion.div>
-          ))}
+
+            {/* Clarity */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={isInView ? { opacity: 1, scale: 1 } : {}}
+              transition={{ duration: 0.5, delay: 1.0 }}
+              className="w-full rounded-2xl border border-border bg-background/60 p-5 space-y-3"
+            >
+              <p className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground/60 mb-1">Clarity</p>
+              <div className="space-y-2">
+                <div className="h-3 w-3/4 rounded bg-primary/30" />
+                <div className="h-2 w-full rounded bg-muted-foreground/15" />
+                <div className="h-2 w-full rounded bg-muted-foreground/15" />
+                <div className="h-2 w-5/6 rounded bg-muted-foreground/15" />
+              </div>
+              <div className="flex gap-2 pt-2">
+                <div className="h-7 w-20 rounded-lg bg-primary/20 flex items-center justify-center">
+                  <span className="text-[9px] text-primary font-medium">Slide 1</span>
+                </div>
+                <div className="h-7 w-20 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <span className="text-[9px] text-muted-foreground font-medium">Slide 2</span>
+                </div>
+                <div className="h-7 w-20 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <span className="text-[9px] text-muted-foreground font-medium">Slide 3</span>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
         </div>
       </div>
     </section>
