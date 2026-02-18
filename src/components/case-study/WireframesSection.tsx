@@ -33,7 +33,7 @@ const WireframesSection = () => {
           className="mb-16"
         >
           <p className="text-xs tracking-[0.3em] uppercase mb-4 text-primary">
-            03 — Wireframes
+            03 // Wireframes
           </p>
           <h2 className="text-3xl md:text-4xl font-display mb-4 text-foreground">
             Lo-fi → Mid-fi exploration
@@ -94,7 +94,7 @@ const WireframesSection = () => {
             Mid-fi: Refined with hierarchy & interactions
           </p>
           <div className="grid md:grid-cols-2 gap-6">
-            <MidFiFrame title="Dashboard — Projects List">
+            <MidFiFrame title="Dashboard // Projects List">
               <div className="space-y-3">
                 {[1, 2, 3].map((n) => (
                   <div key={n} className="flex items-center gap-3 p-3 rounded-xl border border-border">
@@ -111,7 +111,7 @@ const WireframesSection = () => {
                 </div>
               </div>
             </MidFiFrame>
-            <MidFiFrame title="Generation Flow — Quick Tune">
+            <MidFiFrame title="Generation Flow // Quick Tune">
               <div className="space-y-4">
                 <div>
                   <p className="text-[11px] font-medium mb-2 text-muted-foreground">Length</p>
