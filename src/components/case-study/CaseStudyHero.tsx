@@ -32,7 +32,7 @@ const CaseStudyHero = () =>
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.3 }}
-      className="text-sm mb-8 text-muted-foreground/60">Role: Creator · Timeline: 2026 · Tools: Figma, Lovable, React, Tailwind and other components as they deem
+      className="text-sm mb-8 text-muted-foreground/60">Role: Creator · Timeline: 2026 · Tools: Figma, Lovable, React, Tailwind and other components as they deemed fit
 
 
     </motion.p>
