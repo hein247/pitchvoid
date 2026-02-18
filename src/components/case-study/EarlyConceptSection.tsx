@@ -7,18 +7,18 @@ const EarlyConceptSection = () => {
   const isInView = useInView(ref, { once: true, margin: "-80px" });
 
   const stickyNotes = [
-    { text: "idea for intro??", rotate: -4, color: "bg-yellow-400/80", col: 0, row: 0 },
-    { text: "need stats", rotate: 3, color: "bg-pink-400/70", col: 1, row: 0 },
-    { text: "who's the audience", rotate: -2, color: "bg-blue-400/70", col: 2, row: 0 },
-    { text: "too long!!", rotate: 5, color: "bg-orange-400/70", col: 0, row: 1 },
-    { text: "rewrite slide 3", rotate: -3, color: "bg-green-400/70", col: 1, row: 1 },
-    { text: "add CTA?", rotate: 2, color: "bg-purple-400/70", col: 2, row: 1 },
-    { text: "wrong order", rotate: -5, color: "bg-red-400/70", col: 0, row: 2 },
-    { text: "more visuals?", rotate: 4, color: "bg-teal-400/70", col: 1, row: 2 },
-    { text: "cut this part", rotate: -2, color: "bg-amber-400/80", col: 2, row: 2 },
-    { text: "check competitor", rotate: 3, color: "bg-indigo-400/70", col: 0, row: 3 },
-    { text: "deadline tmrw!", rotate: -4, color: "bg-rose-400/70", col: 1, row: 3 },
-    { text: "ask for feedback", rotate: 2, color: "bg-cyan-400/70", col: 2, row: 3 },
+    { text: "8.5s avg attention span", rotate: -4, color: "bg-yellow-400/80" },
+    { text: "73% feel overstimulated daily", rotate: 3, color: "bg-pink-400/70" },
+    { text: "ChatGPT writes but doesn't structure", rotate: -2, color: "bg-blue-400/70" },
+    { text: "too many tabs open rn", rotate: 5, color: "bg-orange-400/70" },
+    { text: "pitch meeting in 2 hours", rotate: -3, color: "bg-green-400/70" },
+    { text: "AI fatigue is real", rotate: 2, color: "bg-purple-400/70" },
+    { text: "doom-scrolled instead of prepping", rotate: -5, color: "bg-red-400/70" },
+    { text: "40% of workers use AI for work", rotate: 4, color: "bg-teal-400/70" },
+    { text: "copy-pasted from 5 different docs", rotate: -2, color: "bg-amber-400/80" },
+    { text: "info overload = decision paralysis", rotate: 3, color: "bg-indigo-400/70" },
+    { text: "need narrative, not bullet points", rotate: -4, color: "bg-rose-400/70" },
+    { text: "great idea, zero structure", rotate: 2, color: "bg-cyan-400/70" },
   ];
 
   return (
@@ -46,13 +46,13 @@ const EarlyConceptSection = () => {
             transition={{ duration: 0.6, delay: 0.15 }}
           >
             <p className="text-base md:text-lg leading-relaxed text-muted-foreground mb-6">
-              I noticed a recurring struggle: people have great ideas but can't organize them into clear formats. Whether it's:
+              We live in an era of overstimulation. The average attention span has dropped to 8.5 seconds, 73% of knowledge workers report feeling mentally overloaded, and despite having AI tools everywhere, people still struggle to turn scattered thoughts into a clear narrative.
             </p>
             <ul className="space-y-3 mb-6">
               {[
-                { icon: <Presentation className="w-4 h-4" />, label: "Preparing for a pitch" },
-                { icon: <FileText className="w-4 h-4" />, label: "Writing a one-pager" },
-                { icon: <FileCheck className="w-4 h-4" />, label: "Scripting a presentation" },
+                { icon: <Presentation className="w-4 h-4" />, label: "Pitching an idea with zero prep time" },
+                { icon: <FileText className="w-4 h-4" />, label: "Summarizing weeks of research into one page" },
+                { icon: <FileCheck className="w-4 h-4" />, label: "Presenting with confidence, not chaos" },
               ].map((item) => (
                 <li key={item.label} className="flex items-center gap-3 text-foreground/90">
                   <span className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
@@ -63,7 +63,7 @@ const EarlyConceptSection = () => {
               ))}
             </ul>
             <p className="text-base md:text-lg leading-relaxed text-muted-foreground">
-              The initial chaos of scattered thoughts blocks progress.
+              AI can generate text, but it doesn't think about your audience, your story, or your structure. That gap is where PitchVoid started.
             </p>
           </motion.div>
 
