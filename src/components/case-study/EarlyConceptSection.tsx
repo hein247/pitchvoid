@@ -28,7 +28,7 @@ const EarlyConceptSection = () => {
   const isInView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <section ref={ref} className="py-20 md:py-28 px-6" style={{ background: "#F8FAFC" }}>
+    <section ref={ref} className="py-20 md:py-28 px-6 bg-[hsl(270,10%,7%)]">
       <div className="max-w-4xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -36,13 +36,13 @@ const EarlyConceptSection = () => {
           transition={{ duration: 0.6 }}
           className="mb-16"
         >
-          <p className="text-xs tracking-[0.3em] uppercase mb-4" style={{ color: "#2DD4BF" }}>
+          <p className="text-xs tracking-[0.3em] uppercase mb-4 text-primary">
             01 — Early Concept
           </p>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: "#0F172A" }}>
+          <h2 className="text-3xl md:text-4xl font-display mb-4 text-foreground">
             Where it started
           </h2>
-          <p className="text-base" style={{ color: "#64748B" }}>
+          <p className="text-base text-muted-foreground">
             The initial hypothesis and framing that guided the entire design process.
           </p>
         </motion.div>
@@ -54,19 +54,15 @@ const EarlyConceptSection = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: 0.15 * i }}
-              className="p-6 rounded-2xl border"
-              style={{ background: "#FFFFFF", borderColor: "#E2E8F0" }}
+              className="p-6 rounded-2xl border border-border glassmorphism"
             >
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
-                style={{ background: "#F0FDFA", color: "#2DD4BF" }}
-              >
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 bg-primary/10 text-primary">
                 {c.icon}
               </div>
-              <h3 className="text-lg font-semibold mb-2" style={{ color: "#0F172A" }}>
+              <h3 className="text-lg font-semibold mb-2 text-foreground">
                 {c.title}
               </h3>
-              <p className="text-sm leading-relaxed" style={{ color: "#64748B" }}>
+              <p className="text-sm leading-relaxed text-muted-foreground">
                 {c.description}
               </p>
             </motion.div>

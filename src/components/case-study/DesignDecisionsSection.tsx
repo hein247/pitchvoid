@@ -38,7 +38,7 @@ const DesignDecisionsSection = () => {
   const isInView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <section ref={ref} className="py-20 md:py-28 px-6" style={{ background: "#FFFFFF" }}>
+    <section ref={ref} className="py-20 md:py-28 px-6 bg-background">
       <div className="max-w-4xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -46,13 +46,13 @@ const DesignDecisionsSection = () => {
           transition={{ duration: 0.6 }}
           className="mb-16"
         >
-          <p className="text-xs tracking-[0.3em] uppercase mb-4" style={{ color: "#2DD4BF" }}>
+          <p className="text-xs tracking-[0.3em] uppercase mb-4 text-primary">
             04 — Design Decisions
           </p>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: "#0F172A" }}>
+          <h2 className="text-3xl md:text-4xl font-display mb-4 text-foreground">
             Why it looks & works this way
           </h2>
-          <p className="text-base" style={{ color: "#64748B" }}>
+          <p className="text-base text-muted-foreground">
             Key decisions with the rationale and trade-offs behind each.
           </p>
         </motion.div>
@@ -64,23 +64,19 @@ const DesignDecisionsSection = () => {
               initial={{ opacity: 0, y: 25 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: 0.1 * i }}
-              className="flex gap-5 p-6 rounded-2xl border"
-              style={{ borderColor: "#F1F5F9" }}
+              className="flex gap-5 p-6 rounded-2xl border border-border glassmorphism"
             >
-              <div
-                className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center"
-                style={{ background: "#F0FDFA", color: "#2DD4BF" }}
-              >
+              <div className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-primary/10 text-primary">
                 {d.icon}
               </div>
               <div>
-                <h3 className="text-base font-semibold mb-1" style={{ color: "#0F172A" }}>
+                <h3 className="text-base font-semibold mb-1 text-foreground">
                   {d.title}
                 </h3>
-                <p className="text-sm leading-relaxed mb-2" style={{ color: "#64748B" }}>
+                <p className="text-sm leading-relaxed mb-2 text-muted-foreground">
                   {d.rationale}
                 </p>
-                <p className="text-xs italic" style={{ color: "#94A3B8" }}>
+                <p className="text-xs italic text-muted-foreground/60">
                   Trade-off: {d.tradeoff}
                 </p>
               </div>
