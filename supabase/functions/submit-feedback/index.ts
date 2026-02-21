@@ -67,6 +67,9 @@ serve(async (req) => {
       });
     }
 
+    // Map numeric rating to DB enum values
+    const ratingValue = rating === 5 ? "up" : "down";
+
     // Validate format
     if (format && format !== "one-pager" && format !== "script") {
       return new Response(JSON.stringify({ error: "format must be 'one-pager' or 'script'" }), {
@@ -87,7 +90,7 @@ serve(async (req) => {
     const { error: insertError } = await supabase.from("ai_feedback").insert({
       project_id,
       user_id: userData.user.id,
-      rating: String(rating),
+      rating: ratingValue,
       issues: validatedIssues,
       generated_output: output_json || null,
     });
