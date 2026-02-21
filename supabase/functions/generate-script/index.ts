@@ -129,6 +129,7 @@ DO NOT:
 - Use pagination or Previous/Next slides
 - Use formal presentation language
 - Invent numbers or details not in the user's input
+- Calculate new percentages or statistics from the user's numbers. If the user says 12 cities expanding to 5 more, say exactly that — do not convert it to a percentage. Only use numbers the user explicitly stated.
 - Use: "leverage", "bridge the gap", "digital infrastructure", "strategic partnership", "long-term growth", "in today's fast-paced world"
 - Add any text outside the JSON
 
@@ -137,6 +138,11 @@ EMPHASIS RULE:
 - Include the unit with the number: "15%", "$180K", "4 months", "6-month", "2-week"
 - If a line has no number or metric, set emphasis to null
 - Do NOT put general phrases in emphasis
+
+BOLD RULE (MANDATORY):
+- Bold ALL numbers and metrics in the output text, including comparison numbers. If a line says $62 vs $150, both numbers must be bolded: **$62** vs **$150**.
+- When bolding metrics, include the unit with the number: **15%**, **$180K**, **4 months**, **6-month**, **2-week**.
+- Never bold just the number without its unit.
 
 USER CONTEXT:
 - Preferred tone: ${writing_preferences.tone || "clear, confident, and human"}
