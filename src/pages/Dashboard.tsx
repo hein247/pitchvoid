@@ -8,6 +8,7 @@ import ShareModal from '@/components/dashboard/ShareModal';
 import { Progress } from '@/components/ui/progress';
 import Navbar from '@/components/Navbar';
 import RefinementPanel from '@/components/dashboard/RefinementPanel';
+import RefinementBar from '@/components/dashboard/output/RefinementBar';
 import OnePager, { OnePagerData } from '@/components/dashboard/OnePager';
 import OnePagerEditor from '@/components/dashboard/OnePagerEditor';
 import MobileEditorSheet from '@/components/dashboard/MobileEditorSheet';
@@ -111,6 +112,13 @@ const Dashboard = () => {
   const [onePagerData, setOnePagerData] = useState<OnePagerData | null>(null);
   const [scriptData, setScriptData] = useState<ScriptData | null>(null);
   const [isRegenerating, setIsRegenerating] = useState(false);
+  
+  // Refinement state
+  const [isRefining, setIsRefining] = useState(false);
+  const [previousOutput, setPreviousOutput] = useState<OnePagerData | ScriptData | null>(null);
+  const [showUndo, setShowUndo] = useState(false);
+  const undoTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [refineAnimationKey, setRefineAnimationKey] = useState(0);
   
   // Generation error state
   const [generationError, setGenerationError] = useState<{
@@ -657,6 +665,95 @@ const Dashboard = () => {
     setSelectedTone('balanced');
   };
 
+  // --- Refinement handlers ---
+  const handleRefine = async (instruction: string) => {
+    if (!activeProject) return;
+    const currentData = outputFormat === 'script' ? scriptData : onePagerData;
+    if (!currentData) return;
+
+    // If undo window is still open, update previousOutput to current state
+    if (showUndo) {
+      setPreviousOutput(currentData);
+      if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
+    }
+
+    setIsRefining(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('refine-output', {
+        body: {
+          project_id: activeProject.id,
+          original_input: transcribedText || activeProject.scenario_description || '',
+          current_output: currentData,
+          refine_instruction: instruction.toLowerCase(),
+          format: outputFormat,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data.success === false) {
+        toast({ title: 'Refinement issue', description: data.message, variant: 'destructive' });
+        setIsRefining(false);
+        return;
+      }
+
+      const newOutput = data.new_output;
+
+      // Store current as previous for undo
+      if (!showUndo) {
+        setPreviousOutput(currentData);
+      }
+
+      // Apply new output
+      if (outputFormat === 'script') {
+        setScriptData(newOutput as ScriptData);
+      } else {
+        setOnePagerData(newOutput as OnePagerData);
+      }
+
+      setRefineAnimationKey(prev => prev + 1);
+      setShowUndo(true);
+
+      // Start 10-second undo timer
+      undoTimerRef.current = setTimeout(() => {
+        setShowUndo(false);
+        setPreviousOutput(null);
+      }, 10000);
+
+      // Targeted DB update — only output_data column
+      const outputKey = outputFormat === 'script' ? 'script' : 'onePager';
+      const existingOutput = (activeProject.output_data || {}) as Record<string, unknown>;
+      await supabase.from('projects').update({
+        output_data: { ...existingOutput, [outputKey]: newOutput },
+      }).eq('id', activeProject.id);
+
+    } catch (error: any) {
+      console.error('Refine error:', error);
+      const msg = error?.message || error?.context?.body || 'Refinement failed. Please try again.';
+      const parsed = typeof msg === 'string' && msg.toLowerCase();
+      toast({
+        title: parsed && parsed.includes('rate limit') ? 'Limit reached' : 'Refinement failed',
+        description: typeof msg === 'string' ? msg : 'Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsRefining(false);
+    }
+  };
+
+  const handleUndo = () => {
+    if (!previousOutput) return;
+    if (outputFormat === 'script') {
+      setScriptData(previousOutput as ScriptData);
+    } else {
+      setOnePagerData(previousOutput as OnePagerData);
+    }
+    setPreviousOutput(null);
+    setShowUndo(false);
+    if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
+  };
+
   // Regenerate content in a different format
   const handleRegenerateInFormat = async (newFormat: OutputFormat) => {
     // Check format permission before regenerating
@@ -1116,7 +1213,7 @@ const Dashboard = () => {
               </div>
             </header>
             
-            <div className="overflow-y-auto p-4 sm:p-6 lg:p-8 relative z-10">
+            <div className={`overflow-y-auto p-4 sm:p-6 lg:p-8 relative z-10 transition-opacity duration-500 ${isRefining ? 'opacity-50' : ''}`} style={{ paddingBottom: (onePagerData || scriptData) ? '140px' : undefined }}>
               {/* Show skeleton during regeneration */}
               {isRegenerating ? (
                 <GenerationSkeleton format={outputFormat} />
@@ -1124,11 +1221,13 @@ const Dashboard = () => {
                 <ScriptViewer 
                   data={scriptData}
                   onUpdate={(updatedData) => setScriptData(updatedData)}
+                  refineAnimationKey={refineAnimationKey}
                 />
               ) : outputFormat === 'one-pager' && onePagerData ? (
                 <OnePager 
                   data={onePagerData}
                   projectTitle={activeProject?.title}
+                  refineAnimationKey={refineAnimationKey}
                 />
               ) : (
                 <div className="py-16 flex items-center justify-center">
@@ -1144,6 +1243,16 @@ const Dashboard = () => {
                 </div>
               )}
             </div>
+
+            {/* Refinement Bar */}
+            {(onePagerData || scriptData) && !isRegenerating && (
+              <RefinementBar
+                onRefine={handleRefine}
+                isRefining={isRefining}
+                showUndo={showUndo}
+                onUndo={handleUndo}
+              />
+            )}
           </div>
 
           {/* Chat + Editor Panel — below */}

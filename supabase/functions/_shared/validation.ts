@@ -179,6 +179,46 @@ export function validateGeneratePitchImagesInput(body: Record<string, unknown>):
   return { valid: true };
 }
 
+/**
+ * Validates refine-output request body
+ */
+export function validateRefineOutputInput(body: Record<string, unknown>): ValidationResult {
+  const projectIdResult = validateString(body.project_id, "project_id", 100, true);
+  if (!projectIdResult.valid) return projectIdResult;
+
+  const originalResult = validateString(body.original_input, "original_input", MAX_LENGTHS.userInput, true);
+  if (!originalResult.valid) return originalResult;
+
+  if (!body.current_output || typeof body.current_output !== "object") {
+    return { valid: false, error: "current_output is required and must be an object" };
+  }
+
+  const instructionResult = validateString(body.refine_instruction, "refine_instruction", 500, true);
+  if (!instructionResult.valid) return instructionResult;
+
+  if (!body.format || (body.format !== "one-pager" && body.format !== "script")) {
+    return { valid: false, error: "format must be 'one-pager' or 'script'" };
+  }
+
+  // Optional user_edits
+  if (body.user_edits !== undefined && body.user_edits !== null) {
+    if (typeof body.user_edits !== "object") {
+      return { valid: false, error: "user_edits must be an object" };
+    }
+    const edits = body.user_edits as Record<string, unknown>;
+    if (edits.title !== undefined) {
+      const titleResult = validateString(edits.title, "user_edits.title", 200);
+      if (!titleResult.valid) return titleResult;
+    }
+    if (edits.context_line !== undefined) {
+      const clResult = validateString(edits.context_line, "user_edits.context_line", 500);
+      if (!clResult.valid) return clResult;
+    }
+  }
+
+  return { valid: true };
+}
+
 // Patterns commonly used in prompt injection attacks
 const INJECTION_PATTERNS = [
   // Meta-instruction patterns

@@ -19,6 +19,7 @@ export interface OnePagerData {
 interface OnePagerProps {
   data: OnePagerData;
   projectTitle?: string;
+  refineAnimationKey?: number;
 }
 
 /** Render markdown **bold** as <strong> */
@@ -36,7 +37,7 @@ const renderPoint = (text: string) => {
   });
 };
 
-const OnePager = ({ data: rawData }: OnePagerProps) => {
+const OnePager = ({ data: rawData, refineAnimationKey }: OnePagerProps) => {
   const [copiedIndex, setCopiedIndex] = useState<string | null>(null);
   const [copiedAll, setCopiedAll] = useState(false);
 
@@ -82,7 +83,13 @@ const OnePager = ({ data: rawData }: OnePagerProps) => {
   };
 
   return (
-    <div className="max-w-[680px] mx-auto py-2">
+    <motion.div
+      key={refineAnimationKey}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="max-w-[680px] mx-auto py-2"
+    >
       {/* Context line */}
       {data.context_line && (
         <p className="text-xs mb-8" style={{ color: 'rgba(240,237,246,0.25)' }}>
@@ -176,7 +183,7 @@ const OnePager = ({ data: rawData }: OnePagerProps) => {
           </motion.div>
         ))}
       </div>
-    </div>
+    </motion.div>
   );
 };
 
