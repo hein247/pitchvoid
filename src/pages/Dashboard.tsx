@@ -231,8 +231,8 @@ const Dashboard = () => {
         setShowQuickPitch(true);
       }
       if (isPracticeMode && scriptData) {
-        const totalSections = scriptData.sections.length;
-        if (e.key === 'ArrowRight') setPracticeSection(prev => Math.min(totalSections - 1, prev + 1));
+        const totalLines = scriptData.lines?.length || scriptData.sections?.length || 0;
+        if (e.key === 'ArrowRight') setPracticeSection(prev => Math.min(totalLines - 1, prev + 1));
         if (e.key === 'ArrowLeft') setPracticeSection(prev => Math.max(0, prev - 1));
         if (e.key === ' ') { e.preventDefault(); setIsPlaying(prev => !prev); }
       }
@@ -596,7 +596,7 @@ const Dashboard = () => {
       } else {
         setScriptData(data.script);
         setOnePagerData(null);
-        setMessages([{ id: '1', type: 'system', content: `Your script is ready! ${data.script?.sections?.length || 5} sections created.` }]);
+        setMessages([{ id: '1', type: 'system', content: `Your script is ready!` }]);
         outputPayload.script = data.script;
       }
 
@@ -726,7 +726,7 @@ const Dashboard = () => {
         setMessages(prev => [...prev, { id: Date.now().toString(), type: 'assistant', content: 'Regenerated as one-pager!' }]);
       } else {
         setScriptData(data.script);
-        setMessages(prev => [...prev, { id: Date.now().toString(), type: 'assistant', content: `Regenerated as script with ${data.script?.sections?.length || 5} sections!` }]);
+        setMessages(prev => [...prev, { id: Date.now().toString(), type: 'assistant', content: `Regenerated as script!` }]);
       }
 
     } catch (error: any) {

@@ -395,14 +395,28 @@ export function validateOnePagerOutput(data: unknown): { valid: boolean; error?:
 export function validateScriptOutput(data: unknown): { valid: boolean; error?: string } {
   const d = data as Record<string, unknown>;
   if (!d.title || typeof d.title !== "string") return { valid: false, error: "Missing or invalid title" };
-  if (!Array.isArray(d.sections)) return { valid: false, error: "Missing sections array" };
+
+  // New flat lines schema
+  if (Array.isArray(d.lines)) {
+    const lines = d.lines as Array<Record<string, unknown>>;
+    const validTypes = new Set(["opener", "line", "pause", "transition", "closer"]);
+    for (const l of lines) {
+      if (!validTypes.has(l.type as string)) return { valid: false, error: `Invalid line type: ${l.type}` };
+    }
+    const openers = lines.filter(l => l.type === "opener");
+    const closers = lines.filter(l => l.type === "closer");
+    if (openers.length !== 1) return { valid: false, error: `Expected 1 opener, got ${openers.length}` };
+    if (closers.length !== 1) return { valid: false, error: `Expected 1 closer, got ${closers.length}` };
+    return { valid: true };
+  }
+
+  // Legacy sections schema
+  if (!Array.isArray(d.sections)) return { valid: false, error: "Missing sections or lines array" };
   if (d.sections.length > 4) return { valid: false, error: "Too many sections (max 4)" };
   for (const s of d.sections as Array<Record<string, unknown>>) {
     if (!s.name) return { valid: false, error: "Invalid section structure: missing name" };
-    // Accept both old (content string) and new (points array) schema
     if (!s.content && !Array.isArray(s.points)) return { valid: false, error: "Invalid section structure: missing content or points" };
   }
-  // opener/closer are optional for validation (old schema won't have them)
   return { valid: true };
 }
 
