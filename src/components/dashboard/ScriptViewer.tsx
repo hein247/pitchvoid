@@ -68,8 +68,26 @@ function migrateToLines(raw: any): ScriptData {
   };
 }
 
-/** Render emphasis metric as bold within text */
+/** Parse markdown **bold** into <strong> tags */
+function parseMarkdownBold(text: string) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return (
+        <strong key={i} style={{ fontWeight: 700, color: '#f0edf6' }}>
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+    return part;
+  });
+}
+
+/** Render line text with markdown bold and emphasis fallback */
 function renderLineText(text: string, emphasis?: string | null) {
+  if (text.includes('**')) {
+    return <>{parseMarkdownBold(text)}</>;
+  }
   if (!emphasis || !text.includes(emphasis)) {
     return <>{text}</>;
   }
@@ -77,7 +95,7 @@ function renderLineText(text: string, emphasis?: string | null) {
   return (
     <>
       {text.slice(0, idx)}
-      <strong className="font-semibold" style={{ color: 'rgba(240,237,246,0.9)' }}>
+      <strong style={{ fontWeight: 700, color: '#f0edf6' }}>
         {emphasis}
       </strong>
       {text.slice(idx + emphasis.length)}
@@ -180,7 +198,7 @@ const ScriptViewer = ({ data: rawData }: ScriptViewerProps) => {
                     className="text-lg leading-[1.55] font-medium"
                     style={{ color: 'rgba(240,237,246,0.8)' }}
                   >
-                    {line.text}
+                    {renderLineText(line.text || '')}
                   </p>
                   {line.note && (
                     <p className="mt-2 text-[11px] italic" style={{ color: 'rgba(240,237,246,0.2)' }}>
@@ -231,7 +249,7 @@ const ScriptViewer = ({ data: rawData }: ScriptViewerProps) => {
                 className="py-3 pl-9"
               >
                 <p className="text-[13px] italic" style={{ color: 'rgba(240,237,246,0.3)' }}>
-                  {line.text}
+                  {renderLineText(line.text || '')}
                 </p>
               </motion.div>
             );
@@ -262,7 +280,7 @@ const ScriptViewer = ({ data: rawData }: ScriptViewerProps) => {
                     className="text-lg leading-[1.55] font-medium"
                     style={{ color: 'rgba(240,237,246,0.8)' }}
                   >
-                    {line.text}
+                    {renderLineText(line.text || '')}
                   </p>
                   {line.note && (
                     <p className="mt-2 text-[11px] italic" style={{ color: 'rgba(240,237,246,0.2)' }}>
