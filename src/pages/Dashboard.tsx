@@ -585,8 +585,9 @@ const Dashboard = () => {
       setShowQuickPitch(false);
       setCurrentView('project');
 
-      // Create or update project in DB
-      const projectTitle = (parsedContext?.summary || 'Quick Pitch').split(/\s+/).slice(0, 5).join(' ');
+      // Create or update project in DB — prefer AI-generated title from output
+      const aiTitle = outputFormat === 'one-pager' ? data.onePager?.title : data.script?.title;
+      const projectTitle = (aiTitle || parsedContext?.summary || 'Quick Pitch').split(/\s+/).slice(0, 8).join(' ');
       let project = activeProject;
       
       if (!project || project.status === 'draft') {
