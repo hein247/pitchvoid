@@ -253,6 +253,15 @@ const Dashboard = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isPracticeMode, scriptData]);
 
+  // Auto-trigger generation when switching to a format that hasn't been generated yet
+  useEffect(() => {
+    const hasCurrentFormat = outputFormat === 'script' ? !!scriptData : !!onePagerData;
+    const hasOtherFormat = outputFormat === 'script' ? !!onePagerData : !!scriptData;
+    if (!hasCurrentFormat && hasOtherFormat && !isRegenerating && currentView === 'project') {
+      handleRegenerateInFormat(outputFormat);
+    }
+  }, [outputFormat]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const formatTime = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
 
   const handleCreateProject = async () => {
@@ -778,7 +787,20 @@ const Dashboard = () => {
       return;
     }
     
-    if (!lastGenerationContext) {
+    // Reconstruct context from project data if not available in memory
+    const ctx = lastGenerationContext || (() => {
+      const scenario = transcribedText || activeProject?.scenario_description || '';
+      const audience = activeProject?.target_audience || 'Decision makers';
+      if (!scenario) return null;
+      return {
+        scenario,
+        targetAudience: audience,
+        tone: selectedTone || 'balanced',
+        length: selectedLength || 'standard',
+      };
+    })();
+
+    if (!ctx) {
       toast({ 
         title: 'No context available', 
         description: 'Please generate content first using Quick Pitch', 
@@ -806,7 +828,9 @@ const Dashboard = () => {
     try {
       let functionName: string;
       let body: Record<string, unknown>;
-      const ctx = lastGenerationContext;
+
+      const docCtx = 'documentContext' in ctx ? ctx.documentContext : undefined;
+      const imgDescs = 'imageDescriptions' in ctx ? ctx.imageDescriptions : undefined;
 
       if (newFormat === 'script') {
         functionName = 'generate-script';
@@ -815,8 +839,8 @@ const Dashboard = () => {
           targetAudience: ctx.targetAudience,
           tone: ctx.tone,
           length: ctx.length,
-          documentContext: ctx.documentContext,
-          imageDescriptions: ctx.imageDescriptions,
+          documentContext: docCtx,
+          imageDescriptions: imgDescs,
         };
       } else {
         functionName = 'generate-one-pager';
@@ -824,8 +848,8 @@ const Dashboard = () => {
           scenario: ctx.scenario,
           targetAudience: ctx.targetAudience,
           visualStyle: ctx.tone,
-          documentContext: ctx.documentContext,
-          imageDescriptions: ctx.imageDescriptions,
+          documentContext: docCtx,
+          imageDescriptions: imgDescs,
         };
       }
       
@@ -1327,26 +1351,13 @@ const Dashboard = () => {
                   )}
                 </>
               ) : (onePagerData || scriptData) && !isRegenerating ? (
-                /* Format not yet generated — show generate prompt */
+                /* Format not yet generated — show loading, useEffect will trigger generation */
                 <div className="py-16 flex items-center justify-center animate-fadeIn">
                   <div className="text-center">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 rounded-2xl flex items-center justify-center bg-gradient-to-br from-accent/15 to-primary/8 border border-dashed border-accent/30">
-                      {outputFormat === 'script' ? (
-                        <ScrollText className="w-8 h-8 sm:w-9 sm:h-9 text-accent/50" />
-                      ) : (
-                        <FileText className="w-8 h-8 sm:w-9 sm:h-9 text-accent/50" />
-                      )}
-                    </div>
-                    <p className="text-muted-foreground text-sm mb-4">
-                      Generate as {outputFormat === 'script' ? 'Script' : 'One-Pager'}?
+                    <Loader2 className="w-8 h-8 mx-auto mb-4 text-primary/60 animate-spin" />
+                    <p className="text-muted-foreground text-sm animate-pulse">
+                      Generating your {outputFormat === 'script' ? 'script' : 'one-pager'}...
                     </p>
-                    <button
-                      onClick={() => handleRegenerateInFormat(outputFormat)}
-                      disabled={isRegenerating || !lastGenerationContext}
-                      className="px-5 py-2.5 rounded-xl text-sm font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50"
-                    >
-                      Generate {outputFormat === 'script' ? 'Script' : 'One-Pager'} →
-                    </button>
                   </div>
                 </div>
               ) : (
