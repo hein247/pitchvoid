@@ -1,9 +1,10 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import { authenticateRequest, checkPitchLimit } from "../_shared/auth.ts";
 import { validateParsePitchInput, sanitizeForPrompt } from "../_shared/validation.ts";
 import { corsHeaders, jsonResponse, errorResponse, handleCors } from "../_shared/cors.ts";
 import { checkRateLimit, rateLimitResponse, RATE_LIMITS } from "../_shared/rateLimit.ts";
-import { callAIWithRetry, SHARED_PROMPT_RULES, FEW_SHOT_EXAMPLES, validateParsedContextOutput } from "../_shared/aiHelpers.ts";
+import { parseJsonFromAI } from "../_shared/aiHelpers.ts";
 
 serve(async (req) => {
   const corsResponse = handleCors(req);
@@ -36,91 +37,133 @@ serve(async (req) => {
     const { userInput } = body;
     const sanitizedInput = sanitizeForPrompt(userInput);
 
+    // Input validation: skip AI if fewer than 5 words
+    const wordCount = sanitizedInput.trim().split(/\s+/).filter(Boolean).length;
+    if (wordCount < 5) {
+      return jsonResponse({
+        needs_more: true,
+        suggestion: "Tell me a bit more \u2014 who are you talking to and what do you need to say?"
+      });
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       return errorResponse("Service configuration error", 500, "LOVABLE_API_KEY is not configured");
     }
 
+    // Fetch user's writing preferences
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } }
+    );
+
+    const { data: prefData } = await supabaseClient
+      .from("profiles")
+      .select("writing_preferences")
+      .eq("id", user.id)
+      .single();
+
+    const writing_preferences = (prefData?.writing_preferences as Record<string, string>) || {};
+
     console.log("Parsing pitch input for user:", user.id);
 
-    const ex = FEW_SHOT_EXAMPLES;
+    const systemPrompt = `You are PitchVoid's parsing engine. Your job is to extract structure from messy, scattered user input.
 
-    const systemPrompt = `You are a sharp, intuitive thinking partner. The user is someone busy with scattered thoughts they need to communicate clearly. Your job is to extract structure from the mess.
+The user is busy and overwhelmed. They're dumping rough thoughts \u2014 not writing polished text. Your job is to immediately understand what they mean, even when they can't articulate it clearly.
 
-Parse like a smart friend who immediately gets what you're trying to say, even when you can't articulate it yet.
+Extract these four elements:
+- WHO: the audience (who will receive this communication)
+- WHAT: the core message or objective
+- WHY: why it matters to the audience (the hook)
+- HOW: the best angle or approach to deliver it
 
-For every input, extract these four dimensions:
-- WHO: The audience. Be specific — "direct manager" not just "boss".
-- WHAT: The core message. Strip away the noise and find the signal.
-- WHY: Why it matters to THAT audience. Not why the user cares — why the LISTENER should care.
-- HOW: The best angle or approach given the audience and goal.
+Rules:
+- Infer missing information intelligently. If the user says "talk to boss about raise", infer WHO=direct manager, WHAT=compensation discussion, WHY=performance/market rate, HOW=data-driven with specific asks.
+- Use the user's own words where possible. If they say "boss", don't upgrade to "senior leadership."
+- NEVER invent specific numbers, company names, or details the user didn't provide.
+- If a field cannot be inferred at all, set its confidence to "low" instead of guessing.
+- Return ONLY valid JSON. No markdown, no explanation, no text outside the JSON.
 
-CRITICAL RULES:
-1. INFER missing information intelligently. Never leave fields vague when context clues exist.
-2. Each field gets a confidence score from 0.0 to 1.0.
-3. Never ask clarifying questions. Always make your best inference.
-
-${SHARED_PROMPT_RULES}
-
-FEW-SHOT EXAMPLES:
-
-Example 1 (Job Interview) — Input: "${ex.jobInterview.input}"
-${JSON.stringify(ex.jobInterview.parsed, null, 2)}
-
-Example 2 (Board Presentation) — Input: "${ex.boardPresentation.input}"
-${JSON.stringify(ex.boardPresentation.parsed, null, 2)}
-
-Example 3 (Client Pitch) — Input: "${ex.clientPitch.input}"
-${JSON.stringify(ex.clientPitch.parsed, null, 2)}
-
-OUTPUT FORMAT — Return ONLY a JSON object with these exact fields:
+Return this schema:
 {
-  "audience": "specific audience label",
-  "audience_detail": "expanded context about who they are",
-  "audience_confidence": 0.0-1.0,
-  "subject": "core message in one phrase",
-  "subject_detail": "expanded details from input",
-  "subject_confidence": 0.0-1.0,
-  "goal": "what the user wants to achieve",
-  "goal_confidence": 0.0-1.0,
-  "tone": "confident" | "humble" | "balanced" | "bold" | "casual" | "formal" | "urgent" | "inspirational",
-  "tone_confidence": 0.0-1.0,
-  "urgency": "immediate" | "tomorrow" | "this week" | "not specified",
-  "suggested_format": "one-pager" | "script",
-  "suggested_length": "quick" | "standard" | "detailed",
-  "summary": "MAX 5 WORDS."
-}`;
+  "who": { "value": "string", "confidence": "high|medium|low" },
+  "what": { "value": "string", "confidence": "high|medium|low" },
+  "why": { "value": "string", "confidence": "high|medium|low" },
+  "how": { "value": "string", "confidence": "high|medium|low" }
+}
+
+USER CONTEXT:
+- Preferred tone: ${writing_preferences.tone || "clear and human"}
+- Industry: ${writing_preferences.industry || "not specified"}`;
 
     const userPrompt = `User input: "${sanitizedInput}"
 
 Respond with ONLY the JSON object, no other text.`;
 
-    const { data, error } = await callAIWithRetry(LOVABLE_API_KEY, systemPrompt, userPrompt);
-    if (error) return error;
+    // First AI attempt
+    const callAI = async (extraInstruction?: string) => {
+      const messages = [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ];
+      if (extraInstruction) {
+        messages.push({ role: "user", content: extraInstruction });
+      }
 
-    const parsedContext = data as Record<string, unknown>;
+      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-3-flash-preview",
+          messages,
+          temperature: 0.3,
+          max_tokens: 1000,
+        }),
+      });
 
-    // Handle edge case: input too sparse
-    if (parsedContext.needs_more) {
-      return jsonResponse({ needs_more: true, suggestion: parsedContext.suggestion || "Try describing who you're talking to and what you need to communicate." });
+      if (!response.ok) {
+        if (response.status === 429) {
+          return { data: null, error: jsonResponse({ error: "Rate limit exceeded. Please try again in a moment." }, 429) };
+        }
+        if (response.status === 402) {
+          return { data: null, error: jsonResponse({ error: "AI credits exhausted. Please add credits to continue." }, 402) };
+        }
+        return { data: null, error: errorResponse("AI generation failed", 500, `AI gateway error: ${response.status}`) };
+      }
+
+      const responseData = await response.json();
+      const aiContent = responseData.choices?.[0]?.message?.content;
+      if (!aiContent) {
+        return { data: null, error: errorResponse("AI generation failed", 500, "No content received from AI") };
+      }
+      return { data: aiContent as string, error: undefined };
+    };
+
+    // First attempt
+    const first = await callAI();
+    if (first.error) return first.error;
+
+    try {
+      const parsed = parseJsonFromAI(first.data!);
+      return jsonResponse({ parsedContext: parsed });
+    } catch {
+      console.warn("First AI response was invalid JSON, retrying...");
     }
 
-    // Fill defaults for any missing fields instead of hard-failing
-    if (!parsedContext.audience || typeof parsedContext.audience !== "string") parsedContext.audience = "General audience";
-    if (!parsedContext.subject || typeof parsedContext.subject !== "string") parsedContext.subject = "Not specified";
-    if (!parsedContext.goal || typeof parsedContext.goal !== "string") parsedContext.goal = "Communicate effectively";
-    if (!parsedContext.tone || typeof parsedContext.tone !== "string") parsedContext.tone = "balanced";
-    if (!parsedContext.summary || typeof parsedContext.summary !== "string") parsedContext.summary = "Pitch overview";
+    // Retry with extra instruction
+    const second = await callAI("Your previous response was not valid JSON. Return ONLY a valid JSON object.");
+    if (second.error) return second.error;
 
-    // Ensure valid format and length values
-    if (!['one-pager', 'script'].includes(parsedContext.suggested_format as string)) {
-      parsedContext.suggested_format = 'one-pager';
+    try {
+      const parsed = parseJsonFromAI(second.data!);
+      return jsonResponse({ parsedContext: parsed });
+    } catch {
+      return errorResponse("AI returned invalid JSON after retry. Please try again.", 500, "JSON parse failed on retry");
     }
-    if (!['quick', 'standard', 'detailed'].includes(parsedContext.suggested_length as string)) {
-      parsedContext.suggested_length = 'standard';
-    }
-
-    return jsonResponse({ parsedContext });
 
   } catch (error) {
     return errorResponse("An error occurred while processing your request", 500, error);
