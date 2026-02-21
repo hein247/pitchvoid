@@ -182,4 +182,9 @@ export const RATE_LIMITS = {
   imageGeneration: {
     default: { windowMs: 60 * 60 * 1000, maxRequests: 20 },   // 20/hour
   },
+  // Refinement endpoints
+  refinement: {
+    free: { windowMs: 60 * 60 * 1000, maxRequests: 5 },       // 5/hour for free users
+    paid: { windowMs: 60 * 60 * 1000, maxRequests: 20 },      // 20/hour for paid users
+  },
 };

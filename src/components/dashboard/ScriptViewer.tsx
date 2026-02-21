@@ -25,6 +25,7 @@ export interface ScriptData {
 interface ScriptViewerProps {
   data: ScriptData;
   onUpdate?: (data: ScriptData) => void;
+  refineAnimationKey?: number;
 }
 
 /** Migrate old section-based schema to flat lines */
@@ -103,7 +104,7 @@ function renderLineText(text: string, emphasis?: string | null) {
   );
 }
 
-const ScriptViewer = ({ data: rawData }: ScriptViewerProps) => {
+const ScriptViewer = ({ data: rawData, refineAnimationKey }: ScriptViewerProps) => {
   const [copiedIndex, setCopiedIndex] = useState<string | null>(null);
   const [copiedAll, setCopiedAll] = useState(false);
 
@@ -134,7 +135,13 @@ const ScriptViewer = ({ data: rawData }: ScriptViewerProps) => {
   let lineNumber = 0;
 
   return (
-    <div className="max-w-[680px] mx-auto py-2">
+    <motion.div
+      key={refineAnimationKey}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="max-w-[680px] mx-auto py-2"
+    >
       {/* Context line */}
       {data.context_line && (
         <p className="text-xs mb-4" style={{ color: 'rgba(240,237,246,0.25)' }}>
@@ -339,7 +346,7 @@ const ScriptViewer = ({ data: rawData }: ScriptViewerProps) => {
           );
         })}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

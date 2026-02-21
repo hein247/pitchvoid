@@ -1,20 +1,24 @@
 import { useState } from 'react';
-import { Settings } from 'lucide-react';
+import { Settings, Undo2 } from 'lucide-react';
 
 interface RefinementBarProps {
   onRefine: (prompt: string) => void;
   onOpenOptions?: () => void;
   isRefining?: boolean;
   quickChips?: string[];
+  showUndo?: boolean;
+  onUndo?: () => void;
 }
 
-const DEFAULT_CHIPS = ['Shorter', 'Bolder', 'More data', 'Softer tone', 'Add metrics'];
+const DEFAULT_CHIPS = ['Shorter', 'Bolder', 'Simpler', 'More casual'];
 
 const RefinementBar = ({
   onRefine,
   onOpenOptions,
   isRefining = false,
   quickChips = DEFAULT_CHIPS,
+  showUndo = false,
+  onUndo,
 }: RefinementBarProps) => {
   const [inputValue, setInputValue] = useState('');
 
@@ -37,12 +41,30 @@ const RefinementBar = ({
       <div className="max-w-5xl mx-auto px-4 py-4">
         {/* Quick Edit Chips */}
         <div className="flex items-center gap-2 mb-3 overflow-x-auto pb-2 scrollbar-hide">
+          {/* Undo button */}
+          {showUndo && onUndo && (
+            <button
+              onClick={onUndo}
+              className="flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 animate-in fade-in"
+              style={{
+                backgroundColor: 'rgba(239,68,68,0.15)',
+                border: '1px solid rgba(239,68,68,0.3)',
+                color: 'rgba(239,68,68,0.6)',
+              }}
+            >
+              <Undo2 className="w-3.5 h-3.5" />
+              <span>Undo</span>
+            </button>
+          )}
+
           {quickChips.map((chip) => (
             <button
               key={chip}
               onClick={() => handleChipClick(chip)}
               disabled={isRefining}
-              className="flex-shrink-0 px-4 py-2 bg-card hover:bg-accent/10 border border-border rounded-full text-sm transition-colors disabled:opacity-50"
+              className={`flex-shrink-0 px-4 py-2 bg-card border border-border rounded-full text-sm transition-colors ${
+                isRefining ? 'opacity-40 pointer-events-none' : 'hover:bg-accent/10'
+              }`}
             >
               {chip}
             </button>
@@ -50,7 +72,10 @@ const RefinementBar = ({
           {onOpenOptions && (
             <button
               onClick={onOpenOptions}
-              className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-card hover:bg-accent/10 border border-border rounded-full text-sm transition-colors"
+              disabled={isRefining}
+              className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-full text-sm transition-colors ${
+                isRefining ? 'opacity-40 pointer-events-none' : 'hover:bg-accent/10'
+              }`}
             >
               <Settings className="w-4 h-4" />
               <span>More</span>
@@ -71,7 +96,9 @@ const RefinementBar = ({
           <button
             type="submit"
             disabled={!inputValue.trim() || isRefining}
-            className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1.5 bg-gradient-to-r from-primary to-accent rounded-lg text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50 text-primary-foreground"
+            className={`absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1.5 bg-gradient-to-r from-primary to-accent rounded-lg text-sm font-medium transition-opacity text-primary-foreground ${
+              isRefining ? 'opacity-40 pointer-events-none' : 'hover:opacity-90 disabled:opacity-50'
+            }`}
           >
             {isRefining ? 'Refining...' : 'Refine'}
           </button>
