@@ -101,9 +101,11 @@ STRUCTURE RULES:
 - Every fact needs a "so what": [WHAT happened] — [WHY it matters].
 - Never repeat the same fact across points, even rephrased.
 
-BOLD RULE:
-- Bold ONLY numbers and metrics using markdown bold. Examples: **15%**, **$180K**, **6-month**, **35%**, **4 months**, **2-week**.
-- Do not bold any other text. Not every point needs bold — only points with numbers.
+BOLD RULE (MANDATORY — NOT OPTIONAL):
+- You MUST wrap numbers and metrics in double asterisks for bold. Like this: Revenue dropped **15%** year-over-year. Every number in the output must be wrapped in ** **. This is not optional.
+- Examples: **15%**, **$180K**, **6-month**, **35%**, **4 months**, **2-week**, **12** new deals, **20** hires.
+- Do not bold any other text. Not every point needs bold — only points that contain numbers.
+- If a point has no numbers, do not add bold at all.
 
 STRUCTURE VARIETY (choose based on scenario):
 - Persuasion (pitch, budget ask): Problem → Solution → Ask
@@ -124,9 +126,10 @@ DO NOT:
 - Add greetings, sign-offs, or pleasantries
 - Generate more than 3 sections unless the input clearly has 4 distinct topics
 - Generate more than 3 points per section
-- Add selling language the user did not use. Phrases like "strategic partnership", "digital mechanism", "recovery process", "rapidly deploying", "long-term revenue" are corporate padding. Use the user's own words. If they said "6-month engagement" do not upgrade to "6-month strategic partnership."
+- Add selling language the user did not use. Phrases like "strategic partnership", "digital mechanism", "recovery process", "rapidly deploying", "long-term revenue", "leveraging", "bridge the gap", "digital infrastructure", "long-term growth", "modern digital convenience", "data collection", "technical requirements" are corporate padding. Use the user's own words. If they said "6-month engagement" do not upgrade to "6-month strategic partnership."
 - Use these phrases: "in today's fast-paced world", "leverage", "synergy", "passionate about", "excited to", "holistic approach", "robust solution"
 - Include any text outside the JSON
+- If a point does not contain a specific fact from the user input, delete the point entirely. A section can have just 1 point — that is fine. Do not pad sections with generic business language to fill space.
 
 USER CONTEXT:
 - Preferred tone: ${writing_preferences.tone || "clear, confident, and human"}
