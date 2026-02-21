@@ -10,6 +10,22 @@ interface FocusModeProps {
 type Phase = 'centering' | 'teleprompter' | 'cooldown';
 type Speed = 0.75 | 1 | 1.25;
 
+type CenterStep =
+  | 'black'
+  | 'headphones'
+  | 'void'
+  | 'breathe1_inhale'
+  | 'breathe1_hold'
+  | 'breathe1_exhale'
+  | 'breathe2_inhale'
+  | 'breathe2_hold'
+  | 'breathe2_exhale'
+  | 'breathe_fadeout'
+  | 'context'
+  | 'opener'
+  | 'ready'
+  | 'done';
+
 const APPLE_EASE = 'cubic-bezier(0.25, 0.1, 0.25, 1.0)';
 
 /** Parse duration strings like "10 sec", "2 min", "10s" */
@@ -25,7 +41,6 @@ function lineHoldTime(line: ScriptLine, speed: Speed): number {
   if (line.type === 'pause') return 3 / speed;
   if (line.type === 'transition') return 1.5 / speed;
 
-  // Opener/closer: prefer duration field
   if ((line.type === 'opener' || line.type === 'closer') && line.duration) {
     const d = parseDuration(line.duration);
     if (d) return d / speed;
@@ -36,7 +51,7 @@ function lineHoldTime(line: ScriptLine, speed: Speed): number {
   return base / speed;
 }
 
-/** Migrate old section-based data to flat lines (reuses logic from ScriptViewer) */
+/** Migrate old section-based data to flat lines */
 function ensureLines(raw: ScriptData): ScriptLine[] {
   if (Array.isArray(raw.lines) && raw.lines.length > 0) return raw.lines;
 
@@ -69,8 +84,15 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
   const lines = useRef(ensureLines(scriptData)).current;
 
   // --- Centering state ---
-  const [centerStep, setCenterStep] = useState<'black' | 'breathe' | 'context' | 'opener' | 'ready' | 'done'>('black');
+  const [centerStep, setCenterStep] = useState<CenterStep>('black');
   const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  // --- Audio refs ---
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const leftOscRef = useRef<OscillatorNode | null>(null);
+  const rightOscRef = useRef<OscillatorNode | null>(null);
+  const leftGainRef = useRef<GainNode | null>(null);
+  const rightGainRef = useRef<GainNode | null>(null);
 
   // --- Teleprompter state ---
   const [currentLine, setCurrentLine] = useState(0);
@@ -89,6 +111,82 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
   // --- Swipe ---
   const touchStartY = useRef<number | null>(null);
 
+  // --- Audio helpers ---
+  const startAudio = useCallback(() => {
+    try {
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      audioCtxRef.current = ctx;
+
+      const leftOsc = ctx.createOscillator();
+      leftOsc.type = 'sine';
+      leftOsc.frequency.value = 200;
+      leftOscRef.current = leftOsc;
+
+      const rightOsc = ctx.createOscillator();
+      rightOsc.type = 'sine';
+      rightOsc.frequency.value = 202;
+      rightOscRef.current = rightOsc;
+
+      const leftPan = ctx.createStereoPanner();
+      leftPan.pan.value = -1;
+      const rightPan = ctx.createStereoPanner();
+      rightPan.pan.value = 1;
+
+      const leftGain = ctx.createGain();
+      leftGain.gain.value = 0;
+      leftGainRef.current = leftGain;
+      const rightGain = ctx.createGain();
+      rightGain.gain.value = 0;
+      rightGainRef.current = rightGain;
+
+      leftOsc.connect(leftGain);
+      leftGain.connect(leftPan);
+      leftPan.connect(ctx.destination);
+
+      rightOsc.connect(rightGain);
+      rightGain.connect(rightPan);
+      rightPan.connect(ctx.destination);
+
+      leftOsc.start();
+      rightOsc.start();
+
+      const now = ctx.currentTime;
+      leftGain.gain.linearRampToValueAtTime(0.15, now + 3);
+      rightGain.gain.linearRampToValueAtTime(0.15, now + 3);
+    } catch { /* audio unsupported — visual still works */ }
+  }, []);
+
+  const fadeOutAudio = useCallback(() => {
+    try {
+      const ctx = audioCtxRef.current;
+      const lg = leftGainRef.current;
+      const rg = rightGainRef.current;
+      if (ctx && lg && rg) {
+        const t = ctx.currentTime;
+        lg.gain.linearRampToValueAtTime(0, t + 3);
+        rg.gain.linearRampToValueAtTime(0, t + 3);
+        const id = setTimeout(() => {
+          try {
+            leftOscRef.current?.stop();
+            rightOscRef.current?.stop();
+            ctx.close();
+          } catch {}
+          audioCtxRef.current = null;
+        }, 3500);
+        timeoutsRef.current.push(id);
+      }
+    } catch {}
+  }, []);
+
+  const stopAudioImmediately = useCallback(() => {
+    try {
+      leftOscRef.current?.stop();
+      rightOscRef.current?.stop();
+      audioCtxRef.current?.close();
+    } catch {}
+    audioCtxRef.current = null;
+  }, []);
+
   // --- Wake Lock ---
   useEffect(() => {
     let wl: WakeLockSentinel | null = null;
@@ -98,32 +196,75 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
       } catch { /* unsupported */ }
     };
     req();
-    return () => { wl?.release(); };
-  }, []);
+    return () => {
+      wl?.release();
+      stopAudioImmediately();
+    };
+  }, [stopAudioImmediately]);
 
   // ===================== CENTERING SEQUENCE =====================
   const startCentering = useCallback(() => {
     const ids: ReturnType<typeof setTimeout>[] = [];
     const q = (fn: () => void, ms: number) => { ids.push(setTimeout(fn, ms)); };
-    let t = 0;
 
+    // Timing chain per spec
     setCenterStep('black');
-    t += 1500;
-    q(() => setCenterStep('breathe'), t);
-    t += 8500; // 4s inhale + 4s exhale + 0.5s fade
-    q(() => setCenterStep('context'), t);
-    t += 4000; // fade-in 0.5s + hold 3s + fade-out 0.5s
-    q(() => setCenterStep('opener'), t);
-    t += 4000;
-    q(() => setCenterStep('ready'), t);
-    t += 1000; // 1s black before "ready"
-    // ready holds 1.5s then done
-    t += 2000;
-    q(() => setCenterStep('done'), t);
-    q(() => setPhase('teleprompter'), t + 500);
+
+    // 0.3s — headphone suggestion
+    q(() => setCenterStep('headphones'), 300);
+
+    // 2.3s — hide headphones, show 'void', start audio
+    q(() => {
+      setCenterStep('void');
+      startAudio();
+    }, 2300);
+
+    // 3.8s — hide 'void'
+    q(() => setCenterStep('black'), 3800);
+
+    // 4.0s — Cycle 1 Inhale (4s)
+    q(() => setCenterStep('breathe1_inhale'), 4000);
+
+    // 8.0s — Cycle 1 Hold (7s)
+    q(() => setCenterStep('breathe1_hold'), 8000);
+
+    // 15.0s — Cycle 1 Exhale (8s)
+    q(() => setCenterStep('breathe1_exhale'), 15000);
+
+    // 23.0s — Cycle 2 Inhale (4s)
+    q(() => setCenterStep('breathe2_inhale'), 23000);
+
+    // 27.0s — Cycle 2 Hold (7s)
+    q(() => setCenterStep('breathe2_hold'), 27000);
+
+    // 34.0s — Cycle 2 Exhale (8s)
+    q(() => setCenterStep('breathe2_exhale'), 34000);
+
+    // 42.0s — Circle fades out, audio fades out
+    q(() => {
+      setCenterStep('breathe_fadeout');
+      fadeOutAudio();
+    }, 42000);
+
+    // 45.0s — Existing focus sequence: context line
+    const contextLine = scriptData.context_line || '';
+    q(() => setCenterStep(contextLine ? 'context' : 'opener'), 45000);
+
+    // context holds ~4s then opener
+    if (contextLine) {
+      q(() => setCenterStep('opener'), 49000);
+    }
+
+    // opener holds ~4s then ready
+    const openerOffset = contextLine ? 53000 : 49000;
+    q(() => setCenterStep('ready'), openerOffset);
+
+    // ready holds 2s then done
+    q(() => setCenterStep('done'), openerOffset + 2000);
+    q(() => setPhase('teleprompter'), openerOffset + 2500);
 
     timeoutsRef.current = ids;
-  }, []);
+  }, [startAudio, fadeOutAudio, scriptData.context_line]);
 
   useEffect(() => {
     if (phase === 'centering') startCentering();
@@ -132,6 +273,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
 
   const skipCentering = () => {
     timeoutsRef.current.forEach(clearTimeout);
+    stopAudioImmediately();
     setPhase('teleprompter');
   };
 
@@ -212,9 +354,6 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
   // Calculate translateY to center current line
   const getTranslateY = () => {
     if (!lineRefs.current[currentLine]) return 0;
-    const container = lineRefs.current[0]?.parentElement;
-    if (!container) return 0;
-    const containerRect = container.getBoundingClientRect();
     const lineEl = lineRefs.current[currentLine]!;
     const lineTop = lineEl.offsetTop;
     const lineHeight = lineEl.offsetHeight;
@@ -255,38 +394,125 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
 
   // ===================== RENDER =====================
 
+  // --- Helper: is this a breathing step? ---
+  const isBreathingStep = (s: CenterStep) =>
+    s.startsWith('breathe1_') || s.startsWith('breathe2_') || s === 'breathe_fadeout';
+
   // --- Centering Phase ---
   if (phase === 'centering') {
     const openerText = lines.find(l => l.type === 'opener')?.text || '';
     const contextLine = scriptData.context_line || '';
 
+    // Breathing circle params
+    const isCycle1 = centerStep.startsWith('breathe1_');
+    const isCycle2 = centerStep.startsWith('breathe2_');
+    const isInhale = centerStep.endsWith('_inhale');
+    const isHold = centerStep.endsWith('_hold');
+    const isExhale = centerStep.endsWith('_exhale');
+    const isFadeout = centerStep === 'breathe_fadeout';
+
+    const strokeBase = isCycle2 ? 0.16 : 0.12;
+    const strokePulseHigh = isCycle2 ? 0.22 : 0.18;
+
+    // Determine circle radius for current step
+    let circleR = 15;
+    let circleDuration = '0s';
+    let circleEasing = 'linear';
+    if (isInhale) { circleR = 70; circleDuration = '4s'; circleEasing = 'ease-in'; }
+    else if (isHold) { circleR = 70; circleDuration = '0s'; }
+    else if (isExhale) { circleR = 15; circleDuration = '8s'; circleEasing = 'ease-out'; }
+
+    // Breathing label
+    let breatheLabel = '';
+    if (isInhale) breatheLabel = 'in';
+    else if (isHold) breatheLabel = 'hold';
+    else if (isExhale) breatheLabel = 'out';
+
+    const showBreathing = isCycle1 || isCycle2 || isFadeout;
+
     return (
       <div className="fixed inset-0 z-50 bg-black flex items-center justify-center font-sans select-none">
-        {/* Breathing circle */}
-        {centerStep === 'breathe' && (
-          <svg
-            className="absolute"
-            width="160" height="160"
-            viewBox="0 0 160 160"
-            style={{
-              animation: `focusBreathe 8s ${APPLE_EASE} forwards`,
-              opacity: 1,
-            }}
+
+        {/* Headphone suggestion */}
+        {centerStep === 'headphones' && (
+          <div
+            className="text-center"
+            style={{ animation: `focusFadeInOut 2s ${APPLE_EASE} forwards` }}
           >
-            <circle
-              cx="80" cy="80" r="20"
-              fill="none"
-              stroke="rgba(168,85,247,0.15)"
-              strokeWidth="1"
-              style={{
-                transformOrigin: 'center',
-                animation: `focusCircleScale 8s ${APPLE_EASE} forwards`,
-              }}
-            />
-          </svg>
+            <p style={{ fontSize: '22px', marginBottom: '6px' }}>🎧</p>
+            <p style={{ fontSize: '11px', color: 'rgba(240,237,246,0.2)' }}>
+              For the full experience, use headphones
+            </p>
+          </div>
         )}
 
-        {/* Context line */}
+        {/* 'void' text */}
+        {centerStep === 'void' && (
+          <p
+            className="text-center lowercase"
+            style={{
+              fontSize: '13px',
+              color: 'rgba(168,85,247,0.2)',
+              letterSpacing: '0.3em',
+              animation: `focusFadeInOut 1.5s ${APPLE_EASE} forwards`,
+            }}
+          >
+            void
+          </p>
+        )}
+
+        {/* Breathing circle */}
+        {showBreathing && (
+          <div
+            className="flex flex-col items-center"
+            style={{
+              opacity: isFadeout ? 0 : 1,
+              transition: `opacity 1s ${APPLE_EASE}`,
+            }}
+          >
+            <svg width="160" height="160" viewBox="0 0 160 160" className="overflow-visible">
+              <circle
+                cx="80" cy="80"
+                r={isHold || isFadeout ? 70 : circleR}
+                fill="none"
+                strokeWidth="1"
+                style={{
+                  stroke: isHold
+                    ? undefined
+                    : `rgba(168,85,247,${strokeBase})`,
+                  transition: isHold
+                    ? undefined
+                    : `r ${circleDuration} ${circleEasing}`,
+                  animation: isHold
+                    ? `holdPulse 500ms ease-in-out infinite alternate`
+                    : undefined,
+                  // CSS custom properties for the pulse animation
+                  ...(isHold ? {
+                    '--pulse-low': `rgba(168,85,247,${strokeBase})`,
+                    '--pulse-high': `rgba(168,85,247,${strokePulseHigh})`,
+                  } as React.CSSProperties : {}),
+                }}
+              />
+            </svg>
+
+            {/* Breathing label */}
+            {breatheLabel && !isFadeout && (
+              <p
+                key={centerStep}
+                style={{
+                  fontSize: '11px',
+                  color: 'rgba(240,237,246,0.1)',
+                  marginTop: '40px',
+                  animation: `focusFadeInOut ${isInhale ? '4s' : isHold ? '7s' : '8s'} ${APPLE_EASE} forwards`,
+                }}
+              >
+                {breatheLabel}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Context line (existing) */}
         {centerStep === 'context' && contextLine && (
           <p
             className="text-center px-8 max-w-lg"
@@ -300,7 +526,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
           </p>
         )}
 
-        {/* Opener */}
+        {/* Opener (existing) */}
         {centerStep === 'opener' && openerText && (
           <p
             className="text-center px-8 max-w-lg font-medium"
@@ -314,7 +540,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
           </p>
         )}
 
-        {/* Ready */}
+        {/* Ready (existing) */}
         {centerStep === 'ready' && (
           <p
             className="text-center lowercase"
@@ -339,22 +565,15 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
 
         {/* Keyframe styles */}
         <style>{`
-          @keyframes focusBreathe {
-            0% { opacity: 0; }
-            5% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { opacity: 0; }
-          }
-          @keyframes focusCircleScale {
-            0% { r: 20; }
-            50% { r: 80; }
-            100% { r: 20; }
-          }
           @keyframes focusFadeInOut {
             0% { opacity: 0; }
             12% { opacity: 1; }
             75% { opacity: 1; }
             100% { opacity: 0; }
+          }
+          @keyframes holdPulse {
+            from { stroke: rgba(168,85,247,${strokeBase}); }
+            to { stroke: rgba(168,85,247,${strokePulseHigh}); }
           }
         `}</style>
       </div>
@@ -372,7 +591,6 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
         onClick={(e) => {
-          // Don't toggle on top bar clicks
           if ((e.target as HTMLElement).closest('[data-topbar]')) return;
           setPaused(p => !p);
         }}
@@ -384,7 +602,6 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
           style={{ backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}
           onClick={e => e.stopPropagation()}
         >
-          {/* Exit */}
           <button
             onClick={onExit}
             className="min-h-[44px] min-w-[44px] flex items-center justify-center"
@@ -393,15 +610,10 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
             <X className="w-5 h-5" />
           </button>
 
-          {/* Timer */}
-          <span
-            className="font-mono text-lg"
-            style={{ color: 'rgba(240,237,246,0.5)' }}
-          >
+          <span className="font-mono text-lg" style={{ color: 'rgba(240,237,246,0.5)' }}>
             {formatTimer(elapsed)}
           </span>
 
-          {/* Speed pills */}
           <div className="flex gap-1">
             {([0.75, 1, 1.25] as Speed[]).map(s => (
               <button
@@ -471,7 +683,6 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
                   </p>
                 )}
 
-                {/* Paused indicator */}
                 {isCurrent && paused && (
                   <p
                     className="mt-2"
