@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Mic, Plus, ArrowLeft, X, Play, Share2, Home, FileText, Upload, File, Image, ScrollText, Check, Edit2, Users, Target, Sparkles, Clock, Briefcase, Handshake, TrendingUp, Presentation, Download, Lock, MoreVertical, Copy } from 'lucide-react';
 import ShareModal from '@/components/dashboard/ShareModal';
+import FocusMode from '@/components/dashboard/FocusMode';
 import { Progress } from '@/components/ui/progress';
 import Navbar from '@/components/Navbar';
 import RefinementPanel from '@/components/dashboard/RefinementPanel';
@@ -171,9 +172,6 @@ const Dashboard = () => {
   
   // Practice mode
   const [isPracticeMode, setIsPracticeMode] = useState(false);
-  const [practiceSection, setPracticeSection] = useState(0);
-  const [practiceTimer, setPracticeTimer] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
   
   // Share modal - generate real URL based on active project
   const shareUrl = activeProject 
@@ -218,13 +216,6 @@ const Dashboard = () => {
     return () => clearInterval(interval);
   }, [isRecording]);
 
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isPlaying && isPracticeMode) {
-      interval = setInterval(() => setPracticeTimer(prev => prev + 1), 1000);
-    }
-    return () => clearInterval(interval);
-  }, [isPlaying, isPracticeMode]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -235,18 +226,11 @@ const Dashboard = () => {
         setShowNewProjectModal(false);
         if (isPracticeMode) {
           setIsPracticeMode(false);
-          setIsPlaying(false);
         }
       }
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         setShowQuickPitch(true);
-      }
-      if (isPracticeMode && scriptData) {
-        const totalLines = scriptData.lines?.length || scriptData.sections?.length || 0;
-        if (e.key === 'ArrowRight') setPracticeSection(prev => Math.min(totalLines - 1, prev + 1));
-        if (e.key === 'ArrowLeft') setPracticeSection(prev => Math.max(0, prev - 1));
-        if (e.key === ' ') { e.preventDefault(); setIsPlaying(prev => !prev); }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -935,72 +919,13 @@ const Dashboard = () => {
     return null;
   }
 
-  // Practice Mode View (for Script format)
+  // Focus Mode (Practice) for Script format
   if (isPracticeMode && scriptData) {
-    const totalSections = scriptData.sections.length;
-    const currentSection = scriptData.sections[practiceSection];
-    
     return (
-      <div
-        className="fixed inset-0 z-50 flex flex-col bg-black"
-        onClick={() => setIsPlaying(!isPlaying)}
-      >
-        <header className="p-4 sm:p-6 flex items-center justify-between relative z-10" onClick={e => e.stopPropagation()}>
-          <button 
-            onClick={() => { setIsPracticeMode(false); setIsPlaying(false); setPracticeTimer(0); }} 
-            className="text-muted-foreground hover:text-foreground transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
-          >
-            ✕ Exit
-          </button>
-          <div className="text-center">
-            <p className="text-primary text-sm">Practice Mode</p>
-            <p className="text-foreground text-2xl sm:text-3xl font-mono">{formatTime(practiceTimer)}</p>
-          </div>
-          <div className="text-xs text-muted-foreground hidden sm:block">
-            <p><span className="kbd">Space</span> Play/Pause</p>
-            <p><span className="kbd">←</span> <span className="kbd">→</span> Navigate</p>
-          </div>
-        </header>
-        
-        <div className="flex-1 flex items-center justify-center p-4 sm:p-12">
-          <div className="max-w-4xl text-center">
-            <span className="text-sm text-accent uppercase mb-4 block">
-              Section {practiceSection + 1}/{totalSections} — {currentSection.name}
-            </span>
-            <h2 className="text-[20px] leading-[2.0] sm:text-5xl sm:leading-tight lg:text-6xl text-foreground mb-4 sm:mb-8 font-display">
-              {(currentSection as any).content || ((currentSection as any).points || []).join(' ')}
-            </h2>
-            <div className="p-4 sm:p-6 rounded-2xl bg-accent/10 border border-accent/20 max-w-2xl mx-auto">
-              <p className="text-xs text-accent uppercase mb-2">Delivery Cue</p>
-              <p className="text-sm sm:text-base text-muted-foreground">{(currentSection as any).cue || (currentSection as any).transition || ''}</p>
-              <p className="text-xs text-primary mt-2">{currentSection.duration}</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="p-4 sm:p-8 flex items-center justify-center gap-4 sm:gap-8 relative z-10" onClick={e => e.stopPropagation()}>
-          <button 
-            onClick={() => setPracticeSection(Math.max(0, practiceSection - 1))} 
-            disabled={practiceSection === 0} 
-            className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border border-border flex items-center justify-center text-muted-foreground disabled:opacity-30 min-h-[44px]"
-          >
-            ←
-          </button>
-          <button 
-            onClick={() => setIsPlaying(!isPlaying)} 
-            className="w-16 h-16 sm:w-20 sm:h-20 rounded-full magenta-gradient flex items-center justify-center text-xl sm:text-2xl min-h-[44px]"
-          >
-            {isPlaying ? '⏸' : '▶'}
-          </button>
-          <button 
-            onClick={() => setPracticeSection(Math.min(totalSections - 1, practiceSection + 1))} 
-            disabled={practiceSection === totalSections - 1} 
-            className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border border-border flex items-center justify-center text-muted-foreground disabled:opacity-30 min-h-[44px]"
-          >
-            →
-          </button>
-        </div>
-      </div>
+      <FocusMode
+        scriptData={scriptData}
+        onExit={() => setIsPracticeMode(false)}
+      />
     );
   }
 
