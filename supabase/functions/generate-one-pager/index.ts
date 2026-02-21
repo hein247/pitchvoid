@@ -85,26 +85,31 @@ OUTPUT SCHEMA (return ONLY this JSON, nothing else):
   "sections": [
     {
       "title": "2-5 word label",
-      "points": ["each point is 1-2 sentences with one **bold key phrase**"]
+      "points": ["each point is 1-2 sentences"]
     }
   ]
 }
 
 STRUCTURE RULES:
-- 2-4 sections. 1-4 points per section.
+- Maximum 3 sections for most scenarios. Only use 4 sections if the user's input clearly has 4 distinct topics. When in doubt, use fewer sections. Combine related topics.
+- Maximum 2-3 points per section. Every point must earn its place — if a point restates something already said in another point, delete it. If you need 3 points to say what 2 points could say, use 2.
+- The last section (the ask or next step) should have exactly 1-2 points. One clear ask. Do not restate the ask three different ways.
 - Last section is ALWAYS the next step or ask.
 - Each point is self-contained — readable without the others.
 - Max 2 sentences per point.
 - Front-load the key detail in the first 5 words.
 - Every fact needs a "so what": [WHAT happened] — [WHY it matters].
-- Bold the single most important phrase in each point using **markdown bold**.
 - Never repeat the same fact across points, even rephrased.
 
+BOLD RULE:
+- Bold ONLY numbers and metrics using markdown bold. Examples: **15%**, **$180K**, **6-month**, **35%**, **4 months**, **2-week**.
+- Do not bold any other text. Not every point needs bold — only points with numbers.
+
 STRUCTURE VARIETY (choose based on scenario):
-- Persuasion (pitch, budget ask): Problem → Solution → Evidence → Ask
+- Persuasion (pitch, budget ask): Problem → Solution → Ask
 - Updates (review, status): Results → Insights → Next Steps
-- Introductions (interview, new client): Capability → Proof → Fit → Next Step
-- Proposals (project, rebrand): Opportunity → Approach → Cost → Ask
+- Introductions (interview, new client): Capability → Proof → Next Step
+- Proposals (project, rebrand): Opportunity → Approach → Ask
 
 AUDIENCE ADAPTATION:
 - Manager/boss: direct, results-focused, brief
@@ -117,26 +122,28 @@ DO NOT:
 - Invent statistics, numbers, or names the user did not provide
 - Use placeholder brackets like [Company Name]
 - Add greetings, sign-offs, or pleasantries
-- Generate more than 4 sections or 4 points per section
-- Use these phrases: "in today's fast-paced world", "leverage", "synergy", "passionate about", "excited to"
+- Generate more than 3 sections unless the input clearly has 4 distinct topics
+- Generate more than 3 points per section
+- Add selling language the user did not use. Phrases like "strategic partnership", "digital mechanism", "recovery process", "rapidly deploying", "long-term revenue" are corporate padding. Use the user's own words. If they said "6-month engagement" do not upgrade to "6-month strategic partnership."
+- Use these phrases: "in today's fast-paced world", "leverage", "synergy", "passionate about", "excited to", "holistic approach", "robust solution"
 - Include any text outside the JSON
 
 USER CONTEXT:
 - Preferred tone: ${writing_preferences.tone || "clear, confident, and human"}
 - Industry: ${writing_preferences.industry || "not specified"}
-- This user typically prefers ${writing_preferences.avg_points || 3} points per section
+- This user typically prefers ${writing_preferences.avg_points || 2} points per section
 - Avoid: ${writing_preferences.avoid_phrases || "corporate filler"}
 
 FEW-SHOT EXAMPLES:
 
 Input: "interview at tiffany for design role, i know adobe well, good at print production, can handle pressure and tight deadlines, want to discuss portfolio"
-Output: {"title":"Tiffany Design Interview","context_line":"Design capability overview for Tiffany & Co. hiring manager","sections":[{"title":"Technical Mastery","points":["**Expert-level Adobe Creative Suite** — non-destructive editing, clean layer hierarchy for seamless team collaboration.","**Rigorous pre-flight for print**: ink density control, bleed management, spot-color accuracy (PMS 1837).","Digital optimization — **high-fidelity rendering with fast load times** for premium web experiences."]},{"title":"Working Under Pressure","points":["Navigate tight production windows by **catching bottlenecks early** in wireframing and prototyping.","Reconciled **conflicting stakeholder feedback** into a single cohesive visual direction on high-stakes projects."]},{"title":"Next Step","points":["Walk through the portfolio — **show how this translates** to the team's current needs."]}}
+Output: {"title":"Tiffany Design Interview","context_line":"Design capability overview for Tiffany & Co. hiring manager","sections":[{"title":"Technical Skills","points":["Expert-level Adobe Creative Suite — non-destructive editing, clean layer hierarchy for team collaboration.","Rigorous pre-flight for print: ink density control, bleed management, spot-color accuracy."]},{"title":"Under Pressure","points":["Navigate tight production windows by catching bottlenecks early in wireframing and prototyping."]},{"title":"Next Step","points":["Walk through the portfolio to show how this translates to the team's current needs."]}]}
 
 Input: "need to present Q3 to board, revenue up 40%, got 12 new enterprise deals, expanding to APAC next quarter, need them to approve budget for 20 new hires"
-Output: {"title":"Q3 Board Review","context_line":"Quarterly performance and hiring request for the board of directors","sections":[{"title":"Q3 Performance","points":["Revenue grew **40% quarter-over-quarter**, driven by 12 new enterprise deals.","Net retention hit **135%** — existing customers expanding faster than new ones signing."]},{"title":"APAC Expansion","points":["Market entry planned for Q4 with **projected 60% growth** in the region.","Initial partnerships signed with **3 regional distributors**."]},{"title":"The Ask","points":["Approve budget for **20 new hires** across engineering and sales to support expansion.","Without headcount, APAC launch slips to Q2 — **$4M projected revenue at risk**."]}}
+Output: {"title":"Q3 Board Review","context_line":"Quarterly performance and hiring request for the board of directors","sections":[{"title":"Q3 Performance","points":["Revenue grew **40%** quarter-over-quarter, driven by **12** new enterprise deals."]},{"title":"APAC Expansion","points":["Market entry planned for Q4 — initial partnerships signed with regional distributors."]},{"title":"The Ask","points":["Approve budget for **20** new hires across engineering and sales to support expansion."]}]}
 
 Input: "pitching a rebrand to a bakery owner, they have no online presence, their current logo looks dated, i can do logo + website + social templates, budget friendly"
-Output: {"title":"Bakery Rebrand Pitch","context_line":"Brand refresh proposal for local bakery owner","sections":[{"title":"The Problem","points":["Current branding looks **dated compared to competitors** — customers choosing newer spots with stronger visual identity.","**Zero online presence** means missing foot traffic from people searching 'bakery near me'."]},{"title":"What I'd Do","points":["**Modern logo redesign** that keeps the warmth but feels fresh and Instagram-ready.","Simple **one-page website** with menu, hours, and online ordering link.","**10 social media templates** — ready-to-use designs for Instagram and Facebook."]},{"title":"Next Step","points":["Start with the logo — **2-week turnaround, budget-friendly flat fee**. Website and social follow from there."]}}`;
+Output: {"title":"Bakery Rebrand Pitch","context_line":"Brand refresh proposal for local bakery owner","sections":[{"title":"The Problem","points":["Current branding looks dated compared to competitors — customers choosing newer spots with stronger visual identity.","Zero online presence means missing foot traffic from people searching 'bakery near me'."]},{"title":"What I'd Do","points":["Modern logo redesign plus a one-page website with menu, hours, and online ordering link.","**10** social media templates ready to use for Instagram and Facebook."]},{"title":"Next Step","points":["Start with the logo — budget-friendly flat fee, website and social follow from there."]}]}`;
 
     const userPrompt = `Create a clarity cheat sheet from this input:
 
@@ -157,16 +164,26 @@ Generate the JSON now. Output ONLY the JSON object, no other text.`;
       return jsonResponse({ needs_more: true, suggestion: onePager.suggestion || "Try describing who you're talking to and what you need to communicate." });
     }
 
-    // Enforce section limits: max 4 sections
+    // Enforce section limits: if more than 4, merge last two into one
     if (Array.isArray(onePager.sections) && onePager.sections.length > 4) {
-      onePager.sections = (onePager.sections as unknown[]).slice(0, 4);
+      const sections = onePager.sections as Array<Record<string, unknown>>;
+      const lastTwo = sections.splice(-2, 2);
+      const merged = {
+        title: lastTwo[1].title || lastTwo[0].title,
+        points: [
+          ...((lastTwo[0].points as unknown[]) || []),
+          ...((lastTwo[1].points as unknown[]) || []),
+        ].slice(0, 3),
+      };
+      sections.push(merged);
+      onePager.sections = sections;
     }
 
-    // Enforce point limits: max 4 points per section
+    // Enforce point limits: max 3 points per section
     if (Array.isArray(onePager.sections)) {
       for (const section of onePager.sections as Array<Record<string, unknown>>) {
-        if (Array.isArray(section.points) && section.points.length > 4) {
-          section.points = (section.points as unknown[]).slice(0, 4);
+        if (Array.isArray(section.points) && section.points.length > 3) {
+          section.points = (section.points as unknown[]).slice(0, 3);
         }
       }
     }
