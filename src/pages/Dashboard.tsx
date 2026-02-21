@@ -1182,8 +1182,8 @@ const Dashboard = () => {
               {/* Right: Actions */}
               {(onePagerData || scriptData) && (
                 <div className="flex items-center gap-1 sm:gap-0 flex-shrink-0">
-                  {/* Format Toggle - always visible */}
-                  <div className="flex items-center rounded-xl border border-border p-1 bg-card/50 backdrop-blur-sm">
+                  {/* Desktop: Format Toggle + actions in border container */}
+                  <div className="hidden sm:flex items-center rounded-xl border border-border p-1 bg-card/50 backdrop-blur-sm">
                     <FormatToggle
                       activeFormat={outputFormat}
                       onFormatChange={handleFormatChange}
@@ -1195,10 +1195,9 @@ const Dashboard = () => {
                       onLockedClick={(format) => checkAndTriggerPaywall('use_format', { format })}
                     />
                     
-                    {/* Divider - hidden on mobile */}
-                    <div className="hidden sm:block w-px h-6 bg-border mx-1" />
+                    <div className="w-px h-6 bg-border mx-1" />
 
-                    {/* Edit button — in top bar on all sizes */}
+                    {/* Edit button */}
                     {onePagerData && !isRegenerating && (
                       <button
                         onClick={() => setShowEditor(prev => !prev)}
@@ -1209,126 +1208,129 @@ const Dashboard = () => {
                       </button>
                     )}
 
-                    {/* Desktop-only actions */}
-                    <div className="hidden sm:flex items-center">
-                      {/* PDF Export */}
-                      <button 
-                        onClick={() => {
-                          if (isFree) {
-                            checkAndTriggerPaywall('export');
-                            return;
-                          }
-                          window.print();
-                        }}
-                        className={`p-2 rounded-lg transition-colors relative min-h-[44px] min-w-[44px] flex items-center justify-center ${
-                          isFree
-                            ? 'text-muted-foreground/50 cursor-not-allowed'
-                            : 'text-muted-foreground hover:text-foreground hover:bg-accent/10'
-                        }`}
-                        title={isFree ? 'Upgrade to Pro to export PDF' : 'Download as PDF'}
-                      >
-                        <Download className="w-4 h-4" />
-                        {isFree && <Lock className="w-2.5 h-2.5 absolute -top-0.5 -right-0.5" />}
-                      </button>
-                      
-                      {/* Practice mode - for scripts only */}
-                      {outputFormat === 'script' && scriptData && (
-                        <button 
-                          onClick={() => setIsPracticeMode(true)} 
-                          className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/10 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
-                          title="Practice"
-                        >
-                          <Play className="w-4 h-4" />
-                        </button>
-                      )}
-                      
-                      {/* Share button */}
-                      {/* Feedback - desktop */}
-                      {activeProject && (onePagerData || scriptData) && !isRegenerating && (
-                        <TopBarFeedback
-                          projectId={activeProject.id}
-                          format={outputFormat === 'script' ? 'script' : 'one-pager'}
-                          generationKey={feedbackKey}
-                          generatedOutput={
-                            outputFormat === 'script'
-                              ? (scriptData as unknown as Record<string, unknown>)
-                              : (onePagerData as unknown as Record<string, unknown>)
-                          }
-                        />
-                      )}
-
-                      {/* Share button */}
-                      <button 
-                        onClick={() => setShowShareModal(true)} 
-                        className="p-2 rounded-lg text-primary hover:bg-primary/10 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
-                        title="Share"
-                      >
-                        <Share2 className="w-4 h-4" />
-                      </button>
-                      
-                      {/* Version History */}
-                      {activeProject && (
-                        <VersionHistoryDropdown
-                          projectId={activeProject.id}
-                          currentVersionId={activeVersionId}
-                          fetchVersions={fetchVersions}
-                          onSelectVersion={(version) => {
-                            setActiveVersionId(version.id);
-                            const vData = version.output_data;
-                            if (version.output_format === 'script' && vData.script) {
-                              setScriptData(vData.script as unknown as ScriptData);
-                              setOutputFormat('script');
-                            } else if (vData.onePager) {
-                              setOnePagerData(vData.onePager as unknown as OnePagerData);
-                              setOutputFormat('one-pager');
-                            }
-                          }}
-                        />
-                      )}
-                    </div>
-
-                    {/* Mobile overflow menu */}
-                    <MobileOverflowMenu
-                      onShare={() => setShowShareModal(true)}
-                      onExport={() => {
+                    {/* PDF Export */}
+                    <button 
+                      onClick={() => {
                         if (isFree) { checkAndTriggerPaywall('export'); return; }
                         window.print();
                       }}
-                      onPractice={outputFormat === 'script' && scriptData ? () => setIsPracticeMode(true) : undefined}
-                      onCopyAll={() => {
-                        if (outputFormat === 'one-pager' && onePagerData) {
-                          const text = onePagerData.sections
-                            .map(s => `${s.title}\n${s.points.map(p => `• ${p.replace(/\*\*/g, '')}`).join('\n')}`)
-                            .join('\n\n');
-                          navigator.clipboard.writeText(text);
+                      className={`p-2 rounded-lg transition-colors relative min-h-[44px] min-w-[44px] flex items-center justify-center ${
+                        isFree
+                          ? 'text-muted-foreground/50 cursor-not-allowed'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-accent/10'
+                      }`}
+                      title={isFree ? 'Upgrade to Pro to export PDF' : 'Download as PDF'}
+                    >
+                      <Download className="w-4 h-4" />
+                      {isFree && <Lock className="w-2.5 h-2.5 absolute -top-0.5 -right-0.5" />}
+                    </button>
+                    
+                    {/* Practice mode - for scripts only */}
+                    {outputFormat === 'script' && scriptData && (
+                      <button 
+                        onClick={() => setIsPracticeMode(true)} 
+                        className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/10 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                        title="Practice"
+                      >
+                        <Play className="w-4 h-4" />
+                      </button>
+                    )}
+                    
+                    {/* Feedback - desktop */}
+                    {activeProject && (onePagerData || scriptData) && !isRegenerating && (
+                      <TopBarFeedback
+                        projectId={activeProject.id}
+                        format={outputFormat === 'script' ? 'script' : 'one-pager'}
+                        generationKey={feedbackKey}
+                        generatedOutput={
+                          outputFormat === 'script'
+                            ? (scriptData as unknown as Record<string, unknown>)
+                            : (onePagerData as unknown as Record<string, unknown>)
                         }
-                      }}
-                      onVersionHistory={() => {/* handled by sheet */}}
-                      isFree={isFree}
-                      activeProject={activeProject}
-                      activeVersionId={activeVersionId}
-                      fetchVersions={fetchVersions}
-                      onSelectVersion={(version) => {
-                        setActiveVersionId(version.id);
-                        const vData = version.output_data;
-                        if (version.output_format === 'script' && vData.script) {
-                          setScriptData(vData.script as unknown as ScriptData);
-                          setOutputFormat('script');
-                        } else if (vData.onePager) {
-                          setOnePagerData(vData.onePager as unknown as OnePagerData);
-                          setOutputFormat('one-pager');
-                        }
-                      }}
-                      feedbackProjectId={activeProject?.id}
-                      feedbackFormat={outputFormat === 'script' ? 'script' : 'one-pager'}
-                      feedbackOutput={
-                        outputFormat === 'script'
-                          ? (scriptData as unknown as Record<string, unknown>)
-                          : (onePagerData as unknown as Record<string, unknown>)
-                      }
-                      feedbackKey={feedbackKey}
-                    />
+                      />
+                    )}
+
+                    {/* Share button */}
+                    <button 
+                      onClick={() => setShowShareModal(true)} 
+                      className="p-2 rounded-lg text-primary hover:bg-primary/10 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                      title="Share"
+                    >
+                      <Share2 className="w-4 h-4" />
+                    </button>
+                    
+                    {/* Version History */}
+                    {activeProject && (
+                      <VersionHistoryDropdown
+                        projectId={activeProject.id}
+                        currentVersionId={activeVersionId}
+                        fetchVersions={fetchVersions}
+                        onSelectVersion={(version) => {
+                          setActiveVersionId(version.id);
+                          const vData = version.output_data;
+                          if (version.output_format === 'script' && vData.script) {
+                            setScriptData(vData.script as unknown as ScriptData);
+                            setOutputFormat('script');
+                          } else if (vData.onePager) {
+                            setOnePagerData(vData.onePager as unknown as OnePagerData);
+                            setOutputFormat('one-pager');
+                          }
+                        }}
+                      />
+                    )}
                   </div>
+
+                  {/* Mobile: only overflow menu */}
+                  <MobileOverflowMenu
+                    onShare={() => setShowShareModal(true)}
+                    onExport={() => {
+                      if (isFree) { checkAndTriggerPaywall('export'); return; }
+                      window.print();
+                    }}
+                    onEdit={onePagerData && !isRegenerating ? () => setShowEditor(prev => !prev) : undefined}
+                    onPractice={outputFormat === 'script' && scriptData ? () => setIsPracticeMode(true) : undefined}
+                    onCopyAll={() => {
+                      if (outputFormat === 'one-pager' && onePagerData) {
+                        const text = onePagerData.sections
+                          .map(s => `${s.title}\n${s.points.map(p => `• ${p.replace(/\*\*/g, '')}`).join('\n')}`)
+                          .join('\n\n');
+                        navigator.clipboard.writeText(text);
+                      }
+                    }}
+                    onVersionHistory={() => {/* handled by sheet */}}
+                    isFree={isFree}
+                    activeProject={activeProject}
+                    activeVersionId={activeVersionId}
+                    fetchVersions={fetchVersions}
+                    onSelectVersion={(version) => {
+                      setActiveVersionId(version.id);
+                      const vData = version.output_data;
+                      if (version.output_format === 'script' && vData.script) {
+                        setScriptData(vData.script as unknown as ScriptData);
+                        setOutputFormat('script');
+                      } else if (vData.onePager) {
+                        setOnePagerData(vData.onePager as unknown as OnePagerData);
+                        setOutputFormat('one-pager');
+                      }
+                    }}
+                    feedbackProjectId={activeProject?.id}
+                    feedbackFormat={outputFormat === 'script' ? 'script' : 'one-pager'}
+                    feedbackOutput={
+                      outputFormat === 'script'
+                        ? (scriptData as unknown as Record<string, unknown>)
+                        : (onePagerData as unknown as Record<string, unknown>)
+                    }
+                    feedbackKey={feedbackKey}
+                    // Format toggle props for mobile
+                    activeFormat={outputFormat}
+                    onFormatChange={handleFormatChange}
+                    hasOnePager={!!onePagerData}
+                    hasScript={!!scriptData}
+                    onRegenerate={handleRegenerateInFormat}
+                    isRegenerating={isRegenerating}
+                    lockedFormats={isFree ? ['script'] : []}
+                    onLockedClick={(format) => checkAndTriggerPaywall('use_format', { format })}
+                  />
                 </div>
               )}
             </header>
