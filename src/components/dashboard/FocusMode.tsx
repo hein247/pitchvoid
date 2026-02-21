@@ -13,14 +13,18 @@ type Speed = 0.75 | 1 | 1.25;
 type CenterStep =
   | 'black'
   | 'headphones'
-  | 'void'
+  | 'zone_intro'
+  | 'follow_breathing'
   | 'breathe1_inhale'
   | 'breathe1_hold'
   | 'breathe1_exhale'
+  | 'between_cycles'
+  | 'one_more'
   | 'breathe2_inhale'
   | 'breathe2_hold'
   | 'breathe2_exhale'
   | 'breathe_fadeout'
+  | 'in_the_zone'
   | 'context'
   | 'opener'
   | 'ready'
@@ -85,6 +89,8 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
 
   // --- Centering state ---
   const [centerStep, setCenterStep] = useState<CenterStep>('black');
+  const [breatheCountdown, setBreatheCountdown] = useState<number | null>(null);
+  const countdownIntervalsRef = useRef<ReturnType<typeof setInterval>[]>([]);
   const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   // --- Audio refs ---
@@ -203,77 +209,131 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
   }, [stopAudioImmediately]);
 
   // ===================== CENTERING SEQUENCE =====================
+  // --- Countdown helper ---
+  const startCountdown = useCallback((from: number, durationSec: number) => {
+    setBreatheCountdown(from);
+    let count = from;
+    const intervalMs = (durationSec / from) * 1000;
+    const iv = setInterval(() => {
+      count--;
+      if (count <= 0) {
+        clearInterval(iv);
+        setBreatheCountdown(null);
+      } else {
+        setBreatheCountdown(count);
+      }
+    }, intervalMs);
+    countdownIntervalsRef.current.push(iv);
+  }, []);
+
   const startCentering = useCallback(() => {
     const ids: ReturnType<typeof setTimeout>[] = [];
     const q = (fn: () => void, ms: number) => { ids.push(setTimeout(fn, ms)); };
 
-    // Timing chain per spec
     setCenterStep('black');
+    setBreatheCountdown(null);
 
-    // 0.3s — headphone suggestion
+    // 0.3s — headphone suggestion (2s)
     q(() => setCenterStep('headphones'), 300);
 
-    // 2.3s — hide headphones, show 'void', start audio
+    // 2.3s — 'Let's get you in the zone' (2s)
+    q(() => setCenterStep('zone_intro'), 2300);
+
+    // 4.3s — 'Follow the breathing' (1.5s)
+    q(() => setCenterStep('follow_breathing'), 4300);
+
+    // 5.8s — Audio fade-in starts, circle appears
     q(() => {
-      setCenterStep('void');
       startAudio();
-    }, 2300);
+      setCenterStep('black'); // brief black before circle
+    }, 5800);
 
-    // 3.8s — hide 'void'
-    q(() => setCenterStep('black'), 3800);
+    // 6.0s — Cycle 1 Inhale (4s) with countdown 4→1
+    q(() => {
+      setCenterStep('breathe1_inhale');
+      startCountdown(4, 4);
+    }, 6000);
 
-    // 4.0s — Cycle 1 Inhale (4s)
-    q(() => setCenterStep('breathe1_inhale'), 4000);
+    // 10.0s — Cycle 1 Hold (7s) with countdown 7→1
+    q(() => {
+      setCenterStep('breathe1_hold');
+      startCountdown(7, 7);
+    }, 10000);
 
-    // 8.0s — Cycle 1 Hold (7s)
-    q(() => setCenterStep('breathe1_hold'), 8000);
+    // 17.0s — Cycle 1 Exhale (8s) with countdown 8→1
+    q(() => {
+      setCenterStep('breathe1_exhale');
+      startCountdown(8, 8);
+    }, 17000);
 
-    // 15.0s — Cycle 1 Exhale (8s)
-    q(() => setCenterStep('breathe1_exhale'), 15000);
+    // 25.0s — 1s pause (black)
+    q(() => {
+      setCenterStep('between_cycles');
+      setBreatheCountdown(null);
+    }, 25000);
 
-    // 23.0s — Cycle 2 Inhale (4s)
-    q(() => setCenterStep('breathe2_inhale'), 23000);
+    // 26.0s — 'one more' (1.5s)
+    q(() => setCenterStep('one_more'), 26000);
 
-    // 27.0s — Cycle 2 Hold (7s)
-    q(() => setCenterStep('breathe2_hold'), 27000);
+    // 27.5s — Cycle 2 Inhale (4s)
+    q(() => {
+      setCenterStep('breathe2_inhale');
+      startCountdown(4, 4);
+    }, 27500);
 
-    // 34.0s — Cycle 2 Exhale (8s)
-    q(() => setCenterStep('breathe2_exhale'), 34000);
+    // 31.5s — Cycle 2 Hold (7s)
+    q(() => {
+      setCenterStep('breathe2_hold');
+      startCountdown(7, 7);
+    }, 31500);
 
-    // 42.0s — Circle fades out, audio fades out
+    // 38.5s — Cycle 2 Exhale (8s)
+    q(() => {
+      setCenterStep('breathe2_exhale');
+      startCountdown(8, 8);
+    }, 38500);
+
+    // 46.5s — Circle fades, audio fades
     q(() => {
       setCenterStep('breathe_fadeout');
+      setBreatheCountdown(null);
       fadeOutAudio();
-    }, 42000);
+    }, 46500);
 
-    // 45.0s — Existing focus sequence: context line
+    // 48.5s — 'you're in the zone' (2s)
+    q(() => setCenterStep('in_the_zone'), 48500);
+
+    // 50.5s — Existing focus sequence: context line
     const contextLine = scriptData.context_line || '';
-    q(() => setCenterStep(contextLine ? 'context' : 'opener'), 45000);
+    q(() => setCenterStep(contextLine ? 'context' : 'opener'), 50500);
 
-    // context holds ~4s then opener
     if (contextLine) {
-      q(() => setCenterStep('opener'), 49000);
+      q(() => setCenterStep('opener'), 54500);
     }
 
-    // opener holds ~4s then ready
-    const openerOffset = contextLine ? 53000 : 49000;
+    const openerOffset = contextLine ? 58500 : 54500;
     q(() => setCenterStep('ready'), openerOffset);
-
-    // ready holds 2s then done
     q(() => setCenterStep('done'), openerOffset + 2000);
     q(() => setPhase('teleprompter'), openerOffset + 2500);
 
     timeoutsRef.current = ids;
-  }, [startAudio, fadeOutAudio, scriptData.context_line]);
+  }, [startAudio, fadeOutAudio, scriptData.context_line, startCountdown]);
 
   useEffect(() => {
     if (phase === 'centering') startCentering();
-    return () => { timeoutsRef.current.forEach(clearTimeout); };
+    return () => {
+      timeoutsRef.current.forEach(clearTimeout);
+      countdownIntervalsRef.current.forEach(clearInterval);
+      countdownIntervalsRef.current = [];
+    };
   }, [phase, startCentering]);
 
   const skipCentering = () => {
     timeoutsRef.current.forEach(clearTimeout);
+    countdownIntervalsRef.current.forEach(clearInterval);
+    countdownIntervalsRef.current = [];
     stopAudioImmediately();
+    setBreatheCountdown(null);
     setPhase('teleprompter');
   };
 
@@ -388,6 +448,9 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
     setPaused(false);
     setSpeed(1);
     setCenterStep('black');
+    setBreatheCountdown(null);
+    countdownIntervalsRef.current.forEach(clearInterval);
+    countdownIntervalsRef.current = [];
     setCoolStep('black');
     setPhase('centering');
   };
@@ -433,6 +496,8 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
     return (
       <div className="fixed inset-0 z-50 bg-black flex items-center justify-center font-sans select-none">
 
+        {/* Centering phase renders based on centerStep */}
+
         {/* Headphone suggestion */}
         {centerStep === 'headphones' && (
           <div
@@ -446,18 +511,59 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
           </div>
         )}
 
-        {/* 'void' text */}
-        {centerStep === 'void' && (
+        {/* 'Let's get you in the zone' */}
+        {centerStep === 'zone_intro' && (
           <p
-            className="text-center lowercase"
+            className="text-center font-sans"
             style={{
-              fontSize: '13px',
-              color: 'rgba(168,85,247,0.2)',
-              letterSpacing: '0.3em',
+              fontSize: '15px',
+              color: 'rgba(240,237,246,0.4)',
+              animation: `focusFadeInOut 2s ${APPLE_EASE} forwards`,
+            }}
+          >
+            Let's get you in the zone
+          </p>
+        )}
+
+        {/* 'Follow the breathing' */}
+        {centerStep === 'follow_breathing' && (
+          <p
+            className="text-center font-sans"
+            style={{
+              fontSize: '12px',
+              color: 'rgba(240,237,246,0.2)',
               animation: `focusFadeInOut 1.5s ${APPLE_EASE} forwards`,
             }}
           >
-            void
+            Follow the breathing
+          </p>
+        )}
+
+        {/* Between cycles 'one more' */}
+        {centerStep === 'one_more' && (
+          <p
+            className="text-center font-sans"
+            style={{
+              fontSize: '12px',
+              color: 'rgba(168,85,247,0.25)',
+              animation: `focusFadeInOut 1.5s ${APPLE_EASE} forwards`,
+            }}
+          >
+            one more
+          </p>
+        )}
+
+        {/* 'you're in the zone' after breathing */}
+        {centerStep === 'in_the_zone' && (
+          <p
+            className="text-center font-sans"
+            style={{
+              fontSize: '14px',
+              color: 'rgba(240,237,246,0.3)',
+              animation: `focusFadeInOut 2s ${APPLE_EASE} forwards`,
+            }}
+          >
+            you're in the zone
           </p>
         )}
 
@@ -470,45 +576,67 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
               transition: `opacity 1s ${APPLE_EASE}`,
             }}
           >
-            <svg width="160" height="160" viewBox="0 0 160 160" className="overflow-visible">
-              <circle
-                cx="80" cy="80"
-                r={isHold || isFadeout ? 70 : circleR}
-                fill="none"
-                strokeWidth="1"
-                style={{
-                  stroke: isHold
-                    ? undefined
-                    : `rgba(168,85,247,${strokeBase})`,
-                  transition: isHold
-                    ? undefined
-                    : `r ${circleDuration} ${circleEasing}`,
-                  animation: isHold
-                    ? `holdPulse 500ms ease-in-out infinite alternate`
-                    : undefined,
-                  // CSS custom properties for the pulse animation
-                  ...(isHold ? {
-                    '--pulse-low': `rgba(168,85,247,${strokeBase})`,
-                    '--pulse-high': `rgba(168,85,247,${strokePulseHigh})`,
-                  } as React.CSSProperties : {}),
-                }}
-              />
-            </svg>
-
-            {/* Breathing label */}
+            {/* Phase label ABOVE circle */}
             {breatheLabel && !isFadeout && (
               <p
-                key={centerStep}
+                key={`label-${centerStep}`}
                 style={{
                   fontSize: '11px',
                   color: 'rgba(240,237,246,0.1)',
-                  marginTop: '40px',
+                  marginBottom: '20px',
                   animation: `focusFadeInOut ${isInhale ? '4s' : isHold ? '7s' : '8s'} ${APPLE_EASE} forwards`,
                 }}
               >
                 {breatheLabel}
               </p>
             )}
+
+            {/* SVG circle with countdown inside */}
+            <div style={{ position: 'relative', width: '160px', height: '160px' }}>
+              <svg width="160" height="160" viewBox="0 0 160 160" className="overflow-visible">
+                <circle
+                  cx="80" cy="80"
+                  r={isHold || isFadeout ? 70 : circleR}
+                  fill="none"
+                  strokeWidth="1"
+                  style={{
+                    stroke: isHold
+                      ? undefined
+                      : `rgba(168,85,247,${strokeBase})`,
+                    transition: isHold
+                      ? undefined
+                      : `r ${circleDuration} ${circleEasing}`,
+                    animation: isHold
+                      ? `holdPulse 500ms ease-in-out infinite alternate`
+                      : undefined,
+                    ...(isHold ? {
+                      '--pulse-low': `rgba(168,85,247,${strokeBase})`,
+                      '--pulse-high': `rgba(168,85,247,${strokePulseHigh})`,
+                    } as React.CSSProperties : {}),
+                  }}
+                />
+              </svg>
+
+              {/* Countdown number inside circle */}
+              {breatheCountdown !== null && !isFadeout && (
+                <span
+                  key={`cd-${breatheCountdown}-${centerStep}`}
+                  style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    fontSize: '28px',
+                    fontWeight: 300,
+                    color: isHold ? 'rgba(240,237,246,0.3)' : 'rgba(240,237,246,0.25)',
+                    fontFamily: "'Be Vietnam Pro', sans-serif",
+                    animation: `countdownPulse 1s ${APPLE_EASE} forwards`,
+                  }}
+                >
+                  {breatheCountdown}
+                </span>
+              )}
+            </div>
           </div>
         )}
 
@@ -574,6 +702,12 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
           @keyframes holdPulse {
             from { stroke: rgba(168,85,247,${strokeBase}); }
             to { stroke: rgba(168,85,247,${strokePulseHigh}); }
+          }
+          @keyframes countdownPulse {
+            0% { opacity: 0; }
+            15% { opacity: 1; }
+            70% { opacity: 1; }
+            100% { opacity: 0; }
           }
         `}</style>
       </div>
