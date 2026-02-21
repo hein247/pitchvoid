@@ -95,6 +95,7 @@ const Dashboard = () => {
   const [showNewProjectModal, setShowNewProjectModal] = useState(false);
   const [showQuickPitch, setShowQuickPitch] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showEditor, setShowEditor] = useState(false);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   
   // Form state
@@ -599,12 +600,12 @@ const Dashboard = () => {
       if (outputFormat === 'one-pager') {
         setOnePagerData(data.onePager);
         setScriptData(null);
-        setMessages([{ id: '1', type: 'system', content: 'Your one-pager is ready!' }]);
+        setMessages([]);
         outputPayload.onePager = data.onePager;
       } else {
         setScriptData(data.script);
         setOnePagerData(null);
-        setMessages([{ id: '1', type: 'system', content: `Your script is ready!` }]);
+        setMessages([]);
         outputPayload.script = data.script;
       }
 
@@ -958,7 +959,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen relative transition-colors duration-300" style={{ background: 'linear-gradient(180deg, hsl(270 12% 4%) 0%, hsl(270 12% 4%) 55%, hsl(260 35% 12%) 75%, hsl(25 60% 18%) 90%, hsl(25 75% 45% / 0.6) 100%)' }}>
+    <div className="min-h-screen relative transition-colors duration-300 bg-background">
       {/* Install Banner */}
       {showInstallPrompt && currentView === 'dashboard' && (
         <div className="fixed top-0 left-0 right-0 z-50 p-2 sm:p-3 install-banner animate-slideDown">
@@ -1106,9 +1107,9 @@ const Dashboard = () => {
 
       {/* Project View */}
       {currentView === 'project' && activeProject && (
-        <div className="min-h-screen flex flex-col">
-          {/* Preview Panel — on top */}
-          <div className="grain-bg flex flex-col relative">
+        <div className="min-h-screen flex flex-col bg-background">
+          {/* Preview Panel — full screen */}
+          <div className="grain-bg flex flex-col relative flex-1">
             <header className="px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:justify-between border-b border-border relative z-10">
               <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
                 <div className="flex items-center gap-3">
@@ -1255,94 +1256,49 @@ const Dashboard = () => {
             )}
           </div>
 
-          {/* Chat + Editor Panel — below */}
-          <div className="w-full flex flex-col border-t border-accent/10">
-            {/* Credits indicator */}
-            <div className="px-4 sm:px-5 py-2 flex items-center justify-end">
-              <span className="text-xs text-muted-foreground whitespace-nowrap">{credits.total - credits.used} credits</span>
-            </div>
-            
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3 sm:space-y-4 scrollbar-thin">
-              {messages.map(m => (
-                <div 
-                  key={m.id} 
-                  className={`rounded-xl p-3 sm:p-4 ${
-                    m.type === 'user' ? 'message-user ml-4 sm:ml-8' : 
-                    m.type === 'assistant' ? 'message-assistant mr-4 sm:mr-8' : 
-                    'message-system'
-                  }`}
-                >
-                  <p className="text-sm text-foreground/80">{m.content}</p>
+          {/* Edit button — opens editor as overlay */}
+          {onePagerData && !isRegenerating && (
+            <button
+              onClick={() => setShowEditor(prev => !prev)}
+              className="fixed bottom-36 right-6 z-50 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border border-border bg-card/90 backdrop-blur-sm text-foreground hover:bg-accent/10 transition-colors shadow-lg"
+            >
+              <Edit2 className="w-4 h-4" />
+              <span className="hidden sm:inline">{showEditor ? 'Close Editor' : 'Edit'}</span>
+            </button>
+          )}
+
+          {/* Editor Overlay */}
+          {showEditor && onePagerData && (
+            <div className="fixed inset-0 z-40 flex items-end justify-center modal-overlay" onClick={() => setShowEditor(false)}>
+              <div 
+                className="w-full max-w-3xl max-h-[70vh] overflow-y-auto rounded-t-2xl border border-border bg-background p-4 sm:p-6 animate-slideUp"
+                onClick={e => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-medium text-foreground font-display">Edit One-Pager</h3>
+                  <button onClick={() => setShowEditor(false)} className="text-muted-foreground hover:text-foreground">
+                    <X className="w-5 h-5" />
+                  </button>
                 </div>
-              ))}
-              
-              {isGenerating && (
-                <div className="message-assistant mr-4 sm:mr-8 rounded-xl p-3 sm:p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full magenta-gradient flex items-center justify-center">
-                      <Loader2 className="w-4 h-4 text-white animate-spin" />
-                    </div>
-                    <p className="text-sm text-foreground animate-pulse">{generationPhase}</p>
-                  </div>
-                </div>
-              )}
-              
-              <div ref={messagesEndRef} />
-            </div>
-            
-            {/* One-Pager Editor - Desktop only */}
-            {onePagerData && !isMobile && (
-              <div className="p-3 sm:p-4 border-t border-accent/10 max-h-[50vh] overflow-y-auto">
-                <OnePagerEditor
-                  data={onePagerData}
-                  onUpdate={(updatedData) => setOnePagerData(updatedData)}
-                />
-              </div>
-            )}
-            
-            {/* Mobile Editor Sheet - Floating button + bottom sheet */}
-            {onePagerData && isMobile && (
-              <MobileEditorSheet
-                data={onePagerData}
-                onUpdate={(updatedData) => setOnePagerData(updatedData)}
-                onRefine={(prompt) => {
-                  setInputValue(prompt);
-                  setTimeout(() => handleSubmit(), 0);
-                }}
-                isRefining={isGenerating}
-              />
-            )}
-            
-            {/* Input - Hidden on mobile when onePagerData exists (refinement is in MobileEditorSheet) */}
-            {!(onePagerData && isMobile) && (
-              <div className="p-3 sm:p-4 border-t border-accent/10">
-                <div className="input-area rounded-xl p-2 sm:p-3">
-                  <textarea 
-                    value={inputValue} 
-                    onChange={e => setInputValue(e.target.value)} 
-                    onKeyDown={e => { 
-                      if (e.key === 'Enter' && !e.shiftKey) { 
-                        e.preventDefault(); 
-                        handleSubmit(); 
-                      }
-                    }} 
-                    placeholder="Refine your pitch..." 
-                    className="w-full bg-transparent text-foreground placeholder-muted-foreground text-sm resize-none focus:outline-none min-h-[50px] sm:min-h-[60px]" 
+                {isMobile ? (
+                  <MobileEditorSheet
+                    data={onePagerData}
+                    onUpdate={(updatedData) => setOnePagerData(updatedData)}
+                    onRefine={(prompt) => {
+                      setInputValue(prompt);
+                      setTimeout(() => handleSubmit(), 0);
+                    }}
+                    isRefining={isGenerating}
                   />
-                  <div className="flex items-center justify-end mt-2 pt-2 border-t border-accent/10">
-                    <button 
-                      onClick={handleSubmit} 
-                      disabled={isGenerating || !inputValue.trim()} 
-                      className="px-4 py-2 rounded-lg text-white text-sm font-medium magenta-gradient disabled:opacity-50"
-                    >
-                      Send
-                    </button>
-                  </div>
-                </div>
+                ) : (
+                  <OnePagerEditor
+                    data={onePagerData}
+                    onUpdate={(updatedData) => setOnePagerData(updatedData)}
+                  />
+                )}
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
         </div>
       )}

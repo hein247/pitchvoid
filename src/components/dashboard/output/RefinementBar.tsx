@@ -37,8 +37,10 @@ const RefinementBar = ({
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-background/90 backdrop-blur-xl border-t border-border z-40">
+    <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-xl border-t border-border z-40">
       <div className="max-w-5xl mx-auto px-4 py-4">
+        {/* Label */}
+        <p className="text-xs text-muted-foreground mb-2 font-medium">Refine your pitch</p>
         {/* Quick Edit Chips */}
         <div className="flex items-center gap-2 mb-3 overflow-x-auto pb-2 scrollbar-hide">
           {/* Undo button */}
