@@ -9,6 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import Navbar from '@/components/Navbar';
 import RefinementPanel from '@/components/dashboard/RefinementPanel';
 import RefinementBar from '@/components/dashboard/output/RefinementBar';
+import FeedbackBar from '@/components/dashboard/output/FeedbackBar';
 import OnePager, { OnePagerData } from '@/components/dashboard/OnePager';
 import OnePagerEditor from '@/components/dashboard/OnePagerEditor';
 import MobileEditorSheet from '@/components/dashboard/MobileEditorSheet';
@@ -121,6 +122,7 @@ const Dashboard = () => {
   const [showUndo, setShowUndo] = useState(false);
   const undoTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [refineAnimationKey, setRefineAnimationKey] = useState(0);
+  const [feedbackKey, setFeedbackKey] = useState(0);
   
   // Generation error state
   const [generationError, setGenerationError] = useState<{
@@ -610,6 +612,7 @@ const Dashboard = () => {
         setMessages([]);
         outputPayload.script = data.script;
       }
+      setFeedbackKey(prev => prev + 1);
 
       if (project) {
         setActiveProject({ ...project, title: projectTitle, status: 'complete', output_format: outputFormat, output_data: outputPayload });
@@ -716,6 +719,7 @@ const Dashboard = () => {
       }
 
       setRefineAnimationKey(prev => prev + 1);
+      setFeedbackKey(prev => prev + 1);
       setShowUndo(true);
 
       // Start 10-second undo timer
@@ -1274,17 +1278,41 @@ const Dashboard = () => {
               {isRegenerating ? (
                 <GenerationSkeleton format={outputFormat} />
               ) : outputFormat === 'script' && scriptData ? (
-                <ScriptViewer 
-                  data={scriptData}
-                  onUpdate={(updatedData) => setScriptData(updatedData)}
-                  refineAnimationKey={refineAnimationKey}
-                />
+                <>
+                  <ScriptViewer 
+                    data={scriptData}
+                    onUpdate={(updatedData) => setScriptData(updatedData)}
+                    refineAnimationKey={refineAnimationKey}
+                  />
+                  {activeProject && (
+                    <div className="mt-8 max-w-2xl mx-auto">
+                      <FeedbackBar
+                        projectId={activeProject.id}
+                        format="script"
+                        generationKey={feedbackKey}
+                        generatedOutput={scriptData as unknown as Record<string, unknown>}
+                      />
+                    </div>
+                  )}
+                </>
               ) : outputFormat === 'one-pager' && onePagerData ? (
-                <OnePager 
-                  data={onePagerData}
-                  projectTitle={activeProject?.title}
-                  refineAnimationKey={refineAnimationKey}
-                />
+                <>
+                  <OnePager 
+                    data={onePagerData}
+                    projectTitle={activeProject?.title}
+                    refineAnimationKey={refineAnimationKey}
+                  />
+                  {activeProject && (
+                    <div className="mt-8 max-w-2xl mx-auto">
+                      <FeedbackBar
+                        projectId={activeProject.id}
+                        format="one-pager"
+                        generationKey={feedbackKey}
+                        generatedOutput={onePagerData as unknown as Record<string, unknown>}
+                      />
+                    </div>
+                  )}
+                </>
               ) : (
                 <div className="py-16 flex items-center justify-center">
                   <div className="text-center">

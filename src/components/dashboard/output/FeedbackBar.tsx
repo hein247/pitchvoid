@@ -1,143 +1,171 @@
-import { useState } from 'react';
-import { ThumbsUp, ThumbsDown, X, Check } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { ThumbsUp, ThumbsDown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
 
-const ISSUE_OPTIONS = [
-  'Too formal',
-  'Too vague',
-  'Wrong tone',
-  'Missing key point',
-  'Too long',
-] as const;
+const ISSUE_CHIPS: { label: string; value: string }[] = [
+  { label: 'Too formal', value: 'too_formal' },
+  { label: 'Too vague', value: 'too_vague' },
+  { label: 'Wrong tone', value: 'wrong_tone' },
+  { label: 'Missing detail', value: 'missing_detail' },
+  { label: 'Too long', value: 'too_long' },
+  { label: 'Made something up', value: 'hallucinated' },
+];
 
 interface FeedbackBarProps {
   projectId: string;
+  format: 'one-pager' | 'script';
   generatedOutput?: Record<string, unknown>;
+  /** Increment to reset feedback state (e.g. after refine) */
+  generationKey: number;
 }
 
-const FeedbackBar = ({ projectId, generatedOutput }: FeedbackBarProps) => {
+const FeedbackBar = ({ projectId, format, generatedOutput, generationKey }: FeedbackBarProps) => {
   const { user } = useAuth();
-  const { toast } = useToast();
-  const [rating, setRating] = useState<'up' | 'down' | null>(null);
-  const [selectedIssues, setSelectedIssues] = useState<string[]>([]);
+  const [visible, setVisible] = useState(false);
+  const [rating, setRating] = useState<1 | 5 | null>(null);
   const [showIssues, setShowIssues] = useState(false);
+  const [selectedIssues, setSelectedIssues] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState(false);
+  const [fadingOut, setFadingOut] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout>>();
 
-  const submitFeedback = async (finalRating: 'up' | 'down', issues: string[] = []) => {
+  // Reset state when generation key changes (new output or refine)
+  useEffect(() => {
+    setVisible(false);
+    setRating(null);
+    setShowIssues(false);
+    setSelectedIssues([]);
+    setSubmitted(false);
+    setFadingOut(false);
+    setIsSubmitting(false);
+
+    timerRef.current = setTimeout(() => setVisible(true), 3000);
+    return () => clearTimeout(timerRef.current);
+  }, [generationKey]);
+
+  const submitFeedback = async (r: 1 | 5, issues: string[] = []) => {
     if (!user) return;
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.from('ai_feedback' as any).insert({
-        project_id: projectId,
-        user_id: user.id,
-        rating: finalRating,
-        issues,
-        generated_output: generatedOutput || null,
+      await supabase.functions.invoke('submit-feedback', {
+        body: {
+          project_id: projectId,
+          rating: r,
+          issues,
+          format,
+          output_json: generatedOutput || null,
+        },
       });
-      if (error) throw error;
-      setSubmitted(true);
-      toast({ title: 'Thanks for the feedback!' });
     } catch {
-      toast({ title: 'Could not save feedback', variant: 'destructive' });
+      // Silently fail — non-critical
     } finally {
       setIsSubmitting(false);
+      setSubmitted(true);
+      setFadingOut(false);
+      // Auto-dismiss after 2s
+      setTimeout(() => setFadingOut(true), 2000);
     }
   };
 
   const handleThumbsUp = () => {
-    setRating('up');
+    setRating(5);
     setShowIssues(false);
-    submitFeedback('up');
+    submitFeedback(5);
   };
 
   const handleThumbsDown = () => {
-    setRating('down');
+    setRating(1);
     setShowIssues(true);
   };
 
-  const toggleIssue = (issue: string) => {
+  const toggleIssue = (value: string) => {
     setSelectedIssues(prev =>
-      prev.includes(issue) ? prev.filter(i => i !== issue) : [...prev, issue]
+      prev.includes(value) ? prev.filter(i => i !== value) : [...prev, value]
     );
   };
 
   const handleSubmitIssues = () => {
-    submitFeedback('down', selectedIssues);
+    submitFeedback(1, selectedIssues);
     setShowIssues(false);
   };
 
-  if (submitted) {
-    return (
-      <div className="flex items-center gap-2 py-3 px-4 rounded-xl border border-border bg-card animate-fadeIn">
-        <Check className="w-4 h-4 text-green-400" />
-        <span className="text-sm text-muted-foreground">Feedback received — thanks!</span>
-      </div>
-    );
-  }
+  // Don't render if not visible yet or fully faded out
+  if (!visible) return null;
+  if (submitted && fadingOut) return null;
 
   return (
-    <div className="space-y-3 animate-fadeIn">
-      {/* Rating buttons */}
-      <div className="flex items-center gap-3">
-        <span className="text-sm text-muted-foreground">How was this output?</span>
-        <button
-          onClick={handleThumbsUp}
-          disabled={isSubmitting}
-          className={`p-2 rounded-lg border transition-all ${
-            rating === 'up'
-              ? 'border-green-500/40 bg-green-500/10 text-green-400'
-              : 'border-border hover:border-green-500/30 hover:bg-green-500/5 text-muted-foreground hover:text-green-400'
-          }`}
-        >
-          <ThumbsUp className="w-4 h-4" />
-        </button>
-        <button
-          onClick={handleThumbsDown}
-          disabled={isSubmitting}
-          className={`p-2 rounded-lg border transition-all ${
-            rating === 'down'
-              ? 'border-red-500/40 bg-red-500/10 text-red-400'
-              : 'border-border hover:border-red-500/30 hover:bg-red-500/5 text-muted-foreground hover:text-red-400'
-          }`}
-        >
-          <ThumbsDown className="w-4 h-4" />
-        </button>
-      </div>
-
-      {/* Issue selector */}
-      {showIssues && (
-        <div className="p-4 rounded-xl border border-border bg-card space-y-3 animate-slideUp">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-foreground">What could be better?</span>
-            <button onClick={() => { setShowIssues(false); setRating(null); }} className="text-muted-foreground hover:text-foreground">
-              <X className="w-4 h-4" />
+    <div
+      className={`transition-opacity duration-500 ${
+        submitted ? 'opacity-100' : 'opacity-100'
+      } ${fadingOut ? 'opacity-0' : ''}`}
+      style={{ animation: !submitted ? 'fadeIn 0.5s ease-out' : undefined }}
+    >
+      {submitted ? (
+        <div className="flex items-center justify-center gap-2 py-3">
+          <span className="text-xs text-muted-foreground/30">
+            {rating === 5 ? 'Thanks!' : 'Thanks — we\'ll improve!'}
+          </span>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {/* Rating row */}
+          <div className="flex items-center justify-center gap-3">
+            <span className="text-xs text-muted-foreground/30">How was this?</span>
+            <button
+              onClick={handleThumbsUp}
+              disabled={isSubmitting}
+              className={`p-2.5 sm:p-2 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 rounded-lg transition-all flex items-center justify-center ${
+                rating === 5
+                  ? 'text-green-400/60'
+                  : 'text-muted-foreground/20 hover:text-green-400/40'
+              }`}
+            >
+              <ThumbsUp className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={handleThumbsDown}
+              disabled={isSubmitting}
+              className={`p-2.5 sm:p-2 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 rounded-lg transition-all flex items-center justify-center ${
+                rating === 1
+                  ? 'text-red-400/60'
+                  : 'text-muted-foreground/20 hover:text-red-400/40'
+              }`}
+            >
+              <ThumbsDown className="w-3.5 h-3.5" />
             </button>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {ISSUE_OPTIONS.map((issue) => (
-              <button
-                key={issue}
-                onClick={() => toggleIssue(issue)}
-                className={`px-3 py-1.5 rounded-lg text-sm border transition-all ${
-                  selectedIssues.includes(issue)
-                    ? 'border-primary/40 bg-primary/10 text-primary'
-                    : 'border-border text-muted-foreground hover:border-primary/20 hover:text-foreground'
-                }`}
-              >
-                {issue}
-              </button>
-            ))}
-          </div>
-          <button
-            onClick={handleSubmitIssues}
-            disabled={isSubmitting}
-            className="px-4 py-2 rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50"
-          >
-            Submit feedback
-          </button>
+
+          {/* Issue chips */}
+          {showIssues && (
+            <div className="flex flex-col items-center gap-3 animate-fadeIn">
+              <div className="flex flex-wrap justify-center gap-2">
+                {ISSUE_CHIPS.map((chip) => (
+                  <button
+                    key={chip.value}
+                    onClick={() => toggleIssue(chip.value)}
+                    className={`px-3 py-1.5 min-h-[44px] sm:min-h-0 rounded-full text-[11px] border transition-all ${
+                      selectedIssues.includes(chip.value)
+                        ? 'border-primary/30 bg-primary/10 text-primary/70'
+                        : 'border-border/30 text-muted-foreground/30 hover:border-border/50 hover:text-muted-foreground/50'
+                    }`}
+                  >
+                    {chip.label}
+                  </button>
+                ))}
+              </div>
+              {selectedIssues.length > 0 && (
+                <button
+                  onClick={handleSubmitIssues}
+                  disabled={isSubmitting}
+                  className="px-4 py-1.5 min-h-[44px] sm:min-h-0 rounded-full text-[11px] font-medium bg-primary/10 text-primary/60 hover:bg-primary/15 transition-all disabled:opacity-50"
+                >
+                  Submit
+                </button>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -184,6 +184,8 @@ const PitchOutputView = ({
           <div className="mt-8 max-w-2xl mx-auto">
             <FeedbackBar
               projectId={projectId}
+              format={format === 'onepager' ? 'one-pager' : 'script'}
+              generationKey={0}
               generatedOutput={format === 'onepager' ? (onePager as unknown as Record<string, unknown>) : (script as unknown as Record<string, unknown>)}
             />
           </div>
