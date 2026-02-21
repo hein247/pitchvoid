@@ -487,9 +487,9 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
 
     // Breathing label
     let breatheLabel = '';
-    if (isInhale) breatheLabel = 'in';
+    if (isInhale) breatheLabel = 'breathe in';
     else if (isHold) breatheLabel = 'hold';
-    else if (isExhale) breatheLabel = 'out';
+    else if (isExhale) breatheLabel = 'breathe out';
 
     const showBreathing = isCycle1 || isCycle2 || isFadeout;
 
