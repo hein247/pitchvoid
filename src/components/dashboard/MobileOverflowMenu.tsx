@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { MoreVertical, Share2, Download, Play, Copy, History, Lock, X } from 'lucide-react';
+import { MoreVertical, Share2, Download, Play, Copy, History, Lock, ThumbsUp, ThumbsDown, Check } from 'lucide-react';
 import { VersionHistorySheet } from './VersionHistoryDropdown';
+import { MobileFeedbackSheet } from './TopBarFeedback';
 import type { ProjectVersion, ProjectRecord } from '@/hooks/useProjects';
 
 interface MobileOverflowMenuProps {
@@ -14,6 +15,13 @@ interface MobileOverflowMenuProps {
   activeVersionId?: string;
   fetchVersions: (projectId: string) => Promise<ProjectVersion[]>;
   onSelectVersion: (version: ProjectVersion) => void;
+  // Feedback props
+  feedbackProjectId?: string;
+  feedbackFormat?: 'one-pager' | 'script';
+  feedbackOutput?: Record<string, unknown>;
+  feedbackKey?: number;
+  onThumbsUp?: () => void;
+  feedbackSubmitted?: boolean;
 }
 
 const MobileOverflowMenu = ({
@@ -26,9 +34,16 @@ const MobileOverflowMenu = ({
   activeVersionId,
   fetchVersions,
   onSelectVersion,
+  feedbackProjectId,
+  feedbackFormat,
+  feedbackOutput,
+  feedbackSubmitted = false,
+  onThumbsUp,
 }: MobileOverflowMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showVersionSheet, setShowVersionSheet] = useState(false);
+  const [showFeedbackSheet, setShowFeedbackSheet] = useState(false);
+  const [showCheck, setShowCheck] = useState(false);
 
   return (
     <div className="sm:hidden">
@@ -97,6 +112,48 @@ const MobileOverflowMenu = ({
                 </button>
               )}
 
+              {/* Feedback buttons */}
+              {feedbackProjectId && (
+                <>
+                  <div className="border-t border-border mt-2 pt-2">
+                    <button
+                      onClick={() => {
+                        setIsOpen(false);
+                        if (!feedbackSubmitted) {
+                          onThumbsUp?.();
+                          setShowCheck(true);
+                          setTimeout(() => setShowCheck(false), 800);
+                        }
+                      }}
+                      disabled={feedbackSubmitted}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors min-h-[52px] ${
+                        feedbackSubmitted ? 'opacity-30' : 'hover:bg-accent/5'
+                      }`}
+                    >
+                      {showCheck ? (
+                        <Check className="w-4 h-4 text-green-400" />
+                      ) : (
+                        <ThumbsUp className="w-4 h-4 text-muted-foreground" />
+                      )}
+                      <span className="text-sm text-foreground">Good output</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsOpen(false);
+                        if (!feedbackSubmitted) setShowFeedbackSheet(true);
+                      }}
+                      disabled={feedbackSubmitted}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors min-h-[52px] ${
+                        feedbackSubmitted ? 'opacity-30' : 'hover:bg-accent/5'
+                      }`}
+                    >
+                      <ThumbsDown className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-sm text-foreground">Needs improvement</span>
+                    </button>
+                  </div>
+                </>
+              )}
+
               <button
                 onClick={() => setIsOpen(false)}
                 className="w-full flex items-center justify-center px-4 py-3 rounded-xl text-muted-foreground hover:bg-accent/5 transition-colors min-h-[52px] mt-2 border-t border-border pt-4"
@@ -117,6 +174,17 @@ const MobileOverflowMenu = ({
           currentVersionId={activeVersionId}
           fetchVersions={fetchVersions}
           onSelectVersion={onSelectVersion}
+        />
+      )}
+
+      {/* Mobile Feedback Bottom Sheet */}
+      {feedbackProjectId && feedbackFormat && (
+        <MobileFeedbackSheet
+          isOpen={showFeedbackSheet}
+          onClose={() => setShowFeedbackSheet(false)}
+          projectId={feedbackProjectId}
+          format={feedbackFormat}
+          generatedOutput={feedbackOutput}
         />
       )}
     </div>
