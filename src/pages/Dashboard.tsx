@@ -9,7 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import Navbar from '@/components/Navbar';
 import RefinementPanel from '@/components/dashboard/RefinementPanel';
 import RefinementBar from '@/components/dashboard/output/RefinementBar';
-import FeedbackBar from '@/components/dashboard/output/FeedbackBar';
+import TopBarFeedback from '@/components/dashboard/TopBarFeedback';
 import OnePager, { OnePagerData } from '@/components/dashboard/OnePager';
 import OnePagerEditor from '@/components/dashboard/OnePagerEditor';
 import MobileEditorSheet from '@/components/dashboard/MobileEditorSheet';
@@ -1243,6 +1243,21 @@ const Dashboard = () => {
                       )}
                       
                       {/* Share button */}
+                      {/* Feedback - desktop */}
+                      {activeProject && (onePagerData || scriptData) && !isRegenerating && (
+                        <TopBarFeedback
+                          projectId={activeProject.id}
+                          format={outputFormat === 'script' ? 'script' : 'one-pager'}
+                          generationKey={feedbackKey}
+                          generatedOutput={
+                            outputFormat === 'script'
+                              ? (scriptData as unknown as Record<string, unknown>)
+                              : (onePagerData as unknown as Record<string, unknown>)
+                          }
+                        />
+                      )}
+
+                      {/* Share button */}
                       <button 
                         onClick={() => setShowShareModal(true)} 
                         className="p-2 rounded-lg text-primary hover:bg-primary/10 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
@@ -1304,6 +1319,14 @@ const Dashboard = () => {
                           setOutputFormat('one-pager');
                         }
                       }}
+                      feedbackProjectId={activeProject?.id}
+                      feedbackFormat={outputFormat === 'script' ? 'script' : 'one-pager'}
+                      feedbackOutput={
+                        outputFormat === 'script'
+                          ? (scriptData as unknown as Record<string, unknown>)
+                          : (onePagerData as unknown as Record<string, unknown>)
+                      }
+                      feedbackKey={feedbackKey}
                     />
                   </div>
                 </div>
@@ -1315,41 +1338,17 @@ const Dashboard = () => {
               {isRegenerating ? (
                 <GenerationSkeleton format={outputFormat} />
               ) : outputFormat === 'script' && scriptData ? (
-                <>
-                  <ScriptViewer 
-                    data={scriptData}
-                    onUpdate={(updatedData) => setScriptData(updatedData)}
-                    refineAnimationKey={refineAnimationKey}
-                  />
-                  {activeProject && (
-                    <div className="mt-8 max-w-2xl mx-auto">
-                      <FeedbackBar
-                        projectId={activeProject.id}
-                        format="script"
-                        generationKey={feedbackKey}
-                        generatedOutput={scriptData as unknown as Record<string, unknown>}
-                      />
-                    </div>
-                  )}
-                </>
+                <ScriptViewer 
+                  data={scriptData}
+                  onUpdate={(updatedData) => setScriptData(updatedData)}
+                  refineAnimationKey={refineAnimationKey}
+                />
               ) : outputFormat === 'one-pager' && onePagerData ? (
-                <>
-                  <OnePager 
-                    data={onePagerData}
-                    projectTitle={activeProject?.title}
-                    refineAnimationKey={refineAnimationKey}
-                  />
-                  {activeProject && (
-                    <div className="mt-8 max-w-2xl mx-auto">
-                      <FeedbackBar
-                        projectId={activeProject.id}
-                        format="one-pager"
-                        generationKey={feedbackKey}
-                        generatedOutput={onePagerData as unknown as Record<string, unknown>}
-                      />
-                    </div>
-                  )}
-                </>
+                <OnePager 
+                  data={onePagerData}
+                  projectTitle={activeProject?.title}
+                  refineAnimationKey={refineAnimationKey}
+                />
               ) : (onePagerData || scriptData) && !isRegenerating ? (
                 /* Format not yet generated — show loading, useEffect will trigger generation */
                 <div className="py-16 flex items-center justify-center animate-fadeIn">
