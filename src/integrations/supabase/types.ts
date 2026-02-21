@@ -52,6 +52,54 @@ export type Database = {
           },
         ]
       }
+      output_versions: {
+        Row: {
+          created_at: string | null
+          format: string
+          id: string
+          output_json: Json
+          project_id: string
+          trigger: string
+          user_id: string
+          version_number: number
+        }
+        Insert: {
+          created_at?: string | null
+          format: string
+          id?: string
+          output_json: Json
+          project_id: string
+          trigger: string
+          user_id: string
+          version_number: number
+        }
+        Update: {
+          created_at?: string | null
+          format?: string
+          id?: string
+          output_json?: Json
+          project_id?: string
+          trigger?: string
+          user_id?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "output_versions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "output_versions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           credits: number | null
