@@ -90,12 +90,6 @@ const OnePager = ({ data: rawData, refineAnimationKey }: OnePagerProps) => {
       transition={{ duration: 0.4 }}
       className="max-w-[680px] mx-auto py-2"
     >
-      {/* Context line */}
-      {data.context_line && (
-        <p className="text-xs mb-8" style={{ color: 'rgba(240,237,246,0.25)' }}>
-          {data.context_line}
-        </p>
-      )}
 
       {/* Copy All button */}
       <div className="flex justify-end mb-6">
