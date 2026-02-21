@@ -14,6 +14,7 @@ type CenterStep =
   | 'black'
   | 'headphones'
   | 'zone_intro'
+  | 'choice'
   | 'follow_breathing'
   | 'breathe1_inhale'
   | 'breathe1_hold'
@@ -226,6 +227,112 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
     countdownIntervalsRef.current.push(iv);
   }, []);
 
+  // Start the breathing sequence (called when user picks 'Enter the Void')
+  const startBreathingSequence = useCallback(() => {
+    const ids: ReturnType<typeof setTimeout>[] = [];
+    const q = (fn: () => void, ms: number) => { ids.push(setTimeout(fn, ms)); };
+
+    // 0.0s — 'Follow the breathing' (1.5s)
+    setCenterStep('follow_breathing');
+    setBreatheCountdown(null);
+
+    // 1.5s — Audio fade-in, brief black
+    q(() => {
+      startAudio();
+      setCenterStep('black');
+    }, 1500);
+
+    // 1.7s — Cycle 1 Inhale (4s)
+    q(() => {
+      setCenterStep('breathe1_inhale');
+      startCountdown(4, 4);
+    }, 1700);
+
+    // 5.7s — Cycle 1 Hold (7s)
+    q(() => {
+      setCenterStep('breathe1_hold');
+      startCountdown(7, 7);
+    }, 5700);
+
+    // 12.7s — Cycle 1 Exhale (8s)
+    q(() => {
+      setCenterStep('breathe1_exhale');
+      startCountdown(8, 8);
+    }, 12700);
+
+    // 20.7s — 1s pause
+    q(() => {
+      setCenterStep('between_cycles');
+      setBreatheCountdown(null);
+    }, 20700);
+
+    // 21.7s — 'one more' (1.5s)
+    q(() => setCenterStep('one_more'), 21700);
+
+    // 23.2s — Cycle 2 Inhale (4s)
+    q(() => {
+      setCenterStep('breathe2_inhale');
+      startCountdown(4, 4);
+    }, 23200);
+
+    // 27.2s — Cycle 2 Hold (7s)
+    q(() => {
+      setCenterStep('breathe2_hold');
+      startCountdown(7, 7);
+    }, 27200);
+
+    // 34.2s — Cycle 2 Exhale (8s)
+    q(() => {
+      setCenterStep('breathe2_exhale');
+      startCountdown(8, 8);
+    }, 34200);
+
+    // 42.2s — Circle fades, audio fades
+    q(() => {
+      setCenterStep('breathe_fadeout');
+      setBreatheCountdown(null);
+      fadeOutAudio();
+    }, 42200);
+
+    // 44.2s — 'you're in the zone' (2s)
+    q(() => setCenterStep('in_the_zone'), 44200);
+
+    // 46.2s — Existing focus sequence: context line
+    const contextLine = scriptData.context_line || '';
+    q(() => setCenterStep(contextLine ? 'context' : 'opener'), 46200);
+
+    if (contextLine) {
+      q(() => setCenterStep('opener'), 50200);
+    }
+
+    const openerOffset = contextLine ? 54200 : 50200;
+    q(() => setCenterStep('ready'), openerOffset);
+    q(() => setCenterStep('done'), openerOffset + 2000);
+    q(() => setPhase('teleprompter'), openerOffset + 2500);
+
+    timeoutsRef.current.push(...ids);
+  }, [startAudio, fadeOutAudio, scriptData.context_line, startCountdown]);
+
+  // Start the focus sequence directly (skip breathing, go to context → opener → ready)
+  const startFocusSequenceDirect = useCallback(() => {
+    const ids: ReturnType<typeof setTimeout>[] = [];
+    const q = (fn: () => void, ms: number) => { ids.push(setTimeout(fn, ms)); };
+
+    const contextLine = scriptData.context_line || '';
+    setCenterStep(contextLine ? 'context' : 'opener');
+
+    if (contextLine) {
+      q(() => setCenterStep('opener'), 4000);
+    }
+
+    const openerOffset = contextLine ? 8000 : 4000;
+    q(() => setCenterStep('ready'), openerOffset);
+    q(() => setCenterStep('done'), openerOffset + 2000);
+    q(() => setPhase('teleprompter'), openerOffset + 2500);
+
+    timeoutsRef.current.push(...ids);
+  }, [scriptData.context_line]);
+
   const startCentering = useCallback(() => {
     const ids: ReturnType<typeof setTimeout>[] = [];
     const q = (fn: () => void, ms: number) => { ids.push(setTimeout(fn, ms)); };
@@ -239,85 +346,11 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
     // 2.3s — 'Let's get you in the zone' (2s)
     q(() => setCenterStep('zone_intro'), 2300);
 
-    // 4.3s — 'Follow the breathing' (1.5s)
-    q(() => setCenterStep('follow_breathing'), 4300);
-
-    // 5.8s — Audio fade-in starts, circle appears
-    q(() => {
-      startAudio();
-      setCenterStep('black'); // brief black before circle
-    }, 5800);
-
-    // 6.0s — Cycle 1 Inhale (4s) with countdown 4→1
-    q(() => {
-      setCenterStep('breathe1_inhale');
-      startCountdown(4, 4);
-    }, 6000);
-
-    // 10.0s — Cycle 1 Hold (7s) with countdown 7→1
-    q(() => {
-      setCenterStep('breathe1_hold');
-      startCountdown(7, 7);
-    }, 10000);
-
-    // 17.0s — Cycle 1 Exhale (8s) with countdown 8→1
-    q(() => {
-      setCenterStep('breathe1_exhale');
-      startCountdown(8, 8);
-    }, 17000);
-
-    // 25.0s — 1s pause (black)
-    q(() => {
-      setCenterStep('between_cycles');
-      setBreatheCountdown(null);
-    }, 25000);
-
-    // 26.0s — 'one more' (1.5s)
-    q(() => setCenterStep('one_more'), 26000);
-
-    // 27.5s — Cycle 2 Inhale (4s)
-    q(() => {
-      setCenterStep('breathe2_inhale');
-      startCountdown(4, 4);
-    }, 27500);
-
-    // 31.5s — Cycle 2 Hold (7s)
-    q(() => {
-      setCenterStep('breathe2_hold');
-      startCountdown(7, 7);
-    }, 31500);
-
-    // 38.5s — Cycle 2 Exhale (8s)
-    q(() => {
-      setCenterStep('breathe2_exhale');
-      startCountdown(8, 8);
-    }, 38500);
-
-    // 46.5s — Circle fades, audio fades
-    q(() => {
-      setCenterStep('breathe_fadeout');
-      setBreatheCountdown(null);
-      fadeOutAudio();
-    }, 46500);
-
-    // 48.5s — 'you're in the zone' (2s)
-    q(() => setCenterStep('in_the_zone'), 48500);
-
-    // 50.5s — Existing focus sequence: context line
-    const contextLine = scriptData.context_line || '';
-    q(() => setCenterStep(contextLine ? 'context' : 'opener'), 50500);
-
-    if (contextLine) {
-      q(() => setCenterStep('opener'), 54500);
-    }
-
-    const openerOffset = contextLine ? 58500 : 54500;
-    q(() => setCenterStep('ready'), openerOffset);
-    q(() => setCenterStep('done'), openerOffset + 2000);
-    q(() => setPhase('teleprompter'), openerOffset + 2500);
+    // 4.3s — Show choice screen (waits for user tap)
+    q(() => setCenterStep('choice'), 4300);
 
     timeoutsRef.current = ids;
-  }, [startAudio, fadeOutAudio, scriptData.context_line, startCountdown]);
+  }, []);
 
   useEffect(() => {
     if (phase === 'centering') startCentering();
@@ -525,7 +558,45 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
           </p>
         )}
 
-        {/* 'Follow the breathing' */}
+        {/* Choice screen */}
+        {centerStep === 'choice' && (
+          <div
+            className="flex flex-col items-center justify-center gap-6 font-sans"
+            style={{ animation: `focusFadeIn 0.6s ${APPLE_EASE} forwards` }}
+          >
+            <button
+              onClick={() => {
+                timeoutsRef.current.forEach(clearTimeout);
+                startBreathingSequence();
+              }}
+              className="font-sans cursor-pointer transition-all duration-300 hover:scale-105"
+              style={{
+                fontSize: '14px',
+                color: 'rgba(240,237,246,0.6)',
+                background: 'rgba(168,85,247,0.1)',
+                border: '1px solid rgba(168,85,247,0.2)',
+                borderRadius: '999px',
+                padding: '12px 32px',
+              }}
+            >
+              Enter the Void
+            </button>
+            <button
+              onClick={() => {
+                timeoutsRef.current.forEach(clearTimeout);
+                startFocusSequenceDirect();
+              }}
+              className="font-sans cursor-pointer bg-transparent border-none"
+              style={{
+                fontSize: '11px',
+                color: 'rgba(240,237,246,0.12)',
+              }}
+            >
+              Skip to practice →
+            </button>
+          </div>
+        )}
+
         {centerStep === 'follow_breathing' && (
           <p
             className="text-center font-sans"
