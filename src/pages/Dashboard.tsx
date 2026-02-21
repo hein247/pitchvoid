@@ -272,13 +272,21 @@ const Dashboard = () => {
     // If project has output, restore it
     if (project.output_data) {
       const outputData = project.output_data;
-      if (project.output_format === 'script' && outputData.script) {
-        setScriptData(outputData.script as unknown as ScriptData);
+      // Restore both formats if available
+      if (outputData.onePager) {
+        setOnePagerData(outputData.onePager as unknown as OnePagerData);
+      } else {
         setOnePagerData(null);
+      }
+      if (outputData.script) {
+        setScriptData(outputData.script as unknown as ScriptData);
+      } else {
+        setScriptData(null);
+      }
+      // Set active format
+      if (project.output_format === 'script' && outputData.script) {
         setOutputFormat('script');
       } else if (outputData.onePager) {
-        setOnePagerData(outputData.onePager as unknown as OnePagerData);
-        setScriptData(null);
         setOutputFormat('one-pager');
       }
       setMessages([{ id: '1', type: 'system', content: `Opened "${project.title}".` }]);
@@ -603,14 +611,16 @@ const Dashboard = () => {
       const outputPayload: Record<string, unknown> = {};
       if (outputFormat === 'one-pager') {
         setOnePagerData(data.onePager);
-        setScriptData(null);
         setMessages([]);
         outputPayload.onePager = data.onePager;
+        // Preserve existing script if any
+        if (scriptData) outputPayload.script = scriptData;
       } else {
         setScriptData(data.script);
-        setOnePagerData(null);
         setMessages([]);
         outputPayload.script = data.script;
+        // Preserve existing one-pager if any
+        if (onePagerData) outputPayload.onePager = onePagerData;
       }
       setFeedbackKey(prev => prev + 1);
 
@@ -827,10 +837,23 @@ const Dashboard = () => {
 
       if (newFormat === 'one-pager') {
         setOnePagerData(data.onePager);
-        setMessages(prev => [...prev, { id: Date.now().toString(), type: 'assistant', content: 'Regenerated as one-pager!' }]);
       } else {
         setScriptData(data.script);
-        setMessages(prev => [...prev, { id: Date.now().toString(), type: 'assistant', content: `Regenerated as script!` }]);
+      }
+      setFeedbackKey(prev => prev + 1);
+
+      // Save both formats to project
+      if (activeProject) {
+        const existingOutput = (activeProject.output_data || {}) as Record<string, unknown>;
+        const outputKey = newFormat === 'script' ? 'script' : 'onePager';
+        const mergedOutput = { ...existingOutput, [outputKey]: newFormat === 'script' ? data.script : data.onePager };
+        setActiveProject({ ...activeProject, output_data: mergedOutput, output_format: newFormat });
+        await supabase.from('projects').update({
+          output_data: mergedOutput,
+          output_format: newFormat,
+        }).eq('id', activeProject.id);
+        // Save version
+        await saveProjectOutput(activeProject.id, newFormat, mergedOutput, lastGenerationContext as unknown as Record<string, unknown>);
       }
 
     } catch (error: any) {
@@ -865,20 +888,10 @@ const Dashboard = () => {
     }
   };
 
-  // Handle format change - switch view or regenerate
+  // Handle format change - just switch the active tab
   const handleFormatChange = (newFormat: OutputFormat) => {
     if (newFormat === outputFormat) return;
-    
-    // If content exists for the format, just switch view
-    if (
-      (newFormat === 'one-pager' && onePagerData) ||
-      (newFormat === 'script' && scriptData)
-    ) {
-      setOutputFormat(newFormat);
-    } else {
-      // Regenerate in new format
-      handleRegenerateInFormat(newFormat);
-    }
+    setOutputFormat(newFormat);
   };
 
   const handleSignOut = async () => {
@@ -1313,6 +1326,29 @@ const Dashboard = () => {
                     </div>
                   )}
                 </>
+              ) : (onePagerData || scriptData) && !isRegenerating ? (
+                /* Format not yet generated — show generate prompt */
+                <div className="py-16 flex items-center justify-center animate-fadeIn">
+                  <div className="text-center">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 rounded-2xl flex items-center justify-center bg-gradient-to-br from-accent/15 to-primary/8 border border-dashed border-accent/30">
+                      {outputFormat === 'script' ? (
+                        <ScrollText className="w-8 h-8 sm:w-9 sm:h-9 text-accent/50" />
+                      ) : (
+                        <FileText className="w-8 h-8 sm:w-9 sm:h-9 text-accent/50" />
+                      )}
+                    </div>
+                    <p className="text-muted-foreground text-sm mb-4">
+                      Generate as {outputFormat === 'script' ? 'Script' : 'One-Pager'}?
+                    </p>
+                    <button
+                      onClick={() => handleRegenerateInFormat(outputFormat)}
+                      disabled={isRegenerating || !lastGenerationContext}
+                      className="px-5 py-2.5 rounded-xl text-sm font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50"
+                    >
+                      Generate {outputFormat === 'script' ? 'Script' : 'One-Pager'} →
+                    </button>
+                  </div>
+                </div>
               ) : (
                 <div className="py-16 flex items-center justify-center">
                   <div className="text-center">
