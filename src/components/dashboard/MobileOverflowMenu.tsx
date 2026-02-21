@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { MoreVertical, Share2, Download, Play, Copy, History, Lock, ThumbsUp, ThumbsDown, Check, Edit2, FileText, ScrollText, RefreshCw } from 'lucide-react';
 import { VersionHistorySheet } from './VersionHistoryDropdown';
 import { MobileFeedbackSheet } from './TopBarFeedback';
@@ -112,7 +113,7 @@ const MobileOverflowMenu = ({
         <MoreVertical className="w-4 h-4" />
       </button>
 
-      {isOpen && (
+      {isOpen && createPortal(
         <>
           {/* Backdrop */}
           <div
@@ -274,7 +275,7 @@ const MobileOverflowMenu = ({
               </div>
             )}
           </div>
-        </>
+        </>, document.body
       )}
 
       {/* Version History Bottom Sheet */}
