@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN writing_preferences jsonb DEFAULT '{}'::jsonb;

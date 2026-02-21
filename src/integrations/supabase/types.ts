@@ -68,6 +68,7 @@ export type Database = {
           team_id: string | null
           team_role: string | null
           updated_at: string | null
+          writing_preferences: Json | null
         }
         Insert: {
           credits?: number | null
@@ -84,6 +85,7 @@ export type Database = {
           team_id?: string | null
           team_role?: string | null
           updated_at?: string | null
+          writing_preferences?: Json | null
         }
         Update: {
           credits?: number | null
@@ -100,6 +102,7 @@ export type Database = {
           team_id?: string | null
           team_role?: string | null
           updated_at?: string | null
+          writing_preferences?: Json | null
         }
         Relationships: [
           {
