@@ -37,24 +37,28 @@ const RefinementBar = ({
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-xl border-t border-border z-40">
-      <div className="max-w-5xl mx-auto px-4 py-4">
+    <div
+      className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-xl border-t border-border z-40"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+    >
+      <div className="max-w-5xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
         {/* Label */}
-        <p className="text-xs text-muted-foreground mb-2 font-medium">Refine your pitch</p>
+        <p className="text-[10px] sm:text-xs text-muted-foreground mb-1.5 sm:mb-2 font-medium">Refine your pitch</p>
+
         {/* Quick Edit Chips */}
-        <div className="flex items-center gap-2 mb-3 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3 overflow-x-auto pb-1.5 sm:pb-2 scrollbar-hide">
           {/* Undo button */}
           {showUndo && onUndo && (
             <button
               onClick={onUndo}
-              className="flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 animate-in fade-in"
+              className="flex-shrink-0 flex items-center gap-1 sm:gap-1.5 px-3 sm:px-4 py-2 sm:py-2 min-h-[44px] sm:min-h-0 rounded-full text-[10px] sm:text-sm font-medium transition-all duration-300 animate-in fade-in"
               style={{
                 backgroundColor: 'rgba(239,68,68,0.15)',
                 border: '1px solid rgba(239,68,68,0.3)',
                 color: 'rgba(239,68,68,0.6)',
               }}
             >
-              <Undo2 className="w-3.5 h-3.5" />
+              <Undo2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
               <span>Undo</span>
             </button>
           )}
@@ -64,7 +68,7 @@ const RefinementBar = ({
               key={chip}
               onClick={() => handleChipClick(chip)}
               disabled={isRefining}
-              className={`flex-shrink-0 px-4 py-2 bg-card border border-border rounded-full text-sm transition-colors ${
+              className={`flex-shrink-0 px-3 sm:px-4 py-1.5 sm:py-2 min-h-[44px] sm:min-h-0 bg-card border border-border rounded-full text-[10px] sm:text-sm transition-colors ${
                 isRefining ? 'opacity-40 pointer-events-none' : 'hover:bg-accent/10'
               }`}
             >
@@ -75,11 +79,11 @@ const RefinementBar = ({
             <button
               onClick={onOpenOptions}
               disabled={isRefining}
-              className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-full text-sm transition-colors ${
+              className={`flex-shrink-0 flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 min-h-[44px] sm:min-h-0 bg-card border border-border rounded-full text-[10px] sm:text-sm transition-colors ${
                 isRefining ? 'opacity-40 pointer-events-none' : 'hover:bg-accent/10'
               }`}
             >
-              <Settings className="w-4 h-4" />
+              <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span>More</span>
             </button>
           )}
@@ -93,12 +97,12 @@ const RefinementBar = ({
             onChange={(e) => setInputValue(e.target.value)}
             placeholder="Tell me what to change..."
             disabled={isRefining}
-            className="w-full bg-card border border-border rounded-xl px-4 py-3 pr-24 text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
+            className="w-full bg-card border border-border rounded-xl px-3 sm:px-4 py-3 min-h-[44px] pr-20 sm:pr-24 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
           />
           <button
             type="submit"
             disabled={!inputValue.trim() || isRefining}
-            className={`absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1.5 bg-gradient-to-r from-primary to-accent rounded-lg text-sm font-medium transition-opacity text-primary-foreground ${
+            className={`absolute right-2 top-1/2 -translate-y-1/2 px-3 sm:px-4 py-1.5 min-h-[36px] bg-gradient-to-r from-primary to-accent rounded-lg text-xs sm:text-sm font-medium transition-opacity text-primary-foreground ${
               isRefining ? 'opacity-40 pointer-events-none' : 'hover:opacity-90 disabled:opacity-50'
             }`}
           >
