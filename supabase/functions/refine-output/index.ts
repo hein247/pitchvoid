@@ -179,6 +179,7 @@ RULES:
 - Every number must be wrapped in **double asterisks** for bold.
 - Do not invent new facts or numbers not in the original.
 - Do not add text outside the JSON.
+- The Proven Results / Proven Approach section should almost always have exactly 1 point — the specific proof with numbers. Do not add a second point explaining WHY the proof matters. The numbers speak for themselves.
 
 USER PREFERENCES:
 - Preferred tone: ${prefTone}

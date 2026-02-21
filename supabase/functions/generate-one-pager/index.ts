@@ -109,6 +109,7 @@ BOLD RULE (MANDATORY — NOT OPTIONAL):
 
 SECTION DENSITY RULE:
 - A section with 1 strong specific point is better than a section with 1 strong point and 1 weak generic point. If you cannot write a second point using ONLY details from the user input, leave the section with 1 point. Sections with 1 point are perfectly fine. Never add a point just to fill space.
+- The Proven Results / Proven Approach section should almost always have exactly 1 point — the specific proof with numbers. Do not add a second point explaining WHY the proof matters. The numbers speak for themselves.
 
 STRUCTURE VARIETY (choose based on scenario):
 - Persuasion (pitch, budget ask): Problem → Solution → Ask
