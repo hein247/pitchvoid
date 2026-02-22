@@ -111,16 +111,25 @@ export default function HowItWorks() {
       tl.set('.dot', { scale: 1, backgroundColor: 'rgba(168,85,247,0.15)' });
       tl.to('.dot-2', { backgroundColor: 'rgba(168,85,247,0.8)', scale: 1.3, duration: 0.2, yoyo: true, repeat: 1 }, '<');
 
-      // Organize fragments
+      // Fade out fragments without parsed labels
+      FRAGMENTS.forEach((_, i) => {
+        if (i >= PARSED_LABELS.length) {
+          tl.to(`.fragment-${i}`, { opacity: 0, duration: 0.5 }, '<');
+        }
+      });
+
+      // Organize fragments that have parsed labels
       FRAGMENTS.forEach((f, i) => {
-        tl.to(`.fragment-${i}`, {
-          x: f.organized.x,
-          y: f.organized.y,
-          rotation: 0,
-          opacity: 0.85,
-          duration: 1.2,
-          ease: 'power3.inOut',
-        }, '<');
+        if (i < PARSED_LABELS.length) {
+          tl.to(`.fragment-${i}`, {
+            x: f.organized.x,
+            y: f.organized.y,
+            rotation: 0,
+            opacity: 0.85,
+            duration: 1.2,
+            ease: 'power3.inOut',
+          }, '<');
+        }
       });
 
       // Show parsed labels
