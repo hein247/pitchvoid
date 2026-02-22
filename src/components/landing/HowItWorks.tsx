@@ -95,7 +95,7 @@ export default function HowItWorks() {
       const tl = gsap.timeline({ repeat: -1, repeatDelay: 1.5 });
 
       /* ── Reset everything ── */
-      tl.set('.chaos-fragment, .opening-line, .truth-line, .pivot-line, .purple-divider, .demo-area, .demo-tagline, .cta-area', { opacity: 0 });
+      tl.set('.chaos-fragment, .opening-line, .truth-line, .pivot-line, .demo-area, .demo-tagline, .cta-area', { opacity: 0 });
       tl.set('.chaos-fragment', { scale: 1 });
       tl.set('.typewriter-text', { width: 0 });
 
@@ -162,12 +162,6 @@ export default function HowItWorks() {
       tl.to('.truth-line', { opacity: 0, duration: 0.6 });
 
       /* ═══ PHASE 4 — THE PIVOT (12s–16s) ═══ */
-      // Purple line draws
-      tl.fromTo('.purple-divider',
-        { opacity: 0, scaleX: 0 },
-        { opacity: 1, scaleX: 1, duration: 0.8, ease: 'power2.inOut' }
-      );
-
       // Pivot text
       tl.fromTo('.pivot-line',
         { opacity: 0, y: 10 },
@@ -176,7 +170,7 @@ export default function HowItWorks() {
       tl.to({}, { duration: 3 }); // hold
 
       // Fade out pivot
-      tl.to('.pivot-line, .purple-divider', { opacity: 0, duration: 0.5 });
+      tl.to('.pivot-line', { opacity: 0, duration: 0.5 });
 
       /* ═══ PHASE 5 — THE DEMO (16s–22s) ═══ */
       tl.fromTo('.demo-area',
@@ -303,17 +297,8 @@ export default function HowItWorks() {
             ))}
           </div>
 
-          {/* Purple divider */}
-          <div
-            className="purple-divider absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-            style={{
-              width: 'clamp(120px, 25vw, 200px)',
-              height: 1,
-              background: 'rgba(168,85,247,0.4)',
-              opacity: 0,
-              transformOrigin: 'center',
-            }}
-          />
+
+
 
           {/* Pivot lines — positioned below divider */}
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 px-6 pt-8">
