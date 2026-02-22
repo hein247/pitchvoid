@@ -127,49 +127,26 @@ const Navbar = ({
           </div>
         </div>
         <div className="flex items-center gap-2 sm:gap-4">
-          {onQuickPitch && (
-            <button
-              onClick={onQuickPitch}
-              className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl text-primary-foreground text-sm font-medium magenta-gradient hover:opacity-90 transition-opacity"
-            >
-              <Mic className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="hidden sm:inline">Quick Pitch</span>
-              <span className="hidden lg:inline text-xs opacity-70">⌘K</span>
-            </button>
-          )}
-          
-          {/* Upgrade button for free users */}
-          {isFree && (
-            <button
-              onClick={() => navigate('/pricing')}
-              className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border border-primary/50 text-primary hover:bg-primary/10 transition-colors"
-            >
-              <Crown className="w-4 h-4" />
-              Upgrade
-            </button>
-          )}
-          
-          {/* Plan badge / credits for paid users */}
-          {!isFree ? (
-            <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/10 border border-primary/30">
-              <Crown className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-primary capitalize">{userPlan}</span>
-            </div>
-          ) : (
+          {/* Credits indicator for free users */}
+          {isFree && remainingPitches !== null && (
             <div className="hidden sm:flex items-center gap-3 px-4 py-2 rounded-xl bg-accent/10 border border-accent/20">
               <span className="text-sm text-foreground/80">
-                {remainingPitches !== null ? `${remainingPitches} pitches left` : `${credits.total - credits.used} credits`}
+                {remainingPitches} pitches left
               </span>
               <div className="w-16 h-1.5 credit-bar rounded-full overflow-hidden">
                 <div
                   className="h-full credit-fill"
-                  style={{
-                    width: remainingPitches !== null 
-                      ? `${(remainingPitches / 3) * 100}%`
-                      : `${((credits.total - credits.used) / credits.total) * 100}%`
-                  }}
+                  style={{ width: `${(remainingPitches / 3) * 100}%` }}
                 />
               </div>
+            </div>
+          )}
+          
+          {/* Plan badge for paid users */}
+          {!isFree && (
+            <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/10 border border-primary/30">
+              <Crown className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-primary capitalize">{userPlan}</span>
             </div>
           )}
           
