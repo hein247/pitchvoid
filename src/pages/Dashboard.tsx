@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { exportOnePagerPDF, exportScriptPDF } from '@/utils/generatePDF';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -1135,9 +1136,16 @@ const Dashboard = () => {
 
                     {/* PDF Export */}
                     <button 
-                      onClick={() => {
+                      onClick={async () => {
                         if (isFree) { checkAndTriggerPaywall('export'); return; }
-                        window.print();
+                        try {
+                          if (outputFormat === 'script' && scriptData) {
+                            await exportScriptPDF(scriptData as any, true);
+                          } else if (onePagerData) {
+                            await exportOnePagerPDF(onePagerData as any, true);
+                          }
+                          toast({ title: 'PDF downloaded' });
+                        } catch { toast({ title: 'Failed to generate PDF', variant: 'destructive' }); }
                       }}
                       className={`p-2 rounded-lg transition-colors relative min-h-[44px] min-w-[44px] flex items-center justify-center ${
                         isFree
@@ -1208,9 +1216,16 @@ const Dashboard = () => {
                   {/* Mobile: only overflow menu */}
                   <MobileOverflowMenu
                     onShare={() => setShowShareModal(true)}
-                    onExport={() => {
+                    onExport={async () => {
                       if (isFree) { checkAndTriggerPaywall('export'); return; }
-                      window.print();
+                      try {
+                        if (outputFormat === 'script' && scriptData) {
+                          await exportScriptPDF(scriptData as any, true);
+                        } else if (onePagerData) {
+                          await exportOnePagerPDF(onePagerData as any, true);
+                        }
+                        toast({ title: 'PDF downloaded' });
+                      } catch { toast({ title: 'Failed to generate PDF', variant: 'destructive' }); }
                     }}
                     onEdit={onePagerData && !isRegenerating ? () => setShowEditor(prev => !prev) : undefined}
                     onPractice={outputFormat === 'script' && scriptData ? () => setIsPracticeMode(true) : undefined}

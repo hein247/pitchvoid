@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { exportOnePagerPDF, exportScriptPDF } from '@/utils/generatePDF';
 import { ArrowLeft, Play, Share2, Lock, FileText, ScrollText, Download } from 'lucide-react';
 import FeedbackBar from './FeedbackBar';
 import OutputOnePagerView, { OutputOnePagerData } from './OutputOnePagerView';
@@ -97,9 +98,15 @@ const PitchOutputView = ({
 
           <div className="flex items-center gap-2">
             <button
-              onClick={() => {
+              onClick={async () => {
                 if (!isPro) return;
-                window.print();
+                try {
+                  if (format === 'script' && script) {
+                    await exportScriptPDF(script as any, true);
+                  } else if (onePager) {
+                    await exportOnePagerPDF(onePager as any, true);
+                  }
+                } catch (e) { console.error('PDF export failed', e); }
               }}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${
                 isPro
