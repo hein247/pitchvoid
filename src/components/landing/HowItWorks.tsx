@@ -1,762 +1,505 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import type { MotionValue } from "framer-motion";
-import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from "framer-motion";
-const STEP_DURATION = 6000;
-const TYPING_SPEED = 32;
-const SCENARIO_TEXT = "interview at a luxury brand for design role, i know adobe well, good at print production, can handle pressure and tight deadlines, want to discuss portfolio";
-const PARSED_CARDS = [{
-  label: "WHO",
-  value: "Creative Director, Luxury Brand"
-}, {
-  label: "WHAT",
-  value: "Design Role Interview"
-}, {
-  label: "WHY",
-  value: "Adobe Expertise + Print Production"
-}, {
-  label: "HOW",
-  value: "Portfolio-Led, Confident"
-}];
-const OUTPUT_SECTIONS = [{
-  title: "Technical Mastery",
-  points: [
-    "**Expert-level Adobe Creative Suite** — non-destructive editing, clean layer hierarchy.",
-    "**Rigorous pre-flight for print**: ink density control, spot-color accuracy."
-  ]
-}, {
-  title: "Working Under Pressure",
-  points: [
-    "Navigate tight production windows by **catching bottlenecks early** in prototyping.",
-    "Reconciled **conflicting stakeholder feedback** into a single cohesive direction."
-  ]
-}, {
-  title: "Next Step",
-  points: [
-    "Walk through the portfolio — **show how this translates** to the team's current needs."
-  ]
-}];
-const STEPS = [{
-  num: "01",
-  title: "Drop Your Thoughts",
-  sub: "Messy notes in, structured talking points out"
-}, {
-  num: "02",
-  title: "AI Organizes Your Story",
-  sub: "Audience, goal, and key points — parsed instantly"
-}, {
-  num: "03",
-  title: "Your Cheat Sheet, Ready",
-  sub: "One-pager or script — glance and go"
-}];
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ArrowRight } from 'lucide-react';
 
-/* ── Apple-style motion config ── */
-const appleEase: [number, number, number, number] = [0.25, 0.1, 0.25, 1.0];
-const appleSlow = {
-  duration: 0.9,
-  ease: appleEase
-};
-const appleMedium = {
-  duration: 0.65,
-  ease: appleEase
-};
-const appleFast = {
-  duration: 0.45,
-  ease: appleEase
-};
-const dofVariants = {
-  enter: {
-    opacity: 0,
-    scale: 1.06,
-    filter: "blur(12px)",
-    y: 0
-  },
-  center: {
-    opacity: 1,
-    scale: 1,
-    filter: "blur(0px)",
-    y: 0,
-    transition: {
-      opacity: {
-        duration: 0.7,
-        ease: appleEase
-      },
-      scale: {
-        duration: 0.9,
-        ease: appleEase
-      },
-      filter: {
-        duration: 0.8,
-        ease: appleEase
-      }
-    }
-  },
-  exit: {
-    opacity: 0,
-    scale: 0.94,
-    filter: "blur(12px)",
-    y: 0,
-    transition: {
-      opacity: {
-        duration: 0.5,
-        ease: [0.25, 0.1, 0.7, 1] as [number, number, number, number]
-      },
-      scale: {
-        duration: 0.6,
-        ease: [0.25, 0.1, 0.7, 1] as [number, number, number, number]
-      },
-      filter: {
-        duration: 0.5,
-        ease: [0.25, 0.1, 0.7, 1] as [number, number, number, number]
-      }
-    }
-  }
-};
-const cardMorphContainer = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.14,
-      delayChildren: 0.3
-    }
-  }
-};
-const cardMorphItem = {
-  hidden: {
-    opacity: 0,
-    scale: 0.82,
-    y: 30,
-    filter: "blur(8px)",
-    rotateY: -8
-  },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    y: 0,
-    filter: "blur(0px)",
-    rotateY: 0,
-    transition: {
-      opacity: {
-        duration: 0.6,
-        ease: appleEase
-      },
-      scale: {
-        duration: 0.8,
-        ease: appleEase
-      },
-      y: {
-        duration: 0.8,
-        ease: appleEase
-      },
-      filter: {
-        duration: 0.7,
-        ease: appleEase
-      },
-      rotateY: {
-        duration: 0.9,
-        ease: appleEase
-      }
-    }
-  }
-};
-const outputStagger = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.12,
-      delayChildren: 0.35
-    }
-  }
-};
-const outputItem = {
-  hidden: {
-    opacity: 0,
-    x: 50,
-    filter: "blur(6px)"
-  },
-  visible: {
-    opacity: 1,
-    x: 0,
-    filter: "blur(0px)",
-    transition: {
-      opacity: {
-        duration: 0.6,
-        ease: appleEase
-      },
-      x: {
-        duration: 0.75,
-        ease: appleEase
-      },
-      filter: {
-        duration: 0.65,
-        ease: appleEase
-      }
-    }
-  }
-};
+gsap.registerPlugin(ScrollTrigger);
 
-/* ── Parallax Layer ── */
-function ParallaxLayer({
-  children,
-  depth = 0,
-  mouseX,
-  mouseY,
-  className = "",
-  style = {}
-}: {
-  children: React.ReactNode;
-  depth?: number;
-  mouseX: MotionValue<number>;
-  mouseY: MotionValue<number>;
-  className?: string;
-  style?: React.CSSProperties;
-}) {
-  const factor = depth * 12;
-  const x = useTransform(mouseX, [-1, 1], [factor, -factor]);
-  const y = useTransform(mouseY, [-1, 1], [factor, -factor]);
-  const springX = useSpring(x, {
-    stiffness: 60,
-    damping: 30
-  });
-  const springY = useSpring(y, {
-    stiffness: 60,
-    damping: 30
-  });
-  return <motion.div style={{
-    x: springX,
-    y: springY,
-    ...style
-  }} className={className}>
-      {children}
-    </motion.div>;
+/* ── Data ── */
+const FRAGMENTS = [
+  { text: 'meeting with CEO tomorrow', group: 'context' },
+  { text: 'revenue down 15%', group: 'numbers' },
+  { text: 'need to ask for budget', group: 'ask' },
+  { text: 'did something similar last year', group: 'context' },
+  { text: 'competitors have online ordering', group: 'competition' },
+  { text: '$180K engagement', group: 'numbers' },
+  { text: 'digital transformation', group: 'competition' },
+  { text: 'Q3 deadline approaching', group: 'context' },
+];
+
+const FRAGMENTS_MOBILE = FRAGMENTS.slice(0, 5);
+
+const OUTPUT_SECTIONS = [
+  {
+    label: 'THE PROBLEM',
+    points: [
+      { text: 'Revenue declined **15%** year-over-year due to lack of digital presence', hasBold: true },
+      { text: 'Competitors have launched online ordering — capturing market share', hasBold: false },
+    ],
+  },
+  {
+    label: 'PROVEN RESULTS',
+    points: [
+      { text: 'Previous **$180K** engagement delivered 3x ROI in 6 months', hasBold: true },
+      { text: 'Built digital transformation roadmap for similar retailer last year', hasBold: false },
+    ],
+  },
+  {
+    label: 'THE PROPOSAL',
+    points: [
+      { text: 'Requesting budget approval for digital recovery initiative', hasBold: false },
+      { text: 'Targeting Q3 launch with phased rollout to minimize risk', hasBold: false },
+    ],
+  },
+];
+
+const WHO_WHAT_WHY_HOW = [
+  { label: 'WHO', value: 'CEO' },
+  { label: 'WHAT', value: 'Budget Request' },
+  { label: 'WHY', value: 'Revenue Recovery' },
+  { label: 'HOW', value: 'Data-Driven' },
+];
+
+/* ── Helpers ── */
+function renderBold(text: string) {
+  const parts = text.split(/\*\*(.*?)\*\*/g);
+  return parts.map((part, i) =>
+    i % 2 === 1 ? (
+      <strong key={i} className="bold-metric text-foreground font-semibold">
+        {part}
+      </strong>
+    ) : (
+      <span key={i}>{part}</span>
+    )
+  );
 }
 
-/* ── Main component ── */
+/* ── Scatter positions (deterministic) ── */
+const SCATTER_POSITIONS = [
+  { x: -280, y: -180, rot: -12, size: 14 },
+  { x: 200, y: -140, rot: 8, size: 16 },
+  { x: -160, y: 60, rot: -6, size: 13 },
+  { x: 240, y: 100, rot: 14, size: 15 },
+  { x: -300, y: 160, rot: -10, size: 12 },
+  { x: 120, y: -60, rot: 5, size: 17 },
+  { x: -80, y: 200, rot: -8, size: 14 },
+  { x: 300, y: -20, rot: 11, size: 13 },
+];
+
+const SCATTER_POSITIONS_MOBILE = [
+  { x: -100, y: -120, rot: -8, size: 12 },
+  { x: 80, y: -80, rot: 6, size: 13 },
+  { x: -60, y: 40, rot: -5, size: 11 },
+  { x: 100, y: 80, rot: 10, size: 12 },
+  { x: -40, y: 140, rot: -6, size: 11 },
+];
+
 export default function HowItWorks() {
-  const [activeStep, setActiveStep] = useState(0);
-  const [typedText, setTypedText] = useState("");
-  const [cursorVisible, setCursorVisible] = useState(true);
-  const [progress, setProgress] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const typingRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const progressRef = useRef<number | null>(null);
-  const startTimeRef = useRef<number | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
-    const y = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
-    mouseX.set(x);
-    mouseY.set(y);
-  }, [mouseX, mouseY]);
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+  const [reducedMotion, setReducedMotion] = useState(false);
 
-  /* cursor blink */
   useEffect(() => {
-    const id = setInterval(() => setCursorVisible(v => !v), 530);
-    return () => clearInterval(id);
+    const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setReducedMotion(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
   }, []);
 
-  /* typing */
   useEffect(() => {
-    if (activeStep !== 0) return;
-    setTypedText("");
-    let i = 0;
-    typingRef.current = setInterval(() => {
-      if (i < SCENARIO_TEXT.length) {
-        setTypedText(SCENARIO_TEXT.slice(0, i + 1));
-        i++;
-      } else if (typingRef.current) clearInterval(typingRef.current);
-    }, TYPING_SPEED);
-    return () => {
-      if (typingRef.current) clearInterval(typingRef.current);
-    };
-  }, [activeStep]);
+    if (reducedMotion || !sectionRef.current) return;
 
-  /* progress + auto-advance */
-  const startProgress = useCallback(() => {
-    startTimeRef.current = Date.now();
-    const tick = () => {
-      const pct = Math.min((Date.now() - (startTimeRef.current ?? Date.now())) / STEP_DURATION, 1);
-      setProgress(pct);
-      if (pct < 1) progressRef.current = requestAnimationFrame(tick);
-    };
-    progressRef.current = requestAnimationFrame(tick);
-    timerRef.current = setTimeout(() => {
-      setActiveStep(s => (s + 1) % 3);
-      setProgress(0);
-    }, STEP_DURATION);
-  }, []);
-  const stopProgress = useCallback(() => {
-    if (progressRef.current) cancelAnimationFrame(progressRef.current);
-    if (timerRef.current) clearTimeout(timerRef.current);
-  }, []);
-  useEffect(() => {
-    if (!isHovered) startProgress();
-    return stopProgress;
-  }, [activeStep, isHovered, startProgress, stopProgress]);
-  const handleStepClick = (idx: number) => {
-    stopProgress();
-    setActiveStep(idx);
-    setProgress(0);
-  };
-  const glowPositions = useMemo(() => [{
-    x: "35%",
-    y: "40%",
-    color: "rgba(168,85,247,0.07)"
-  }, {
-    x: "55%",
-    y: "35%",
-    color: "rgba(139,92,246,0.08)"
-  }, {
-    x: "60%",
-    y: "50%",
-    color: "rgba(168,85,247,0.06)"
-  }], []);
-  return <section ref={containerRef} onMouseMove={handleMouseMove} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => {
-    setIsHovered(false);
-    mouseX.set(0);
-    mouseY.set(0);
-  }} className="relative overflow-hidden cursor-default" style={{
-    background: "linear-gradient(180deg, transparent 0%, rgba(15,13,25,0.6) 20%, rgba(17,14,28,0.8) 60%, transparent 100%)",
-    minHeight: "100vh",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "clamp(48px, 10vw, 100px) 16px"
-  }}>
-      {/* Ambient glow */}
-      <motion.div animate={{
-      left: glowPositions[activeStep].x,
-      top: glowPositions[activeStep].y,
-      background: `radial-gradient(circle, ${glowPositions[activeStep].color} 0%, transparent 70%)`
-    }} transition={{
-      duration: 2,
-      ease: appleEase
-    }} className="absolute pointer-events-none" style={{
-      width: 800,
-      height: 800,
-      borderRadius: "50%",
-      transform: "translate(-50%, -50%)"
-    }} />
+    const section = sectionRef.current;
+    const isMobile = window.innerWidth < 640;
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: section,
+          start: 'top top',
+          end: isMobile ? '+=2000' : '+=3000',
+          pin: true,
+          scrub: 1,
+          anticipatePin: 1,
+        },
+      });
 
-      {/* Grain */}
-      <div className="absolute inset-0 pointer-events-none z-0" style={{
-      backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E")`
-    }} />
-
-      {/* Header */}
-      <ParallaxLayer depth={0.5} mouseX={mouseX} mouseY={mouseY} className="text-center relative z-[1]" style={{
-      marginBottom: "clamp(36px, 6vw, 72px)"
-    }}>
-        <motion.div initial={{
+      /* ── PHASE 1: The Mess (0–30%) ── */
+      // Fragments drift in from scattered positions
+      tl.from('.fragment', {
         opacity: 0,
-        y: 30
-      }} whileInView={{
+        scale: 0.7,
+        duration: 0.8,
+        stagger: 0.06,
+      }, 0);
+
+      // Label phase 1
+      tl.fromTo('.phase-label',
+        { opacity: 0, y: 10 },
+        { opacity: 1, y: 0, duration: 0.3 },
+        0.2
+      );
+      tl.to('.phase-label-text', {
+        text: { value: 'Your scattered thoughts' },
+        duration: 0,
+      }, 0);
+
+      // Subtle parallax drift
+      tl.to('.fragment', {
+        y: '+=12',
+        x: '+=8',
+        duration: 0.5,
+        stagger: { each: 0.04, from: 'random' },
+        ease: 'none',
+      }, 0.5);
+
+      /* ── PHASE 2: The Shift (30–60%) ── */
+      // Pull fragments to center
+      tl.to('.phase-label', { opacity: 0, duration: 0.15 }, 1.2);
+
+      // WHO/WHAT/WHY/HOW cards flash
+      tl.fromTo('.parse-card', {
+        opacity: 0,
+        scale: 0.8,
+        y: 20,
+      }, {
         opacity: 1,
-        y: 0
-      }} viewport={{
-        once: true,
-        margin: "-80px"
-      }} transition={{
+        scale: 1,
+        y: 0,
+        duration: 0.4,
+        stagger: 0.08,
+        ease: 'power3.out',
+      }, 1.3);
+
+      // Organizing label
+      tl.fromTo('.phase-label-organize',
+        { opacity: 0, y: 10 },
+        { opacity: 1, y: 0, duration: 0.3 },
+        1.35
+      );
+
+      // Fragments pull to center and stack
+      tl.to('.fragment', {
+        x: 0,
+        y: (i: number) => (i - (isMobile ? 2 : 3.5)) * 36,
+        rotation: 0,
+        scale: 1,
+        opacity: 0.8,
         duration: 1,
-        ease: appleEase
-      }}>
-          
-           <h2 className="text-foreground leading-[1.15] m-0" style={{
-          fontSize: "clamp(28px, 5.2vw, 60px)",
-          fontWeight: 400
-        }}>From scattered to structured
+        stagger: 0.04,
+        ease: 'power3.inOut',
+      }, 1.4);
+
+      // Center morphing line
+      tl.fromTo('.center-line', {
+        scaleY: 0,
+        opacity: 0,
+      }, {
+        scaleY: 1,
+        opacity: 1,
+        duration: 0.6,
+        ease: 'power2.out',
+      }, 1.5);
+
+      /* ── PHASE 3: The Output (60–100%) ── */
+      // Fade out fragments + parse cards + center line
+      tl.to('.fragment', { opacity: 0, scale: 0.9, duration: 0.3, stagger: 0.02 }, 2.5);
+      tl.to('.parse-card', { opacity: 0, scale: 0.9, duration: 0.2, stagger: 0.03 }, 2.5);
+      tl.to('.center-line', { opacity: 0, duration: 0.2 }, 2.5);
+      tl.to('.phase-label-organize', { opacity: 0, duration: 0.15 }, 2.5);
+
+      // Output sections slide in
+      tl.fromTo('.output-container', {
+        opacity: 0,
+        y: 40,
+      }, {
+        opacity: 1,
+        y: 0,
+        duration: 0.5,
+        ease: 'power2.out',
+      }, 2.8);
+
+      tl.fromTo('.output-section', {
+        opacity: 0,
+        x: -30,
+      }, {
+        opacity: 1,
+        x: 0,
+        stagger: 0.15,
+        duration: 0.5,
+        ease: 'power2.out',
+      }, 2.9);
+
+      tl.fromTo('.output-point', {
+        opacity: 0,
+        x: -20,
+      }, {
+        opacity: 1,
+        x: 0,
+        stagger: 0.08,
+        duration: 0.35,
+      }, 3.1);
+
+      // Bold metrics glow
+      tl.fromTo('.bold-metric', {
+        textShadow: '0 0 0px rgba(168,85,247,0)',
+      }, {
+        textShadow: '0 0 20px rgba(168,85,247,0.6)',
+        duration: 0.4,
+        stagger: 0.1,
+      }, 3.3);
+      tl.to('.bold-metric', {
+        textShadow: '0 0 0px rgba(168,85,247,0)',
+        duration: 0.6,
+        stagger: 0.1,
+      }, 3.7);
+
+      // Ready label
+      tl.fromTo('.phase-label-ready',
+        { opacity: 0, y: 10 },
+        { opacity: 1, y: 0, duration: 0.3 },
+        3.4
+      );
+
+      // CTA
+      tl.fromTo('.scroll-cta', {
+        opacity: 0,
+        y: 16,
+      }, {
+        opacity: 1,
+        y: 0,
+        duration: 0.4,
+        ease: 'power2.out',
+      }, 3.7);
+    }, section);
+
+    return () => {
+      ctx.revert();
+    };
+  }, [reducedMotion]);
+
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+  const fragments = isMobile ? FRAGMENTS_MOBILE : FRAGMENTS;
+  const positions = isMobile ? SCATTER_POSITIONS_MOBILE : SCATTER_POSITIONS;
+
+  /* ── Reduced-motion static fallback ── */
+  if (reducedMotion) {
+    return (
+      <section className="py-20 px-4 sm:px-8">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-3xl sm:text-5xl text-foreground text-center mb-4 font-display">
+            From scattered to structured
             <br />
-            <motion.span initial={{
-            opacity: 0,
-            filter: "blur(8px)"
-          }} whileInView={{
-            opacity: 1,
-            filter: "blur(0px)"
-          }} viewport={{
-            once: true
-          }} transition={{
-            duration: 1,
-            delay: 0.3,
-            ease: appleEase
-          }} className="text-primary font-serif font-medium text-center" style={{
-            fontSize: "clamp(36px, 8vw, 128px)"
-          }}>
-              in seconds.
-            </motion.span>
+            <span className="text-primary font-display" style={{ fontSize: 'clamp(36px, 8vw, 80px)' }}>in seconds.</span>
           </h2>
-        </motion.div>
-      </ParallaxLayer>
+          <p className="text-center text-muted-foreground text-sm mb-12">
+            Your messy thoughts become a polished pitch — automatically.
+          </p>
 
-      {/* Main layout */}
-      <div className="flex gap-6 lg:gap-14 max-w-[1400px] w-full relative z-[1] flex-col lg:flex-row">
-        {/* Left: Step selector */}
-        <ParallaxLayer depth={0.3} mouseX={mouseX} mouseY={mouseY} className="flex flex-col gap-1 w-full lg:min-w-[360px] lg:flex-[0_0_360px]">
-          {STEPS.map((step, idx) => {
-          const isActive = idx === activeStep;
-          return <motion.button key={idx} onClick={() => handleStepClick(idx)} animate={{
-            borderColor: isActive ? "rgba(168,85,247,0.25)" : "rgba(168,85,247,0.0)",
-            background: isActive ? "rgba(168,85,247,0.05)" : "rgba(168,85,247,0.0)"
-          }} whileHover={{
-            background: isActive ? "rgba(168,85,247,0.07)" : "rgba(168,85,247,0.03)",
-            x: 3
-          }} transition={{
-            duration: 0.5,
-            ease: appleEase
-          }} className="flex items-start gap-4 sm:gap-5 p-5 sm:p-7 rounded-[20px] border border-transparent cursor-pointer text-left relative overflow-hidden outline-none">
-                {/* progress bar */}
-                <motion.div className="absolute bottom-0 left-4 right-4 h-[2px] rounded-[1px]" style={{
-              background: "rgba(168,85,247,0.4)",
-              transformOrigin: "left",
-              scaleX: isActive ? progress : 0,
-              opacity: isActive ? 1 : 0
-            }} transition={{
-              scaleX: {
-                duration: 0.05
-              },
-              opacity: appleMedium
-            }} />
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Before */}
+            <div className="rounded-2xl border border-border p-6 bg-card/30">
+              <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground mb-4">Your thoughts</p>
+              <div className="flex flex-wrap gap-2">
+                {FRAGMENTS.map((f, i) => (
+                  <span key={i} className="text-xs px-3 py-1.5 rounded-full border border-border text-muted-foreground font-mono">
+                    {f.text}
+                  </span>
+                ))}
+              </div>
+            </div>
 
-                <motion.span animate={{
-              color: isActive ? "#a855f7" : "rgba(168,85,247,0.18)",
-              scale: isActive ? 1 : 0.95
-            }} transition={appleSlow} className="font-display text-4xl font-normal leading-none relative">
-                  {step.num}
-                </motion.span>
-
-                <div className="relative">
-                  <motion.p animate={{
-                color: isActive ? "#f0edf6" : "rgba(240,237,246,0.25)"
-              }} transition={appleMedium} className="text-lg font-semibold m-0 leading-[1.3] font-sans">
-                    {step.title}
-                  </motion.p>
-                  <motion.p animate={{
-                color: isActive ? "rgba(240,237,246,0.45)" : "rgba(240,237,246,0.1)",
-                height: isActive ? "auto" : 0,
-                opacity: isActive ? 1 : 0,
-                marginTop: isActive ? 8 : 0
-              }} transition={appleMedium} className="text-base m-0 leading-[1.4] overflow-hidden font-sans">
-                    {step.sub}
-                  </motion.p>
-                </div>
-              </motion.button>;
-        })}
-        </ParallaxLayer>
-
-        {/* Right: Demo viewport */}
-        <ParallaxLayer depth={0.8} mouseX={mouseX} mouseY={mouseY} className="flex-1 min-h-[400px] sm:min-h-[470px] lg:min-h-[550px] relative">
-          <motion.div animate={{
-          boxShadow: ["0 0 60px rgba(168,85,247,0.04), 0 0 120px rgba(168,85,247,0.02)", "0 0 80px rgba(168,85,247,0.06), 0 0 160px rgba(168,85,247,0.03)", "0 0 60px rgba(168,85,247,0.04), 0 0 120px rgba(168,85,247,0.02)"]
-        }} transition={{
-          duration: 4,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }} className="rounded-3xl relative overflow-hidden h-full min-h-[400px] sm:min-h-[470px] lg:min-h-[550px]" style={{
-          border: "1px solid rgba(168,85,247,0.12)",
-          background: "rgba(14,12,24,0.85)",
-          backdropFilter: "blur(24px)"
-        }}>
-            {/* top highlight */}
-            <motion.div animate={{
-            opacity: [0.2, 0.5, 0.2]
-          }} transition={{
-            duration: 4,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }} className="absolute top-0 left-[10%] right-[10%] h-px z-[3]" style={{
-            background: "linear-gradient(90deg, transparent, rgba(168,85,247,0.4), transparent)"
-          }} />
-
-            {/* vignette */}
-            <div className="absolute inset-0 pointer-events-none z-[2] rounded-3xl" style={{
-            background: "radial-gradient(ellipse at center, transparent 50%, rgba(8,6,16,0.4) 100%)"
-          }} />
-
-            <AnimatePresence mode="wait">
-              {/* STEP 0: Typing */}
-              {activeStep === 0 && <motion.div key="typing" variants={dofVariants} initial="enter" animate="center" exit="exit" className="absolute inset-0 p-6 sm:p-10 lg:p-12 flex flex-col justify-center z-[1]">
-                  <motion.p initial={{
-                opacity: 0,
-                y: -6
-              }} animate={{
-                opacity: 0.6,
-                y: 0
-              }} transition={{
-                ...appleMedium,
-                delay: 0.2
-              }} className="text-sm font-semibold text-primary uppercase tracking-[0.12em] mb-5 font-sans">
-                    Describe your scenario
-                  </motion.p>
-
-                  <motion.div initial={{
-                opacity: 0,
-                y: 16,
-                filter: "blur(6px)"
-              }} animate={{
-                opacity: 1,
-                y: 0,
-                filter: "blur(0px)"
-              }} transition={{
-                duration: 0.8,
-                delay: 0.25,
-                ease: appleEase
-              }} className="rounded-2xl relative min-h-[210px]" style={{
-                border: "1px solid rgba(168,85,247,0.15)",
-                background: "linear-gradient(135deg, rgba(168,85,247,0.04), rgba(168,85,247,0.01))",
-                padding: "35px"
-              }}>
-                    <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
-                  background: "radial-gradient(ellipse at top left, rgba(168,85,247,0.05), transparent 60%)"
-                }} />
-                    <p className="text-lg text-foreground/90 leading-[1.75] m-0 relative font-sans">
-                      {typedText}
-                      <motion.span animate={{
-                    opacity: cursorVisible ? 1 : 0
-                  }} transition={{
-                    duration: 0.06
-                  }} className="inline-block w-[2px] h-[24px] ml-[1px] align-text-bottom rounded-[1px]" style={{
-                    background: "linear-gradient(180deg, #a855f7, #7c3aed)",
-                    boxShadow: "0 0 8px rgba(168,85,247,0.4)"
-                  }} />
-                    </p>
-                  </motion.div>
-
-                  <motion.div initial={{
-                opacity: 0
-              }} animate={{
-                opacity: 1
-              }} transition={{
-                duration: 0.8,
-                delay: 0.5,
-                ease: appleEase
-              }} className="flex gap-2 mt-5 flex-wrap">
-                    {["Voice", "Files", "URL"].map((label, i) => <motion.span key={label} initial={{
-                  opacity: 0,
-                  y: 6
-                }} animate={{
-                  opacity: 1,
-                  y: 0
-                }} transition={{
-                  duration: 0.5,
-                  delay: 0.6 + i * 0.08,
-                  ease: appleEase
-                }} whileHover={{
-                  borderColor: "rgba(168,85,247,0.3)",
-                  color: "rgba(240,237,246,0.6)",
-                  transition: appleFast
-                }} className="text-sm cursor-pointer font-sans" style={{
-                  color: "rgba(240,237,246,0.3)",
-                  padding: "9px 20px",
-                  borderRadius: 24,
-                  border: "1px solid rgba(168,85,247,0.1)"
-                }}>
-                        {label}
-                      </motion.span>)}
-                  </motion.div>
-                </motion.div>}
-
-              {/* STEP 1: Parsed Cards */}
-              {activeStep === 1 && <motion.div key="cards" variants={dofVariants} initial="enter" animate="center" exit="exit" className="absolute inset-0 p-6 sm:p-10 lg:p-12 flex flex-col justify-center z-[1]">
-                  <motion.p initial={{
-                opacity: 0,
-                y: -6
-              }} animate={{
-                opacity: 0.6,
-                y: 0
-              }} transition={{
-                ...appleMedium,
-                delay: 0.2
-              }} className="text-sm font-semibold text-primary uppercase tracking-[0.12em] mb-6 font-sans">
-                    AI-parsed structure
-                  </motion.p>
-
-                  <motion.div variants={cardMorphContainer} initial="hidden" animate="visible" className="grid grid-cols-2 gap-4" style={{
-                perspective: 1000
-              }}>
-                    {PARSED_CARDS.map(card => <motion.div key={card.label} variants={cardMorphItem} whileHover={{
-                  scale: 1.03,
-                  borderColor: "rgba(168,85,247,0.35)",
-                  boxShadow: "0 8px 32px rgba(168,85,247,0.08)",
-                  transition: {
-                    duration: 0.4,
-                    ease: appleEase
-                  }
-                }} className="rounded-2xl cursor-default relative overflow-hidden" style={{
-                  border: "1px solid rgba(168,85,247,0.18)",
-                  background: "linear-gradient(145deg, rgba(168,85,247,0.08), rgba(168,85,247,0.02))",
-                  padding: "28px 25px",
-                  transformStyle: "preserve-3d"
-                }}>
-                        <div className="absolute pointer-events-none" style={{
-                    top: -20,
-                    right: -20,
-                    width: 80,
-                    height: 80,
-                    borderRadius: "50%",
-                    background: "radial-gradient(circle, rgba(168,85,247,0.08), transparent)"
-                  }} />
-                        <div className="flex items-center gap-3 mb-3 relative">
-                          <span className="text-xs font-bold text-primary tracking-[0.1em] font-sans">{card.label}</span>
-                        </div>
-                        <p className="text-base text-foreground/90 m-0 leading-[1.45] font-medium relative font-sans">{card.value}</p>
-                      </motion.div>)}
-                  </motion.div>
-
-                  <motion.div initial={{
-                opacity: 0,
-                x: -16,
-                filter: "blur(4px)"
-              }} animate={{
-                opacity: 1,
-                x: 0,
-                filter: "blur(0px)"
-              }} transition={{
-                duration: 0.7,
-                delay: 1,
-                ease: appleEase
-              }} className="flex items-center gap-3 mt-6">
-                    <motion.div animate={{
-                  boxShadow: ["0 0 0px rgba(34,197,94,0.3)", "0 0 10px rgba(34,197,94,0.5)", "0 0 0px rgba(34,197,94,0.3)"]
-                }} transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }} className="w-2 h-2 rounded-full flex-shrink-0" style={{
-                  background: "#22c55e"
-                }} />
-                    <span className="text-sm font-medium font-sans" style={{
-                  color: "rgba(34,197,94,0.7)"
-                }}>
-                      Structure confirmed — ready to generate
-                    </span>
-                  </motion.div>
-                </motion.div>}
-
-              {/* STEP 2: Output Preview */}
-              {activeStep === 2 && <motion.div key="output" variants={dofVariants} initial="enter" animate="center" exit="exit" className="absolute inset-0 p-6 sm:p-10 lg:p-12 flex flex-col justify-center z-[1]">
-                  {/* format tabs */}
-                  <motion.div initial={{
-                opacity: 0,
-                y: -8
-              }} animate={{
-                opacity: 1,
-                y: 0
-              }} transition={{
-                duration: 0.7,
-                delay: 0.15,
-                ease: appleEase
-              }} className="flex gap-1.5 mb-6">
-                    {["One-Pager", "Script"].map((fmt, i) => <motion.span key={fmt} whileHover={{
-                  scale: 1.04,
-                  transition: appleFast
-                }} className="text-sm cursor-pointer font-sans" style={{
-                  fontWeight: i === 0 ? 600 : 400,
-                  color: i === 0 ? "#f0edf6" : "rgba(240,237,246,0.3)",
-                  padding: "10px 22px",
-                  borderRadius: 12,
-                  background: i === 0 ? "rgba(168,85,247,0.12)" : "transparent",
-                  border: `1px solid ${i === 0 ? "rgba(168,85,247,0.2)" : "transparent"}`
-                }}>
-                        {fmt}
-                      </motion.span>)}
-                  </motion.div>
-
-                  {/* output card */}
-                  <motion.div initial={{
-                opacity: 0,
-                y: 20,
-                scale: 0.97,
-                filter: "blur(6px)"
-              }} animate={{
-                opacity: 1,
-                y: 0,
-                scale: 1,
-                filter: "blur(0px)"
-              }} transition={{
-                duration: 0.85,
-                delay: 0.2,
-                ease: appleEase
-              }} className="rounded-2xl overflow-hidden" style={{
-                border: "1px solid rgba(168,85,247,0.12)",
-                background: "rgba(8,6,16,0.5)"
-              }}>
-                    <div className="flex flex-col gap-1" style={{
-                  padding: "22px 28px",
-                  borderBottom: "1px solid rgba(168,85,247,0.08)"
-                }}>
-                      <h4 className="font-display text-xl text-foreground m-0 font-normal tracking-[-0.01em]">
-                        Tiffany Design Interview
-                      </h4>
-                      <span className="text-xs font-sans" style={{ color: "rgba(240,237,246,0.25)" }}>
-                        Design capability overview for hiring manager
-                      </span>
+            {/* After */}
+            <div className="rounded-2xl border border-primary/20 p-6 bg-card/30">
+              <p className="text-xs font-medium uppercase tracking-widest text-green-500/70 mb-4">Ready to send</p>
+              {OUTPUT_SECTIONS.map((section, i) => (
+                <div key={i} className="mb-4 last:mb-0">
+                  <p className="text-[11px] font-medium uppercase tracking-widest text-primary/50 mb-2">{section.label}</p>
+                  {section.points.map((point, j) => (
+                    <div key={j} className="flex items-start gap-2 mb-1.5">
+                      <div className="w-[3px] h-4 rounded-full bg-primary/40 mt-0.5 shrink-0" />
+                      <p className="text-sm text-muted-foreground">{renderBold(point.text)}</p>
                     </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
-                    <motion.div variants={outputStagger} initial="hidden" animate="visible">
-                      {OUTPUT_SECTIONS.map((section, idx) => <motion.div key={section.title} variants={outputItem} style={{
-                    padding: "20px 28px",
-                    borderBottom: idx < OUTPUT_SECTIONS.length - 1 ? "1px solid rgba(168,85,247,0.05)" : "none"
-                  }}>
-                          <p className="text-[11px] font-medium uppercase tracking-[0.15em] m-0 mb-3 font-sans" style={{ color: "rgba(168,85,247,0.45)" }}>
-                            {section.title}
-                          </p>
-                          <div className="space-y-2">
-                            {section.points.map((point, pIdx) => (
-                              <div key={pIdx} className="flex items-start gap-3">
-                                <div className="w-[3px] rounded-full flex-shrink-0 mt-1" style={{
-                                  height: 16,
-                                  background: "linear-gradient(180deg, rgba(168,85,247,0.6), rgba(168,85,247,0.15))"
-                                }} />
-                                <p className="text-sm text-muted-foreground m-0 leading-[1.55] font-sans">{point.replace(/\*\*/g, '')}</p>
-                              </div>
-                            ))}
-                          </div>
-                        </motion.div>)}
-                    </motion.div>
-                  </motion.div>
+  return (
+    <section
+      ref={sectionRef}
+      className="relative overflow-hidden"
+      style={{
+        height: '100vh',
+        background: '#09080f',
+      }}
+    >
+      {/* Grain texture overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none z-[1]"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E")`,
+        }}
+      />
 
-                  {/* refine chips */}
-                  <motion.div initial={{
-                opacity: 0
-              }} animate={{
-                opacity: 1
-              }} transition={{
-                duration: 0.7,
-                delay: 0.7,
-                ease: appleEase
-              }} className="flex gap-2.5 mt-5 flex-wrap">
-                    {["Shorter", "Bolder", "Simpler", "Refine..."].map((chip, i) => <motion.span key={chip} initial={{
-                  opacity: 0,
-                  scale: 0.9
-                }} animate={{
-                  opacity: 1,
-                  scale: 1
-                }} transition={{
-                  duration: 0.5,
-                  delay: 0.75 + i * 0.06,
-                  ease: appleEase
-                }} whileHover={{
-                  borderColor: "rgba(168,85,247,0.3)",
-                  color: "rgba(240,237,246,0.65)",
-                  scale: 1.05,
-                  transition: appleFast
-                }} className="text-sm cursor-pointer font-sans" style={{
-                  color: "rgba(240,237,246,0.35)",
-                  padding: "9px 20px",
-                  borderRadius: 24,
-                  border: "1px solid rgba(168,85,247,0.1)"
-                }}>
-                        {chip}
-                      </motion.span>)}
-                  </motion.div>
-                </motion.div>}
-            </AnimatePresence>
-          </motion.div>
-        </ParallaxLayer>
+      {/* Header — always visible */}
+      <div className="absolute top-0 left-0 right-0 z-10 pt-12 sm:pt-16 text-center px-4">
+        <h2
+          className="text-foreground leading-[1.15] m-0"
+          style={{ fontSize: 'clamp(28px, 5.2vw, 60px)', fontWeight: 400 }}
+        >
+          From scattered to structured
+          <br />
+          <span
+            className="text-primary font-display font-medium"
+            style={{ fontSize: 'clamp(36px, 8vw, 100px)' }}
+          >
+            in seconds.
+          </span>
+        </h2>
       </div>
-    </section>;
+
+      {/* Phase labels */}
+      <div className="absolute top-[140px] sm:top-[180px] left-0 right-0 z-10 text-center">
+        <p className="phase-label text-[11px] uppercase tracking-[0.2em] text-muted-foreground font-sans opacity-0">
+          <span className="phase-label-text">Your scattered thoughts</span>
+        </p>
+        <p className="phase-label-organize text-[11px] uppercase tracking-[0.2em] text-primary/60 font-sans opacity-0">
+          PitchVoid organizes
+        </p>
+        <p className="phase-label-ready text-[11px] uppercase tracking-[0.2em] font-sans opacity-0" style={{ color: 'rgba(34,197,94,0.7)' }}>
+          Ready to send
+        </p>
+      </div>
+
+      {/* Fragments container — centered in viewport */}
+      <div className="absolute inset-0 z-[5] flex items-center justify-center">
+        <div className="relative" style={{ width: isMobile ? 300 : 700, height: isMobile ? 320 : 420 }}>
+          {fragments.map((frag, i) => {
+            const pos = positions[i];
+            return (
+              <div
+                key={i}
+                className="fragment absolute will-change-transform"
+                style={{
+                  left: '50%',
+                  top: '50%',
+                  transform: `translate(-50%, -50%) translate(${pos.x}px, ${pos.y}px) rotate(${pos.rot}deg)`,
+                  fontSize: pos.size,
+                  opacity: 0,
+                }}
+              >
+                <span
+                  className="inline-block px-3 py-2 rounded-lg font-mono whitespace-nowrap"
+                  style={{
+                    background: 'rgba(168,85,247,0.06)',
+                    border: '1px solid rgba(168,85,247,0.12)',
+                    color: 'rgba(240,237,246,0.5)',
+                    backdropFilter: 'blur(4px)',
+                  }}
+                >
+                  {frag.text}
+                </span>
+              </div>
+            );
+          })}
+
+          {/* Center organizing line */}
+          <div
+            className="center-line absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[2px] rounded-full opacity-0"
+            style={{
+              height: isMobile ? 200 : 300,
+              background: 'linear-gradient(180deg, transparent, rgba(168,85,247,0.5), transparent)',
+              transformOrigin: 'center',
+            }}
+          />
+
+          {/* WHO/WHAT/WHY/HOW parse cards */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex gap-2 sm:gap-3">
+            {WHO_WHAT_WHY_HOW.map((card) => (
+              <div
+                key={card.label}
+                className="parse-card px-3 py-2 rounded-xl opacity-0 will-change-transform"
+                style={{
+                  background: 'rgba(168,85,247,0.08)',
+                  border: '1px solid rgba(168,85,247,0.2)',
+                }}
+              >
+                <p className="text-[9px] sm:text-[10px] font-bold text-primary tracking-[0.1em] mb-0.5 font-sans">{card.label}</p>
+                <p className="text-[11px] sm:text-xs text-foreground/80 font-sans font-medium whitespace-nowrap">{card.value}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Output container */}
+          <div
+            className="output-container absolute inset-0 flex items-center justify-center opacity-0 will-change-transform"
+          >
+            <div
+              className="w-full max-w-md rounded-2xl overflow-hidden"
+              style={{
+                border: '1px solid rgba(168,85,247,0.15)',
+                background: 'rgba(14,12,24,0.9)',
+                backdropFilter: 'blur(20px)',
+              }}
+            >
+              {OUTPUT_SECTIONS.map((section, sIdx) => (
+                <div
+                  key={sIdx}
+                  className="output-section"
+                  style={{
+                    padding: '16px 24px',
+                    borderBottom: sIdx < OUTPUT_SECTIONS.length - 1 ? '1px solid rgba(168,85,247,0.06)' : 'none',
+                  }}
+                >
+                  <p
+                    className="text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.15em] mb-2.5 font-sans"
+                    style={{ color: 'rgba(168,85,247,0.5)' }}
+                  >
+                    {section.label}
+                  </p>
+                  <div className="space-y-2">
+                    {section.points.map((point, pIdx) => (
+                      <div key={pIdx} className="output-point flex items-start gap-2.5">
+                        <div
+                          className="w-[3px] rounded-full shrink-0 mt-1"
+                          style={{
+                            height: 14,
+                            background: 'linear-gradient(180deg, rgba(168,85,247,0.6), rgba(168,85,247,0.15))',
+                          }}
+                        />
+                        <p className="text-xs sm:text-sm text-muted-foreground m-0 leading-relaxed font-sans">
+                          {renderBold(point.text)}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom CTA */}
+      <div className="scroll-cta absolute bottom-12 sm:bottom-16 left-0 right-0 z-10 text-center opacity-0">
+        <button
+          onClick={() => navigate('/dashboard')}
+          className="inline-flex items-center gap-2.5 px-6 py-3 rounded-xl text-primary-foreground font-medium magenta-gradient text-sm hover:opacity-90 transition-opacity group"
+        >
+          Try it free
+          <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+        </button>
+      </div>
+
+      {/* Step numbers — subtle left margin markers */}
+      <div className="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-[2] flex flex-col gap-6 sm:gap-8">
+        {['01', '02', '03'].map((num) => (
+          <span
+            key={num}
+            className="text-[10px] sm:text-xs font-display"
+            style={{ color: 'rgba(168,85,247,0.12)' }}
+          >
+            {num}
+          </span>
+        ))}
+      </div>
+    </section>
+  );
 }
