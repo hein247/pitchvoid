@@ -5,11 +5,14 @@ import gsap from 'gsap';
 const EASE = [0.25, 0.1, 0.25, 1.0] as [number, number, number, number];
 
 const FRAGMENTS = [
-  { text: 'meeting with ceo tomorrow', scatter: { x: -20, y: 0, rotation: -3 }, organized: { x: 0, y: 0 } },
-  { text: 'revenue down 15%', scatter: { x: 40, y: 10, rotation: 2 }, organized: { x: 0, y: 36 } },
-  { text: 'competitors have apps', scatter: { x: -10, y: -5, rotation: -2 }, organized: { x: 0, y: 72 } },
-  { text: 'we did this before', scatter: { x: 30, y: 15, rotation: 4 }, organized: { x: 0, y: 108 } },
-  { text: 'need 180k budget', scatter: { x: -30, y: 5, rotation: -1 }, organized: { x: 0, y: 144 } },
+  { text: 'meeting with ceo tomorrow', scatter: { x: -10, y: 0, rotation: -3 }, organized: { x: 0, y: 0 } },
+  { text: 'revenue down 15%', scatter: { x: 30, y: 8, rotation: 2 }, organized: { x: 0, y: 30 } },
+  { text: 'competitors have apps', scatter: { x: -5, y: -4, rotation: -2 }, organized: { x: 0, y: 60 } },
+  { text: 'we did this for a restaurant chain', scatter: { x: 20, y: 12, rotation: 4 }, organized: { x: 0, y: 90 } },
+  { text: 'need 180k budget approved', scatter: { x: -15, y: 3, rotation: -1 }, organized: { x: 0, y: 120 } },
+  { text: 'q3 launch deadline', scatter: { x: 25, y: -6, rotation: 3 }, organized: { x: 0, y: 150 } },
+  { text: 'digital transformation pitch', scatter: { x: -8, y: 10, rotation: -2 }, organized: { x: 0, y: 180 } },
+  { text: 'show roi from last project', scatter: { x: 15, y: -3, rotation: 1 }, organized: { x: 0, y: 210 } },
 ];
 
 const PARSED_LABELS = [
@@ -236,7 +239,7 @@ export default function HowItWorks() {
                   className={`fragment fragment-${i} absolute will-change-transform`}
                   style={{
                     left: 24,
-                    top: 24 + i * 44,
+                    top: 16 + i * 32,
                     opacity: 0,
                     fontFamily: 'monospace',
                     fontSize: 'clamp(11px, 1.5vw, 13px)',
