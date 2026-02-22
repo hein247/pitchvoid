@@ -132,6 +132,9 @@ export async function exportOnePagerPDF(data: OnePagerData, isPro: boolean): Pro
   container.style.position = 'absolute';
   container.style.left = '-9999px';
   container.style.width = '7in';
+  container.style.background = '#ffffff';
+  container.style.color = '#333333';
+  container.style.padding = '0';
   document.body.appendChild(container);
 
   const filename = `${data.title.replace(/[^a-zA-Z0-9]/g, '-').replace(/-+/g, '-').toLowerCase()}-pitchvoid.pdf`;
@@ -140,7 +143,7 @@ export async function exportOnePagerPDF(data: OnePagerData, isPro: boolean): Pro
     margin: [0.75, 0.75, 0.75, 0.75],
     filename,
     image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true },
+    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
     jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
   }).from(container).save();
 
@@ -154,6 +157,9 @@ export async function exportScriptPDF(data: ScriptData, isPro: boolean): Promise
   container.style.position = 'absolute';
   container.style.left = '-9999px';
   container.style.width = '7in';
+  container.style.background = '#ffffff';
+  container.style.color = '#333333';
+  container.style.padding = '0';
   document.body.appendChild(container);
 
   const filename = `${data.title.replace(/[^a-zA-Z0-9]/g, '-').replace(/-+/g, '-').toLowerCase()}-script-pitchvoid.pdf`;
@@ -162,7 +168,7 @@ export async function exportScriptPDF(data: ScriptData, isPro: boolean): Promise
     margin: [0.75, 0.75, 0.75, 0.75],
     filename,
     image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true },
+    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
     jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
   }).from(container).save();
 
