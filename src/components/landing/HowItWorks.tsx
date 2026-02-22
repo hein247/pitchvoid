@@ -388,9 +388,9 @@ export default function HowItWorks() {
                 <span
                   className="inline-block px-3 py-2 rounded-lg font-mono whitespace-nowrap"
                   style={{
-                    background: 'rgba(168,85,247,0.06)',
-                    border: '1px solid rgba(168,85,247,0.12)',
-                    color: 'rgba(240,237,246,0.5)',
+                    background: 'rgba(168,85,247,0.12)',
+                    border: '1px solid rgba(168,85,247,0.25)',
+                    color: 'rgba(240,237,246,0.85)',
                     backdropFilter: 'blur(4px)',
                   }}
                 >
@@ -417,8 +417,8 @@ export default function HowItWorks() {
                 key={card.label}
                 className="parse-card px-3 py-2 rounded-xl opacity-0 will-change-transform"
                 style={{
-                  background: 'rgba(168,85,247,0.08)',
-                  border: '1px solid rgba(168,85,247,0.2)',
+                  background: 'rgba(168,85,247,0.15)',
+                  border: '1px solid rgba(168,85,247,0.35)',
                 }}
               >
                 <p className="text-[9px] sm:text-[10px] font-bold text-primary tracking-[0.1em] mb-0.5 font-sans">{card.label}</p>
@@ -434,8 +434,8 @@ export default function HowItWorks() {
             <div
               className="w-full max-w-md rounded-2xl overflow-hidden"
               style={{
-                border: '1px solid rgba(168,85,247,0.15)',
-                background: 'rgba(14,12,24,0.9)',
+                border: '1px solid rgba(168,85,247,0.25)',
+                background: 'rgba(14,12,24,0.95)',
                 backdropFilter: 'blur(20px)',
               }}
             >
@@ -445,12 +445,12 @@ export default function HowItWorks() {
                   className="output-section"
                   style={{
                     padding: '16px 24px',
-                    borderBottom: sIdx < OUTPUT_SECTIONS.length - 1 ? '1px solid rgba(168,85,247,0.06)' : 'none',
+                    borderBottom: sIdx < OUTPUT_SECTIONS.length - 1 ? '1px solid rgba(168,85,247,0.12)' : 'none',
                   }}
                 >
                   <p
                     className="text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.15em] mb-2.5 font-sans"
-                    style={{ color: 'rgba(168,85,247,0.5)' }}
+                    style={{ color: 'rgba(168,85,247,0.8)' }}
                   >
                     {section.label}
                   </p>
@@ -461,10 +461,10 @@ export default function HowItWorks() {
                           className="w-[3px] rounded-full shrink-0 mt-1"
                           style={{
                             height: 14,
-                            background: 'linear-gradient(180deg, rgba(168,85,247,0.6), rgba(168,85,247,0.15))',
+                            background: 'linear-gradient(180deg, rgba(168,85,247,0.8), rgba(168,85,247,0.3))',
                           }}
                         />
-                        <p className="text-xs sm:text-sm text-muted-foreground m-0 leading-relaxed font-sans">
+                        <p className="text-xs sm:text-sm m-0 leading-relaxed font-sans" style={{ color: 'rgba(240,237,246,0.75)' }}>
                           {renderBold(point.text)}
                         </p>
                       </div>
@@ -494,7 +494,7 @@ export default function HowItWorks() {
           <span
             key={num}
             className="text-[10px] sm:text-xs font-display"
-            style={{ color: 'rgba(168,85,247,0.12)' }}
+            style={{ color: 'rgba(168,85,247,0.3)' }}
           >
             {num}
           </span>
