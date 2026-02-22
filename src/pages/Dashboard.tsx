@@ -183,6 +183,7 @@ const Dashboard = () => {
   const credits = { used: 48, total: 50 };
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const dashboardInputRef = useRef<HTMLTextAreaElement>(null);
 
   const quickTemplates = [
     { id: 1, label: 'Job Interview', icon: 'briefcase' as const, prefill: 'Pitch me for a [Role] at [Company]. Focus on [Key Skills].' },
@@ -231,7 +232,11 @@ const Dashboard = () => {
       }
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
-        setShowQuickPitch(true);
+        if (currentView === 'dashboard') {
+          dashboardInputRef.current?.focus();
+        } else {
+          setShowQuickPitch(true);
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -964,31 +969,52 @@ const Dashboard = () => {
           
           <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-              <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-foreground font-display">Your Pitches</h1>
-                <p className="text-muted-foreground text-sm">
-                  {remainingPitches !== null 
-                    ? `${remainingPitches} free pitches remaining` 
-                    : 'Unlimited pitches'
+            <div className="mb-6">
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground font-display">Your Pitches</h1>
+            </div>
+
+            {/* Inline Pitch Input */}
+            <div className="mb-6 sm:mb-8 rounded-xl border border-border/50 bg-card/40 backdrop-blur-sm p-4 sm:p-5">
+              <textarea
+                ref={dashboardInputRef}
+                value={transcribedText}
+                onChange={e => setTranscribedText(e.target.value)}
+                placeholder="Brain dump your thoughts here... meeting with CEO tomorrow, revenue down 15%, need budget approval..."
+                className="w-full h-20 sm:h-24 bg-transparent text-foreground placeholder:text-muted-foreground/50 resize-none text-sm focus:outline-none"
+                onKeyDown={e => {
+                  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && transcribedText.trim()) {
+                    setShowQuickPitch(true);
+                    handleParseInput();
                   }
-                </p>
-              </div>
-              <div className="flex gap-2 sm:gap-3">
+                }}
+              />
+              <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/30">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={isRecording ? handleStopRecording : () => { setIsRecording(true); setRecordingTime(0); }}
+                    className={`p-2 rounded-lg transition-colors ${
+                      isRecording ? 'bg-red-500/20 text-red-400' : 'text-muted-foreground hover:text-foreground hover:bg-accent/10'
+                    }`}
+                    title="Voice input"
+                  >
+                    <Mic className="w-4 h-4" />
+                  </button>
+                  {isRecording && (
+                    <span className="text-xs text-red-400 font-mono">{formatTime(recordingTime)}</span>
+                  )}
+                </div>
                 <button
-                  onClick={() => setShowQuickPitch(true)}
-                  className="flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-white text-sm font-medium magenta-gradient"
+                  onClick={() => {
+                    if (transcribedText.trim()) {
+                      setShowQuickPitch(true);
+                      handleParseInput();
+                    }
+                  }}
+                  disabled={!transcribedText.trim() || isParsing}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-primary-foreground magenta-gradient disabled:opacity-40 transition-opacity"
                 >
-                  <Sparkles className="w-4 h-4" />
-                  <span>Quick Pitch</span>
-                  <span className="text-white/60 text-xs hidden sm:inline">⌘K</span>
-                </button>
-                <button
-                  onClick={() => setShowNewProjectModal(true)}
-                  className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-accent/30 text-foreground text-sm hover:bg-accent/10 transition-colors"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span className="hidden sm:inline">New Project</span>
+                  {isParsing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                  Generate
                 </button>
               </div>
             </div>
@@ -1003,7 +1029,7 @@ const Dashboard = () => {
             </div>
 
             {/* Projects Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {projectsLoading ? (
                 <div className="col-span-full text-center py-12">
                   <Loader2 className="w-6 h-6 animate-spin mx-auto text-primary mb-2" />
@@ -1015,7 +1041,7 @@ const Dashboard = () => {
                     <FileText className="w-7 h-7 text-accent/50" />
                   </div>
                   <p className="text-foreground font-medium mb-1">No pitches yet</p>
-                  <p className="text-muted-foreground text-sm">Create your first pitch with Quick Pitch</p>
+                  <p className="text-muted-foreground text-sm">Describe your pitch above to get started</p>
                 </div>
               ) : (
                 projects.map(project => (
@@ -1027,6 +1053,7 @@ const Dashboard = () => {
                     scenarioDescription={project.scenario_description}
                     createdAt={project.created_at}
                     isPublished={project.is_published}
+                    outputData={project.output_data}
                     onOpen={() => openProject(project)}
                     onContinue={project.status === 'draft' && project.draft_state ? () => handleContinueDraft(project) : undefined}
                     onDuplicate={project.status !== 'draft' ? () => duplicateProject(project.id) : undefined}
@@ -1037,43 +1064,6 @@ const Dashboard = () => {
             </div>
           </main>
 
-          {/* New Project Modal */}
-          {showNewProjectModal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center modal-overlay p-4" onClick={() => setShowNewProjectModal(false)}>
-              <div className="glassmorphism-dark rounded-2xl p-5 sm:p-8 w-full max-w-md animate-scaleIn" onClick={e => e.stopPropagation()}>
-                <h3 className="text-lg sm:text-xl text-foreground font-display mb-4 sm:mb-6">New Project</h3>
-                <input 
-                  type="text" 
-                  value={newProjectName} 
-                  onChange={e => setNewProjectName(e.target.value)} 
-                  placeholder="Project name" 
-                  className="w-full mb-3 sm:mb-4 p-3 rounded-xl text-foreground input-field text-sm" 
-                />
-                <input 
-                  type="text" 
-                  value={newProjectTags} 
-                  onChange={e => setNewProjectTags(e.target.value)} 
-                  placeholder="Tags (comma separated)" 
-                  className="w-full mb-4 sm:mb-6 p-3 rounded-xl text-foreground input-field text-sm" 
-                />
-                <div className="flex gap-3">
-                  <button 
-                    onClick={() => setShowNewProjectModal(false)} 
-                    className="flex-1 py-2.5 sm:py-3 rounded-xl text-muted-foreground border border-border"
-                  >
-                    Cancel
-                  </button>
-                  <button 
-                    onClick={handleCreateProject} 
-                    disabled={!newProjectName.trim()} 
-                    className="flex-1 py-3 rounded-xl text-white font-medium magenta-gradient disabled:opacity-50"
-                  >
-                    Create
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       )}
 

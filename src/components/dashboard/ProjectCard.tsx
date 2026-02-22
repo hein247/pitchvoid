@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Copy, Trash2, ArrowRight, Globe, FileEdit, CheckCircle2, MoreVertical, FileText, ScrollText, Sparkles } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { Copy, Trash2, MoreVertical, FileText, ScrollText } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,24 +17,12 @@ interface ProjectCardProps {
   scenarioDescription?: string | null;
   createdAt: string;
   isPublished: boolean;
+  outputData?: Record<string, unknown> | null;
   onOpen: () => void;
   onContinue?: () => void;
   onDuplicate?: () => void;
   onDelete?: () => void;
 }
-
-const statusConfig: Record<ProjectStatus, { label: string; icon: typeof FileEdit; variant: 'default' | 'secondary' | 'outline' }> = {
-  draft: { label: 'Draft', icon: FileEdit, variant: 'outline' },
-  complete: { label: 'Complete', icon: CheckCircle2, variant: 'secondary' },
-  shared: { label: 'Shared', icon: Globe, variant: 'default' },
-};
-
-// Deterministic gradient based on card id
-const gradientVariants = [
-  'from-primary/30 via-accent/20 to-transparent',
-  'from-accent/30 via-primary/15 to-transparent',
-  'from-primary/20 via-secondary/25 to-transparent',
-];
 
 const ProjectCard = ({
   id,
@@ -44,118 +31,106 @@ const ProjectCard = ({
   scenarioDescription,
   createdAt,
   isPublished,
+  outputData,
   onOpen,
   onContinue,
   onDuplicate,
   onDelete,
 }: ProjectCardProps) => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const config = statusConfig[status];
-  const StatusIcon = config.icon;
   const timeAgo = getTimeAgo(createdAt);
 
-  // Pick gradient based on id hash
-  const gradientIndex = id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % gradientVariants.length;
-  const gradient = gradientVariants[gradientIndex];
+  // Pull AI-generated title from output data
+  const aiTitle =
+    (outputData?.onePager as any)?.title ||
+    (outputData?.script as any)?.title ||
+    null;
+  const displayTitle = aiTitle || title;
+
+  // Determine which formats have been generated
+  const hasOnePager = !!(outputData?.onePager);
+  const hasScript = !!(outputData?.script);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
+    <motion.button
+      onClick={status === 'draft' && onContinue ? onContinue : onOpen}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -4 }}
-      transition={{ duration: 0.3 }}
-      className="group relative rounded-2xl overflow-hidden border border-border/60 bg-card/80 backdrop-blur-sm hover:border-primary/40 hover:shadow-[0_16px_48px_rgba(200,150,100,0.08)] transition-all duration-400"
+      whileHover={{ y: -2 }}
+      transition={{ duration: 0.25 }}
+      className="group relative w-full text-left rounded-xl border border-border/50 bg-card/60 backdrop-blur-sm hover:border-primary/30 hover:bg-card/80 transition-all duration-200 p-4 sm:p-5"
     >
-      {/* Thumbnail area */}
-      <button onClick={onOpen} className="block w-full">
-        <div className={`relative w-full aspect-[16/10] bg-gradient-to-br ${gradient} overflow-hidden`}>
-          {/* Decorative icon */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            {status === 'complete' ? (
-              <FileText className="w-10 h-10 text-foreground/10" />
-            ) : status === 'shared' ? (
-              <Globe className="w-10 h-10 text-foreground/10" />
-            ) : (
-              <Sparkles className="w-10 h-10 text-foreground/10" />
-            )}
-          </div>
-          {/* Noise grain overlay */}
-          <div className="absolute inset-0 grain-bg opacity-40" />
-          {/* Status badge overlay */}
-          <div className="absolute top-3 left-3">
-            <Badge variant={config.variant} className="text-[10px] gap-1 backdrop-blur-sm">
-              <StatusIcon className="w-3 h-3" />
-              {config.label}
-            </Badge>
-          </div>
-          {/* Menu overlay */}
-          <div className="absolute top-3 right-3" onClick={e => e.stopPropagation()}>
-            <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
-              <DropdownMenuTrigger asChild>
-                <button
-                  className="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 focus:opacity-100 bg-background/40 backdrop-blur-sm hover:bg-background/60 transition-all"
-                  aria-label="Project actions"
-                >
-                  <MoreVertical className="w-3.5 h-3.5 text-foreground/70" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-40">
-                {status !== 'draft' && onDuplicate && (
-                  <DropdownMenuItem onClick={onDuplicate}>
-                    <Copy className="w-4 h-4 mr-2" />
-                    Duplicate
-                  </DropdownMenuItem>
-                )}
-                {onDelete && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={onDelete} className="text-destructive focus:text-destructive">
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Delete
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-      </button>
+      {/* Title */}
+      <h3 className="text-[15px] font-semibold text-foreground group-hover:text-primary transition-colors truncate font-display leading-snug">
+        {displayTitle}
+      </h3>
 
-      {/* Content area */}
-      <div className="p-4 sm:p-5 space-y-4">
-        {/* Title + Description + Time */}
-        <button onClick={onOpen} className="text-left w-full space-y-1.5">
-          <h3 className="text-foreground font-semibold text-base sm:text-lg group-hover:text-primary transition-colors truncate font-display">
-            {title}
-          </h3>
-          {scenarioDescription && (
-            <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-              {scenarioDescription}
-            </p>
-          )}
-          <span className="text-[11px] text-muted-foreground/60 block">{timeAgo}</span>
-        </button>
+      {/* Description */}
+      {scenarioDescription && (
+        <p className="mt-1.5 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+          {scenarioDescription}
+        </p>
+      )}
 
-        {/* CTA Button */}
-        {status === 'draft' && onContinue ? (
-          <button
-            onClick={onContinue}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium border border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 hover:border-primary/50 backdrop-blur-sm transition-all"
-          >
-            Continue
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-        ) : (
-          <button
-            onClick={onOpen}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm border border-border/60 bg-background/30 text-muted-foreground hover:text-foreground hover:border-border hover:bg-background/50 backdrop-blur-sm transition-all"
-          >
-            Open
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
+      {/* Bottom row: format pills + timestamp + menu */}
+      <div className="mt-3 flex items-center gap-2">
+        {/* Format pills */}
+        {hasOnePager && (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-accent/10 border border-accent/20 text-[10px] text-muted-foreground">
+            <FileText className="w-2.5 h-2.5" />
+            One-Pager
+          </span>
         )}
+        {hasScript && (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 border border-primary/20 text-[10px] text-muted-foreground">
+            <ScrollText className="w-2.5 h-2.5" />
+            Script
+          </span>
+        )}
+        {status === 'draft' && !hasOnePager && !hasScript && (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-muted/30 border border-border/40 text-[10px] text-muted-foreground/70">
+            Draft
+          </span>
+        )}
+
+        {/* Spacer */}
+        <span className="flex-1" />
+
+        {/* Timestamp */}
+        <span className="text-[11px] text-muted-foreground/50 flex-shrink-0">{timeAgo}</span>
+
+        {/* Overflow menu */}
+        <div onClick={e => e.stopPropagation()}>
+          <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+            <DropdownMenuTrigger asChild>
+              <button
+                className="p-1 rounded-md opacity-0 group-hover:opacity-100 focus:opacity-100 hover:bg-accent/10 transition-all"
+                aria-label="Project actions"
+              >
+                <MoreVertical className="w-3.5 h-3.5 text-muted-foreground" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-36">
+              {status !== 'draft' && onDuplicate && (
+                <DropdownMenuItem onClick={onDuplicate}>
+                  <Copy className="w-4 h-4 mr-2" />
+                  Duplicate
+                </DropdownMenuItem>
+              )}
+              {onDelete && (
+                <>
+                  {status !== 'draft' && onDuplicate && <DropdownMenuSeparator />}
+                  <DropdownMenuItem onClick={onDelete} className="text-destructive focus:text-destructive">
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
-    </motion.div>
+    </motion.button>
   );
 };
 
