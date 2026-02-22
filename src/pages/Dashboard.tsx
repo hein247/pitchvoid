@@ -980,7 +980,7 @@ const Dashboard = () => {
                 value={transcribedText}
                 onChange={e => setTranscribedText(e.target.value)}
                 placeholder="Brain dump your thoughts here... meeting with CEO tomorrow, revenue down 15%, need budget approval..."
-                className="w-full h-20 sm:h-24 bg-transparent text-foreground placeholder:text-muted-foreground/50 resize-none text-sm focus:outline-none"
+                className="w-full h-16 sm:h-20 bg-transparent text-foreground placeholder:text-muted-foreground/50 resize-none text-sm focus:outline-none"
                 onKeyDown={e => {
                   if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && transcribedText.trim()) {
                     setShowQuickPitch(true);
@@ -1056,7 +1056,11 @@ const Dashboard = () => {
                     outputData={project.output_data}
                     onOpen={() => openProject(project)}
                     onContinue={project.status === 'draft' && project.draft_state ? () => handleContinueDraft(project) : undefined}
-                    onDuplicate={project.status !== 'draft' ? () => duplicateProject(project.id) : undefined}
+                    onDownloadPDF={project.status !== 'draft' && project.output_data ? () => {
+                      const od = project.output_data as Record<string, any>;
+                      if (od?.onePager) exportOnePagerPDF(od.onePager, !isFree);
+                      else if (od?.script) exportScriptPDF(od.script, !isFree);
+                    } : undefined}
                     onDelete={() => deleteProject(project.id)}
                   />
                 ))
