@@ -25,15 +25,16 @@ const CHAOS_FRAGMENTS = [
 ];
 
 /* ── Landing positions for chaos — scattered across stage ── */
+/* ── Landing positions for chaos — kept within 5–90% to avoid overflow ── */
 const CHAOS_POSITIONS = CHAOS_FRAGMENTS.map((_, i) => ({
-  x: ((i * 137) % 100) - 10, // pseudo-random % from left
-  y: ((i * 89 + 30) % 90) + 5, // pseudo-random % from top
+  x: ((i * 137) % 80) + 5,   // 5–85% from left
+  y: ((i * 89 + 30) % 75) + 8, // 8–83% from top
   rotation: ((i * 17) % 21) - 10,
 }));
 
 const TRUTH_LINES = [
   { text: 'You don\'t need another AI tool.', bright: false },
-  { text: 'You need five seconds of clarity', bright: false },
+  { text: 'You just need a minute of clarity', bright: false },
   { text: 'before you open your mouth.', bright: true },
 ];
 
@@ -66,7 +67,7 @@ function StaticFallback() {
         onClick={() => navigate('/dashboard')}
         className="px-8 py-3.5 rounded-full text-primary-foreground font-medium magenta-gradient text-base hover:opacity-90 transition-opacity"
       >
-        Shut up and try it →
+        Clear your head →
       </button>
     </div>
   );
@@ -273,6 +274,9 @@ export default function HowItWorks() {
                 color: frag.color,
                 fontFamily: "'Be Vietnam Pro', sans-serif",
                 whiteSpace: 'nowrap',
+                maxWidth: '90%',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
                 opacity: 0,
                 pointerEvents: 'none',
               }}
@@ -311,8 +315,8 @@ export default function HowItWorks() {
             }}
           />
 
-          {/* Pivot lines */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 px-6" style={{ paddingTop: '55%' }}>
+          {/* Pivot lines — positioned below divider */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 px-6 pt-8">
             {PIVOT_LINES.map((line, i) => (
               <p
                 key={i}
@@ -391,7 +395,7 @@ export default function HowItWorks() {
               onClick={() => navigate('/dashboard')}
               className="px-8 py-3.5 rounded-full text-primary-foreground font-medium magenta-gradient text-base hover:opacity-90 hover:scale-105 transition-all cursor-pointer"
             >
-              Shut up and try it →
+        Clear your head →
             </button>
           </div>
         </div>
