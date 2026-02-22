@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Copy, Trash2, MoreVertical, FileText, ScrollText } from 'lucide-react';
+import { Download, Trash2, MoreVertical, FileText, ScrollText } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,7 +20,7 @@ interface ProjectCardProps {
   outputData?: Record<string, unknown> | null;
   onOpen: () => void;
   onContinue?: () => void;
-  onDuplicate?: () => void;
+  onDownloadPDF?: () => void;
   onDelete?: () => void;
 }
 
@@ -34,7 +34,7 @@ const ProjectCard = ({
   outputData,
   onOpen,
   onContinue,
-  onDuplicate,
+  onDownloadPDF,
   onDelete,
 }: ProjectCardProps) => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -58,7 +58,7 @@ const ProjectCard = ({
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -2 }}
       transition={{ duration: 0.25 }}
-      className="group relative w-full text-left rounded-xl border border-border/50 bg-card/60 backdrop-blur-sm hover:border-primary/30 hover:bg-card/80 transition-all duration-200 p-4 sm:p-5"
+      className="group relative w-full text-left rounded-xl border border-border/50 bg-card/60 backdrop-blur-sm hover:border-[hsl(270_60%_60%/0.2)] hover:bg-card/80 transition-all duration-200 p-4 sm:p-5 cursor-pointer"
     >
       {/* Title */}
       <h3 className="text-[15px] font-semibold text-foreground group-hover:text-primary transition-colors truncate font-display leading-snug">
@@ -110,16 +110,16 @@ const ProjectCard = ({
                 <MoreVertical className="w-3.5 h-3.5 text-muted-foreground" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-36">
-              {status !== 'draft' && onDuplicate && (
-                <DropdownMenuItem onClick={onDuplicate}>
-                  <Copy className="w-4 h-4 mr-2" />
-                  Duplicate
+            <DropdownMenuContent align="end" className="w-40 bg-popover border-border z-50">
+              {status !== 'draft' && onDownloadPDF && (
+                <DropdownMenuItem onClick={onDownloadPDF}>
+                  <Download className="w-4 h-4 mr-2" />
+                  Download PDF
                 </DropdownMenuItem>
               )}
               {onDelete && (
                 <>
-                  {status !== 'draft' && onDuplicate && <DropdownMenuSeparator />}
+                  {status !== 'draft' && onDownloadPDF && <DropdownMenuSeparator />}
                   <DropdownMenuItem onClick={onDelete} className="text-destructive focus:text-destructive">
                     <Trash2 className="w-4 h-4 mr-2" />
                     Delete

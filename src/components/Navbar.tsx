@@ -2,6 +2,13 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { usePricing } from '@/hooks/usePricing';
 import { Mic, Menu, Crown, Settings } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
 interface NavbarProps {
@@ -106,26 +113,12 @@ const Navbar = ({
   if (variant === 'dashboard') {
     return (
       <nav className="glassmorphism px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between sticky top-0 z-40">
-        <div className="flex items-center gap-4 sm:gap-8">
-          <button
-            onClick={() => navigate('/')}
-            className="text-lg sm:text-xl font-semibold font-display brand-gradient-text"
-          >
-            PitchVoid
-          </button>
-          <div className="hidden sm:flex items-center gap-6">
-            <button
-              onClick={() => navigate('/dashboard')}
-              className={`text-sm transition-colors ${
-                isActive('/dashboard')
-                  ? 'text-foreground font-medium'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              Dashboard
-            </button>
-          </div>
-        </div>
+        <button
+          onClick={() => navigate('/')}
+          className="text-lg sm:text-xl font-semibold font-display brand-gradient-text"
+        >
+          PitchVoid
+        </button>
         <div className="flex items-center gap-2 sm:gap-4">
           {/* Credits indicator for free users */}
           {isFree && remainingPitches !== null && (
@@ -142,14 +135,6 @@ const Navbar = ({
             </div>
           )}
           
-          {/* Plan badge for paid users */}
-          {!isFree && (
-            <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/10 border border-primary/30">
-              <Crown className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-primary capitalize">{userPlan}</span>
-            </div>
-          )}
-          
           {/* Settings */}
           <button
             onClick={() => navigate('/settings')}
@@ -160,13 +145,34 @@ const Navbar = ({
           </button>
           
           {user && (
-            <div
-              onClick={onSignOut}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full magenta-gradient flex items-center justify-center text-primary-foreground text-sm font-medium cursor-pointer hover:opacity-90 transition-opacity"
-              title="Sign out"
-            >
-              {user.email?.charAt(0).toUpperCase()}
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full magenta-gradient flex items-center justify-center text-primary-foreground text-sm font-medium cursor-pointer hover:opacity-90 transition-opacity"
+                  title="Account"
+                >
+                  {user.email?.charAt(0).toUpperCase()}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 bg-popover border-border z-50">
+                {!isFree && (
+                  <DropdownMenuItem className="gap-2">
+                    <Crown className="w-4 h-4 text-primary" />
+                    <span className="capitalize">{userPlan} Plan</span>
+                  </DropdownMenuItem>
+                )}
+                {isFree && (
+                  <DropdownMenuItem onClick={() => navigate('/pricing')} className="gap-2">
+                    <Crown className="w-4 h-4 text-primary" />
+                    Upgrade to Pro
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={onSignOut} className="gap-2 text-destructive focus:text-destructive">
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         </div>
       </nav>
