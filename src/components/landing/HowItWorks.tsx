@@ -165,7 +165,7 @@ export default function HowItWorks() {
       // Pivot text
       tl.fromTo('.pivot-line',
         { opacity: 0, y: 10 },
-        { opacity: 0.5, y: 0, stagger: 0.3, duration: 0.5, ease: 'power2.out' }
+        { opacity: 0.9, y: 0, stagger: 0.3, duration: 0.5, ease: 'power2.out' }
       );
       tl.to({}, { duration: 3 }); // hold
 
@@ -308,7 +308,7 @@ export default function HowItWorks() {
                 className={`pivot-line font-sans text-center`}
                 style={{
                   fontSize: 'clamp(12px, 2vw, 14px)',
-                  color: 'rgba(240,237,246,0.5)',
+                  color: 'rgba(240,237,246,0.9)',
                   lineHeight: 1.8,
                   opacity: 0,
                 }}
