@@ -43,7 +43,7 @@ const Landing = () => {
         <HowItWorks />
 
         {/* CTA Section */}
-        <section id="pricing" className="max-w-3xl mx-auto px-4 sm:px-8 py-16 sm:py-24 text-center">
+        <section id="pricing" className="max-w-3xl mx-auto px-4 sm:px-8 py-8 sm:py-12 text-center">
           <h2 className="text-3xl sm:text-4xl text-foreground mb-4 sm:mb-6 font-display">
             Your next conversation is one brain dump away.
           </h2>
