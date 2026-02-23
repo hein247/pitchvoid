@@ -54,7 +54,7 @@ interface ChatMessage {
   id: string;
   type: 'user' | 'assistant' | 'system';
   content: string;
-  files?: { name: string; size: number }[];
+  files?: {name: string;size: number;}[];
 }
 
 const Dashboard = () => {
@@ -62,7 +62,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const isMobile = useIsMobile();
-  
+
   // Pricing & paywall state
   const {
     userPlan,
@@ -78,9 +78,9 @@ const Dashboard = () => {
     paywallMessage,
     setShowPaywall,
     isFree,
-    planLimits,
+    planLimits
   } = usePricing();
-  
+
   // Projects hook
   const {
     projects,
@@ -90,9 +90,9 @@ const Dashboard = () => {
     saveProjectOutput,
     duplicateProject,
     fetchVersions,
-    deleteProject,
+    deleteProject
   } = useProjects();
-  
+
   // Dashboard state
   const [currentView, setCurrentView] = useState<'dashboard' | 'project'>('dashboard');
   const [activeProject, setActiveProject] = useState<ProjectRecord | null>(null);
@@ -103,23 +103,23 @@ const Dashboard = () => {
   const [showEditor, setShowEditor] = useState(false);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [hasOnboarded, setHasOnboarded] = useState(true); // default true to avoid flash
-  
+
   // Form state
   const [newProjectName, setNewProjectName] = useState('');
   const [newProjectTags, setNewProjectTags] = useState('');
-  
+
   // Chat state
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationPhase, setGenerationPhase] = useState('');
-  
+
   // Output format state
   const [outputFormat, setOutputFormat] = useState<OutputFormat>('one-pager');
   const [onePagerData, setOnePagerData] = useState<OnePagerData | null>(null);
   const [scriptData, setScriptData] = useState<ScriptData | null>(null);
   const [isRegenerating, setIsRegenerating] = useState(false);
-  
+
   // Refinement state
   const [isRefining, setIsRefining] = useState(false);
   const [previousOutput, setPreviousOutput] = useState<OnePagerData | ScriptData | null>(null);
@@ -127,14 +127,14 @@ const Dashboard = () => {
   const undoTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [refineAnimationKey, setRefineAnimationKey] = useState(0);
   const [feedbackKey, setFeedbackKey] = useState(0);
-  
+
   // Generation error state
   const [generationError, setGenerationError] = useState<{
     error: string;
     errorType: 'rate_limit' | 'credits' | 'network' | 'generic';
     retryCount: number;
   } | null>(null);
-  
+
   // Store last generation context for regenerating in different formats
   const [lastGenerationContext, setLastGenerationContext] = useState<{
     scenario: string;
@@ -144,7 +144,7 @@ const Dashboard = () => {
     documentContext?: string;
     imageDescriptions?: string[];
   } | null>(null);
-  
+
   // Quick pitch state - 4 steps: 1=Describe, 2=Context, 3=Tune, 4=Generate
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
@@ -152,12 +152,12 @@ const Dashboard = () => {
   const [quickPitchStep, setQuickPitchStep] = useState(1);
   const [parsedContext, setParsedContext] = useState<ParsedContext | null>(null);
   const [isParsing, setIsParsing] = useState(false);
-  
+
   // Tune preferences
   const [selectedLength, setSelectedLength] = useState<'quick' | 'standard' | 'detailed'>('standard');
   const [selectedTone, setSelectedTone] = useState<'confident' | 'humble' | 'balanced' | 'bold'>('balanced');
   const [highlightNotes, setHighlightNotes] = useState('');
-  
+
   // File attachment state
   interface AttachedFile {
     id: string;
@@ -172,27 +172,27 @@ const Dashboard = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessingFiles, setIsProcessingFiles] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   // Practice mode
   const [isPracticeMode, setIsPracticeMode] = useState(false);
-  
+
   // Share modal - generate real URL based on active project
-  const shareUrl = activeProject 
-    ? `https://pitchvoid.lovable.app/p/${activeProject.public_id || activeProject.id}` 
-    : 'https://pitchvoid.lovable.app/p/demo';
-  
+  const shareUrl = activeProject ?
+  `https://pitchvoid.lovable.app/p/${activeProject.public_id || activeProject.id}` :
+  'https://pitchvoid.lovable.app/p/demo';
+
   // Credits
   const credits = { used: 48, total: 50 };
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const dashboardInputRef = useRef<HTMLTextAreaElement>(null);
 
   const quickTemplates = [
-    { id: 1, label: 'Job Interview', icon: 'briefcase' as const, prefill: 'Pitch me for a [Role] at [Company]. Focus on [Key Skills].' },
-    { id: 2, label: 'Client Pitch', icon: 'handshake' as const, prefill: 'Create a proposal for [Client] about [Project].' },
-    { id: 3, label: 'Team Update', icon: 'trending-up' as const, prefill: 'Create an update for [Team] about [Project/Initiative].' },
-    { id: 4, label: 'Conference Talk', icon: 'presentation' as const, prefill: 'Prepare a talk on [Topic] for [Event].' },
-  ];
+  { id: 1, label: 'Job Interview', icon: 'briefcase' as const, prefill: 'Pitch me for a [Role] at [Company]. Focus on [Key Skills].' },
+  { id: 2, label: 'Client Pitch', icon: 'handshake' as const, prefill: 'Create a proposal for [Client] about [Project].' },
+  { id: 3, label: 'Team Update', icon: 'trending-up' as const, prefill: 'Create an update for [Team] about [Project/Initiative].' },
+  { id: 4, label: 'Conference Talk', icon: 'presentation' as const, prefill: 'Prepare a talk on [Topic] for [Event].' }];
+
 
   useEffect(() => {
     if (!loading && !user) {
@@ -203,14 +203,14 @@ const Dashboard = () => {
   // Fetch onboarding status
   useEffect(() => {
     if (!user) return;
-    supabase
-      .from('profiles')
-      .select('has_onboarded')
-      .eq('id', user.id)
-      .single()
-      .then(({ data }) => {
-        if (data) setHasOnboarded(data.has_onboarded ?? false);
-      });
+    supabase.
+    from('profiles').
+    select('has_onboarded').
+    eq('id', user.id).
+    single().
+    then(({ data }) => {
+      if (data) setHasOnboarded(data.has_onboarded ?? false);
+    });
   }, [user]);
 
   useEffect(() => {
@@ -221,7 +221,7 @@ const Dashboard = () => {
     let interval: NodeJS.Timeout;
     if (isRecording) {
       interval = setInterval(() => {
-        setRecordingTime(prev => {
+        setRecordingTime((prev) => {
           if (prev >= 60) {
             setIsRecording(false);
             return 60;
@@ -282,7 +282,7 @@ const Dashboard = () => {
   const openProject = (project: ProjectRecord) => {
     setActiveProject(project);
     setActiveVersionId(undefined);
-    
+
     // If project has output, restore it
     if (project.output_data) {
       const outputData = project.output_data;
@@ -318,8 +318,8 @@ const Dashboard = () => {
       setTranscribedText(ds.transcribedText || '');
       setParsedContext(ds.parsedContext as unknown as ParsedContext | null);
       setOutputFormat(ds.outputFormat || 'one-pager');
-      setSelectedTone((ds.selectedTone as 'confident' | 'humble' | 'balanced' | 'bold') || 'balanced');
-      setSelectedLength((ds.selectedLength as 'quick' | 'standard' | 'detailed') || 'standard');
+      setSelectedTone(ds.selectedTone as 'confident' | 'humble' | 'balanced' | 'bold' || 'balanced');
+      setSelectedLength(ds.selectedLength as 'quick' | 'standard' | 'detailed' || 'standard');
       setHighlightNotes(ds.highlightNotes || '');
       setQuickPitchStep(ds.step || 1);
       setActiveProject(project);
@@ -342,7 +342,7 @@ const Dashboard = () => {
       selectedTone,
       selectedLength,
       highlightNotes,
-      attachedFileNames: attachedFiles.map(f => f.name),
+      attachedFileNames: attachedFiles.map((f) => f.name)
     };
 
     saveDraftState(activeProject.id, draftState);
@@ -350,21 +350,21 @@ const Dashboard = () => {
 
   const handleSubmit = () => {
     if (!inputValue.trim()) return;
-    setMessages(prev => [...prev, { id: Date.now().toString(), type: 'user', content: inputValue }]);
+    setMessages((prev) => [...prev, { id: Date.now().toString(), type: 'user', content: inputValue }]);
     setInputValue('');
     setIsGenerating(true);
-    
+
     const phases = ['Analyzing...', 'Crafting narrative...', 'Building content...', 'Finalizing...'];
     let delay = 0;
-    phases.forEach(phase => { 
-      setTimeout(() => setGenerationPhase(phase), delay); 
-      delay += 1500; 
+    phases.forEach((phase) => {
+      setTimeout(() => setGenerationPhase(phase), delay);
+      delay += 1500;
     });
-    
+
     setTimeout(() => {
       setIsGenerating(false);
       setGenerationPhase('');
-      setMessages(prev => [...prev, { id: Date.now().toString(), type: 'assistant', content: 'Your pitch has been updated!' }]);
+      setMessages((prev) => [...prev, { id: Date.now().toString(), type: 'assistant', content: 'Your pitch has been updated!' }]);
     }, delay);
   };
 
@@ -378,12 +378,12 @@ const Dashboard = () => {
   // Parse user input with AI to understand context
   const handleParseInput = async () => {
     if (!transcribedText.trim()) return;
-    
+
     setIsParsing(true);
-    
+
     try {
       const { data, error } = await supabase.functions.invoke('parse-pitch-input', {
-        body: { userInput: transcribedText },
+        body: { userInput: transcribedText }
       });
 
       if (error) throw error;
@@ -393,20 +393,20 @@ const Dashboard = () => {
       setOutputFormat(parsed.suggested_format);
       setSelectedLength(parsed.suggested_length);
       setSelectedTone(parsed.tone as 'confident' | 'humble' | 'balanced' | 'bold' || 'balanced');
-      
+
       // Create project early so auto-save works
       if (!activeProject) {
         const newProject = await createProject(parsed.summary || 'Quick Pitch', transcribedText);
         if (newProject) setActiveProject(newProject);
       }
-      
+
       setQuickPitchStep(2); // Move to confirmation step
     } catch (error) {
       console.error('Parse error:', error);
-      toast({ 
-        title: 'Could not parse input', 
-        description: 'Moving forward with defaults', 
-        variant: 'destructive' 
+      toast({
+        title: 'Could not parse input',
+        description: 'Moving forward with defaults',
+        variant: 'destructive'
       });
       // Fallback - set defaults and continue
       setParsedContext({
@@ -431,7 +431,7 @@ const Dashboard = () => {
   // File upload handlers
   const MAX_FILES = FILE_UPLOAD_CONFIG.maxFiles;
   const ACCEPTED_TYPES_LIST = Object.keys(FILE_UPLOAD_CONFIG.acceptedTypes);
-  
+
   const formatFileSize = formatFileSizeUtil;
 
   const getFileIcon = (type: string) => {
@@ -450,7 +450,7 @@ const Dashboard = () => {
         }
       };
       reader.onerror = () => resolve(undefined);
-      
+
       if (file.type.startsWith('image/')) {
         reader.readAsDataURL(file);
       } else {
@@ -461,7 +461,7 @@ const Dashboard = () => {
 
   const handleFileSelect = async (files: FileList | null) => {
     if (!files) return;
-    
+
     const fileArray = Array.from(files);
     const { validFiles, errors, overLimit } = validateFiles(fileArray, attachedFiles.length);
 
@@ -478,7 +478,7 @@ const Dashboard = () => {
     if (validFiles.length === 0) return;
 
     setIsProcessingFiles(true);
-    
+
     for (const file of validFiles) {
       const newFile: AttachedFile = {
         id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -486,23 +486,23 @@ const Dashboard = () => {
         name: file.name,
         size: file.size,
         type: file.type,
-        progress: 0,
+        progress: 0
       };
-      
-      setAttachedFiles(prev => [...prev, newFile]);
-      
+
+      setAttachedFiles((prev) => [...prev, newFile]);
+
       const content = await processFile(file);
-      
-      setAttachedFiles(prev => 
-        prev.map(f => f.id === newFile.id ? { ...f, content, progress: 100 } : f)
+
+      setAttachedFiles((prev) =>
+      prev.map((f) => f.id === newFile.id ? { ...f, content, progress: 100 } : f)
       );
     }
-    
+
     setIsProcessingFiles(false);
   };
 
   const handleRemoveFile = (id: string) => {
-    setAttachedFiles(prev => prev.filter(f => f.id !== id));
+    setAttachedFiles((prev) => prev.filter((f) => f.id !== id));
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -526,42 +526,42 @@ const Dashboard = () => {
     if (!checkAndTriggerPaywall('create_pitch')) {
       return;
     }
-    
+
     // Check format permission
     if (!checkAndTriggerPaywall('use_format', { format: outputFormat })) {
       return;
     }
-    
+
     setQuickPitchStep(5); // Generation step
     setIsGenerating(true);
     setGenerationError(null);
-    
+
     const phasesByFormat: Record<OutputFormat, string[]> = {
       'one-pager': ['Understanding your pitch...', 'Analyzing materials...', 'Crafting narrative...', 'Building one-pager...', 'Finalizing...'],
       'script': ['Understanding your pitch...', 'Analyzing materials...', 'Writing script...', 'Adding delivery cues...', 'Finalizing...']
     };
-    
+
     const phases = phasesByFormat[outputFormat];
-    
+
     let phaseIndex = 0;
     const phaseInterval = setInterval(() => {
-      if (phaseIndex < phases.length) { 
-        setGenerationPhase(phases[phaseIndex]); 
-        phaseIndex++; 
+      if (phaseIndex < phases.length) {
+        setGenerationPhase(phases[phaseIndex]);
+        phaseIndex++;
       }
     }, 1200);
 
     // Prepare file context for AI
     const documentContext = [
-      ...(attachedFiles
-        .filter(f => !f.type.startsWith('image/'))
-        .map(f => f.content || `File: ${f.name}`)),
-      highlightNotes ? `User highlights: ${highlightNotes}` : ''
-    ].filter(Boolean).join('\n');
-    
-    const imageDescriptions = attachedFiles
-      .filter(f => f.type.startsWith('image/'))
-      .map(f => `Uploaded image: ${f.name}`);
+    ...attachedFiles.
+    filter((f) => !f.type.startsWith('image/')).
+    map((f) => f.content || `File: ${f.name}`),
+    highlightNotes ? `User highlights: ${highlightNotes}` : ''].
+    filter(Boolean).join('\n');
+
+    const imageDescriptions = attachedFiles.
+    filter((f) => f.type.startsWith('image/')).
+    map((f) => `Uploaded image: ${f.name}`);
 
     const targetAudience = parsedContext?.audience_detail || parsedContext?.audience || 'Decision makers';
 
@@ -572,7 +572,7 @@ const Dashboard = () => {
       tone: selectedTone,
       length: selectedLength,
       documentContext: documentContext || undefined,
-      imageDescriptions: imageDescriptions.length > 0 ? imageDescriptions : undefined,
+      imageDescriptions: imageDescriptions.length > 0 ? imageDescriptions : undefined
     });
 
     try {
@@ -587,7 +587,7 @@ const Dashboard = () => {
           tone: selectedTone,
           length: selectedLength,
           documentContext: documentContext || undefined,
-          imageDescriptions: imageDescriptions.length > 0 ? imageDescriptions : undefined,
+          imageDescriptions: imageDescriptions.length > 0 ? imageDescriptions : undefined
         };
       } else {
         functionName = 'generate-one-pager';
@@ -596,10 +596,10 @@ const Dashboard = () => {
           targetAudience,
           visualStyle: selectedTone,
           documentContext: documentContext || undefined,
-          imageDescriptions: imageDescriptions.length > 0 ? imageDescriptions : undefined,
+          imageDescriptions: imageDescriptions.length > 0 ? imageDescriptions : undefined
         };
       }
-      
+
       const { data, error } = await supabase.functions.invoke(functionName, { body });
 
       clearInterval(phaseInterval);
@@ -614,7 +614,7 @@ const Dashboard = () => {
       const aiTitle = outputFormat === 'one-pager' ? data.onePager?.title : data.script?.title;
       const projectTitle = (aiTitle || parsedContext?.summary || 'Quick Pitch').split(/\s+/).slice(0, 8).join(' ');
       let project = activeProject;
-      
+
       if (!project || project.status === 'draft') {
         // Create new project if none exists
         if (!project) {
@@ -636,39 +636,39 @@ const Dashboard = () => {
         // Preserve existing one-pager if any
         if (onePagerData) outputPayload.onePager = onePagerData;
       }
-      setFeedbackKey(prev => prev + 1);
+      setFeedbackKey((prev) => prev + 1);
 
       if (project) {
         setActiveProject({ ...project, title: projectTitle, status: 'complete', output_format: outputFormat, output_data: outputPayload });
         // Save to DB and create version
         await saveProjectOutput(project.id, outputFormat, outputPayload, lastGenerationContext as unknown as Record<string, unknown>);
       }
-      
+
       // Increment pitch count on successful generation
       await incrementPitchCount();
-      
+
       // Mark onboarded after first generation
       if (!hasOnboarded) {
         setHasOnboarded(true);
         supabase.from('profiles').update({ has_onboarded: true }).eq('id', user!.id).then(() => {});
       }
-      
+
       // Reset Quick Pitch state
       resetQuickPitchState();
-      
+
     } catch (error: any) {
       clearInterval(phaseInterval);
       console.error('Generation error:', error);
       setIsGenerating(false);
-      
+
       // Determine error type from the error response
       let errorType: 'rate_limit' | 'credits' | 'network' | 'generic' = 'generic';
       let errorMessage = 'Generation failed. Please try again.';
-      
+
       const errorBody = typeof error?.message === 'string' ? error.message : '';
       const errorContext = typeof error?.context?.body === 'string' ? error.context.body : '';
       const combinedError = `${errorBody} ${errorContext}`.toLowerCase();
-      
+
       if (combinedError.includes('rate limit') || combinedError.includes('429')) {
         errorType = 'rate_limit';
         errorMessage = 'You\'re sending requests too quickly. Please wait a moment before trying again.';
@@ -679,13 +679,13 @@ const Dashboard = () => {
         errorType = 'network';
         errorMessage = 'Couldn\'t reach the server. Check your connection and try again.';
       }
-      
+
       setGenerationError({
         error: errorMessage,
         errorType,
-        retryCount: (generationError?.retryCount || 0) + 1,
+        retryCount: (generationError?.retryCount || 0) + 1
       });
-      
+
       // Stay on step 5 to show the error UI
       setQuickPitchStep(5);
     }
@@ -722,8 +722,8 @@ const Dashboard = () => {
           original_input: transcribedText || activeProject.scenario_description || '',
           current_output: currentData,
           refine_instruction: instruction.toLowerCase(),
-          format: outputFormat,
-        },
+          format: outputFormat
+        }
       });
 
       if (error) throw error;
@@ -748,8 +748,8 @@ const Dashboard = () => {
         setOnePagerData(newOutput as OnePagerData);
       }
 
-      setRefineAnimationKey(prev => prev + 1);
-      setFeedbackKey(prev => prev + 1);
+      setRefineAnimationKey((prev) => prev + 1);
+      setFeedbackKey((prev) => prev + 1);
       setShowUndo(true);
 
       // Start 10-second undo timer
@@ -762,7 +762,7 @@ const Dashboard = () => {
       const outputKey = outputFormat === 'script' ? 'script' : 'onePager';
       const existingOutput = (activeProject.output_data || {}) as Record<string, unknown>;
       await supabase.from('projects').update({
-        output_data: { ...existingOutput, [outputKey]: newOutput },
+        output_data: { ...existingOutput, [outputKey]: newOutput }
       }).eq('id', activeProject.id);
 
     } catch (error: any) {
@@ -772,7 +772,7 @@ const Dashboard = () => {
       toast({
         title: parsed && parsed.includes('rate limit') ? 'Limit reached' : 'Refinement failed',
         description: typeof msg === 'string' ? msg : 'Please try again.',
-        variant: 'destructive',
+        variant: 'destructive'
       });
     } finally {
       setIsRefining(false);
@@ -797,7 +797,7 @@ const Dashboard = () => {
     if (!checkAndTriggerPaywall('use_format', { format: newFormat })) {
       return;
     }
-    
+
     // Reconstruct context from project data if not available in memory
     const ctx = lastGenerationContext || (() => {
       const scenario = transcribedText || activeProject?.scenario_description || '';
@@ -807,32 +807,32 @@ const Dashboard = () => {
         scenario,
         targetAudience: audience,
         tone: selectedTone || 'balanced',
-        length: selectedLength || 'standard',
+        length: selectedLength || 'standard'
       };
     })();
 
     if (!ctx) {
-      toast({ 
-        title: 'No context available', 
-        description: 'Please generate content first using Quick Pitch', 
-        variant: 'destructive' 
+      toast({
+        title: 'No context available',
+        description: 'Please generate content first using Quick Pitch',
+        variant: 'destructive'
       });
       return;
     }
 
     setIsRegenerating(true);
     setOutputFormat(newFormat);
-    
+
     const phasesByFormat: Record<OutputFormat, string[]> = {
       'one-pager': ['Converting to one-pager...', 'Crafting summary...', 'Finalizing...'],
       'script': ['Converting to script...', 'Adding delivery cues...', 'Finalizing...']
     };
-    
+
     let phaseIndex = 0;
     const phaseInterval = setInterval(() => {
-      if (phaseIndex < phasesByFormat[newFormat].length) { 
-        setGenerationPhase(phasesByFormat[newFormat][phaseIndex]); 
-        phaseIndex++; 
+      if (phaseIndex < phasesByFormat[newFormat].length) {
+        setGenerationPhase(phasesByFormat[newFormat][phaseIndex]);
+        phaseIndex++;
       }
     }, 800);
 
@@ -851,7 +851,7 @@ const Dashboard = () => {
           tone: ctx.tone,
           length: ctx.length,
           documentContext: docCtx,
-          imageDescriptions: imgDescs,
+          imageDescriptions: imgDescs
         };
       } else {
         functionName = 'generate-one-pager';
@@ -860,10 +860,10 @@ const Dashboard = () => {
           targetAudience: ctx.targetAudience,
           visualStyle: ctx.tone,
           documentContext: docCtx,
-          imageDescriptions: imgDescs,
+          imageDescriptions: imgDescs
         };
       }
-      
+
       const { data, error } = await supabase.functions.invoke(functionName, { body });
 
       clearInterval(phaseInterval);
@@ -875,7 +875,7 @@ const Dashboard = () => {
       } else {
         setScriptData(data.script);
       }
-      setFeedbackKey(prev => prev + 1);
+      setFeedbackKey((prev) => prev + 1);
 
       // Save both formats to project
       if (activeProject) {
@@ -885,7 +885,7 @@ const Dashboard = () => {
         setActiveProject({ ...activeProject, output_data: mergedOutput, output_format: newFormat });
         await supabase.from('projects').update({
           output_data: mergedOutput,
-          output_format: newFormat,
+          output_format: newFormat
         }).eq('id', activeProject.id);
         // Save version
         await saveProjectOutput(activeProject.id, newFormat, mergedOutput, lastGenerationContext as unknown as Record<string, unknown>);
@@ -894,13 +894,13 @@ const Dashboard = () => {
     } catch (error: any) {
       clearInterval(phaseInterval);
       console.error('Regeneration error:', error);
-      
+
       // Determine error type
       let errorType: 'rate_limit' | 'credits' | 'network' | 'generic' = 'generic';
       let errorMessage = 'Regeneration failed. Please try again.';
-      
+
       const combinedError = `${error?.message || ''} ${error?.context?.body || ''}`.toLowerCase();
-      
+
       if (combinedError.includes('rate limit') || combinedError.includes('429')) {
         errorType = 'rate_limit';
         errorMessage = 'Too many requests. Please wait a moment.';
@@ -911,11 +911,11 @@ const Dashboard = () => {
         errorType = 'network';
         errorMessage = 'Connection issue. Check your network.';
       }
-      
-      toast({ 
-        title: errorType === 'rate_limit' ? 'Slow down' : errorType === 'credits' ? 'Credits exhausted' : 'Regeneration failed', 
-        description: errorMessage, 
-        variant: 'destructive' 
+
+      toast({
+        title: errorType === 'rate_limit' ? 'Slow down' : errorType === 'credits' ? 'Credits exhausted' : 'Regeneration failed',
+        description: errorMessage,
+        variant: 'destructive'
       });
     } finally {
       setIsRegenerating(false);
@@ -938,8 +938,8 @@ const Dashboard = () => {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#0F0518' }}>
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
+      </div>);
+
   }
 
   if (!user) {
@@ -951,16 +951,16 @@ const Dashboard = () => {
     return (
       <FocusMode
         scriptData={scriptData}
-        onExit={() => setIsPracticeMode(false)}
-      />
-    );
+        onExit={() => setIsPracticeMode(false)} />);
+
+
   }
 
   return (
     <div className="min-h-screen relative transition-colors duration-300 bg-background">
       {/* Install Banner */}
-      {showInstallPrompt && currentView === 'dashboard' && (
-        <div className="fixed top-0 left-0 right-0 z-50 p-2 sm:p-3 install-banner animate-slideDown">
+      {showInstallPrompt && currentView === 'dashboard' &&
+      <div className="fixed top-0 left-0 right-0 z-50 p-2 sm:p-3 install-banner animate-slideDown">
           <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 sm:gap-4 min-w-0">
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl magenta-gradient flex items-center justify-center flex-shrink-0">
@@ -981,67 +981,67 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-      )}
+      }
 
       {/* Dashboard View */}
-      {currentView === 'dashboard' && (
-        <div className={showInstallPrompt ? 'pt-14 sm:pt-16' : ''}>
+      {currentView === 'dashboard' &&
+      <div className={showInstallPrompt ? 'pt-14 sm:pt-16' : ''}>
           <Navbar variant="dashboard" onSignOut={handleSignOut} />
           
           <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
             {/* Header */}
             <div className="mb-6">
-              <h1 className="text-xl sm:text-2xl font-bold text-foreground font-display">Your Pitches</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground font-display">My Void </h1>
             </div>
 
             {/* Onboarding Scenario Cards */}
-            {!hasOnboarded && projects.length === 0 && !projectsLoading && (
-              <OnboardingPrompt onSelectScenario={(text) => {
-                setTranscribedText(text);
-                dashboardInputRef.current?.focus();
-              }} />
-            )}
+            {!hasOnboarded && projects.length === 0 && !projectsLoading &&
+          <OnboardingPrompt onSelectScenario={(text) => {
+            setTranscribedText(text);
+            dashboardInputRef.current?.focus();
+          }} />
+          }
 
             {/* Inline Pitch Input */}
             <div className="mb-6 sm:mb-8 rounded-xl border border-border/50 bg-card/40 backdrop-blur-sm p-4 sm:p-5">
               <textarea
-                ref={dashboardInputRef}
-                value={transcribedText}
-                onChange={e => setTranscribedText(e.target.value)}
-                placeholder="Brain dump your thoughts here... meeting with CEO tomorrow, revenue down 15%, need budget approval..."
-                className="w-full h-16 sm:h-20 bg-transparent text-foreground placeholder:text-muted-foreground/50 resize-none text-sm focus:outline-none"
-                onKeyDown={e => {
-                  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && transcribedText.trim()) {
+              ref={dashboardInputRef}
+              value={transcribedText}
+              onChange={(e) => setTranscribedText(e.target.value)}
+              placeholder="Brain dump your thoughts here... meeting with CEO tomorrow, revenue down 15%, need budget approval..."
+              className="w-full h-16 sm:h-20 bg-transparent text-foreground placeholder:text-muted-foreground/50 resize-none text-sm focus:outline-none"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && transcribedText.trim()) {
+                  setShowQuickPitch(true);
+                  handleParseInput();
+                }
+              }} />
+
+              <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/30">
+                <div className="flex items-center gap-2">
+                  <button
+                  onClick={isRecording ? handleStopRecording : () => {setIsRecording(true);setRecordingTime(0);}}
+                  className={`p-2 rounded-lg transition-colors ${
+                  isRecording ? 'bg-red-500/20 text-red-400' : 'text-muted-foreground hover:text-foreground hover:bg-accent/10'}`
+                  }
+                  title="Voice input">
+
+                    <Mic className="w-4 h-4" />
+                  </button>
+                  {isRecording &&
+                <span className="text-xs text-red-400 font-mono">{formatTime(recordingTime)}</span>
+                }
+                </div>
+                <button
+                onClick={() => {
+                  if (transcribedText.trim()) {
                     setShowQuickPitch(true);
                     handleParseInput();
                   }
                 }}
-              />
-              <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/30">
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={isRecording ? handleStopRecording : () => { setIsRecording(true); setRecordingTime(0); }}
-                    className={`p-2 rounded-lg transition-colors ${
-                      isRecording ? 'bg-red-500/20 text-red-400' : 'text-muted-foreground hover:text-foreground hover:bg-accent/10'
-                    }`}
-                    title="Voice input"
-                  >
-                    <Mic className="w-4 h-4" />
-                  </button>
-                  {isRecording && (
-                    <span className="text-xs text-red-400 font-mono">{formatTime(recordingTime)}</span>
-                  )}
-                </div>
-                <button
-                  onClick={() => {
-                    if (transcribedText.trim()) {
-                      setShowQuickPitch(true);
-                      handleParseInput();
-                    }
-                  }}
-                  disabled={!transcribedText.trim() || isParsing}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-primary-foreground magenta-gradient disabled:opacity-40 transition-opacity"
-                >
+                disabled={!transcribedText.trim() || isParsing}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-primary-foreground magenta-gradient disabled:opacity-40 transition-opacity">
+
                   {isParsing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
                   Generate
                 </button>
@@ -1049,467 +1049,467 @@ const Dashboard = () => {
             </div>
 
             {/* Onboarding tip */}
-            {!hasOnboarded && projects.length === 0 && !projectsLoading && (
-              <p className="text-[11px] -mt-4 mb-6" style={{ color: 'rgba(240,237,246,0.15)' }}>
+            {!hasOnboarded && projects.length === 0 && !projectsLoading &&
+          <p className="text-[11px] -mt-4 mb-6" style={{ color: 'rgba(240,237,246,0.15)' }}>
                 Tip: the messier, the better. Just dump everything — PitchVoid will sort it out.
               </p>
-            )}
+          }
 
             <div className="mb-6 sm:mb-8">
-              <PitchUsageBanner 
-                pitchCount={pitchCount} 
-                maxPitches={planLimits.totalPitches} 
-                plan={userPlan} 
-              />
+              <PitchUsageBanner
+              pitchCount={pitchCount}
+              maxPitches={planLimits.totalPitches}
+              plan={userPlan} />
+
             </div>
 
             {/* Projects Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-              {projectsLoading ? (
-                <div className="col-span-full text-center py-12">
+              {projectsLoading ?
+            <div className="col-span-full text-center py-12">
                   <Loader2 className="w-6 h-6 animate-spin mx-auto text-primary mb-2" />
                   <p className="text-muted-foreground text-sm">Loading projects...</p>
-                </div>
-              ) : projects.length === 0 ? (
-                <div className="col-span-full text-center py-16">
+                </div> :
+            projects.length === 0 ?
+            <div className="col-span-full text-center py-16">
                   <div className="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center bg-gradient-to-br from-accent/15 to-primary/8 border border-dashed border-accent/30">
                     <FileText className="w-7 h-7 text-accent/50" />
                   </div>
                   <p className="text-foreground font-medium mb-1">No pitches yet</p>
                   <p className="text-muted-foreground text-sm">Describe your pitch above to get started</p>
-                </div>
-              ) : (
-                projects.map(project => (
-                  <ProjectCard
-                    key={project.id}
-                    id={project.id}
-                    title={project.title}
-                    status={project.status}
-                    scenarioDescription={project.scenario_description}
-                    createdAt={project.created_at}
-                    isPublished={project.is_published}
-                    outputData={project.output_data}
-                    onOpen={() => openProject(project)}
-                    onContinue={project.status === 'draft' && project.draft_state ? () => handleContinueDraft(project) : undefined}
-                    onDownloadPDF={project.status !== 'draft' && project.output_data ? () => {
-                      const od = project.output_data as Record<string, any>;
-                      if (od?.onePager) exportOnePagerPDF(od.onePager, !isFree);
-                      else if (od?.script) exportScriptPDF(od.script, !isFree);
-                    } : undefined}
-                    onDelete={() => deleteProject(project.id)}
-                  />
-                ))
-              )}
+                </div> :
+
+            projects.map((project) =>
+            <ProjectCard
+              key={project.id}
+              id={project.id}
+              title={project.title}
+              status={project.status}
+              scenarioDescription={project.scenario_description}
+              createdAt={project.created_at}
+              isPublished={project.is_published}
+              outputData={project.output_data}
+              onOpen={() => openProject(project)}
+              onContinue={project.status === 'draft' && project.draft_state ? () => handleContinueDraft(project) : undefined}
+              onDownloadPDF={project.status !== 'draft' && project.output_data ? () => {
+                const od = project.output_data as Record<string, any>;
+                if (od?.onePager) exportOnePagerPDF(od.onePager, !isFree);else
+                if (od?.script) exportScriptPDF(od.script, !isFree);
+              } : undefined}
+              onDelete={() => deleteProject(project.id)} />
+
+            )
+            }
             </div>
           </main>
 
         </div>
-      )}
+      }
 
       {/* Project View */}
-      {currentView === 'project' && activeProject && (
-        <div className="min-h-screen flex flex-col bg-background">
+      {currentView === 'project' && activeProject &&
+      <div className="min-h-screen flex flex-col bg-background">
           {/* Preview Panel — full screen */}
           <div className="grain-bg flex flex-col relative flex-1">
             <header className="px-3 sm:px-6 py-3 sm:py-4 flex items-center gap-2 sm:gap-3 justify-between border-b border-border relative z-10">
               {/* Left: Back + Title */}
               <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-                <button 
-                  onClick={() => setCurrentView('dashboard')} 
-                  className="text-muted-foreground hover:text-foreground transition-colors flex-shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center"
-                >
+                <button
+                onClick={() => setCurrentView('dashboard')}
+                className="text-muted-foreground hover:text-foreground transition-colors flex-shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center">
+
                   <ArrowLeft className="w-5 h-5" />
                 </button>
                 <div className="min-w-0">
                   <h2 className="text-foreground font-medium font-display text-sm sm:text-base truncate max-w-[140px] sm:max-w-[300px] lg:max-w-[400px]" title={(outputFormat === 'script' ? scriptData?.title : onePagerData?.title) || activeProject.title}>{(outputFormat === 'script' ? scriptData?.title : onePagerData?.title) || activeProject.title}</h2>
-                  {isRegenerating && (
-                    <p className="text-xs text-primary animate-pulse">{generationPhase}</p>
-                  )}
-                  {!isRegenerating && outputFormat === 'one-pager' && onePagerData && (
-                    <p className="text-xs text-muted-foreground hidden sm:block">{onePagerData.context_line || 'Cheat sheet'}</p>
-                  )}
-                  {!isRegenerating && outputFormat === 'script' && scriptData && (
-                    <p className="text-xs text-muted-foreground hidden sm:block">Speaking script</p>
-                  )}
+                  {isRegenerating &&
+                <p className="text-xs text-primary animate-pulse">{generationPhase}</p>
+                }
+                  {!isRegenerating && outputFormat === 'one-pager' && onePagerData &&
+                <p className="text-xs text-muted-foreground hidden sm:block">{onePagerData.context_line || 'Cheat sheet'}</p>
+                }
+                  {!isRegenerating && outputFormat === 'script' && scriptData &&
+                <p className="text-xs text-muted-foreground hidden sm:block">Speaking script</p>
+                }
                 </div>
               </div>
 
               {/* Right: Actions */}
-              {(onePagerData || scriptData) && (
-                <div className="flex items-center gap-1 sm:gap-0 flex-shrink-0">
+              {(onePagerData || scriptData) &&
+            <div className="flex items-center gap-1 sm:gap-0 flex-shrink-0">
                   {/* Desktop: Format Toggle + actions in border container */}
                   <div className="hidden sm:flex items-center rounded-xl border border-border p-1 bg-card/50 backdrop-blur-sm">
                     <FormatToggle
-                      activeFormat={outputFormat}
-                      onFormatChange={handleFormatChange}
-                      hasOnePager={!!onePagerData}
-                      hasScript={!!scriptData}
-                      onRegenerate={handleRegenerateInFormat}
-                      isRegenerating={isRegenerating}
-                      lockedFormats={isFree ? ['script'] : []}
-                      onLockedClick={(format) => checkAndTriggerPaywall('use_format', { format })}
-                    />
+                  activeFormat={outputFormat}
+                  onFormatChange={handleFormatChange}
+                  hasOnePager={!!onePagerData}
+                  hasScript={!!scriptData}
+                  onRegenerate={handleRegenerateInFormat}
+                  isRegenerating={isRegenerating}
+                  lockedFormats={isFree ? ['script'] : []}
+                  onLockedClick={(format) => checkAndTriggerPaywall('use_format', { format })} />
+
                     
                     <div className="w-px h-6 bg-border mx-1" />
 
                     {/* Edit button */}
-                    {onePagerData && !isRegenerating && (
-                      <button
-                        onClick={() => setShowEditor(prev => !prev)}
-                        className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/10 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
-                        title={showEditor ? 'Close Editor' : 'Edit'}
-                      >
+                    {onePagerData && !isRegenerating &&
+                <button
+                  onClick={() => setShowEditor((prev) => !prev)}
+                  className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/10 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                  title={showEditor ? 'Close Editor' : 'Edit'}>
+
                         <Edit2 className="w-4 h-4" />
                       </button>
-                    )}
+                }
 
                     {/* PDF Export */}
-                    <button 
-                      onClick={async () => {
-                        if (isFree) { checkAndTriggerPaywall('export'); return; }
-                        try {
-                          if (outputFormat === 'script' && scriptData) {
-                            await exportScriptPDF(scriptData as any, true);
-                          } else if (onePagerData) {
-                            await exportOnePagerPDF(onePagerData as any, true);
-                          }
-                          toast({ title: 'PDF downloaded' });
-                        } catch { toast({ title: 'Failed to generate PDF', variant: 'destructive' }); }
-                      }}
-                      className={`p-2 rounded-lg transition-colors relative min-h-[44px] min-w-[44px] flex items-center justify-center ${
-                        isFree
-                          ? 'text-muted-foreground/50 cursor-not-allowed'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-accent/10'
-                      }`}
-                      title={isFree ? 'Upgrade to Pro to export PDF' : 'Download as PDF'}
-                    >
+                    <button
+                  onClick={async () => {
+                    if (isFree) {checkAndTriggerPaywall('export');return;}
+                    try {
+                      if (outputFormat === 'script' && scriptData) {
+                        await exportScriptPDF(scriptData as any, true);
+                      } else if (onePagerData) {
+                        await exportOnePagerPDF(onePagerData as any, true);
+                      }
+                      toast({ title: 'PDF downloaded' });
+                    } catch {toast({ title: 'Failed to generate PDF', variant: 'destructive' });}
+                  }}
+                  className={`p-2 rounded-lg transition-colors relative min-h-[44px] min-w-[44px] flex items-center justify-center ${
+                  isFree ?
+                  'text-muted-foreground/50 cursor-not-allowed' :
+                  'text-muted-foreground hover:text-foreground hover:bg-accent/10'}`
+                  }
+                  title={isFree ? 'Upgrade to Pro to export PDF' : 'Download as PDF'}>
+
                       <Download className="w-4 h-4" />
                       {isFree && <Lock className="w-2.5 h-2.5 absolute -top-0.5 -right-0.5" />}
                     </button>
                     
                     {/* Practice mode - for scripts only */}
-                    {outputFormat === 'script' && scriptData && (
-                      <button 
-                        onClick={() => setIsPracticeMode(true)} 
-                        className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/10 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
-                        title="Practice"
-                      >
+                    {outputFormat === 'script' && scriptData &&
+                <button
+                  onClick={() => setIsPracticeMode(true)}
+                  className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/10 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                  title="Practice">
+
                         <Play className="w-4 h-4" />
                       </button>
-                    )}
+                }
                     
                     {/* Feedback - desktop */}
-                    {activeProject && (onePagerData || scriptData) && !isRegenerating && (
-                      <TopBarFeedback
-                        projectId={activeProject.id}
-                        format={outputFormat === 'script' ? 'script' : 'one-pager'}
-                        generationKey={feedbackKey}
-                        generatedOutput={
-                          outputFormat === 'script'
-                            ? (scriptData as unknown as Record<string, unknown>)
-                            : (onePagerData as unknown as Record<string, unknown>)
-                        }
-                      />
-                    )}
+                    {activeProject && (onePagerData || scriptData) && !isRegenerating &&
+                <TopBarFeedback
+                  projectId={activeProject.id}
+                  format={outputFormat === 'script' ? 'script' : 'one-pager'}
+                  generationKey={feedbackKey}
+                  generatedOutput={
+                  outputFormat === 'script' ?
+                  scriptData as unknown as Record<string, unknown> :
+                  onePagerData as unknown as Record<string, unknown>
+                  } />
+
+                }
 
                     {/* Share button */}
-                    <button 
-                      onClick={() => setShowShareModal(true)} 
-                      className="p-2 rounded-lg text-primary hover:bg-primary/10 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
-                      title="Share"
-                    >
+                    <button
+                  onClick={() => setShowShareModal(true)}
+                  className="p-2 rounded-lg text-primary hover:bg-primary/10 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                  title="Share">
+
                       <Share2 className="w-4 h-4" />
                     </button>
                     
                     {/* Version History */}
-                    {activeProject && (
-                      <VersionHistoryDropdown
-                        projectId={activeProject.id}
-                        currentVersionId={activeVersionId}
-                        fetchVersions={fetchVersions}
-                        onSelectVersion={(version) => {
-                          setActiveVersionId(version.id);
-                          const vData = version.output_data;
-                          if (version.output_format === 'script' && vData.script) {
-                            setScriptData(vData.script as unknown as ScriptData);
-                            setOutputFormat('script');
-                          } else if (vData.onePager) {
-                            setOnePagerData(vData.onePager as unknown as OnePagerData);
-                            setOutputFormat('one-pager');
-                          }
-                        }}
-                      />
-                    )}
+                    {activeProject &&
+                <VersionHistoryDropdown
+                  projectId={activeProject.id}
+                  currentVersionId={activeVersionId}
+                  fetchVersions={fetchVersions}
+                  onSelectVersion={(version) => {
+                    setActiveVersionId(version.id);
+                    const vData = version.output_data;
+                    if (version.output_format === 'script' && vData.script) {
+                      setScriptData(vData.script as unknown as ScriptData);
+                      setOutputFormat('script');
+                    } else if (vData.onePager) {
+                      setOnePagerData(vData.onePager as unknown as OnePagerData);
+                      setOutputFormat('one-pager');
+                    }
+                  }} />
+
+                }
                   </div>
 
                   {/* Mobile: only overflow menu */}
                   <MobileOverflowMenu
-                    onShare={() => setShowShareModal(true)}
-                    onExport={async () => {
-                      if (isFree) { checkAndTriggerPaywall('export'); return; }
-                      try {
-                        if (outputFormat === 'script' && scriptData) {
-                          await exportScriptPDF(scriptData as any, true);
-                        } else if (onePagerData) {
-                          await exportOnePagerPDF(onePagerData as any, true);
-                        }
-                        toast({ title: 'PDF downloaded' });
-                      } catch { toast({ title: 'Failed to generate PDF', variant: 'destructive' }); }
-                    }}
-                    onEdit={onePagerData && !isRegenerating ? () => setShowEditor(prev => !prev) : undefined}
-                    onPractice={outputFormat === 'script' && scriptData ? () => setIsPracticeMode(true) : undefined}
-                    onCopyAll={() => {
-                      if (outputFormat === 'one-pager' && onePagerData) {
-                        const text = onePagerData.sections
-                          .map(s => `${s.title}\n${s.points.map(p => `• ${p.replace(/\*\*/g, '')}`).join('\n')}`)
-                          .join('\n\n');
-                        navigator.clipboard.writeText(text);
-                      }
-                    }}
-                    onVersionHistory={() => {/* handled by sheet */}}
-                    isFree={isFree}
-                    activeProject={activeProject}
-                    activeVersionId={activeVersionId}
-                    fetchVersions={fetchVersions}
-                    onSelectVersion={(version) => {
-                      setActiveVersionId(version.id);
-                      const vData = version.output_data;
-                      if (version.output_format === 'script' && vData.script) {
-                        setScriptData(vData.script as unknown as ScriptData);
-                        setOutputFormat('script');
-                      } else if (vData.onePager) {
-                        setOnePagerData(vData.onePager as unknown as OnePagerData);
-                        setOutputFormat('one-pager');
-                      }
-                    }}
-                    feedbackProjectId={activeProject?.id}
-                    feedbackFormat={outputFormat === 'script' ? 'script' : 'one-pager'}
-                    feedbackOutput={
-                      outputFormat === 'script'
-                        ? (scriptData as unknown as Record<string, unknown>)
-                        : (onePagerData as unknown as Record<string, unknown>)
+                onShare={() => setShowShareModal(true)}
+                onExport={async () => {
+                  if (isFree) {checkAndTriggerPaywall('export');return;}
+                  try {
+                    if (outputFormat === 'script' && scriptData) {
+                      await exportScriptPDF(scriptData as any, true);
+                    } else if (onePagerData) {
+                      await exportOnePagerPDF(onePagerData as any, true);
                     }
-                    feedbackKey={feedbackKey}
-                    // Format toggle props for mobile
-                    activeFormat={outputFormat}
-                    onFormatChange={handleFormatChange}
-                    hasOnePager={!!onePagerData}
-                    hasScript={!!scriptData}
-                    onRegenerate={handleRegenerateInFormat}
-                    isRegenerating={isRegenerating}
-                    lockedFormats={isFree ? ['script'] : []}
-                    onLockedClick={(format) => checkAndTriggerPaywall('use_format', { format })}
-                  />
+                    toast({ title: 'PDF downloaded' });
+                  } catch {toast({ title: 'Failed to generate PDF', variant: 'destructive' });}
+                }}
+                onEdit={onePagerData && !isRegenerating ? () => setShowEditor((prev) => !prev) : undefined}
+                onPractice={outputFormat === 'script' && scriptData ? () => setIsPracticeMode(true) : undefined}
+                onCopyAll={() => {
+                  if (outputFormat === 'one-pager' && onePagerData) {
+                    const text = onePagerData.sections.
+                    map((s) => `${s.title}\n${s.points.map((p) => `• ${p.replace(/\*\*/g, '')}`).join('\n')}`).
+                    join('\n\n');
+                    navigator.clipboard.writeText(text);
+                  }
+                }}
+                onVersionHistory={() => {/* handled by sheet */}}
+                isFree={isFree}
+                activeProject={activeProject}
+                activeVersionId={activeVersionId}
+                fetchVersions={fetchVersions}
+                onSelectVersion={(version) => {
+                  setActiveVersionId(version.id);
+                  const vData = version.output_data;
+                  if (version.output_format === 'script' && vData.script) {
+                    setScriptData(vData.script as unknown as ScriptData);
+                    setOutputFormat('script');
+                  } else if (vData.onePager) {
+                    setOnePagerData(vData.onePager as unknown as OnePagerData);
+                    setOutputFormat('one-pager');
+                  }
+                }}
+                feedbackProjectId={activeProject?.id}
+                feedbackFormat={outputFormat === 'script' ? 'script' : 'one-pager'}
+                feedbackOutput={
+                outputFormat === 'script' ?
+                scriptData as unknown as Record<string, unknown> :
+                onePagerData as unknown as Record<string, unknown>
+                }
+                feedbackKey={feedbackKey}
+                // Format toggle props for mobile
+                activeFormat={outputFormat}
+                onFormatChange={handleFormatChange}
+                hasOnePager={!!onePagerData}
+                hasScript={!!scriptData}
+                onRegenerate={handleRegenerateInFormat}
+                isRegenerating={isRegenerating}
+                lockedFormats={isFree ? ['script'] : []}
+                onLockedClick={(format) => checkAndTriggerPaywall('use_format', { format })} />
+
                 </div>
-              )}
+            }
             </header>
             
-            <div className={`overflow-y-auto p-4 sm:p-6 lg:p-8 relative z-10 transition-opacity duration-500 ${isRefining ? 'opacity-50' : 'opacity-100'}`} style={{ paddingBottom: (onePagerData || scriptData) ? '140px' : undefined }}>
+            <div className={`overflow-y-auto p-4 sm:p-6 lg:p-8 relative z-10 transition-opacity duration-500 ${isRefining ? 'opacity-50' : 'opacity-100'}`} style={{ paddingBottom: onePagerData || scriptData ? '140px' : undefined }}>
               {/* Show skeleton during regeneration */}
-              {isRegenerating ? (
-                <GenerationSkeleton format={outputFormat} />
-              ) : outputFormat === 'script' && scriptData ? (
-                <ScriptViewer 
-                  data={scriptData}
-                  onUpdate={(updatedData) => setScriptData(updatedData)}
-                  refineAnimationKey={refineAnimationKey}
-                />
-              ) : outputFormat === 'one-pager' && onePagerData ? (
-                <OnePager 
-                  data={onePagerData}
-                  projectTitle={activeProject?.title}
-                  refineAnimationKey={refineAnimationKey}
-                />
-              ) : (onePagerData || scriptData) && !isRegenerating ? (
-                /* Format not yet generated — show loading, useEffect will trigger generation */
-                <div className="py-16 flex items-center justify-center animate-fadeIn">
+              {isRegenerating ?
+            <GenerationSkeleton format={outputFormat} /> :
+            outputFormat === 'script' && scriptData ?
+            <ScriptViewer
+              data={scriptData}
+              onUpdate={(updatedData) => setScriptData(updatedData)}
+              refineAnimationKey={refineAnimationKey} /> :
+
+            outputFormat === 'one-pager' && onePagerData ?
+            <OnePager
+              data={onePagerData}
+              projectTitle={activeProject?.title}
+              refineAnimationKey={refineAnimationKey} /> :
+
+            (onePagerData || scriptData) && !isRegenerating ? (
+            /* Format not yet generated — show loading, useEffect will trigger generation */
+            <div className="py-16 flex items-center justify-center animate-fadeIn">
                   <div className="text-center">
                     <Loader2 className="w-8 h-8 mx-auto mb-4 text-primary/60 animate-spin" />
                     <p className="text-muted-foreground text-sm animate-pulse">
                       Generating your {outputFormat === 'script' ? 'script' : 'one-pager'}...
                     </p>
                   </div>
-                </div>
-              ) : (
-                <div className="py-16 flex items-center justify-center">
+                </div>) :
+
+            <div className="py-16 flex items-center justify-center">
                   <div className="text-center">
-                    <div 
-                      className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 rounded-2xl flex items-center justify-center bg-gradient-to-br from-accent/15 to-primary/8 border border-dashed border-accent/30"
-                    >
+                    <div
+                  className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 rounded-2xl flex items-center justify-center bg-gradient-to-br from-accent/15 to-primary/8 border border-dashed border-accent/30">
+
                       <FileText className="w-8 h-8 sm:w-9 sm:h-9 text-accent/50" />
                     </div>
                     <p className="text-muted-foreground text-sm">Your pitch will appear here</p>
                     <p className="text-muted-foreground/60 text-xs mt-1">Describe your scenario below to get started</p>
                   </div>
                 </div>
-              )}
+            }
             </div>
 
             {/* Refinement Bar */}
-            {(onePagerData || scriptData) && !isRegenerating && (
-              <RefinementBar
-                onRefine={handleRefine}
-                isRefining={isRefining}
-                showUndo={showUndo}
-                onUndo={handleUndo}
-              />
-            )}
+            {(onePagerData || scriptData) && !isRegenerating &&
+          <RefinementBar
+            onRefine={handleRefine}
+            isRefining={isRefining}
+            showUndo={showUndo}
+            onUndo={handleUndo} />
+
+          }
           </div>
 
           {/* Edit button removed — now in top bar header */}
 
           {/* Editor Overlay */}
-          {showEditor && onePagerData && (
-            <div className="fixed inset-0 z-40 flex items-end justify-center modal-overlay" onClick={() => setShowEditor(false)}>
-              <div 
-                className="w-full max-w-3xl max-h-[70vh] overflow-y-auto rounded-t-2xl border border-border bg-background p-4 sm:p-6 animate-slideUp"
-                onClick={e => e.stopPropagation()}
-              >
+          {showEditor && onePagerData &&
+        <div className="fixed inset-0 z-40 flex items-end justify-center modal-overlay" onClick={() => setShowEditor(false)}>
+              <div
+            className="w-full max-w-3xl max-h-[70vh] overflow-y-auto rounded-t-2xl border border-border bg-background p-4 sm:p-6 animate-slideUp"
+            onClick={(e) => e.stopPropagation()}>
+
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-medium text-foreground font-display">Edit One-Pager</h3>
                   <button onClick={() => setShowEditor(false)} className="text-muted-foreground hover:text-foreground">
                     <X className="w-5 h-5" />
                   </button>
                 </div>
-                {isMobile ? (
-                  <MobileEditorSheet
-                    data={onePagerData}
-                    onUpdate={(updatedData) => setOnePagerData(updatedData)}
-                    onRefine={(prompt) => {
-                      setInputValue(prompt);
-                      setTimeout(() => handleSubmit(), 0);
-                    }}
-                    isRefining={isGenerating}
-                  />
-                ) : (
-                  <OnePagerEditor
-                    data={onePagerData}
-                    onUpdate={(updatedData) => setOnePagerData(updatedData)}
-                  />
-                )}
+                {isMobile ?
+            <MobileEditorSheet
+              data={onePagerData}
+              onUpdate={(updatedData) => setOnePagerData(updatedData)}
+              onRefine={(prompt) => {
+                setInputValue(prompt);
+                setTimeout(() => handleSubmit(), 0);
+              }}
+              isRefining={isGenerating} /> :
+
+
+            <OnePagerEditor
+              data={onePagerData}
+              onUpdate={(updatedData) => setOnePagerData(updatedData)} />
+
+            }
               </div>
             </div>
-          )}
+        }
 
         </div>
-      )}
+      }
 
       {/* Quick Pitch Modal - 5 Steps: Describe → Confirm → Context → Tune → Generate */}
-      {showQuickPitch && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center modal-overlay p-4" 
-          onClick={() => { autoSaveDraft(); setShowQuickPitch(false); resetQuickPitchState(); }}
-        >
-          <div 
-            className="glassmorphism-dark rounded-2xl p-4 sm:p-8 w-full max-w-2xl animate-scaleIn max-h-[90vh] overflow-y-auto" 
-            onClick={e => e.stopPropagation()}
-          >
+      {showQuickPitch &&
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center modal-overlay p-4"
+        onClick={() => {autoSaveDraft();setShowQuickPitch(false);resetQuickPitchState();}}>
+
+          <div
+          className="glassmorphism-dark rounded-2xl p-4 sm:p-8 w-full max-w-2xl animate-scaleIn max-h-[90vh] overflow-y-auto"
+          onClick={(e) => e.stopPropagation()}>
+
             <div className="flex items-center justify-between mb-4 sm:mb-6">
               <div>
                 <h3 className="text-lg sm:text-xl text-foreground font-display">Quick Pitch</h3>
                 <p className="text-xs sm:text-sm text-muted-foreground">
-                  {quickPitchStep === 1 ? 'Step 1: Describe your pitch' : 
-                   quickPitchStep === 2 ? 'Step 2: Confirm understanding' :
-                   quickPitchStep === 3 ? 'Step 3: Add context (optional)' :
-                   quickPitchStep === 4 ? 'Step 4: Quick tune' : 'Generating...'}
+                  {quickPitchStep === 1 ? 'Step 1: Describe your pitch' :
+                quickPitchStep === 2 ? 'Step 2: Confirm understanding' :
+                quickPitchStep === 3 ? 'Step 3: Add context (optional)' :
+                quickPitchStep === 4 ? 'Step 4: Quick tune' : 'Generating...'}
                 </p>
               </div>
-              <button 
-                onClick={() => { autoSaveDraft(); setShowQuickPitch(false); resetQuickPitchState(); }} 
-                className="text-muted-foreground hover:text-foreground"
-              >
+              <button
+              onClick={() => {autoSaveDraft();setShowQuickPitch(false);resetQuickPitchState();}}
+              className="text-muted-foreground hover:text-foreground">
+
                 <X className="w-5 h-5" />
               </button>
             </div>
             
             {/* Progress - 5 steps */}
             <div className="flex gap-2 mb-4 sm:mb-6">
-              {[1, 2, 3, 4, 5].map(s => (
-                <div 
-                  key={s} 
-                  className={`h-1 flex-1 rounded-full transition-all ${quickPitchStep >= s ? 'magenta-gradient' : 'bg-accent/20'}`} 
-                />
-              ))}
+              {[1, 2, 3, 4, 5].map((s) =>
+            <div
+              key={s}
+              className={`h-1 flex-1 rounded-full transition-all ${quickPitchStep >= s ? 'magenta-gradient' : 'bg-accent/20'}`} />
+
+            )}
             </div>
 
             {/* Step 1: Describe */}
-            {quickPitchStep === 1 && (
-              <div>
+            {quickPitchStep === 1 &&
+          <div>
                 <p className="text-sm text-muted-foreground mb-4">What do you need to pitch?</p>
                 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4 sm:mb-6">
-                  {quickTemplates.map(t => (
-                    <button 
-                      key={t.id} 
-                      onClick={() => setTranscribedText(t.prefill)} 
-                      className="p-3 sm:p-4 rounded-xl text-center border border-accent/20 hover:border-accent/40 transition-colors"
-                    >
+                  {quickTemplates.map((t) =>
+              <button
+                key={t.id}
+                onClick={() => setTranscribedText(t.prefill)}
+                className="p-3 sm:p-4 rounded-xl text-center border border-accent/20 hover:border-accent/40 transition-colors">
+
                       {t.icon === 'briefcase' && <Briefcase className="w-5 h-5 sm:w-6 sm:h-6 text-primary mb-1 sm:mb-2 mx-auto" />}
                       {t.icon === 'handshake' && <Handshake className="w-5 h-5 sm:w-6 sm:h-6 text-primary mb-1 sm:mb-2 mx-auto" />}
                       {t.icon === 'trending-up' && <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-primary mb-1 sm:mb-2 mx-auto" />}
                       {t.icon === 'presentation' && <Presentation className="w-5 h-5 sm:w-6 sm:h-6 text-primary mb-1 sm:mb-2 mx-auto" />}
                       <span className="text-xs text-muted-foreground">{t.label}</span>
                     </button>
-                  ))}
+              )}
                 </div>
                 
                 <div className="flex items-center gap-4 sm:gap-6 mb-4 sm:mb-6">
-                  <button 
-                    onClick={isRecording ? handleStopRecording : () => { setIsRecording(true); setRecordingTime(0); }} 
-                    className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center flex-shrink-0 ${
-                      isRecording ? 'bg-red-500 recording-pulse' : 'magenta-gradient'
-                    }`}
-                  >
-                    {isRecording ? (
-                      <span className="w-5 h-5 sm:w-6 sm:h-6 bg-white rounded" />
-                    ) : (
-                      <Mic className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
-                    )}
+                  <button
+                onClick={isRecording ? handleStopRecording : () => {setIsRecording(true);setRecordingTime(0);}}
+                className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center flex-shrink-0 ${
+                isRecording ? 'bg-red-500 recording-pulse' : 'magenta-gradient'}`
+                }>
+
+                    {isRecording ?
+                <span className="w-5 h-5 sm:w-6 sm:h-6 bg-white rounded" /> :
+
+                <Mic className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+                }
                   </button>
                   <div>
-                    {isRecording ? (
-                      <>
+                    {isRecording ?
+                <>
                         <p className="text-foreground text-base sm:text-lg font-mono">{formatTime(recordingTime)}</p>
                         <p className="text-destructive text-xs sm:text-sm">Recording...</p>
-                      </>
-                    ) : (
-                      <>
+                      </> :
+
+                <>
                         <p className="text-foreground text-sm sm:text-base">Click to record</p>
                         <p className="text-muted-foreground text-xs sm:text-sm">Up to 60s</p>
                       </>
-                    )}
+                }
                   </div>
                 </div>
                 
-                <textarea 
-                  value={transcribedText} 
-                  onChange={e => setTranscribedText(e.target.value)} 
-                  placeholder="Describe your pitch in your own words..." 
-                  className="w-full h-24 sm:h-28 p-3 sm:p-4 rounded-xl text-foreground input-field resize-none mb-4 sm:mb-6 text-sm" 
-                />
+                <textarea
+              value={transcribedText}
+              onChange={(e) => setTranscribedText(e.target.value)}
+              placeholder="Describe your pitch in your own words..."
+              className="w-full h-24 sm:h-28 p-3 sm:p-4 rounded-xl text-foreground input-field resize-none mb-4 sm:mb-6 text-sm" />
+
                 
                 <div className="flex gap-3">
-                  <button 
-                    onClick={() => setShowQuickPitch(false)} 
-                    className="flex-1 py-2.5 sm:py-3 rounded-xl text-muted-foreground border border-border text-sm"
-                  >
+                  <button
+                onClick={() => setShowQuickPitch(false)}
+                className="flex-1 py-2.5 sm:py-3 rounded-xl text-muted-foreground border border-border text-sm">
+
                     Cancel
                   </button>
-                  <button 
-                    onClick={handleParseInput} 
-                    disabled={!transcribedText.trim() || isParsing} 
-                    className="flex-1 py-2.5 sm:py-3 rounded-xl text-white font-medium magenta-gradient disabled:opacity-50 text-sm flex items-center justify-center gap-2"
-                  >
+                  <button
+                onClick={handleParseInput}
+                disabled={!transcribedText.trim() || isParsing}
+                className="flex-1 py-2.5 sm:py-3 rounded-xl text-white font-medium magenta-gradient disabled:opacity-50 text-sm flex items-center justify-center gap-2">
+
                     {isParsing ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                     {isParsing ? 'Analyzing...' : 'Next →'}
                   </button>
                 </div>
               </div>
-            )}
+          }
 
             {/* Step 2: AI Confirmation */}
-            {quickPitchStep === 2 && parsedContext && (
-              <div>
+            {quickPitchStep === 2 && parsedContext &&
+          <div>
                 <div className="flex items-center gap-2 mb-4">
                   <Check className="w-5 h-5 text-primary" />
                   <p className="text-sm text-foreground">Here's what I understood:</p>
@@ -1542,8 +1542,8 @@ const Dashboard = () => {
                       {parsedContext.suggested_format === 'one-pager' ? 'One-Pager' : 'Script'}
                     </span>
                     <span className="px-2 py-1 rounded bg-accent/10 text-accent text-xs font-medium">
-                      {parsedContext.suggested_length === 'quick' ? 'Quick' : 
-                       parsedContext.suggested_length === 'standard' ? 'Standard' : 'Detailed'}
+                      {parsedContext.suggested_length === 'quick' ? 'Quick' :
+                  parsedContext.suggested_length === 'standard' ? 'Standard' : 'Detailed'}
                     </span>
                   </div>
                 </div>
@@ -1553,79 +1553,79 @@ const Dashboard = () => {
                   <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wider">Output Format</p>
                   <div className="grid grid-cols-2 gap-2">
                     <button
-                      onClick={() => setOutputFormat('one-pager')}
-                      className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all ${
-                        outputFormat === 'one-pager' 
-                          ? 'border-primary bg-primary/10 text-foreground' 
-                          : 'border-accent/20 text-muted-foreground hover:border-accent/40'
-                      }`}
-                    >
+                  onClick={() => setOutputFormat('one-pager')}
+                  className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all ${
+                  outputFormat === 'one-pager' ?
+                  'border-primary bg-primary/10 text-foreground' :
+                  'border-accent/20 text-muted-foreground hover:border-accent/40'}`
+                  }>
+
                       <FileText className="w-5 h-5" />
                       <span className="text-xs font-medium">One-Pager</span>
                     </button>
                     <button
-                      onClick={() => setOutputFormat('script')}
-                      className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all relative ${
-                        outputFormat === 'script' 
-                          ? 'border-primary bg-primary/10 text-foreground' 
-                          : 'border-accent/20 text-muted-foreground hover:border-accent/40'
-                      }`}
-                    >
+                  onClick={() => setOutputFormat('script')}
+                  className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all relative ${
+                  outputFormat === 'script' ?
+                  'border-primary bg-primary/10 text-foreground' :
+                  'border-accent/20 text-muted-foreground hover:border-accent/40'}`
+                  }>
+
                       <ScrollText className="w-5 h-5" />
                       <span className="text-xs font-medium">Script</span>
-                      {isFree && (
-                        <span className="absolute -top-1 -right-1 text-[8px] font-bold px-1 py-0.5 rounded bg-primary text-primary-foreground">
+                      {isFree &&
+                  <span className="absolute -top-1 -right-1 text-[8px] font-bold px-1 py-0.5 rounded bg-primary text-primary-foreground">
                           PRO
                         </span>
-                      )}
+                  }
                     </button>
                   </div>
                 </div>
                 
                 <div className="flex gap-3">
-                  <button 
-                    onClick={() => setQuickPitchStep(1)} 
-                    className="flex-1 py-2.5 sm:py-3 rounded-xl text-muted-foreground border border-border text-sm flex items-center justify-center gap-2"
-                  >
+                  <button
+                onClick={() => setQuickPitchStep(1)}
+                className="flex-1 py-2.5 sm:py-3 rounded-xl text-muted-foreground border border-border text-sm flex items-center justify-center gap-2">
+
                     <Edit2 className="w-4 h-4" /> Edit
                   </button>
-                  <button 
-                    onClick={() => setQuickPitchStep(3)} 
-                    className="flex-1 py-2.5 sm:py-3 rounded-xl text-white font-medium magenta-gradient text-sm"
-                  >
+                  <button
+                onClick={() => setQuickPitchStep(3)}
+                className="flex-1 py-2.5 sm:py-3 rounded-xl text-white font-medium magenta-gradient text-sm">
+
                     Looks good →
                   </button>
                 </div>
               </div>
-            )}
+          }
 
             {/* Step 3: Context / Files */}
-            {quickPitchStep === 3 && (
-              <div>
+            {quickPitchStep === 3 &&
+          <div>
                 <p className="text-sm text-muted-foreground mb-4">Anything to help me help you? (optional)</p>
                 
                 {/* Hidden file input */}
                 <input
-                  ref={fileInputRef}
-                  type="file"
-                  multiple
-                  accept={FILE_UPLOAD_CONFIG.acceptString}
-                  onChange={(e) => handleFileSelect(e.target.files)}
-                  className="hidden"
-                />
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept={FILE_UPLOAD_CONFIG.acceptString}
+              onChange={(e) => handleFileSelect(e.target.files)}
+              className="hidden" />
+
                 
                 {/* Drag and drop zone */}
                 <div
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                  onClick={() => fileInputRef.current?.click()}
-                  className={`relative mb-4 p-6 rounded-xl border-2 border-dashed cursor-pointer transition-all text-center ${
-                    isDragging 
-                      ? 'border-primary bg-primary/10' 
-                      : 'border-accent/30 hover:border-accent/50 hover:bg-accent/5'
-                  }`}
-                >
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+              className={`relative mb-4 p-6 rounded-xl border-2 border-dashed cursor-pointer transition-all text-center ${
+              isDragging ?
+              'border-primary bg-primary/10' :
+              'border-accent/30 hover:border-accent/50 hover:bg-accent/5'}`
+              }>
+
                   <Upload className={`w-7 h-7 mx-auto mb-2 ${isDragging ? 'text-primary' : 'text-muted-foreground'}`} />
                   <p className="text-foreground text-sm mb-1">
                     {isDragging ? 'Drop files here' : 'Drop files here or click to browse'}
@@ -1636,67 +1636,67 @@ const Dashboard = () => {
                 </div>
                 
                 {/* Attached files list */}
-                {attachedFiles.length > 0 && (
-                  <div className="mb-4">
+                {attachedFiles.length > 0 &&
+            <div className="mb-4">
                     <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
                       Attached ({attachedFiles.length})
                     </p>
                     <div className="space-y-2 max-h-32 overflow-y-auto">
                       {attachedFiles.map((file) => {
-                        const FileIcon = getFileIcon(file.type);
-                        return (
-                          <div
-                            key={file.id}
-                            className="flex items-center gap-3 p-2 rounded-lg border border-accent/20 bg-accent/5"
-                          >
+                  const FileIcon = getFileIcon(file.type);
+                  return (
+                    <div
+                      key={file.id}
+                      className="flex items-center gap-3 p-2 rounded-lg border border-accent/20 bg-accent/5">
+
                             <FileIcon className="w-4 h-4 text-accent flex-shrink-0" />
                             <span className="text-foreground text-xs truncate flex-1">{file.name}</span>
                             <span className="text-muted-foreground text-xs">{formatFileSize(file.size)}</span>
                             <button
-                              onClick={(e) => { e.stopPropagation(); handleRemoveFile(file.id); }}
-                              className="p-1 hover:bg-accent/20 rounded"
-                            >
+                        onClick={(e) => {e.stopPropagation();handleRemoveFile(file.id);}}
+                        className="p-1 hover:bg-accent/20 rounded">
+
                               <X className="w-3 h-3 text-muted-foreground" />
                             </button>
-                          </div>
-                        );
-                      })}
+                          </div>);
+
+                })}
                     </div>
                   </div>
-                )}
+            }
                 
                 {/* Highlight notes */}
                 <div className="mb-4">
                   <p className="text-xs text-muted-foreground mb-2">Specific points to highlight (optional)</p>
                   <textarea
-                    value={highlightNotes}
-                    onChange={(e) => setHighlightNotes(e.target.value)}
-                    placeholder="e.g., Emphasize my leadership experience..."
-                    className="w-full h-16 p-3 rounded-xl text-foreground input-field resize-none text-sm"
-                  />
+                value={highlightNotes}
+                onChange={(e) => setHighlightNotes(e.target.value)}
+                placeholder="e.g., Emphasize my leadership experience..."
+                className="w-full h-16 p-3 rounded-xl text-foreground input-field resize-none text-sm" />
+
                 </div>
                 
                 <div className="flex gap-3">
-                  <button 
-                    onClick={() => setQuickPitchStep(2)} 
-                    className="flex-1 py-2.5 sm:py-3 rounded-xl text-muted-foreground border border-border text-sm"
-                  >
+                  <button
+                onClick={() => setQuickPitchStep(2)}
+                className="flex-1 py-2.5 sm:py-3 rounded-xl text-muted-foreground border border-border text-sm">
+
                     ← Back
                   </button>
-                  <button 
-                    onClick={() => setQuickPitchStep(4)}
-                    disabled={isProcessingFiles}
-                    className="flex-1 py-2.5 sm:py-3 rounded-xl text-white font-medium magenta-gradient text-sm disabled:opacity-50"
-                  >
+                  <button
+                onClick={() => setQuickPitchStep(4)}
+                disabled={isProcessingFiles}
+                className="flex-1 py-2.5 sm:py-3 rounded-xl text-white font-medium magenta-gradient text-sm disabled:opacity-50">
+
                     {attachedFiles.length > 0 ? 'Next →' : 'Skip & Continue →'}
                   </button>
                 </div>
               </div>
-            )}
+          }
 
             {/* Step 4: Quick Tune */}
-            {quickPitchStep === 4 && (
-              <div>
+            {quickPitchStep === 4 &&
+          <div>
                 <p className="text-sm text-muted-foreground mb-4">Any preferences? (or use smart defaults)</p>
                 
                 {/* Length */}
@@ -1704,23 +1704,23 @@ const Dashboard = () => {
                   <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Length</p>
                   <div className="grid grid-cols-3 gap-2">
                     {[
-                      { id: 'quick', label: 'Quick', desc: 'Brief summary' },
-                      { id: 'standard', label: 'Standard', desc: 'Full content' },
-                      { id: 'detailed', label: 'Detailed', desc: 'Comprehensive' }
-                    ].map(opt => (
-                      <button
-                        key={opt.id}
-                        onClick={() => setSelectedLength(opt.id as 'quick' | 'standard' | 'detailed')}
-                        className={`p-3 rounded-xl border text-center transition-all ${
-                          selectedLength === opt.id
-                            ? 'border-primary bg-primary/10 text-foreground'
-                            : 'border-accent/20 text-muted-foreground hover:border-accent/40'
-                        }`}
-                      >
+                { id: 'quick', label: 'Quick', desc: 'Brief summary' },
+                { id: 'standard', label: 'Standard', desc: 'Full content' },
+                { id: 'detailed', label: 'Detailed', desc: 'Comprehensive' }].
+                map((opt) =>
+                <button
+                  key={opt.id}
+                  onClick={() => setSelectedLength(opt.id as 'quick' | 'standard' | 'detailed')}
+                  className={`p-3 rounded-xl border text-center transition-all ${
+                  selectedLength === opt.id ?
+                  'border-primary bg-primary/10 text-foreground' :
+                  'border-accent/20 text-muted-foreground hover:border-accent/40'}`
+                  }>
+
                         <p className="text-sm font-medium">{opt.label}</p>
                         <p className="text-xs opacity-70">{opt.desc}</p>
                       </button>
-                    ))}
+                )}
                   </div>
                 </div>
                 
@@ -1729,63 +1729,63 @@ const Dashboard = () => {
                   <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Tone</p>
                   <div className="grid grid-cols-4 gap-2">
                     {[
-                      { id: 'confident', label: 'Confident' },
-                      { id: 'humble', label: 'Humble' },
-                      { id: 'balanced', label: 'Balanced' },
-                      { id: 'bold', label: 'Bold' }
-                    ].map(opt => (
-                      <button
-                        key={opt.id}
-                        onClick={() => setSelectedTone(opt.id as 'confident' | 'humble' | 'balanced' | 'bold')}
-                        className={`p-3 rounded-xl border text-center transition-all ${
-                          selectedTone === opt.id
-                            ? 'border-primary bg-primary/10 text-foreground'
-                            : 'border-accent/20 text-muted-foreground hover:border-accent/40'
-                        }`}
-                      >
+                { id: 'confident', label: 'Confident' },
+                { id: 'humble', label: 'Humble' },
+                { id: 'balanced', label: 'Balanced' },
+                { id: 'bold', label: 'Bold' }].
+                map((opt) =>
+                <button
+                  key={opt.id}
+                  onClick={() => setSelectedTone(opt.id as 'confident' | 'humble' | 'balanced' | 'bold')}
+                  className={`p-3 rounded-xl border text-center transition-all ${
+                  selectedTone === opt.id ?
+                  'border-primary bg-primary/10 text-foreground' :
+                  'border-accent/20 text-muted-foreground hover:border-accent/40'}`
+                  }>
+
                         <p className="text-xs font-medium">{opt.label}</p>
                       </button>
-                    ))}
+                )}
                   </div>
                 </div>
                 
                 <div className="flex gap-3">
-                  <button 
-                    onClick={() => setQuickPitchStep(3)} 
-                    className="flex-1 py-2.5 sm:py-3 rounded-xl text-muted-foreground border border-border text-sm"
-                  >
+                  <button
+                onClick={() => setQuickPitchStep(3)}
+                className="flex-1 py-2.5 sm:py-3 rounded-xl text-muted-foreground border border-border text-sm">
+
                     ← Back
                   </button>
-                  <button 
-                    onClick={handleQuickGenerate}
-                    className="flex-1 py-2.5 sm:py-3 rounded-xl text-white font-medium magenta-gradient text-sm flex items-center justify-center gap-2"
-                  >
+                  <button
+                onClick={handleQuickGenerate}
+                className="flex-1 py-2.5 sm:py-3 rounded-xl text-white font-medium magenta-gradient text-sm flex items-center justify-center gap-2">
+
                     <Sparkles className="w-4 h-4" /> Generate
                   </button>
                 </div>
               </div>
-            )}
+          }
 
             {/* Step 5: Generating / Error */}
-            {quickPitchStep === 5 && (
-              <>
-                {generationError && !isGenerating ? (
-                  <GenerationError
-                    error={generationError.error}
-                    errorType={generationError.errorType}
-                    retryCount={generationError.retryCount}
-                    onRetry={() => {
-                      setGenerationError(null);
-                      handleQuickGenerate();
-                    }}
-                  />
-                ) : (
-                  <div className="py-8 sm:py-12 text-center">
+            {quickPitchStep === 5 &&
+          <>
+                {generationError && !isGenerating ?
+            <GenerationError
+              error={generationError.error}
+              errorType={generationError.errorType}
+              retryCount={generationError.retryCount}
+              onRetry={() => {
+                setGenerationError(null);
+                handleQuickGenerate();
+              }} /> :
+
+
+            <div className="py-8 sm:py-12 text-center">
                     <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 sm:mb-6 relative flex items-center justify-center">
-                      <div 
-                        className="absolute inset-0 rounded-full opacity-30 blur-xl"
-                        style={{ background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%)' }}
-                      />
+                      <div
+                  className="absolute inset-0 rounded-full opacity-30 blur-xl"
+                  style={{ background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%)' }} />
+
                       <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 text-primary relative z-10" />
                     </div>
                     <p className="text-foreground font-medium text-sm sm:text-base">
@@ -1798,37 +1798,37 @@ const Dashboard = () => {
                       <GenerationSkeleton format={outputFormat} />
                     </div>
                   </div>
-                )}
+            }
               </>
-            )}
+          }
           </div>
         </div>
-      )}
+      }
 
       {/* Share Modal */}
       <ShareModal
         isOpen={showShareModal}
         onClose={() => setShowShareModal(false)}
         projectTitle={activeProject?.title || 'My Pitch'}
-        publicUrl={shareUrl}
-      />
+        publicUrl={shareUrl} />
+
       
       {/* Paywall Modal */}
       <PaywallModal
         open={showPaywall}
         onOpenChange={setShowPaywall}
         type={paywallType}
-        message={paywallMessage}
-      />
+        message={paywallMessage} />
+
       
       {/* Upgrade Nudge */}
       <UpgradeNudge
         message={nudgeMessage || ''}
         show={showNudge}
-        onDismiss={dismissNudge}
-      />
-    </div>
-  );
+        onDismiss={dismissNudge} />
+
+    </div>);
+
 };
 
 export default Dashboard;
