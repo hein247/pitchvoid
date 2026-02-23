@@ -6,8 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import FAQSection from '@/components/pricing/FAQSection';
-import LegalSection from '@/components/pricing/LegalSection';
+import Footer from '@/components/Footer';
 
 interface CreditPack {
   id: string;
@@ -106,7 +105,7 @@ export default function Pricing() {
   };
 
   return (
-    <div className="min-h-screen bg-background bg-[radial-gradient(ellipse_at_top,_hsl(25_75%_65%/0.08)_0%,_transparent_50%),_radial-gradient(ellipse_at_bottom_right,_hsl(260_60%_55%/0.06)_0%,_transparent_50%)]">
+    <div className="min-h-screen bg-background bg-[radial-gradient(ellipse_at_top,_hsl(25_75%_65%/0.08)_0%,_transparent_50%),_radial-gradient(ellipse_at_bottom_right,_hsl(260_60%_55%/0.06)_0%,_transparent_50%)] flex flex-col">
       {/* Header */}
       <header className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -137,7 +136,7 @@ export default function Pricing() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-14 sm:py-20">
+      <main className="flex-1 max-w-5xl mx-auto px-4 py-14 sm:py-20">
         {/* Headline */}
         <div className="text-center mb-14">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-4 font-display">
@@ -240,19 +239,9 @@ export default function Pricing() {
           </p>
         </div>
 
-        <FAQSection />
-        <LegalSection />
-
-        {/* Contact */}
-        <div className="text-center mt-14">
-          <p className="text-muted-foreground text-sm">
-            Have questions?{' '}
-            <a href="mailto:support@pitchvoid.com" className="text-primary hover:underline">
-              Contact us
-            </a>
-          </p>
-        </div>
       </main>
+
+      <Footer />
     </div>
   );
 }
