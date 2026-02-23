@@ -8,12 +8,11 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// Price IDs from Stripe
-const PRICE_IDS = {
-  pro_monthly: "price_1SuoSbImekftI6UkxorAd6zE",
-  pro_yearly: "price_1SuoU7ImekftI6Ukkrnqzy8N",
-  teams_monthly: "price_1SuoUdImekftI6UkCgWSeiQ9",
-  teams_yearly: "price_1SuoUqImekftI6UkttJxVaDi",
+// Credit pack price IDs from Stripe (one-time payments)
+const CREDIT_PACK_PRICES: Record<string, { priceId: string; credits: number }> = {
+  credits_10: { priceId: "price_1T46sMImekftI6UkS6muxvKv", credits: 10 },
+  credits_30: { priceId: "price_1T46scImekftI6Ukme7jMxPp", credits: 30 },
+  credits_100: { priceId: "price_1T46spImekftI6UkGFqNfMcD", credits: 100 },
 };
 
 const logStep = (step: string, details?: Record<string, unknown>) => {
@@ -29,7 +28,6 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
-    // Rate limiting check
     const clientIP = getClientIP(req);
     const rateLimitResult = await checkRateLimit(`checkout:${clientIP}`, RATE_LIMITS.checkout.default);
     if (!rateLimitResult.allowed) {
@@ -45,7 +43,6 @@ serve(async (req) => {
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
       );
     }
-    logStep("Stripe key verified");
 
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
@@ -59,12 +56,10 @@ serve(async (req) => {
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
       );
     }
-    logStep("Authorization header found");
 
     const token = authHeader.replace("Bearer ", "");
     const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
     if (userError || !userData.user) {
-      console.error("Authentication error:", userError);
       return new Response(
         JSON.stringify({ error: "Invalid authentication" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
@@ -80,19 +75,14 @@ serve(async (req) => {
     logStep("User authenticated", { userId: user.id });
 
     // Parse request body
-    let planType: string;
-    let isYearly: boolean;
-    let seatCount: number;
-    
+    let creditPackId: string;
     try {
       const body = await req.json();
-      planType = body.planType;
-      isYearly = body.isYearly;
-      seatCount = body.seatCount || 2;
-      
-      if (!planType || !["pro", "teams"].includes(planType)) {
+      creditPackId = body.creditPackId;
+
+      if (!creditPackId || !CREDIT_PACK_PRICES[creditPackId]) {
         return new Response(
-          JSON.stringify({ error: "Invalid plan type" }),
+          JSON.stringify({ error: "Invalid credit pack" }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
         );
       }
@@ -102,17 +92,9 @@ serve(async (req) => {
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
       );
     }
-    
-    logStep("Request body parsed", { planType, isYearly, seatCount });
 
-    // Determine price ID based on plan and interval
-    let priceId: string;
-    if (planType === "pro") {
-      priceId = isYearly ? PRICE_IDS.pro_yearly : PRICE_IDS.pro_monthly;
-    } else {
-      priceId = isYearly ? PRICE_IDS.teams_yearly : PRICE_IDS.teams_monthly;
-    }
-    logStep("Price ID determined", { priceId });
+    const pack = CREDIT_PACK_PRICES[creditPackId];
+    logStep("Credit pack selected", { creditPackId, credits: pack.credits });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
@@ -121,40 +103,22 @@ serve(async (req) => {
     let customerId: string | undefined;
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
-      logStep("Existing customer found", { customerId });
-    } else {
-      logStep("No existing customer, will create new");
     }
-
-    // Build line items
-    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
-      {
-        price: priceId,
-        quantity: planType === "teams" ? seatCount : 1,
-      },
-    ];
 
     const origin = req.headers.get("origin") || "https://pitchvoid.lovable.app";
 
-    // Create checkout session
+    // Create one-time payment checkout session
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
-      line_items: lineItems,
-      mode: "subscription",
+      line_items: [{ price: pack.priceId, quantity: 1 }],
+      mode: "payment",
       success_url: `${origin}/dashboard?checkout=success`,
       cancel_url: `${origin}/pricing?checkout=cancelled`,
       metadata: {
         user_id: user.id,
-        plan_type: planType,
-        is_yearly: String(isYearly),
-        seat_count: String(seatCount),
-      },
-      subscription_data: {
-        metadata: {
-          user_id: user.id,
-          plan_type: planType,
-        },
+        credit_pack_id: creditPackId,
+        credits: String(pack.credits),
       },
     });
 
