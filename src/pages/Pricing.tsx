@@ -215,19 +215,16 @@ export default function Pricing() {
             How credits work
           </h2>
 
-          <div className="space-y-4 mb-6">
-            <div className="flex items-start gap-3 text-sm sm:text-base text-muted-foreground">
-              <span className="text-lg leading-none mt-0.5">🎯</span>
-              <span>1 credit = 1 generated output (one-pager or talking script)</span>
-            </div>
-            <div className="flex items-start gap-3 text-sm sm:text-base text-muted-foreground">
-              <span className="text-lg leading-none mt-0.5">🔄</span>
-              <span>Refining, editing, and switching versions are free — unlimited</span>
-            </div>
-            <div className="flex items-start gap-3 text-sm sm:text-base text-muted-foreground">
-              <span className="text-lg leading-none mt-0.5">🎧</span>
-              <span>Practice mode, breathing, teleprompter, and PDF export are always free</span>
-            </div>
+          <div className="space-y-4 mb-6 text-center">
+            <p className="text-sm sm:text-base text-muted-foreground">
+              1 credit = 1 generated output (one-pager or talking script)
+            </p>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              Refining, editing, and switching versions are free and unlimited
+            </p>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              Practice mode, breathing, teleprompter, and PDF export are always free
+            </p>
           </div>
 
           <p className="text-center text-sm text-muted-foreground/70">
