@@ -90,11 +90,21 @@ OUTPUT SCHEMA (return ONLY this JSON, nothing else):
   ]
 }
 
+SECTION TITLES (MANDATORY — NO EXCEPTIONS):
+- You MUST use exactly these three section titles: "THE PROBLEM", "PROVEN RESULTS", "THE PROPOSAL".
+- Do not invent alternative section names. Do not use "Market Opportunity", "Product & Experience", "The Ask", "Under Pressure", "Technical Skills", "Next Step", "APAC Expansion", "What I'd Do", or any other titles.
+- Always output exactly 3 sections in this order: THE PROBLEM, PROVEN RESULTS, THE PROPOSAL.
+
+VOICE RULE (MANDATORY):
+- Write all points in third-person professional voice. Never use first-person ("I", "my", "we", "our").
+- Replace "I built" with "Built". Replace "my experience at Uber" with "Marketplace design experience from Uber".
+- Replace personal references like "my neighbor" with generic professional framing like "local operators".
+- The output should read like a pitch deck, not a personal conversation.
+
 STRUCTURE RULES:
-- Maximum 3 sections for most scenarios. Only use 4 sections if the user's input clearly has 4 distinct topics. When in doubt, use fewer sections. Combine related topics.
+- Always exactly 3 sections. No more, no less.
 - Maximum 2-3 points per section. Every point must earn its place — if a point restates something already said in another point, delete it. If you need 3 points to say what 2 points could say, use 2.
-- The last section (the ask or next step) should have exactly 1-2 points. One clear ask. Do not restate the ask three different ways.
-- Last section is ALWAYS the next step or ask.
+- The last section (THE PROPOSAL) should have exactly 1-2 points. One clear ask. Do not restate the ask three different ways.
 - Each point is self-contained — readable without the others.
 - Max 2 sentences per point.
 - Front-load the key detail in the first 5 words.
@@ -111,11 +121,11 @@ SECTION DENSITY RULE:
 - A section with 1 strong specific point is better than a section with 1 strong point and 1 weak generic point. If you cannot write a second point using ONLY details from the user input, leave the section with 1 point. Sections with 1 point are perfectly fine. Never add a point just to fill space.
 - The Proven Results / Proven Approach section should almost always have exactly 1 point — the specific proof with numbers. Do not add a second point explaining WHY the proof matters. The numbers speak for themselves.
 
-STRUCTURE VARIETY (choose based on scenario):
-- Persuasion (pitch, budget ask): Problem → Solution → Ask
-- Updates (review, status): Results → Insights → Next Steps
-- Introductions (interview, new client): Capability → Proof → Next Step
-- Proposals (project, rebrand): Opportunity → Approach → Ask
+STRUCTURE VARIETY (adapt content to scenario, but ALWAYS use THE PROBLEM / PROVEN RESULTS / THE PROPOSAL as titles):
+- Persuasion (pitch, budget ask): THE PROBLEM = gap/pain, PROVEN RESULTS = evidence, THE PROPOSAL = the ask
+- Updates (review, status): THE PROBLEM = challenge addressed, PROVEN RESULTS = metrics, THE PROPOSAL = next steps
+- Introductions (interview, new client): THE PROBLEM = need they have, PROVEN RESULTS = capability proof, THE PROPOSAL = next step
+- Proposals (project, rebrand): THE PROBLEM = opportunity/gap, PROVEN RESULTS = approach with proof, THE PROPOSAL = the ask
 
 AUDIENCE ADAPTATION:
 - Manager/boss: direct, results-focused, brief
@@ -144,13 +154,13 @@ USER CONTEXT:
 FEW-SHOT EXAMPLES:
 
 Input: "interview at tiffany for design role, i know adobe well, good at print production, can handle pressure and tight deadlines, want to discuss portfolio"
-Output: {"title":"Tiffany Design Interview","context_line":"Design capability overview for Tiffany & Co. hiring manager","sections":[{"title":"Technical Skills","points":["Expert-level Adobe Creative Suite — non-destructive editing, clean layer hierarchy for team collaboration.","Rigorous pre-flight for print: ink density control, bleed management, spot-color accuracy."]},{"title":"Under Pressure","points":["Navigate tight production windows by catching bottlenecks early in wireframing and prototyping."]},{"title":"Next Step","points":["Walk through the portfolio to show how this translates to the team's current needs."]}]}
+Output: {"title":"Tiffany Design Interview","context_line":"Design capability overview for Tiffany & Co. hiring manager","sections":[{"title":"THE PROBLEM","points":["Tiffany's design team needs someone who can handle high-volume print production without sacrificing craft quality."]},{"title":"PROVEN RESULTS","points":["Expert-level Adobe Creative Suite — non-destructive editing, clean layer hierarchy for team collaboration.","Consistent delivery under tight production windows by catching bottlenecks early in wireframing and prototyping."]},{"title":"THE PROPOSAL","points":["Walk through the portfolio to demonstrate how these skills translate to the team's current needs."]}]}
 
 Input: "need to present Q3 to board, revenue up 40%, got 12 new enterprise deals, expanding to APAC next quarter, need them to approve budget for 20 new hires"
-Output: {"title":"Q3 Board Review","context_line":"Quarterly performance and hiring request for the board of directors","sections":[{"title":"Q3 Performance","points":["Revenue grew **40%** quarter-over-quarter, driven by **12** new enterprise deals."]},{"title":"APAC Expansion","points":["Market entry planned for Q4 — initial partnerships signed with regional distributors."]},{"title":"The Ask","points":["Approve budget for **20** new hires across engineering and sales to support expansion."]}]}
+Output: {"title":"Q3 Board Review","context_line":"Quarterly performance and hiring request for the board of directors","sections":[{"title":"THE PROBLEM","points":["Scaling into APAC requires immediate headcount investment to maintain growth trajectory."]},{"title":"PROVEN RESULTS","points":["Revenue grew **40%** quarter-over-quarter, driven by **12** new enterprise deals."]},{"title":"THE PROPOSAL","points":["Approve budget for **20** new hires across engineering and sales to support APAC expansion."]}]}
 
 Input: "pitching a rebrand to a bakery owner, they have no online presence, their current logo looks dated, i can do logo + website + social templates, budget friendly"
-Output: {"title":"Bakery Rebrand Pitch","context_line":"Brand refresh proposal for local bakery owner","sections":[{"title":"The Problem","points":["Current branding looks dated compared to competitors — customers choosing newer spots with stronger visual identity.","Zero online presence means missing foot traffic from people searching 'bakery near me'."]},{"title":"What I'd Do","points":["Modern logo redesign plus a one-page website with menu, hours, and online ordering link.","**10** social media templates ready to use for Instagram and Facebook."]},{"title":"Next Step","points":["Start with the logo — budget-friendly flat fee, website and social follow from there."]}]}`;
+Output: {"title":"Bakery Rebrand Pitch","context_line":"Brand refresh proposal for local bakery owner","sections":[{"title":"THE PROBLEM","points":["Current branding looks dated compared to competitors — customers choosing newer spots with stronger visual identity.","Zero online presence means missing foot traffic from people searching 'bakery near me'."]},{"title":"PROVEN RESULTS","points":["Modern logo redesign plus a one-page website with menu, hours, and online ordering link.","**10** social media templates ready to use for Instagram and Facebook."]},{"title":"THE PROPOSAL","points":["Start with the logo — budget-friendly flat fee, website and social follow from there."]}]}`;
 
     const userPrompt = `Create a clarity cheat sheet from this input:
 
