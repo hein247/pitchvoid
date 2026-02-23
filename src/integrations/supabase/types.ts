@@ -105,6 +105,7 @@ export type Database = {
           credits: number | null
           current_period_end: string | null
           full_name: string | null
+          has_onboarded: boolean
           id: string
           last_pitch_at: string | null
           pitch_count: number | null
@@ -122,6 +123,7 @@ export type Database = {
           credits?: number | null
           current_period_end?: string | null
           full_name?: string | null
+          has_onboarded?: boolean
           id: string
           last_pitch_at?: string | null
           pitch_count?: number | null
@@ -139,6 +141,7 @@ export type Database = {
           credits?: number | null
           current_period_end?: string | null
           full_name?: string | null
+          has_onboarded?: boolean
           id?: string
           last_pitch_at?: string | null
           pitch_count?: number | null

@@ -26,6 +26,7 @@ import GenerationError from '@/components/dashboard/GenerationError';
 import GenerationSkeleton from '@/components/dashboard/GenerationSkeleton';
 import PitchUsageBanner from '@/components/dashboard/PitchUsageBanner';
 import ProjectCard from '@/components/dashboard/ProjectCard';
+import OnboardingPrompt from '@/components/dashboard/OnboardingPrompt';
 import VersionHistoryDropdown from '@/components/dashboard/VersionHistoryDropdown';
 import MobileOverflowMenu from '@/components/dashboard/MobileOverflowMenu';
 import { useProjects, type ProjectRecord, type DraftState } from '@/hooks/useProjects';
@@ -101,6 +102,7 @@ const Dashboard = () => {
   const [showShareModal, setShowShareModal] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+  const [hasOnboarded, setHasOnboarded] = useState(true); // default true to avoid flash
   
   // Form state
   const [newProjectName, setNewProjectName] = useState('');
@@ -197,6 +199,19 @@ const Dashboard = () => {
       navigate('/auth');
     }
   }, [user, loading, navigate]);
+
+  // Fetch onboarding status
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from('profiles')
+      .select('has_onboarded')
+      .eq('id', user.id)
+      .single()
+      .then(({ data }) => {
+        if (data) setHasOnboarded(data.has_onboarded ?? false);
+      });
+  }, [user]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -632,6 +647,12 @@ const Dashboard = () => {
       // Increment pitch count on successful generation
       await incrementPitchCount();
       
+      // Mark onboarded after first generation
+      if (!hasOnboarded) {
+        setHasOnboarded(true);
+        supabase.from('profiles').update({ has_onboarded: true }).eq('id', user!.id).then(() => {});
+      }
+      
       // Reset Quick Pitch state
       resetQuickPitchState();
       
@@ -973,6 +994,14 @@ const Dashboard = () => {
               <h1 className="text-xl sm:text-2xl font-bold text-foreground font-display">Your Pitches</h1>
             </div>
 
+            {/* Onboarding Scenario Cards */}
+            {!hasOnboarded && projects.length === 0 && !projectsLoading && (
+              <OnboardingPrompt onSelectScenario={(text) => {
+                setTranscribedText(text);
+                dashboardInputRef.current?.focus();
+              }} />
+            )}
+
             {/* Inline Pitch Input */}
             <div className="mb-6 sm:mb-8 rounded-xl border border-border/50 bg-card/40 backdrop-blur-sm p-4 sm:p-5">
               <textarea
@@ -1019,7 +1048,13 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Pitch Usage Banner */}
+            {/* Onboarding tip */}
+            {!hasOnboarded && projects.length === 0 && !projectsLoading && (
+              <p className="text-[11px] -mt-4 mb-6" style={{ color: 'rgba(240,237,246,0.15)' }}>
+                Tip: the messier, the better. Just dump everything — PitchVoid will sort it out.
+              </p>
+            )}
+
             <div className="mb-6 sm:mb-8">
               <PitchUsageBanner 
                 pitchCount={pitchCount} 
