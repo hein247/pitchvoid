@@ -6,6 +6,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import FAQSection from '@/components/pricing/FAQSection';
+import LegalSection from '@/components/pricing/LegalSection';
 
 interface CreditPack {
   id: string;
@@ -237,6 +239,9 @@ export default function Pricing() {
             Every new account starts with 3 free credits. No credit card needed.
           </p>
         </div>
+
+        <FAQSection />
+        <LegalSection />
 
         {/* Contact */}
         <div className="text-center mt-14">
