@@ -5,7 +5,7 @@ import HowItWorks from '@/components/landing/HowItWorks';
 import AnimatedShaderBackground from '@/components/ui/animated-shader-background';
 const Landing = () => {
   const navigate = useNavigate();
-  return <div className="min-h-screen relative">
+  return <div className="min-h-screen relative bg-[radial-gradient(ellipse_at_top,_hsl(25_75%_65%/0.08)_0%,_transparent_50%),_radial-gradient(ellipse_at_bottom_right,_hsl(260_60%_55%/0.06)_0%,_transparent_50%)]">
       <AnimatedShaderBackground />
       {/* Navigation */}
       <div className="relative z-10">
