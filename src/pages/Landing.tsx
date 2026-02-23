@@ -23,7 +23,7 @@ const Landing = () => {
                 </span>
               </h1>
 
-              <p className="text-base sm:text-lg text-muted-foreground mb-8 sm:mb-10 max-w-md mx-auto leading-relaxed">Tell us the scenario in plain English. PitchVoid figures out who you're pitching or talking, why it matters, and crafts it for you.</p>
+              <p className="text-base sm:text-lg text-muted-foreground mb-8 sm:mb-10 max-w-md mx-auto leading-relaxed">Dump your scattered thoughts. PitchVoid turns them into something you can actually walk in and say.</p>
 
               <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 mb-5 justify-center">
                 <button onClick={() => navigate('/dashboard')} className="w-full sm:w-auto px-7 sm:px-8 py-3.5 sm:py-4 rounded-xl text-primary-foreground font-medium magenta-gradient text-base sm:text-lg flex items-center justify-center gap-3 hover:opacity-90 transition-opacity group">
@@ -34,7 +34,7 @@ const Landing = () => {
               </div>
 
               <p className="text-sm text-muted-foreground">
-                No signup required · <span className="kbd">⌘K</span> to quick pitch anywhere
+                No signup required · works for pitches, interviews, tough conversations, and more
               </p>
             </div>
           </div>
@@ -45,13 +45,13 @@ const Landing = () => {
         {/* CTA Section */}
         <section id="pricing" className="max-w-3xl mx-auto px-4 sm:px-8 py-16 sm:py-24 text-center">
           <h2 className="text-3xl sm:text-4xl text-foreground mb-4 sm:mb-6 font-display">
-            Your next pitch is one sentence away.
+            Your next conversation is one brain dump away.
           </h2>
           <p className="text-muted-foreground mb-6 sm:mb-8 text-sm sm:text-base max-w-lg mx-auto">
-            3 free pitches, no credit card. Describe the scenario and let PitchVoid handle the rest.
+            Investor pitch. Job interview. Difficult conversation. Whatever it is — dump the mess, get the clarity.
           </p>
           <button onClick={() => navigate('/dashboard')} className="w-full sm:w-auto px-8 py-4 rounded-xl text-primary-foreground font-medium magenta-gradient text-lg hover:opacity-90 transition-opacity group inline-flex items-center gap-3">
-            Start pitching
+            Enter the void
             <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </section>
