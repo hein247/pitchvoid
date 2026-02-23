@@ -24,8 +24,6 @@ serve(async (req) => {
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
 
     const stripeWebhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
-    
-    // CRITICAL: Webhook signature verification is mandatory
     if (!stripeWebhookSecret) {
       console.error("CRITICAL: STRIPE_WEBHOOK_SECRET not configured");
       return new Response(
@@ -36,12 +34,10 @@ serve(async (req) => {
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
-    // Get raw body for signature verification
     const body = await req.text();
     const signature = req.headers.get("stripe-signature");
 
     if (!signature) {
-      logStep("Missing stripe-signature header");
       return new Response(
         JSON.stringify({ error: "Missing stripe-signature header" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -49,8 +45,6 @@ serve(async (req) => {
     }
 
     let event: Stripe.Event;
-
-    // Verify webhook signature (mandatory)
     try {
       event = stripe.webhooks.constructEvent(body, signature, stripeWebhookSecret);
       logStep("Webhook signature verified");
@@ -74,18 +68,60 @@ serve(async (req) => {
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
-        logStep("Checkout completed", { 
+        logStep("Checkout completed", {
           customerId: session.customer,
-          subscriptionId: session.subscription,
-          metadata: session.metadata
+          mode: session.mode,
+          metadata: session.metadata,
         });
 
         const userId = session.metadata?.user_id;
-        const planType = session.metadata?.plan_type || "pro";
-        const isYearly = session.metadata?.is_yearly === "true";
+        if (!userId) {
+          logStep("No user_id in metadata, skipping");
+          break;
+        }
 
-        if (userId) {
-          // Update user profile with subscription info
+        if (session.mode === "payment") {
+          // One-time credit pack purchase
+          const creditsToAdd = parseInt(session.metadata?.credits || "0", 10);
+          if (creditsToAdd <= 0) {
+            logStep("Invalid credits value", { credits: session.metadata?.credits });
+            break;
+          }
+
+          // Get current credits first
+          const { data: profile, error: fetchError } = await supabaseAdmin
+            .from("profiles")
+            .select("credits, stripe_customer_id")
+            .eq("id", userId)
+            .single();
+
+          if (fetchError) {
+            logStep("Error fetching profile", { error: fetchError.message });
+            break;
+          }
+
+          const currentCredits = profile?.credits ?? 0;
+          const newCredits = currentCredits + creditsToAdd;
+
+          const { error: updateError } = await supabaseAdmin
+            .from("profiles")
+            .update({
+              credits: newCredits,
+              stripe_customer_id: (session.customer as string) || profile?.stripe_customer_id,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", userId);
+
+          if (updateError) {
+            logStep("Error adding credits", { error: updateError.message });
+          } else {
+            logStep("Credits added successfully", { userId, added: creditsToAdd, total: newCredits });
+          }
+        } else if (session.mode === "subscription") {
+          // Legacy subscription handling
+          const planType = session.metadata?.plan_type || "pro";
+          const isYearly = session.metadata?.is_yearly === "true";
+
           const { error } = await supabaseAdmin
             .from("profiles")
             .update({
@@ -109,17 +145,10 @@ serve(async (req) => {
 
       case "customer.subscription.updated": {
         const subscription = event.data.object as Stripe.Subscription;
-        logStep("Subscription updated", { 
-          subscriptionId: subscription.id,
-          status: subscription.status,
-          currentPeriodEnd: subscription.current_period_end
-        });
-
         const userId = subscription.metadata?.user_id;
         if (userId) {
           const currentPeriodEnd = new Date(subscription.current_period_end * 1000).toISOString();
-          
-          const { error } = await supabaseAdmin
+          await supabaseAdmin
             .from("profiles")
             .update({
               subscription_status: subscription.status,
@@ -127,23 +156,15 @@ serve(async (req) => {
               updated_at: new Date().toISOString(),
             })
             .eq("id", userId);
-
-          if (error) {
-            logStep("Error updating subscription status", { error: error.message });
-          } else {
-            logStep("Subscription status updated", { userId, status: subscription.status });
-          }
         }
         break;
       }
 
       case "customer.subscription.deleted": {
         const subscription = event.data.object as Stripe.Subscription;
-        logStep("Subscription cancelled", { subscriptionId: subscription.id });
-
         const userId = subscription.metadata?.user_id;
         if (userId) {
-          const { error } = await supabaseAdmin
+          await supabaseAdmin
             .from("profiles")
             .update({
               plan: "free",
@@ -153,43 +174,6 @@ serve(async (req) => {
               updated_at: new Date().toISOString(),
             })
             .eq("id", userId);
-
-          if (error) {
-            logStep("Error reverting to free plan", { error: error.message });
-          } else {
-            logStep("Reverted to free plan", { userId });
-          }
-        }
-        break;
-      }
-
-      case "invoice.payment_failed": {
-        const invoice = event.data.object as Stripe.Invoice;
-        logStep("Payment failed", { 
-          invoiceId: invoice.id,
-          subscriptionId: invoice.subscription
-        });
-
-        // Get subscription to find user
-        if (invoice.subscription) {
-          const subscription = await stripe.subscriptions.retrieve(invoice.subscription as string);
-          const userId = subscription.metadata?.user_id;
-          
-          if (userId) {
-            const { error } = await supabaseAdmin
-              .from("profiles")
-              .update({
-                subscription_status: "past_due",
-                updated_at: new Date().toISOString(),
-              })
-              .eq("id", userId);
-
-            if (error) {
-              logStep("Error updating past_due status", { error: error.message });
-            } else {
-              logStep("Set to past_due", { userId });
-            }
-          }
         }
         break;
       }
