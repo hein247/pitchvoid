@@ -12,6 +12,8 @@ import Dashboard from "./pages/Dashboard";
 import PublicPresentation from "./pages/PublicPresentation";
 import Pricing from "./pages/Pricing";
 import Settings from "./pages/Settings";
+import FAQ from "./pages/FAQ";
+import Legal from "./pages/Legal";
 import NotFound from "./pages/NotFound";
 
 const CaseStudy = lazy(() => import("./pages/CaseStudy"));
@@ -32,6 +34,8 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/legal" element={<Legal />} />
             <Route path="/case-study" element={<Suspense fallback={<div className="min-h-screen" style={{ background: "#FFFFFF" }} />}><CaseStudy /></Suspense>} />
             
             <Route path="/p/:id" element={<PublicPresentation />} />

@@ -3,6 +3,7 @@ import { ArrowRight } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import HowItWorks from '@/components/landing/HowItWorks';
 import AnimatedShaderBackground from '@/components/ui/animated-shader-background';
+import Footer from '@/components/Footer';
 const Landing = () => {
   const navigate = useNavigate();
   return <div className="min-h-screen relative bg-[radial-gradient(ellipse_at_top,_hsl(25_75%_65%/0.08)_0%,_transparent_50%),_radial-gradient(ellipse_at_bottom_right,_hsl(260_60%_55%/0.06)_0%,_transparent_50%)]">
@@ -56,20 +57,7 @@ const Landing = () => {
           </button>
         </section>
 
-        {/* Footer */}
-        <footer className="border-t border-accent/10 pt-10 pb-16 px-4 sm:px-8">
-          <div className="max-w-7xl mx-auto flex flex-col items-center gap-4">
-            <span className="text-lg font-display brand-gradient-text">
-              PitchVoid
-            </span>
-            <p className="text-[11px] text-foreground/15 text-center">
-              © 2026 PitchVoid ·{' '}
-              <a href="/pricing#legal" className="hover:text-foreground/30 transition-colors">Terms</a> ·{' '}
-              <a href="/pricing#legal" className="hover:text-foreground/30 transition-colors">Privacy</a> ·{' '}
-              <a href="mailto:support@pitchvoid.com" className="hover:text-foreground/30 transition-colors">Contact</a>
-            </p>
-          </div>
-        </footer>
+        <Footer />
       </div>
     </div>;
 };
