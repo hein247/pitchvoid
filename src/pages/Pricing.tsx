@@ -141,7 +141,7 @@ export default function Pricing() {
         </div>
 
         {/* Credit pack cards */}
-        <div className="grid md:grid-cols-3 gap-5 sm:gap-6 mb-16 sm:mb-20">
+        <div className="flex flex-col md:flex-row gap-5 sm:gap-6 mb-16 sm:mb-20">
           {CREDIT_PACKS.map((pack) => (
             <div
               key={pack.id}
