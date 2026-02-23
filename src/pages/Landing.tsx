@@ -57,12 +57,17 @@ const Landing = () => {
         </section>
 
         {/* Footer */}
-        <footer className="border-t border-accent/10 py-6 sm:py-8 px-4 sm:px-8">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+        <footer className="border-t border-accent/10 pt-10 pb-16 px-4 sm:px-8">
+          <div className="max-w-7xl mx-auto flex flex-col items-center gap-4">
             <span className="text-lg font-display brand-gradient-text">
               PitchVoid
             </span>
-            <p className="text-sm text-muted-foreground">© 2025 PitchVoid. All rights reserved.</p>
+            <p className="text-[11px] text-foreground/15 text-center">
+              © 2026 PitchVoid ·{' '}
+              <a href="/pricing#legal" className="hover:text-foreground/30 transition-colors">Terms</a> ·{' '}
+              <a href="/pricing#legal" className="hover:text-foreground/30 transition-colors">Privacy</a> ·{' '}
+              <a href="mailto:support@pitchvoid.com" className="hover:text-foreground/30 transition-colors">Contact</a>
+            </p>
           </div>
         </footer>
       </div>
