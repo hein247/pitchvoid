@@ -103,6 +103,8 @@ const Dashboard = () => {
   const [showEditor, setShowEditor] = useState(false);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [hasOnboarded, setHasOnboarded] = useState(true); // default true to avoid flash
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const [emptyInputShake, setEmptyInputShake] = useState(false);
 
   // Form state
   const [newProjectName, setNewProjectName] = useState('');
@@ -212,6 +214,18 @@ const Dashboard = () => {
       if (data) setHasOnboarded(data.has_onboarded ?? false);
     });
   }, [user]);
+
+  // Online/offline detection
+  useEffect(() => {
+    const goOnline = () => setIsOffline(false);
+    const goOffline = () => setIsOffline(true);
+    window.addEventListener('online', goOnline);
+    window.addEventListener('offline', goOffline);
+    return () => {
+      window.removeEventListener('online', goOnline);
+      window.removeEventListener('offline', goOffline);
+    };
+  }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -600,8 +614,13 @@ const Dashboard = () => {
         };
       }
 
+      // 30-second timeout
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000);
+
       const { data, error } = await supabase.functions.invoke(functionName, { body });
 
+      clearTimeout(timeout);
       clearInterval(phaseInterval);
 
       if (error) throw error;
@@ -662,27 +681,33 @@ const Dashboard = () => {
       setIsGenerating(false);
 
       // Determine error type from the error response
-      let errorType: 'rate_limit' | 'credits' | 'network' | 'generic' = 'generic';
-      let errorMessage = 'Generation failed. Please try again.';
-
       const errorBody = typeof error?.message === 'string' ? error.message : '';
       const errorContext = typeof error?.context?.body === 'string' ? error.context.body : '';
       const combinedError = `${errorBody} ${errorContext}`.toLowerCase();
 
       if (combinedError.includes('rate limit') || combinedError.includes('429')) {
-        errorType = 'rate_limit';
-        errorMessage = 'You\'re sending requests too quickly. Please wait a moment before trying again.';
-      } else if (combinedError.includes('credits') || combinedError.includes('402')) {
-        errorType = 'credits';
-        errorMessage = 'AI credits have been exhausted. Please add credits or upgrade your plan.';
-      } else if (combinedError.includes('fetch') || combinedError.includes('network') || combinedError.includes('timeout')) {
-        errorType = 'network';
-        errorMessage = 'Couldn\'t reach the server. Check your connection and try again.';
+        toast({
+          title: "You're going too fast",
+          description: "Wait a moment and try again.",
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Something went wrong',
+          description: 'Try again.',
+          variant: 'destructive',
+        });
       }
 
+      // Keep user input intact — don't reset transcribedText
       setGenerationError({
-        error: errorMessage,
-        errorType,
+        error: combinedError.includes('rate limit') || combinedError.includes('429')
+          ? "You're going too fast. Wait a moment and try again."
+          : 'Something went wrong. Try again.',
+        errorType: combinedError.includes('rate limit') || combinedError.includes('429') ? 'rate_limit'
+          : combinedError.includes('credits') || combinedError.includes('402') ? 'credits'
+          : combinedError.includes('fetch') || combinedError.includes('network') || combinedError.includes('timeout') ? 'network'
+          : 'generic',
         retryCount: (generationError?.retryCount || 0) + 1
       });
 
@@ -1003,15 +1028,20 @@ const Dashboard = () => {
           }
 
             {/* Inline Pitch Input */}
-            <div className="mb-6 sm:mb-8 rounded-xl border border-border/50 bg-card/40 backdrop-blur-sm p-4 sm:p-5">
+            <div className={`mb-6 sm:mb-8 rounded-xl border border-border/50 bg-card/40 backdrop-blur-sm p-4 sm:p-5 transition-transform ${emptyInputShake ? 'animate-shake' : ''}`}>
               <textarea
               ref={dashboardInputRef}
               value={transcribedText}
               onChange={(e) => setTranscribedText(e.target.value)}
-              placeholder="Brain dump your thoughts here... meeting with CEO tomorrow, revenue down 15%, need budget approval..."
-              className="w-full h-16 sm:h-20 bg-transparent text-foreground placeholder:text-muted-foreground/50 resize-none text-sm focus:outline-none"
+              placeholder={emptyInputShake ? 'Drop some thoughts first' : 'Brain dump your thoughts here... meeting with CEO tomorrow, revenue down 15%, need budget approval...'}
+              className={`w-full h-16 sm:h-20 bg-transparent text-foreground resize-none text-sm focus:outline-none transition-colors ${emptyInputShake ? 'placeholder:text-red-500/50' : 'placeholder:text-muted-foreground/50'}`}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && transcribedText.trim()) {
+                if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                  if (!transcribedText.trim()) {
+                    setEmptyInputShake(true);
+                    setTimeout(() => setEmptyInputShake(false), 600);
+                    return;
+                  }
                   setShowQuickPitch(true);
                   handleParseInput();
                 }
@@ -1034,18 +1064,24 @@ const Dashboard = () => {
                 </div>
                 <button
                 onClick={() => {
-                  if (transcribedText.trim()) {
-                    setShowQuickPitch(true);
-                    handleParseInput();
+                  if (!transcribedText.trim()) {
+                    setEmptyInputShake(true);
+                    setTimeout(() => setEmptyInputShake(false), 600);
+                    return;
                   }
+                  setShowQuickPitch(true);
+                  handleParseInput();
                 }}
-                disabled={!transcribedText.trim() || isParsing}
+                disabled={isParsing || isOffline}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-primary-foreground magenta-gradient disabled:opacity-40 transition-opacity">
 
                   {isParsing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
                   Generate
                 </button>
               </div>
+              {isOffline && (
+                <p className="text-xs text-muted-foreground mt-2">You're offline. Reconnect to generate.</p>
+              )}
             </div>
 
             {/* Onboarding tip */}
