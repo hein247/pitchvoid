@@ -67,12 +67,13 @@ const Dashboard = () => {
   const {
     userPlan,
     pitchCount,
-    remainingPitches,
+    credits,
     nudgeMessage,
     showNudge,
     dismissNudge,
     checkAndTriggerPaywall,
-    incrementPitchCount,
+    optimisticDecrementCredits,
+    refreshCredits,
     showPaywall,
     paywallType,
     paywallMessage,
@@ -183,8 +184,8 @@ const Dashboard = () => {
   `https://pitchvoid.lovable.app/p/${activeProject.public_id || activeProject.id}` :
   'https://pitchvoid.lovable.app/p/demo';
 
-  // Credits
-  const credits = { used: 48, total: 50 };
+  // No-credits inline state
+  const hasNoCredits = credits === 0;
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const dashboardInputRef = useRef<HTMLTextAreaElement>(null);
@@ -536,8 +537,9 @@ const Dashboard = () => {
   };
 
   const handleQuickGenerate = async () => {
-    // Check paywall before generating
-    if (!checkAndTriggerPaywall('create_pitch')) {
+    // Check credits before generating
+    if (credits <= 0) {
+      // Don't generate — the inline message will show
       return;
     }
 
@@ -663,8 +665,8 @@ const Dashboard = () => {
         await saveProjectOutput(project.id, outputFormat, outputPayload, lastGenerationContext as unknown as Record<string, unknown>);
       }
 
-      // Increment pitch count on successful generation
-      await incrementPitchCount();
+      // Optimistic credit decrement on successful generation
+      optimisticDecrementCredits();
 
       // Mark onboarded after first generation
       if (!hasOnboarded) {
@@ -685,7 +687,15 @@ const Dashboard = () => {
       const errorContext = typeof error?.context?.body === 'string' ? error.context.body : '';
       const combinedError = `${errorBody} ${errorContext}`.toLowerCase();
 
-      if (combinedError.includes('rate limit') || combinedError.includes('429')) {
+      if (combinedError.includes('no_credits') || combinedError.includes('used all your credits')) {
+        // Refresh credits from server to get accurate count
+        refreshCredits();
+        toast({
+          title: 'No credits remaining',
+          description: 'Get more credits to keep generating.',
+          variant: 'destructive',
+        });
+      } else if (combinedError.includes('rate limit') || combinedError.includes('429')) {
         toast({
           title: "You're going too fast",
           description: "Wait a moment and try again.",
@@ -818,6 +828,16 @@ const Dashboard = () => {
 
   // Regenerate content in a different format
   const handleRegenerateInFormat = async (newFormat: OutputFormat) => {
+    // Check credits before regenerating in new format
+    if (credits <= 0) {
+      toast({
+        title: 'No credits remaining',
+        description: 'Get more credits to generate in a new format.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     // Check format permission before regenerating
     if (!checkAndTriggerPaywall('use_format', { format: newFormat })) {
       return;
@@ -1091,13 +1111,6 @@ const Dashboard = () => {
               </p>
           }
 
-            <div className="mb-6 sm:mb-8">
-              <PitchUsageBanner
-              pitchCount={pitchCount}
-              maxPitches={planLimits.totalPitches}
-              plan={userPlan} />
-
-            </div>
 
             {/* Projects Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
@@ -1785,6 +1798,21 @@ const Dashboard = () => {
                   </div>
                 </div>
                 
+                {/* Inline no-credits message */}
+                {hasNoCredits && (
+                  <div className="mb-4 p-4 rounded-xl bg-accent/5 border border-accent/10 text-center">
+                    <p className="text-sm text-foreground/60 mb-2">
+                      You've used all your free credits. Get more to keep going.
+                    </p>
+                    <button
+                      onClick={() => navigate('/pricing')}
+                      className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                    >
+                      Get credits →
+                    </button>
+                  </div>
+                )}
+
                 <div className="flex gap-3">
                   <button
                 onClick={() => setQuickPitchStep(3)}
@@ -1794,7 +1822,10 @@ const Dashboard = () => {
                   </button>
                   <button
                 onClick={handleQuickGenerate}
-                className="flex-1 py-2.5 sm:py-3 rounded-xl text-white font-medium magenta-gradient text-sm flex items-center justify-center gap-2">
+                disabled={hasNoCredits}
+                className={`flex-1 py-2.5 sm:py-3 rounded-xl text-primary-foreground font-medium text-sm flex items-center justify-center gap-2 ${
+                  hasNoCredits ? 'opacity-40 cursor-not-allowed bg-muted' : 'magenta-gradient'
+                }`}>
 
                     <Sparkles className="w-4 h-4" /> Generate
                   </button>

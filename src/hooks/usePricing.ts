@@ -17,6 +17,7 @@ export interface UserPricingData {
   plan: PlanType;
   planInterval: PlanInterval;
   pitchCount: number;
+  credits: number;
   subscriptionStatus: string | null;
   currentPeriodEnd: Date | null;
   teamId: string | null;
@@ -26,8 +27,8 @@ export interface UserPricingData {
 export interface UsePricingReturn {
   // Data
   userPlan: PlanType;
+  credits: number;
   pitchCount: number;
-  remainingPitches: number | null;
   nudgeMessage: string | null;
   subscriptionStatus: string | null;
   isLoading: boolean;
@@ -35,8 +36,8 @@ export interface UsePricingReturn {
   // Helpers
   canPerformAction: (action: PaywallAction, options?: ActionCheckOptions) => PaywallCheckResult;
   checkAndTriggerPaywall: (action: PaywallAction, options?: ActionCheckOptions) => boolean;
-  incrementPitchCount: () => Promise<void>;
-  refreshPitchCount: () => Promise<void>;
+  optimisticDecrementCredits: () => void;
+  refreshCredits: () => Promise<void>;
   
   // Paywall modal state
   showPaywall: boolean;
@@ -62,6 +63,7 @@ export function usePricing(): UsePricingReturn {
     plan: 'free',
     planInterval: null,
     pitchCount: 0,
+    credits: 3,
     subscriptionStatus: null,
     currentPeriodEnd: null,
     teamId: null,
@@ -88,7 +90,7 @@ export function usePricing(): UsePricingReturn {
       try {
         const { data, error } = await supabase
           .from('profiles')
-          .select('plan, plan_interval, pitch_count, subscription_status, current_period_end, team_id, team_role')
+          .select('plan, plan_interval, pitch_count, credits, subscription_status, current_period_end, team_id, team_role')
           .eq('id', user.id)
           .maybeSingle();
 
@@ -102,6 +104,7 @@ export function usePricing(): UsePricingReturn {
             plan: (data.plan as PlanType) || 'free',
             planInterval: data.plan_interval as PlanInterval,
             pitchCount: data.pitch_count || 0,
+            credits: data.credits ?? 3,
             subscriptionStatus: data.subscription_status,
             currentPeriodEnd: data.current_period_end ? new Date(data.current_period_end) : null,
             teamId: data.team_id,
@@ -118,15 +121,14 @@ export function usePricing(): UsePricingReturn {
     fetchPricingData();
   }, [user?.id]);
 
-  // Update nudge visibility based on remaining pitches
+  // Update nudge visibility based on credits
   useEffect(() => {
     if (nudgeDismissed) return;
     
-    const remaining = getRemainingPitches(pricingData.plan, pricingData.pitchCount);
-    if (remaining !== null && remaining <= 1 && pricingData.plan === 'free') {
+    if (pricingData.credits <= 1 && pricingData.credits >= 0) {
       setShowNudge(true);
     }
-  }, [pricingData.plan, pricingData.pitchCount, nudgeDismissed]);
+  }, [pricingData.credits, nudgeDismissed]);
 
   const canPerformAction = useCallback(
     (action: PaywallAction, options: ActionCheckOptions = {}): PaywallCheckResult => {
@@ -152,31 +154,27 @@ export function usePricing(): UsePricingReturn {
   );
 
   /**
-   * Optimistic UI update for pitch count.
-   * NOTE: The actual pitch count is incremented server-side by edge functions.
-   * This function only updates the local state for immediate UI feedback.
-   * The client should NOT write pitch_count to the database directly.
+   * Optimistic UI update for credits after generation.
+   * The actual decrement happens server-side in edge functions.
    */
-  const incrementPitchCount = useCallback(async () => {
-    if (!user?.id) return;
-
-    // Optimistic local update only - server handles the actual increment
+  const optimisticDecrementCredits = useCallback(() => {
     setPricingData(prev => ({
       ...prev,
+      credits: Math.max(0, prev.credits - 1),
       pitchCount: prev.pitchCount + 1,
     }));
-  }, [user?.id]);
+  }, []);
 
   /**
-   * Refresh pitch count from the server to sync with database
+   * Refresh credits from the server to sync with database
    */
-  const refreshPitchCount = useCallback(async () => {
+  const refreshCredits = useCallback(async () => {
     if (!user?.id) return;
 
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('pitch_count')
+        .select('pitch_count, credits')
         .eq('id', user.id)
         .single();
 
@@ -184,10 +182,11 @@ export function usePricing(): UsePricingReturn {
         setPricingData(prev => ({
           ...prev,
           pitchCount: data.pitch_count || 0,
+          credits: data.credits ?? 0,
         }));
       }
     } catch (err) {
-      console.error('Error refreshing pitch count:', err);
+      console.error('Error refreshing credits:', err);
     }
   }, [user?.id]);
 
@@ -196,14 +195,13 @@ export function usePricing(): UsePricingReturn {
     setNudgeDismissed(true);
   }, []);
 
-  const remainingPitches = getRemainingPitches(pricingData.plan, pricingData.pitchCount);
-  const nudgeMessage = getNudgeMessage(remainingPitches);
+  const nudgeMessage = pricingData.credits === 1 ? '1 credit left' : null;
 
   return {
     // Data
     userPlan: pricingData.plan,
+    credits: pricingData.credits,
     pitchCount: pricingData.pitchCount,
-    remainingPitches,
     nudgeMessage,
     subscriptionStatus: pricingData.subscriptionStatus,
     isLoading,
@@ -211,8 +209,8 @@ export function usePricing(): UsePricingReturn {
     // Helpers
     canPerformAction,
     checkAndTriggerPaywall,
-    incrementPitchCount,
-    refreshPitchCount,
+    optimisticDecrementCredits,
+    refreshCredits,
     
     // Paywall modal state
     showPaywall,

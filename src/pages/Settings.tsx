@@ -13,7 +13,7 @@ import Navbar from '@/components/Navbar';
 export default function Settings() {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
-  const { userPlan, pitchCount, remainingPitches, subscriptionStatus, isPro, isTeams, isFree } = usePricing();
+  const { userPlan, pitchCount, credits, subscriptionStatus, isPro, isTeams, isFree } = usePricing();
   const { toast } = useToast();
   const [isLoadingPortal, setIsLoadingPortal] = useState(false);
 
@@ -125,11 +125,9 @@ export default function Settings() {
                   <p className="text-xl font-bold text-foreground">{pitchCount}</p>
                 </div>
                 <div className="p-3 rounded-lg bg-accent/10 border border-accent/20">
-                  <p className="text-xs text-muted-foreground">
-                    {isFree ? 'Remaining' : 'Limit'}
-                  </p>
+                  <p className="text-xs text-muted-foreground">Credits</p>
                   <p className="text-xl font-bold text-foreground">
-                    {remainingPitches !== null ? remainingPitches : '∞'}
+                    {credits}
                   </p>
                 </div>
               </div>

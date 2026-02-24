@@ -13,27 +13,19 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 
 interface NavbarProps {
   variant?: 'landing' | 'dashboard' | 'minimal';
-  credits?: {
-    used: number;
-    total: number;
-  };
   onQuickPitch?: () => void;
   onSignOut?: () => void;
 }
 
 const Navbar = ({
   variant = 'landing',
-  credits = {
-    used: 0,
-    total: 50
-  },
   onQuickPitch,
   onSignOut
 }: NavbarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
-  const { userPlan, isFree, remainingPitches } = usePricing();
+  const { userPlan, isFree, credits } = usePricing();
   
   const isActive = (path: string) => location.pathname === path;
 
@@ -120,20 +112,20 @@ const Navbar = ({
           PitchVoid
         </button>
         <div className="flex items-center gap-2 sm:gap-4">
-          {/* Credits indicator for free users */}
-          {isFree && remainingPitches !== null && (
-            <div className="hidden sm:flex items-center gap-3 px-4 py-2 rounded-xl bg-accent/10 border border-accent/20">
-              <span className="text-sm text-foreground/80">
-                {remainingPitches} pitches left
-              </span>
-              <div className="w-16 h-1.5 credit-bar rounded-full overflow-hidden">
-                <div
-                  className="h-full credit-fill"
-                  style={{ width: `${(remainingPitches / 3) * 100}%` }}
-                />
-              </div>
-            </div>
-          )}
+          {/* Credit pill — tappable, goes to pricing */}
+          <button
+            onClick={() => navigate('/pricing')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] transition-colors cursor-pointer ${
+              credits <= 1 && credits > 0
+                ? 'text-[rgba(234,179,8,0.6)]'
+                : credits === 0
+                  ? 'text-destructive/60'
+                  : 'text-foreground/30'
+            }`}
+            title="Get more credits"
+          >
+            {credits} credit{credits !== 1 ? 's' : ''}
+          </button>
           
           {/* Settings */}
           <button
