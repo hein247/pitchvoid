@@ -120,7 +120,7 @@ const Navbar = ({
                 ? 'text-[rgba(234,179,8,0.6)]'
                 : credits === 0
                   ? 'text-destructive/60'
-                  : 'text-foreground/30'
+                  : 'text-foreground'
             }`}
             title="Get more credits"
           >
