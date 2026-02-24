@@ -27,7 +27,7 @@ serve(async (req) => {
 
     const limitCheck = checkPitchLimit(profile);
     if (!limitCheck.allowed) {
-      return jsonResponse({ error: limitCheck.error }, limitCheck.statusCode || 402);
+      return jsonResponse({ error: limitCheck.error, code: limitCheck.errorCode || 'LIMIT_REACHED' }, limitCheck.statusCode || 402);
     }
 
     const formatCheck = checkFormatAccess(profile, 'script');

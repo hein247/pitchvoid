@@ -16,13 +16,14 @@ export interface AuthResult {
 export interface PaywallResult {
   allowed: boolean;
   error?: string;
+  errorCode?: string;
   statusCode?: number;
 }
 
 const PLAN_LIMITS = {
-  free: { maxPitches: 3, formats: ['one-pager'] },
-  pro: { maxPitches: Infinity, formats: ['one-pager', 'script'] },
-  teams: { maxPitches: Infinity, formats: ['one-pager', 'script'] },
+  free: { formats: ['one-pager', 'script'] },
+  pro: { formats: ['one-pager', 'script'] },
+  teams: { formats: ['one-pager', 'script'] },
 };
 
 /**
@@ -92,22 +93,28 @@ export async function authenticateRequest(
 }
 
 /**
- * Checks if user can create a pitch based on their plan
+ * Checks if user has credits available for generation
  */
-export function checkPitchLimit(profile: UserProfile): PaywallResult {
-  const plan = profile.plan || "free";
-  const limits = PLAN_LIMITS[plan as keyof typeof PLAN_LIMITS] || PLAN_LIMITS.free;
-  const pitchCount = profile.pitch_count || 0;
+export function checkCredits(profile: UserProfile): PaywallResult {
+  const credits = profile.credits ?? 0;
 
-  if (pitchCount >= limits.maxPitches) {
+  if (credits <= 0) {
     return {
       allowed: false,
-      error: `Pitch limit reached. Upgrade to Pro for unlimited pitches.`,
+      error: "You've used all your credits. Get more to keep going.",
+      errorCode: "NO_CREDITS",
       statusCode: 402,
     };
   }
 
   return { allowed: true };
+}
+
+/**
+ * Legacy pitch limit check — now delegates to credit check
+ */
+export function checkPitchLimit(profile: UserProfile): PaywallResult {
+  return checkCredits(profile);
 }
 
 /**
@@ -129,7 +136,8 @@ export function checkFormatAccess(profile: UserProfile, format: string): Paywall
 }
 
 /**
- * Increments the user's pitch count after successful generation
+ * Decrements the user's credit balance and increments pitch_count after successful generation.
+ * This is the ONLY place credits are deducted — server-side authoritative.
  */
 export async function incrementPitchCount(userId: string): Promise<void> {
   const supabaseClient = createClient(
@@ -138,20 +146,20 @@ export async function incrementPitchCount(userId: string): Promise<void> {
     { auth: { persistSession: false } }
   );
 
-  // First fetch the current pitch count
   const { data: profile } = await supabaseClient
     .from("profiles")
-    .select("pitch_count")
+    .select("pitch_count, credits")
     .eq("id", userId)
     .single();
 
   const currentCount = profile?.pitch_count || 0;
+  const currentCredits = profile?.credits ?? 0;
 
-  // Update with incremented count
   await supabaseClient
     .from("profiles")
     .update({ 
       pitch_count: currentCount + 1,
+      credits: Math.max(0, currentCredits - 1),
       last_pitch_at: new Date().toISOString() 
     })
     .eq("id", userId);
