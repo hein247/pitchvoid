@@ -7,7 +7,7 @@ export default function Footer() {
         <Link to="/" className="text-lg font-display brand-gradient-text">
           PitchVoid
         </Link>
-        <p className="text-[11px] text-foreground/15 text-center">
+        <p className="text-[11px] text-foreground/60 text-center">
           © 2026 PitchVoid ·{' '}
           <Link to="/faq" className="hover:text-foreground/30 transition-colors">FAQ</Link> ·{' '}
           <Link to="/legal" className="hover:text-foreground/30 transition-colors">Legal</Link> ·{' '}
