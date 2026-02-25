@@ -6,7 +6,7 @@ import Navbar from '@/components/Navbar';
 import HowItWorks from '@/components/landing/HowItWorks';
 import AnimatedShaderBackground from '@/components/ui/animated-shader-background';
 import Footer from '@/components/Footer';
-const ROTATING_WORDS = ['think', 'process', 'analyze', 'prepare', 'articulate'];
+const ROTATING_WORDS = ['process', 'analyze', 'prepare', 'articulate', 'connect'];
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ const Landing = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setWordIndex((prev) => (prev + 1) % ROTATING_WORDS.length);
-    }, 2800);
+    }, 1000);
     return () => clearInterval(interval);
   }, []);
   return <div className="min-h-screen relative bg-[radial-gradient(ellipse_at_top,_hsl(25_75%_65%/0.08)_0%,_transparent_50%),_radial-gradient(ellipse_at_bottom_right,_hsl(260_60%_55%/0.06)_0%,_transparent_50%)]">
