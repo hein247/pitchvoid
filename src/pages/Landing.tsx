@@ -62,6 +62,7 @@ const Landing = () => {
                           {char}
                         </motion.span>
                       ))}
+                      <motion.span variants={letterVariants}>.</motion.span>
                       <span className="animate-blink text-primary">|</span>
                     </motion.span>
                   </AnimatePresence>
