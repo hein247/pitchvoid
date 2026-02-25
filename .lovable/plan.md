@@ -1,25 +1,45 @@
 
 
-## Update "How credits work" section
+## Typewriter Stagger Animation
 
-**What changes:**
-- Remove the emoji icons (🎯, 🔄, 🎧) from the three explainer lines
-- Remove the em dash (—) from lines that use it
-- Center-align all text in the section
+Replace the current slide transition with a character-by-character typewriter effect where each letter staggers in sequentially, then staggers out before the next word appears.
 
-**File:** `src/pages/Pricing.tsx`
+### How it works
 
-**Technical details:**
+1. Each word in the rotation cycle gets broken into individual characters
+2. Characters animate in one-by-one with a slight delay between each (stagger)
+3. After a brief hold, characters animate out in reverse (or all at once)
+4. Next word begins its stagger-in sequence
 
-In the "How credits work" section (around lines 186-210), make these changes:
+### Technical approach
 
-1. Remove the `flex items-start gap-3` layout from each line since we no longer need icon + text side by side
-2. Remove the emoji `<span>` elements
-3. Remove em dashes from the text content
-4. Center-align the text by adding `text-center` to the list items
+**File: `src/pages/Landing.tsx`**
 
-Updated text content:
-- "1 credit = 1 generated output (one-pager or talking script)"
-- "Refining, editing, and switching versions are free and unlimited"
-- "Practice mode, breathing, teleprompter, and PDF export are always free"
+- Keep `framer-motion`'s `AnimatePresence` and `motion` for orchestration
+- Instead of animating the whole word as one `motion.span`, map each character to its own `motion.span` with a staggered `delay` based on index
+- Use `staggerChildren` via `motion` variants for clean orchestration:
+  - **Container variant**: `staggerChildren: 0.04` (40ms per letter)
+  - **Letter variant**: animate `opacity` from 0→1 and slight `y` offset, with exit reversing
+- Keep the 1-second interval but adjust to account for animation duration — increase to ~1.8s so the full stagger-in completes, holds briefly, then exits before the next word
+- Add a blinking cursor `|` after the last visible character using CSS `animate-blink` (already exists in `TypewriterText.tsx` patterns)
+
+### Visual result
+
+```text
+Word: "process"
+Frame 1: p|
+Frame 2: pr|
+Frame 3: pro|
+...
+Frame 7: process|
+(hold ~400ms)
+(fade out all at once)
+Next word begins
+```
+
+### Timing breakdown
+- ~40ms per character stagger = ~280ms for a 7-letter word
+- ~500ms hold
+- ~200ms exit
+- Total cycle: ~1.5–1.8s per word (interval adjusted accordingly)
 
