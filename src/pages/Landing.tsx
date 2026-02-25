@@ -71,8 +71,8 @@ const Landing = () => {
 
               <p className="text-base sm:text-lg text-muted-foreground mb-8 sm:mb-10 max-w-md mx-auto leading-relaxed">Dump your scattered thoughts. PitchVoid turns them into something you can actually walk in and say.</p>
 
-              <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 mb-5 justify-center">
-                <button onClick={() => navigate('/dashboard')} className="w-full sm:w-auto px-7 sm:px-8 py-3.5 sm:py-4 rounded-xl text-primary-foreground font-medium magenta-gradient text-base sm:text-lg flex items-center justify-center gap-3 hover:opacity-90 transition-opacity group">
+              <div className="flex items-center gap-3 sm:gap-4 mb-5 justify-center">
+                <button onClick={() => navigate('/dashboard')} className="px-7 sm:px-8 py-3.5 sm:py-4 rounded-xl text-primary-foreground font-medium magenta-gradient text-base sm:text-lg inline-flex items-center gap-3 hover:opacity-90 transition-opacity group">
                   Try it free
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
                 </button>
@@ -96,7 +96,7 @@ const Landing = () => {
           <p className="text-muted-foreground mb-6 sm:mb-8 text-sm sm:text-base max-w-lg mx-auto">
             Investor pitch. Job interview. Difficult conversation. Whatever it is — dump the mess, get the clarity.
           </p>
-          <button onClick={() => navigate('/dashboard')} className="w-full sm:w-auto px-8 py-4 rounded-xl text-primary-foreground font-medium magenta-gradient text-lg hover:opacity-90 transition-opacity group inline-flex items-center gap-3">
+          <button onClick={() => navigate('/dashboard')} className="px-8 py-4 rounded-xl text-primary-foreground font-medium magenta-gradient text-base sm:text-lg hover:opacity-90 transition-opacity group inline-flex items-center gap-3">
             Enter the void
             <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
           </button>
