@@ -1,11 +1,23 @@
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import HowItWorks from '@/components/landing/HowItWorks';
 import AnimatedShaderBackground from '@/components/ui/animated-shader-background';
 import Footer from '@/components/Footer';
+const ROTATING_WORDS = ['think', 'process', 'analyze', 'prepare', 'articulate'];
+
 const Landing = () => {
   const navigate = useNavigate();
+  const [wordIndex, setWordIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setWordIndex((prev) => (prev + 1) % ROTATING_WORDS.length);
+    }, 2800);
+    return () => clearInterval(interval);
+  }, []);
   return <div className="min-h-screen relative bg-[radial-gradient(ellipse_at_top,_hsl(25_75%_65%/0.08)_0%,_transparent_50%),_radial-gradient(ellipse_at_bottom_right,_hsl(260_60%_55%/0.06)_0%,_transparent_50%)]">
       <AnimatedShaderBackground />
       {/* Navigation */}
@@ -20,7 +32,21 @@ const Landing = () => {
                 Too much to say.
                 <br />
                 <span className="brand-gradient-text">
-                  Not enough time to think.
+                  Not enough time to{' '}
+                  <span className="inline-block relative">
+                    <AnimatePresence mode="wait">
+                      <motion.span
+                        key={ROTATING_WORDS[wordIndex]}
+                        initial={{ y: 20, opacity: 0, filter: 'blur(4px)' }}
+                        animate={{ y: 0, opacity: 1, filter: 'blur(0px)' }}
+                        exit={{ y: -20, opacity: 0, filter: 'blur(4px)' }}
+                        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                        className="inline-block"
+                      >
+                        {ROTATING_WORDS[wordIndex]}.
+                      </motion.span>
+                    </AnimatePresence>
+                  </span>
                 </span>
               </h1>
 
