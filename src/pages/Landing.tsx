@@ -46,7 +46,7 @@ const Landing = () => {
               <h1 className="text-4xl sm:text-5xl lg:text-6xl leading-[1.1] text-foreground mb-5 sm:mb-7">
                 Too much to say.
                 <br />
-                <span className="brand-gradient-text whitespace-nowrap">
+                <span className="brand-gradient-text">
                   Not enough time to{' '}
                   <AnimatePresence mode="wait">
                     <motion.span
