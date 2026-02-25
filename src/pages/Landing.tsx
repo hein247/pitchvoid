@@ -8,6 +8,21 @@ import AnimatedShaderBackground from '@/components/ui/animated-shader-background
 import Footer from '@/components/Footer';
 const ROTATING_WORDS = ['process', 'analyze', 'prepare', 'articulate', 'connect'];
 
+const containerVariants = {
+  visible: {
+    transition: { staggerChildren: 0.04 },
+  },
+  exit: {
+    transition: { duration: 0.2 },
+  },
+};
+
+const letterVariants = {
+  hidden: { opacity: 0, y: 8 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.08 } },
+  exit: { opacity: 0, transition: { duration: 0.15 } },
+};
+
 const Landing = () => {
   const navigate = useNavigate();
   const [wordIndex, setWordIndex] = useState(0);
@@ -15,7 +30,7 @@ const Landing = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setWordIndex((prev) => (prev + 1) % ROTATING_WORDS.length);
-    }, 1000);
+    }, 1800);
     return () => clearInterval(interval);
   }, []);
   return <div className="min-h-screen relative bg-[radial-gradient(ellipse_at_top,_hsl(25_75%_65%/0.08)_0%,_transparent_50%),_radial-gradient(ellipse_at_bottom_right,_hsl(260_60%_55%/0.06)_0%,_transparent_50%)]">
@@ -36,13 +51,18 @@ const Landing = () => {
                   <AnimatePresence mode="wait">
                     <motion.span
                       key={ROTATING_WORDS[wordIndex]}
-                      initial={{ y: 20, opacity: 0, filter: 'blur(4px)' }}
-                      animate={{ y: 0, opacity: 1, filter: 'blur(0px)' }}
-                      exit={{ y: -20, opacity: 0, filter: 'blur(4px)' }}
-                      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                      className="inline-block brand-gradient-text"
+                      variants={containerVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      className="inline-flex brand-gradient-text"
                     >
-                      {ROTATING_WORDS[wordIndex]}.
+                      {ROTATING_WORDS[wordIndex].split('').map((char, i) => (
+                        <motion.span key={i} variants={letterVariants}>
+                          {char}
+                        </motion.span>
+                      ))}
+                      <span className="animate-blink text-primary">|</span>
                     </motion.span>
                   </AnimatePresence>
                 </span>
