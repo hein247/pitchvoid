@@ -31,10 +31,8 @@ const Landing = () => {
               <h1 className="text-4xl sm:text-5xl lg:text-6xl leading-[1.1] text-foreground mb-5 sm:mb-7">
                 Too much to say.
                 <br />
-                <span className="brand-gradient-text">
+                <span className="brand-gradient-text whitespace-nowrap">
                   Not enough time to{' '}
-                </span>
-                <span className="inline-block relative">
                   <AnimatePresence mode="wait">
                     <motion.span
                       key={ROTATING_WORDS[wordIndex]}
