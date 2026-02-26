@@ -71,9 +71,11 @@ function parseMarkdownBold(text: string) {
   const parts = text.split(/(\*\*[^*]+\*\*)/g);
   return parts.map((part, i) => {
     if (part.startsWith('**') && part.endsWith('**')) {
+      const inner = part.slice(2, -2);
+      const isNumeric = /[\d$%x×]/.test(inner);
       return (
-        <strong key={i} style={{ fontWeight: 700, color: '#f0edf6' }}>
-          {part.slice(2, -2)}
+        <strong key={i} style={{ fontWeight: 700, color: isNumeric ? 'rgba(255,255,255,1)' : 'rgba(240,237,246,0.92)' }}>
+          {inner}
         </strong>
       );
     }
@@ -92,7 +94,7 @@ function renderLineText(text: string, emphasis?: string | null) {
   return (
     <>
       {text.slice(0, idx)}
-      <strong style={{ fontWeight: 700, color: '#f0edf6' }}>
+      <strong style={{ fontWeight: 700, color: 'rgba(255,255,255,1)' }}>
         {emphasis}
       </strong>
       {text.slice(idx + emphasis.length)}
@@ -195,26 +197,37 @@ const ScriptViewer = ({ data: rawData, refineAnimationKey, onDeleteLine }: Scrip
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="max-w-[680px] sm:max-w-[540px] lg:max-w-[600px] mx-auto py-2"
+      className="max-w-[680px] mx-auto py-2 relative"
     >
-      {/* Context line */}
+      {/* Subtle radial glow behind content */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse at center, rgba(168,85,247,0.02) 0%, transparent 70%)',
+        }}
+      />
+
+      {/* Context line — Level 3 */}
       {data.context_line && (
-        <p className="text-xs mb-4" style={{ color: 'rgba(240,237,246,0.25)' }}>
+        <p className="text-xs mb-4 relative z-10" style={{ color: 'rgba(168,85,247,0.35)' }}>
           {data.context_line}
         </p>
       )}
 
       {/* Duration + Copy All row */}
-      <div className="flex items-center justify-between mb-6 sm:mb-8">
+      <div className="flex items-center justify-between mb-6 sm:mb-8 relative z-10">
         {data.total_duration && (
           <div className="flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground">~{data.total_duration}</span>
+            <Clock className="w-3.5 h-3.5" style={{ color: 'rgba(168,85,247,0.45)' }} />
+            <span className="text-xs" style={{ color: 'rgba(168,85,247,0.35)' }}>~{data.total_duration}</span>
           </div>
         )}
         <button
           onClick={copyAll}
-          className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-colors hover:bg-accent/10 text-muted-foreground"
+          className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-colors"
+          style={{ color: copiedAll ? undefined : 'rgba(240,237,246,0.4)' }}
+          onMouseEnter={(e) => { if (!copiedAll) e.currentTarget.style.color = 'rgba(240,237,246,0.7)'; }}
+          onMouseLeave={(e) => { if (!copiedAll) e.currentTarget.style.color = 'rgba(240,237,246,0.4)'; }}
         >
           {copiedAll ? (
             <>
@@ -231,7 +244,7 @@ const ScriptViewer = ({ data: rawData, refineAnimationKey, onDeleteLine }: Scrip
       </div>
 
       {/* Lines sequence */}
-      <div className="space-y-1">
+      <div className="space-y-1 relative z-10">
         {data.lines.map((line, idx) => {
           const key = `line-${idx}`;
           const isCopied = copiedIndex === key;
@@ -246,24 +259,29 @@ const ScriptViewer = ({ data: rawData, refineAnimationKey, onDeleteLine }: Scrip
                   transition={{ delay: idx * 0.04 }}
                   className="mb-6 sm:mb-8"
                 >
+                  {/* Label — Level 2 */}
                   <p
-                    className="text-[10px] uppercase tracking-[0.18em] font-medium mb-2 sm:mb-3"
-                    style={{ color: 'rgba(168,85,247,0.55)' }}
+                    className="text-[13px] uppercase tracking-[0.15em] font-medium mb-3 sm:mb-4"
+                    style={{ color: 'rgba(168,85,247,0.75)' }}
                   >
                     Open with
                   </p>
                   <button
                     onClick={() => copyLine(line.text || '', key)}
                     className="w-full text-left relative min-h-[44px]"
+                    style={{ borderLeft: '2px solid rgba(168,85,247,0.15)', paddingLeft: 16 }}
                   >
+                    {/* Main line — Level 1 */}
                     <p
                       className="text-base sm:text-lg leading-[1.55] font-medium"
-                      style={{ color: 'rgba(240,237,246,0.8)' }}
+                      style={{ color: 'rgba(240,237,246,0.92)' }}
                     >
                       {renderLineText(line.text || '')}
                     </p>
+                    {/* Stage direction — Level 3 */}
                     {line.note && (
-                      <p className="mt-2 text-[11px] italic" style={{ color: 'rgba(240,237,246,0.2)' }}>
+                      <p className="mt-2 text-[11px] italic" style={{ color: 'rgba(168,85,247,0.35)' }}>
+                        <span style={{ color: 'rgba(168,85,247,0.25)', marginRight: 6 }}>◆</span>
                         {line.note}
                       </p>
                     )}
@@ -273,13 +291,13 @@ const ScriptViewer = ({ data: rawData, refineAnimationKey, onDeleteLine }: Scrip
                       </span>
                     )}
                   </button>
-                  <div className="mt-4 sm:mt-5 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }} />
+                  <div className="mt-4 sm:mt-5 border-b" style={{ borderColor: 'rgba(168,85,247,0.08)' }} />
                 </motion.div>
               </SwipeableLineWrapper>
             );
           }
 
-          // --- PAUSE ---
+          // --- PAUSE / SECTION SEPARATOR ---
           if (line.type === 'pause') {
             return (
               <motion.div
@@ -287,13 +305,15 @@ const ScriptViewer = ({ data: rawData, refineAnimationKey, onDeleteLine }: Scrip
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: idx * 0.04 }}
-                className="py-4 sm:py-5 text-center"
+                className="text-center"
+                style={{ paddingTop: 32, paddingBottom: 32 }}
               >
-                <p className="text-sm tracking-[0.3em] mb-1" style={{ color: 'rgba(240,237,246,0.15)' }}>
+                <p className="text-sm tracking-[0.3em] mb-1" style={{ color: 'rgba(168,85,247,0.2)' }}>
                   · · ·
                 </p>
                 {line.note && (
-                  <p className="text-[11px] italic" style={{ color: 'rgba(240,237,246,0.2)' }}>
+                  <p className="text-[11px] italic" style={{ color: 'rgba(168,85,247,0.35)' }}>
+                    <span style={{ color: 'rgba(168,85,247,0.25)', marginRight: 6 }}>◆</span>
                     {line.note}
                   </p>
                 )}
@@ -309,9 +329,11 @@ const ScriptViewer = ({ data: rawData, refineAnimationKey, onDeleteLine }: Scrip
                 initial={{ opacity: 0, x: -4 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: idx * 0.04 }}
-                className="py-3 pl-7 sm:pl-9"
+                className="py-3"
+                style={{ paddingLeft: 42 }}
               >
-                <p className="text-[13px] italic" style={{ color: 'rgba(240,237,246,0.3)' }}>
+                <p className="text-[13px] italic" style={{ color: 'rgba(168,85,247,0.35)' }}>
+                  <span style={{ color: 'rgba(168,85,247,0.25)', marginRight: 6 }}>◆</span>
                   {renderLineText(line.text || '')}
                 </p>
               </motion.div>
@@ -328,25 +350,30 @@ const ScriptViewer = ({ data: rawData, refineAnimationKey, onDeleteLine }: Scrip
                   transition={{ delay: idx * 0.04 }}
                   className="mt-6 sm:mt-8"
                 >
-                  <div className="mb-4 sm:mb-5 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }} />
+                  <div className="mb-4 sm:mb-5 border-b" style={{ borderColor: 'rgba(168,85,247,0.08)' }} />
+                  {/* Label — Level 2 */}
                   <p
-                    className="text-[10px] uppercase tracking-[0.18em] font-medium mb-2 sm:mb-3"
-                    style={{ color: 'rgba(168,85,247,0.55)' }}
+                    className="text-[13px] uppercase tracking-[0.15em] font-medium mb-3 sm:mb-4"
+                    style={{ color: 'rgba(168,85,247,0.75)' }}
                   >
                     Close with
                   </p>
                   <button
                     onClick={() => copyLine(line.text || '', key)}
                     className="w-full text-left relative min-h-[44px]"
+                    style={{ borderLeft: '2px solid rgba(168,85,247,0.15)', paddingLeft: 16 }}
                   >
+                    {/* Main line — Level 1 */}
                     <p
                       className="text-base sm:text-lg leading-[1.55] font-medium"
-                      style={{ color: 'rgba(240,237,246,0.8)' }}
+                      style={{ color: 'rgba(240,237,246,0.92)' }}
                     >
                       {renderLineText(line.text || '')}
                     </p>
+                    {/* Stage direction — Level 3 */}
                     {line.note && (
-                      <p className="mt-2 text-[11px] italic" style={{ color: 'rgba(240,237,246,0.2)' }}>
+                      <p className="mt-2 text-[11px] italic" style={{ color: 'rgba(168,85,247,0.35)' }}>
+                        <span style={{ color: 'rgba(168,85,247,0.25)', marginRight: 6 }}>◆</span>
                         {line.note}
                       </p>
                     )}
@@ -371,24 +398,28 @@ const ScriptViewer = ({ data: rawData, refineAnimationKey, onDeleteLine }: Scrip
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.04 }}
-                className="py-2 sm:py-2.5"
+                className="py-2.5 sm:py-3"
               >
                 <button
                   onClick={() => copyLine(line.text || '', key)}
-                  className="w-full text-left flex gap-2 sm:gap-4 items-start relative group min-h-[44px]"
+                  className="w-full text-left flex items-start relative group min-h-[44px]"
                 >
-                  {/* Line number */}
+                  {/* Line number — Level 4 */}
                   <span
-                    className="text-[10px] sm:text-[11px] font-mono pt-0.5 shrink-0 select-none"
-                    style={{ color: 'rgba(240,237,246,0.15)', width: '18px' }}
+                    className="text-[11px] font-mono pt-0.5 shrink-0 select-none"
+                    style={{ color: 'rgba(168,85,247,0.45)', width: 24 }}
                   >
                     {num}
                   </span>
 
-                  {/* Line text */}
+                  {/* Line text with left border — Level 1 */}
                   <p
-                    className="text-[14px] sm:text-[15px] leading-[1.65] flex-1"
-                    style={{ color: 'rgba(240,237,246,0.6)' }}
+                    className="text-[14px] sm:text-[15px] leading-[1.7] flex-1"
+                    style={{
+                      color: 'rgba(240,237,246,0.92)',
+                      borderLeft: '2px solid rgba(168,85,247,0.15)',
+                      paddingLeft: 16,
+                    }}
                   >
                     {renderLineText(line.text || '', line.emphasis)}
                   </p>
