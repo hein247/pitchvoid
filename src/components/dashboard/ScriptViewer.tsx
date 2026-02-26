@@ -262,7 +262,7 @@ const ScriptViewer = ({ data: rawData, refineAnimationKey, onDeleteLine }: Scrip
                   {/* Label — Level 2 */}
                   <p
                     className="text-[13px] uppercase tracking-[0.15em] font-medium mb-3 sm:mb-4"
-                    style={{ color: 'rgba(168,85,247,0.75)' }}
+                    style={{ color: 'rgba(168,85,247,0.8)' }}
                   >
                     Open with
                   </p>
@@ -354,7 +354,7 @@ const ScriptViewer = ({ data: rawData, refineAnimationKey, onDeleteLine }: Scrip
                   {/* Label — Level 2 */}
                   <p
                     className="text-[13px] uppercase tracking-[0.15em] font-medium mb-3 sm:mb-4"
-                    style={{ color: 'rgba(168,85,247,0.75)' }}
+                    style={{ color: 'rgba(168,85,247,0.8)' }}
                   >
                     Close with
                   </p>
