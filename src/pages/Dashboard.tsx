@@ -29,6 +29,7 @@ import ProjectCard from '@/components/dashboard/ProjectCard';
 import OnboardingPrompt from '@/components/dashboard/OnboardingPrompt';
 import VersionHistoryDropdown from '@/components/dashboard/VersionHistoryDropdown';
 import MobileOverflowMenu from '@/components/dashboard/MobileOverflowMenu';
+import DesktopOverflowMenu from '@/components/dashboard/DesktopOverflowMenu';
 import { useProjects, type ProjectRecord, type DraftState } from '@/hooks/useProjects';
 import { validateFiles, FILE_UPLOAD_CONFIG, formatFileSize as formatFileSizeUtil } from '@/lib/fileValidation';
 
@@ -1170,15 +1171,15 @@ const Dashboard = () => {
                   <ArrowLeft className="w-5 h-5" />
                 </button>
                 <div className="min-w-0">
-                  <h2 className="text-foreground font-medium font-display text-sm sm:text-base truncate max-w-[140px] sm:max-w-[300px] lg:max-w-[400px]" title={(outputFormat === 'script' ? scriptData?.title : onePagerData?.title) || activeProject.title}>{(outputFormat === 'script' ? scriptData?.title : onePagerData?.title) || activeProject.title}</h2>
+                  <h2 className="font-medium font-display text-sm sm:text-base truncate max-w-[140px] sm:max-w-[300px] lg:max-w-[400px]" style={{ color: 'rgba(240,237,246,0.95)' }} title={(outputFormat === 'script' ? scriptData?.title : onePagerData?.title) || activeProject.title}>{(outputFormat === 'script' ? scriptData?.title : onePagerData?.title) || activeProject.title}</h2>
                   {isRegenerating &&
                 <p className="text-xs text-primary animate-pulse">{generationPhase}</p>
                 }
                   {!isRegenerating && outputFormat === 'one-pager' && onePagerData &&
-                <p className="text-xs text-muted-foreground hidden sm:block">{onePagerData.context_line || 'Cheat sheet'}</p>
+                <p className="text-xs hidden sm:block" style={{ color: 'rgba(240,237,246,0.4)' }}>{onePagerData.context_line || 'One-pager'}</p>
                 }
                   {!isRegenerating && outputFormat === 'script' && scriptData &&
-                <p className="text-xs text-muted-foreground hidden sm:block">Speaking script</p>
+                <p className="text-xs hidden sm:block" style={{ color: 'rgba(240,237,246,0.4)' }}>Speaking script</p>
                 }
                 </div>
               </div>
@@ -1186,109 +1187,94 @@ const Dashboard = () => {
               {/* Right: Actions */}
               {(onePagerData || scriptData) &&
             <div className="flex items-center gap-1 sm:gap-0 flex-shrink-0">
-                  {/* Desktop: Format Toggle + actions in border container */}
-                  <div className="hidden sm:flex items-center rounded-xl border border-border p-1 bg-card/50 backdrop-blur-sm">
-                    <FormatToggle
-                  activeFormat={outputFormat}
-                  onFormatChange={handleFormatChange}
-                  hasOnePager={!!onePagerData}
-                  hasScript={!!scriptData}
-                  onRegenerate={handleRegenerateInFormat}
-                  isRegenerating={isRegenerating}
-                  lockedFormats={isFree ? ['script'] : []}
-                  onLockedClick={(format) => checkAndTriggerPaywall('use_format', { format })} />
+                  {/* Desktop: Format Toggle + Versions + Overflow */}
+                  <div className="hidden sm:flex items-center gap-1">
+                    <div className="flex items-center rounded-xl border border-border p-1 bg-card/50 backdrop-blur-sm">
+                      <FormatToggle
+                    activeFormat={outputFormat}
+                    onFormatChange={handleFormatChange}
+                    hasOnePager={!!onePagerData}
+                    hasScript={!!scriptData}
+                    onRegenerate={handleRegenerateInFormat}
+                    isRegenerating={isRegenerating}
+                    lockedFormats={isFree ? ['script'] : []}
+                    onLockedClick={(format) => checkAndTriggerPaywall('use_format', { format })} />
 
-                    
-                    <div className="w-px h-6 bg-border mx-1" />
+                      {/* Practice mode - for scripts only */}
+                      {outputFormat === 'script' && scriptData && (
+                        <>
+                          <div className="w-px h-6 bg-border mx-1" />
+                          <button
+                            onClick={() => setIsPracticeMode(true)}
+                            className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/10 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                            title="Practice">
+                            <Play className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
+                    </div>
 
-                    {/* Edit button */}
-                    {onePagerData && !isRegenerating &&
-                <button
-                  onClick={() => setShowEditor((prev) => !prev)}
-                  className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/10 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
-                  title={showEditor ? 'Close Editor' : 'Edit'}>
-
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                }
-
-                    {/* PDF Export */}
-                    <button
-                  onClick={async () => {
-                    if (isFree) {checkAndTriggerPaywall('export');return;}
-                    try {
-                      if (outputFormat === 'script' && scriptData) {
-                        await exportScriptPDF(scriptData as any, true);
-                      } else if (onePagerData) {
-                        await exportOnePagerPDF(onePagerData as any, true);
-                      }
-                      toast({ title: 'PDF downloaded' });
-                    } catch {toast({ title: 'Failed to generate PDF', variant: 'destructive' });}
-                  }}
-                  className={`p-2 rounded-lg transition-colors relative min-h-[44px] min-w-[44px] flex items-center justify-center ${
-                  isFree ?
-                  'text-muted-foreground/50 cursor-not-allowed' :
-                  'text-muted-foreground hover:text-foreground hover:bg-accent/10'}`
-                  }
-                  title={isFree ? 'Upgrade to Pro to export PDF' : 'Download as PDF'}>
-
-                      <Download className="w-4 h-4" />
-                      {isFree && <Lock className="w-2.5 h-2.5 absolute -top-0.5 -right-0.5" />}
-                    </button>
-                    
-                    {/* Practice mode - for scripts only */}
-                    {outputFormat === 'script' && scriptData &&
-                <button
-                  onClick={() => setIsPracticeMode(true)}
-                  className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/10 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
-                  title="Practice">
-
-                        <Play className="w-4 h-4" />
-                      </button>
-                }
-                    
-                    {/* Feedback - desktop */}
-                    {activeProject && (onePagerData || scriptData) && !isRegenerating &&
-                <TopBarFeedback
-                  projectId={activeProject.id}
-                  format={outputFormat === 'script' ? 'script' : 'one-pager'}
-                  generationKey={feedbackKey}
-                  generatedOutput={
-                  outputFormat === 'script' ?
-                  scriptData as unknown as Record<string, unknown> :
-                  onePagerData as unknown as Record<string, unknown>
-                  } />
-
-                }
-
-                    {/* Share button */}
-                    <button
-                  onClick={() => setShowShareModal(true)}
-                  className="p-2 rounded-lg text-primary hover:bg-primary/10 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
-                  title="Share">
-
-                      <Share2 className="w-4 h-4" />
-                    </button>
-                    
                     {/* Version History */}
                     {activeProject &&
-                <VersionHistoryDropdown
-                  projectId={activeProject.id}
-                  currentVersionId={activeVersionId}
-                  fetchVersions={fetchVersions}
-                  onSelectVersion={(version) => {
-                    setActiveVersionId(version.id);
-                    const vData = version.output_data;
-                    if (version.output_format === 'script' && vData.script) {
-                      setScriptData(vData.script as unknown as ScriptData);
-                      setOutputFormat('script');
-                    } else if (vData.onePager) {
-                      setOnePagerData(vData.onePager as unknown as OnePagerData);
-                      setOutputFormat('one-pager');
-                    }
-                  }} />
+                  <VersionHistoryDropdown
+                    projectId={activeProject.id}
+                    currentVersionId={activeVersionId}
+                    fetchVersions={fetchVersions}
+                    onSelectVersion={(version) => {
+                      setActiveVersionId(version.id);
+                      const vData = version.output_data;
+                      if (version.output_format === 'script' && vData.script) {
+                        setScriptData(vData.script as unknown as ScriptData);
+                        setOutputFormat('script');
+                      } else if (vData.onePager) {
+                        setOnePagerData(vData.onePager as unknown as OnePagerData);
+                        setOutputFormat('one-pager');
+                      }
+                    }} />
+                  }
 
-                }
+                    {/* Desktop overflow for secondary actions */}
+                    <DesktopOverflowMenu
+                      onShare={() => setShowShareModal(true)}
+                      onExport={async () => {
+                        if (isFree) {checkAndTriggerPaywall('export');return;}
+                        try {
+                          if (outputFormat === 'script' && scriptData) {
+                            await exportScriptPDF(scriptData as any, true);
+                          } else if (onePagerData) {
+                            await exportOnePagerPDF(onePagerData as any, true);
+                          }
+                          toast({ title: 'PDF downloaded' });
+                        } catch {toast({ title: 'Failed to generate PDF', variant: 'destructive' });}
+                      }}
+                      onEdit={onePagerData && !isRegenerating ? () => setShowEditor((prev) => !prev) : undefined}
+                      onCopyAll={() => {
+                        if (outputFormat === 'one-pager' && onePagerData) {
+                          const text = onePagerData.sections
+                            .map((s) => `${s.title}\n${s.points.map((p) => `• ${p.replace(/\*\*/g, '')}`).join('\n')}`)
+                            .join('\n\n');
+                          navigator.clipboard.writeText(text);
+                        } else if (outputFormat === 'script' && scriptData) {
+                          const text = (scriptData as any).lines?.map((l: any) => l.text || '').join('\n\n') || '';
+                          navigator.clipboard.writeText(text);
+                        }
+                      }}
+                      isFree={isFree}
+                      feedbackNode={
+                        activeProject && (onePagerData || scriptData) && !isRegenerating ? (
+                          <TopBarFeedback
+                            projectId={activeProject.id}
+                            format={outputFormat === 'script' ? 'script' : 'one-pager'}
+                            generationKey={feedbackKey}
+                            generatedOutput={
+                              outputFormat === 'script' ?
+                              scriptData as unknown as Record<string, unknown> :
+                              onePagerData as unknown as Record<string, unknown>
+                            }
+                          />
+                        ) : null
+                      }
+                    />
                   </div>
 
                   {/* Mobile: only overflow menu */}
@@ -1353,7 +1339,7 @@ const Dashboard = () => {
             }
             </header>
             
-            <div className={`overflow-y-auto p-4 sm:p-6 lg:p-8 relative z-10 transition-opacity duration-500 ${isRefining ? 'opacity-50' : 'opacity-100'}`} style={{ paddingBottom: onePagerData || scriptData ? '140px' : undefined }}>
+            <div className={`overflow-y-auto px-5 sm:p-6 lg:p-8 py-4 relative z-10 transition-opacity duration-500 ${isRefining ? 'opacity-50' : 'opacity-100'}`} style={{ paddingBottom: onePagerData || scriptData ? '140px' : undefined }}>
               {/* Show skeleton during regeneration */}
               {isRegenerating ?
             <GenerationSkeleton format={outputFormat} /> :

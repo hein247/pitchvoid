@@ -23,14 +23,23 @@ interface OnePagerProps {
   onDeletePoint?: (sectionIdx: number, pointIdx: number) => void;
 }
 
-/** Render markdown **bold** as <strong> */
+/** Render markdown **bold** as <strong> — numbers/stats get full white */
 const renderPoint = (text: string) => {
   const parts = text.split(/(\*\*[^*]+\*\*)/g);
   return parts.map((part, i) => {
     if (part.startsWith('**') && part.endsWith('**')) {
+      const inner = part.slice(2, -2);
+      // If it looks like a stat/number (contains digits, $, %, x), make it pop white
+      const isNumeric = /[\d$%x×]/.test(inner);
       return (
-        <strong key={i} className="font-semibold text-[rgba(240,237,246,0.85)]">
-          {part.slice(2, -2)}
+        <strong
+          key={i}
+          style={{
+            fontWeight: 700,
+            color: isNumeric ? 'rgba(255,255,255,1)' : 'rgba(240,237,246,0.92)',
+          }}
+        >
+          {inner}
         </strong>
       );
     }
@@ -100,36 +109,37 @@ const SwipeablePointCard = ({
         onTouchStart={onDelete ? handleTouchStart : undefined}
         onTouchMove={onDelete ? handleTouchMove : undefined}
         onTouchEnd={onDelete ? handleTouchEnd : undefined}
-        className="group w-full text-left relative rounded-xl border transition-all duration-200 p-3 sm:p-4 pl-4 sm:pl-5 min-h-[44px]"
+        className="group w-full text-left relative rounded-xl border transition-all duration-200 min-h-[44px]"
         style={{
-          borderColor: isCopied ? 'rgba(74,222,128,0.4)' : 'rgba(255,255,255,0.06)',
-          backgroundColor: 'rgba(255,255,255,0.02)',
+          borderColor: isCopied ? 'rgba(74,222,128,0.4)' : 'rgba(240,237,246,0.08)',
+          backgroundColor: 'rgba(240,237,246,0.04)',
+          padding: '20px 24px 20px 24px',
           transform: `translateX(${offsetX}px)`,
           transition: startXRef.current !== null ? 'none' : 'transform 0.2s ease-out',
         }}
         onMouseEnter={(e) => {
-          if (!isCopied) (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)');
+          if (!isCopied) (e.currentTarget.style.borderColor = 'rgba(240,237,246,0.14)');
         }}
         onMouseLeave={(e) => {
-          if (!isCopied) (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)');
+          if (!isCopied) (e.currentTarget.style.borderColor = 'rgba(240,237,246,0.08)');
         }}
       >
         {/* Purple left accent bar */}
         <div
-          className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full"
+          className="absolute left-0 top-4 bottom-4 w-[3px] rounded-full"
           style={{
-            background: 'linear-gradient(180deg, rgba(168,85,247,0.6), rgba(168,85,247,0.15))',
+            background: 'linear-gradient(180deg, rgba(168,85,247,0.5), rgba(168,85,247,0.15))',
           }}
         />
 
         <p
-          className="text-[13px] sm:text-sm leading-[1.65]"
-          style={{ color: 'rgba(240,237,246,0.65)' }}
+          className="text-[13px] sm:text-sm leading-[1.7]"
+          style={{ color: 'rgba(240,237,246,0.88)' }}
         >
           {renderPoint(point)}
         </p>
 
-        {/* Copied badge — centered on mobile, top-right on desktop */}
+        {/* Copied badge */}
         {isCopied && (
           <span className="absolute inset-0 flex items-center justify-center sm:inset-auto sm:top-2 sm:right-3 text-[10px] font-medium text-green-400 bg-green-400/10 sm:bg-green-400/10 px-2 py-0.5 rounded-full pointer-events-none">
             Copied
@@ -144,7 +154,7 @@ const OnePager = ({ data: rawData, refineAnimationKey, onDeletePoint }: OnePager
   const [copiedIndex, setCopiedIndex] = useState<string | null>(null);
   const [copiedAll, setCopiedAll] = useState(false);
 
-  // Migrate old schema (headline/subheadline/bullets) to new (title/context_line/points)
+  // Migrate old schema
   const data: OnePagerData = (() => {
     const d = rawData as any;
     if (d.title && d.context_line && Array.isArray(d.sections)) {
@@ -188,13 +198,24 @@ const OnePager = ({ data: rawData, refineAnimationKey, onDeletePoint }: OnePager
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="max-w-[680px] sm:max-w-[600px] lg:max-w-[680px] mx-auto py-2"
+      className="max-w-[680px] mx-auto py-2 relative"
     >
-      {/* Copy All button — hidden on mobile (moved to overflow) */}
-      <div className="hidden sm:flex justify-end mb-6">
+      {/* Subtle radial glow behind content */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse at center, rgba(168,85,247,0.02) 0%, transparent 70%)',
+        }}
+      />
+
+      {/* Copy All button — hidden on mobile */}
+      <div className="hidden sm:flex justify-end mb-6 relative z-10">
         <button
           onClick={copyAll}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-colors hover:bg-accent/10 text-muted-foreground"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-colors"
+          style={{ color: copiedAll ? undefined : 'rgba(240,237,246,0.4)' }}
+          onMouseEnter={(e) => { if (!copiedAll) e.currentTarget.style.color = 'rgba(240,237,246,0.7)'; }}
+          onMouseLeave={(e) => { if (!copiedAll) e.currentTarget.style.color = 'rgba(240,237,246,0.4)'; }}
         >
           {copiedAll ? (
             <>
@@ -211,7 +232,7 @@ const OnePager = ({ data: rawData, refineAnimationKey, onDeletePoint }: OnePager
       </div>
 
       {/* Sections */}
-      <div className="space-y-8 sm:space-y-10">
+      <div className="space-y-16 relative z-10">
         {data.sections.map((section, sIdx) => (
           <motion.div
             key={sIdx}
@@ -219,16 +240,16 @@ const OnePager = ({ data: rawData, refineAnimationKey, onDeletePoint }: OnePager
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: sIdx * 0.08 }}
           >
-            {/* Section label */}
+            {/* Section label — Level 2 */}
             <p
-              className="text-[10px] sm:text-[11px] uppercase tracking-[0.15em] font-medium mb-3 sm:mb-4"
-              style={{ color: 'rgba(168,85,247,0.45)' }}
+              className="text-[13px] uppercase tracking-[0.15em] font-medium mb-8"
+              style={{ color: 'rgba(168,85,247,0.75)' }}
             >
               {section.title}
             </p>
 
-            {/* Points */}
-            <div className="space-y-2 sm:space-y-3">
+            {/* Points — Level 1 */}
+            <div className="space-y-4">
               {section.points.map((point, pIdx) => {
                 const key = `${sIdx}-${pIdx}`;
                 const isCopied = copiedIndex === key;
