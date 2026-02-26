@@ -1,11 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import HowItWorks from '@/components/landing/HowItWorks';
 import AnimatedShaderBackground from '@/components/ui/animated-shader-background';
 import Footer from '@/components/Footer';
+import VoidTransition from '@/components/ui/VoidTransition';
 const ROTATING_WORDS = ['process', 'analyze', 'prepare', 'articulate', 'connect'];
 
 const containerVariants = {
@@ -26,6 +27,11 @@ const letterVariants = {
 const Landing = () => {
   const navigate = useNavigate();
   const [wordIndex, setWordIndex] = useState(0);
+  const [voidActive, setVoidActive] = useState(false);
+
+  const enterVoid = useCallback(() => {
+    setVoidActive(true);
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -35,6 +41,7 @@ const Landing = () => {
   }, []);
   return <div className="min-h-screen relative bg-[radial-gradient(ellipse_at_top,_hsl(25_75%_65%/0.08)_0%,_transparent_50%),_radial-gradient(ellipse_at_bottom_right,_hsl(260_60%_55%/0.06)_0%,_transparent_50%)]">
       <AnimatedShaderBackground />
+      <VoidTransition isActive={voidActive} onComplete={() => navigate('/dashboard')} />
       {/* Navigation */}
       <div className="relative z-10">
         <Navbar variant="landing" />
@@ -72,7 +79,7 @@ const Landing = () => {
               <p className="text-base sm:text-lg text-muted-foreground mb-8 sm:mb-10 max-w-md mx-auto leading-relaxed">Dump your scattered thoughts. PitchVoid turns them into something you can actually walk in and say.</p>
 
               <div className="flex items-center gap-3 sm:gap-4 mb-5 justify-center">
-                <button onClick={() => navigate('/dashboard')} className="px-7 sm:px-8 py-3.5 sm:py-4 rounded-xl text-primary-foreground font-medium magenta-gradient text-base sm:text-lg inline-flex items-center gap-3 hover:opacity-90 transition-opacity group">
+                <button onClick={enterVoid} className="px-7 sm:px-8 py-3.5 sm:py-4 rounded-xl text-primary-foreground font-medium magenta-gradient text-base sm:text-lg inline-flex items-center gap-3 hover:opacity-90 transition-opacity group">
                   Try it free
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
                 </button>
@@ -96,7 +103,7 @@ const Landing = () => {
           <p className="text-muted-foreground mb-6 sm:mb-8 text-sm sm:text-base max-w-lg mx-auto">
             Investor pitch. Job interview. Difficult conversation. Whatever it is — dump the mess, get the clarity.
           </p>
-          <button onClick={() => navigate('/dashboard')} className="px-8 py-4 rounded-xl text-primary-foreground font-medium magenta-gradient text-base sm:text-lg hover:opacity-90 transition-opacity group inline-flex items-center gap-3">
+          <button onClick={enterVoid} className="px-8 py-4 rounded-xl text-primary-foreground font-medium magenta-gradient text-base sm:text-lg hover:opacity-90 transition-opacity group inline-flex items-center gap-3">
             Enter the void
             <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
           </button>
