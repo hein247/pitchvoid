@@ -48,18 +48,30 @@ const Navbar = ({
           >
             Pricing
           </button>
-          <button
-            onClick={() => navigate('/auth')}
-            className="text-sm text-foreground/80 hover:text-foreground transition-colors"
-          >
-            Log In
-          </button>
-          <button
-            onClick={() => navigate('/auth')}
-            className="px-5 py-2.5 rounded-xl text-sm text-primary-foreground font-medium magenta-gradient hover:opacity-90 transition-opacity"
-          >
-            Get Started Free
-          </button>
+          {user ? (
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="w-9 h-9 rounded-full magenta-gradient flex items-center justify-center text-primary-foreground text-sm font-medium cursor-pointer hover:opacity-90 transition-opacity"
+              title="Go to Dashboard"
+            >
+              {user.email?.charAt(0).toUpperCase()}
+            </button>
+          ) : (
+            <>
+              <button
+                onClick={() => navigate('/auth')}
+                className="text-sm text-foreground/80 hover:text-foreground transition-colors"
+              >
+                Log In
+              </button>
+              <button
+                onClick={() => navigate('/auth')}
+                className="px-5 py-2.5 rounded-xl text-sm text-primary-foreground font-medium magenta-gradient hover:opacity-90 transition-opacity"
+              >
+                Get Started Free
+              </button>
+            </>
+          )}
         </div>
 
         {/* Mobile menu using Sheet */}
@@ -82,18 +94,29 @@ const Navbar = ({
               >
                 Pricing
               </button>
-              <button
-                onClick={() => navigate('/auth')}
-                className="text-sm text-foreground/80 hover:text-foreground transition-colors py-3 text-left border-b border-accent/10"
-              >
-                Log In
-              </button>
-              <button
-                onClick={() => navigate('/auth')}
-                className="mt-4 px-5 py-3 rounded-xl text-sm text-primary-foreground font-medium magenta-gradient hover:opacity-90 transition-opacity w-full"
-              >
-                Get Started Free
-              </button>
+              {user ? (
+                <button
+                  onClick={() => navigate('/dashboard')}
+                  className="mt-4 px-5 py-3 rounded-xl text-sm text-primary-foreground font-medium magenta-gradient hover:opacity-90 transition-opacity w-full"
+                >
+                  Go to Dashboard
+                </button>
+              ) : (
+                <>
+                  <button
+                    onClick={() => navigate('/auth')}
+                    className="text-sm text-foreground/80 hover:text-foreground transition-colors py-3 text-left border-b border-accent/10"
+                  >
+                    Log In
+                  </button>
+                  <button
+                    onClick={() => navigate('/auth')}
+                    className="mt-4 px-5 py-3 rounded-xl text-sm text-primary-foreground font-medium magenta-gradient hover:opacity-90 transition-opacity w-full"
+                  >
+                    Get Started Free
+                  </button>
+                </>
+              )}
             </nav>
           </SheetContent>
         </Sheet>
