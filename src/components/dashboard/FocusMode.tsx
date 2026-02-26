@@ -507,8 +507,8 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
     const isExhale = centerStep.endsWith('_exhale');
     const isFadeout = centerStep === 'breathe_fadeout';
 
-    const strokeBase = isCycle2 ? 0.16 : 0.12;
-    const strokePulseHigh = isCycle2 ? 0.22 : 0.18;
+    const strokeBase = isCycle2 ? 0.6 : 0.5;
+    const strokePulseHigh = isCycle2 ? 0.8 : 0.7;
 
     // Determine circle radius for current step
     let circleR = 15;
@@ -538,7 +538,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
             style={{ animation: `focusFadeInOut 2s ${APPLE_EASE} forwards` }}
           >
             <p style={{ fontSize: '22px', marginBottom: '6px' }}>🎧</p>
-            <p style={{ fontSize: '11px', color: 'rgba(240,237,246,0.2)' }}>
+            <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)' }}>
               For the full experience, use headphones
             </p>
           </div>
@@ -550,7 +550,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
             className="text-center font-sans"
             style={{
               fontSize: '15px',
-              color: 'rgba(240,237,246,0.4)',
+              color: 'rgba(255,255,255,0.8)',
               animation: `focusFadeInOut 2s ${APPLE_EASE} forwards`,
             }}
           >
@@ -602,7 +602,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
             className="text-center font-sans"
             style={{
               fontSize: '12px',
-              color: 'rgba(240,237,246,0.2)',
+              color: 'rgba(255,255,255,0.7)',
               animation: `focusFadeInOut 1.5s ${APPLE_EASE} forwards`,
             }}
           >
@@ -616,7 +616,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
             className="text-center font-sans"
             style={{
               fontSize: '12px',
-              color: 'rgba(168,85,247,0.25)',
+              color: 'rgba(168,85,247,0.7)',
               animation: `focusFadeInOut 1.5s ${APPLE_EASE} forwards`,
             }}
           >
@@ -630,7 +630,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
             className="text-center font-sans"
             style={{
               fontSize: '14px',
-              color: 'rgba(240,237,246,0.3)',
+              color: 'rgba(255,255,255,0.8)',
               animation: `focusFadeInOut 2s ${APPLE_EASE} forwards`,
             }}
           >
@@ -653,7 +653,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
                 key={`label-${centerStep}`}
                 style={{
                   fontSize: '11px',
-                  color: 'rgba(240,237,246,0.1)',
+                  color: 'rgba(255,255,255,0.7)',
                   marginBottom: '20px',
                   animation: `focusFadeInOut ${isInhale ? '4s' : isHold ? '7s' : '8s'} ${APPLE_EASE} forwards`,
                 }}
@@ -699,7 +699,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
                     transform: 'translate(-50%, -50%)',
                     fontSize: '28px',
                     fontWeight: 300,
-                    color: isHold ? 'rgba(240,237,246,0.3)' : 'rgba(240,237,246,0.25)',
+                    color: isHold ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.8)',
                     fontFamily: "'Be Vietnam Pro', sans-serif",
                     animation: `countdownPulse 1s ${APPLE_EASE} forwards`,
                   }}
@@ -745,7 +745,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
             className="text-center lowercase"
             style={{
               fontSize: '14px',
-              color: 'rgba(168,85,247,0.4)',
+              color: 'rgba(168,85,247,0.8)',
               animation: `focusFadeInOut 2s ${APPLE_EASE} forwards`,
             }}
           >
