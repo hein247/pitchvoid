@@ -112,7 +112,7 @@ const SwipeablePointCard = ({
         className="group w-full text-left relative rounded-xl border transition-all duration-200 min-h-[44px]"
         style={{
           borderColor: isCopied ? 'rgba(74,222,128,0.4)' : 'rgba(240,237,246,0.08)',
-          backgroundColor: 'rgba(240,237,246,0.04)',
+          backgroundColor: 'rgba(240,237,246,0.05)',
           padding: '20px 24px 20px 24px',
           transform: `translateX(${offsetX}px)`,
           transition: startXRef.current !== null ? 'none' : 'transform 0.2s ease-out',
@@ -128,13 +128,13 @@ const SwipeablePointCard = ({
         <div
           className="absolute left-0 top-4 bottom-4 w-[3px] rounded-full"
           style={{
-            background: 'linear-gradient(180deg, rgba(168,85,247,0.5), rgba(168,85,247,0.15))',
+            background: 'linear-gradient(180deg, rgba(168,85,247,0.55), rgba(168,85,247,0.2))',
           }}
         />
 
         <p
           className="text-[13px] sm:text-sm leading-[1.7]"
-          style={{ color: 'rgba(240,237,246,0.88)' }}
+          style={{ color: 'rgba(240,237,246,0.92)' }}
         >
           {renderPoint(point)}
         </p>
@@ -232,7 +232,7 @@ const OnePager = ({ data: rawData, refineAnimationKey, onDeletePoint }: OnePager
       </div>
 
       {/* Sections */}
-      <div className="space-y-16 relative z-10">
+      <div className="relative z-10" style={{ display: 'flex', flexDirection: 'column', gap: 56 }}>
         {data.sections.map((section, sIdx) => (
           <motion.div
             key={sIdx}
@@ -243,7 +243,7 @@ const OnePager = ({ data: rawData, refineAnimationKey, onDeletePoint }: OnePager
             {/* Section label — Level 2 */}
             <p
               className="text-[13px] uppercase tracking-[0.15em] font-medium mb-8"
-              style={{ color: 'rgba(168,85,247,0.75)' }}
+              style={{ color: 'rgba(168,85,247,0.8)' }}
             >
               {section.title}
             </p>
