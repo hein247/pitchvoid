@@ -20,22 +20,20 @@ const containerVariants = {
 };
 
 const letterVariants = {
-  hidden: { opacity: 0, y: 14, scale: 0.92, filter: 'blur(4px)' },
+  hidden: { opacity: 0, y: 12 },
   visible: {
     opacity: 1,
     y: 0,
-    scale: 1,
-    filter: 'blur(0px)',
     transition: {
-      duration: 0.35,
-      ease: [0.22, 1, 0.36, 1] as const,
+      type: 'spring' as const,
+      damping: 20,
+      stiffness: 300,
     },
   },
   exit: {
     opacity: 0,
-    y: -6,
-    filter: 'blur(2px)',
-    transition: { duration: 0.15, ease: [0.4, 0, 1, 1] as const },
+    y: -8,
+    transition: { duration: 0.12, ease: 'easeIn' as const },
   },
 };
 
