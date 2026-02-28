@@ -10,18 +10,33 @@ import VoidTransition from '@/components/ui/VoidTransition';
 const ROTATING_WORDS = ['process', 'analyze', 'prepare', 'articulate', 'connect'];
 
 const containerVariants = {
+  hidden: {},
   visible: {
-    transition: { staggerChildren: 0.04 },
+    transition: { staggerChildren: 0.045, delayChildren: 0.02 },
   },
   exit: {
-    transition: { duration: 0.2 },
+    transition: { duration: 0.18 },
   },
 };
 
 const letterVariants = {
-  hidden: { opacity: 0, y: 8 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.08 } },
-  exit: { opacity: 0, transition: { duration: 0.15 } },
+  hidden: { opacity: 0, y: 14, scale: 0.92, filter: 'blur(4px)' },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    filter: 'blur(0px)',
+    transition: {
+      duration: 0.35,
+      ease: [0.22, 1, 0.36, 1] as const,
+    },
+  },
+  exit: {
+    opacity: 0,
+    y: -6,
+    filter: 'blur(2px)',
+    transition: { duration: 0.15, ease: [0.4, 0, 1, 1] as const },
+  },
 };
 
 const Landing = () => {
