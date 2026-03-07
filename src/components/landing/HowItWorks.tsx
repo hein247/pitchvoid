@@ -458,7 +458,7 @@ export default function HowItWorks() {
           </p>
 
           {/* CTA */}
-          <div className="cta-area absolute inset-0 flex items-center justify-center" style={{ opacity: 0 }}>
+          <div className="cta-area absolute inset-0 flex items-center justify-center z-20" style={{ opacity: 0 }}>
             <button
               onClick={() => navigate('/dashboard')}
               className="px-8 py-3.5 rounded-full text-primary-foreground font-medium magenta-gradient text-base hover:opacity-90 hover:scale-105 transition-all cursor-pointer"
