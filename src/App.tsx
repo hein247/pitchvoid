@@ -15,6 +15,7 @@ import Pricing from "./pages/Pricing";
 import Settings from "./pages/Settings";
 import FAQ from "./pages/FAQ";
 import Legal from "./pages/Legal";
+import Why from "./pages/Why";
 import NotFound from "./pages/NotFound";
 
 const CaseStudy = lazy(() => import("./pages/CaseStudy"));
@@ -35,6 +36,7 @@ const AnimatedRoutes = () => {
         <Route path="/settings" element={<Settings />} />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/legal" element={<Legal />} />
+        <Route path="/why" element={<Why />} />
         <Route path="/case-study" element={<Suspense fallback={<div className="min-h-screen" style={{ background: "#FFFFFF" }} />}><CaseStudy /></Suspense>} />
         <Route path="/p/:id" element={<PublicPresentation />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
