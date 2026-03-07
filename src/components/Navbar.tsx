@@ -2,6 +2,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { usePricing } from '@/hooks/usePricing';
 import { Mic, Menu, Crown, Settings } from 'lucide-react';
+import pitchvoidLogo from '@/assets/pitchvoid-logo.png';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,9 +36,9 @@ const Navbar = ({
       <nav className="relative z-10 px-4 sm:px-8 py-4 sm:py-6 flex items-center justify-between max-w-7xl mx-auto">
         <button
           onClick={() => navigate('/')}
-          className="text-xl sm:text-2xl font-semibold font-display brand-gradient-text"
+          className="flex items-center"
         >
-          PitchVoid
+          <img src={pitchvoidLogo} alt="PitchVoid" className="h-7 sm:h-8" />
         </button>
         
         {/* Desktop nav */}
@@ -83,8 +84,8 @@ const Navbar = ({
           </SheetTrigger>
           <SheetContent side="right" className="w-[280px] bg-background border-l border-accent/20">
             <SheetHeader>
-              <SheetTitle className="text-left font-display brand-gradient-text">
-                PitchVoid
+              <SheetTitle className="text-left">
+                <img src={pitchvoidLogo} alt="PitchVoid" className="h-7" />
               </SheetTitle>
             </SheetHeader>
             <nav className="flex flex-col gap-4 mt-8">
@@ -130,9 +131,9 @@ const Navbar = ({
       <nav className="glassmorphism px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between sticky top-0 z-40">
         <button
           onClick={() => navigate('/')}
-          className="text-lg sm:text-xl font-semibold font-display brand-gradient-text"
+          className="flex items-center"
         >
-          PitchVoid
+          <img src={pitchvoidLogo} alt="PitchVoid" className="h-6 sm:h-7" />
         </button>
         <div className="flex items-center gap-2 sm:gap-4">
           {/* Credit pill — tappable, goes to pricing */}
@@ -199,9 +200,9 @@ const Navbar = ({
     <nav className="relative z-10 px-4 sm:px-8 py-4 sm:py-6 flex items-center justify-center">
       <button
         onClick={() => navigate('/')}
-        className="text-xl sm:text-2xl font-semibold font-display brand-gradient-text"
+        className="flex items-center"
       >
-        PitchVoid
+        <img src={pitchvoidLogo} alt="PitchVoid" className="h-7 sm:h-8" />
       </button>
     </nav>
   );

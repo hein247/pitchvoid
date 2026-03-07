@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom';
+import pitchvoidLogo from '@/assets/pitchvoid-logo.png';
 
 export default function Footer() {
   return (
     <footer className="border-t border-accent/10 pt-10 pb-16 px-4 sm:px-8">
       <div className="max-w-7xl mx-auto flex flex-col items-center gap-4">
-        <Link to="/" className="text-lg font-display brand-gradient-text">
-          PitchVoid
+        <Link to="/" className="flex items-center">
+          <img src={pitchvoidLogo} alt="PitchVoid" className="h-6" />
         </Link>
         <p className="text-[11px] text-foreground/60 text-center">
           © 2026 PitchVoid ·{' '}
