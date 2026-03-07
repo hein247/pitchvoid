@@ -1277,22 +1277,7 @@ const Dashboard = () => {
                           const text = (scriptData as any).lines?.map((l: any) => l.text || '').join('\n\n') || '';
                           navigator.clipboard.writeText(text);
                         }
-                      }}
                       isFree={isFree}
-                      feedbackNode={
-                        activeProject && (onePagerData || scriptData) && !isRegenerating ? (
-                          <TopBarFeedback
-                            projectId={activeProject.id}
-                            format={outputFormat === 'script' ? 'script' : 'one-pager'}
-                            generationKey={feedbackKey}
-                            generatedOutput={
-                              outputFormat === 'script' ?
-                              scriptData as unknown as Record<string, unknown> :
-                              onePagerData as unknown as Record<string, unknown>
-                            }
-                          />
-                        ) : null
-                      }
                     />
                   </div>
 
