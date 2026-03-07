@@ -78,7 +78,7 @@ const RefinementBar = ({
       await supabase.functions.invoke('submit-feedback', {
         body: {
           project_id: projectId,
-          rating,
+          rating: rating === 'up' ? 5 : 1,
           issues,
           format: format || 'one-pager',
           output_json: generatedOutput || null,
