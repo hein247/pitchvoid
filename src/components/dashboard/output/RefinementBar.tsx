@@ -113,6 +113,7 @@ const RefinementBar = ({
           </button>
         </form>
       </div>
+      </div>
     </div>
   );
 };
