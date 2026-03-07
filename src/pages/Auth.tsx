@@ -5,6 +5,7 @@ import { lovable } from '@/integrations/lovable';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import ShaderBackground from '@/components/ui/ShaderBackground';
+import PageTransition from '@/components/ui/PageTransition';
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -81,7 +82,7 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col relative">
+    <PageTransition><div className="min-h-screen flex flex-col relative">
       <ShaderBackground />
       <div className="relative z-10 flex flex-col flex-1">
         {/* Back navigation */}
@@ -180,7 +181,7 @@ const Auth = () => {
           </div>
         </div>
       </div>
-    </div>
+    </div></PageTransition>
   );
 };
 

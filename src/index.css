@@ -86,6 +86,9 @@
     font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
     min-height: 100vh;
     transition: background-color 0.3s ease, color 0.3s ease;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
   
   /* Dark mode specific bg */
@@ -99,6 +102,18 @@
 
   html {
     scroll-behavior: smooth;
+  }
+
+  /* Global smooth transitions for interactive elements */
+  a, button, input, textarea, select {
+    transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+    transition-duration: 200ms;
+    transition-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  /* Smooth image loading */
+  img {
+    transition: opacity 0.3s ease;
   }
 
   /* Typography system */

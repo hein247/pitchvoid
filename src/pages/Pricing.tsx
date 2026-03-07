@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import Footer from '@/components/Footer';
+import PageTransition from '@/components/ui/PageTransition';
 
 interface CreditPack {
   id: string;
@@ -105,7 +106,7 @@ export default function Pricing() {
   };
 
   return (
-    <div className="min-h-screen bg-background bg-[radial-gradient(ellipse_at_top,_hsl(25_75%_65%/0.08)_0%,_transparent_50%),_radial-gradient(ellipse_at_bottom_right,_hsl(260_60%_55%/0.06)_0%,_transparent_50%)] flex flex-col">
+    <PageTransition><div className="min-h-screen bg-background bg-[radial-gradient(ellipse_at_top,_hsl(25_75%_65%/0.08)_0%,_transparent_50%),_radial-gradient(ellipse_at_bottom_right,_hsl(260_60%_55%/0.06)_0%,_transparent_50%)] flex flex-col">
       {/* Header */}
       <header className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -242,6 +243,6 @@ export default function Pricing() {
       </main>
 
       <Footer />
-    </div>
+    </div></PageTransition>
   );
 }
