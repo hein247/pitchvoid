@@ -218,8 +218,8 @@ const ScriptViewer = ({ data: rawData, refineAnimationKey, onDeleteLine }: Scrip
       <div className="flex items-center justify-between mb-6 sm:mb-8 relative z-10">
         {data.total_duration && (
           <div className="flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5" style={{ color: 'rgba(124,77,255,0.65)' }} />
-            <span className="text-xs" style={{ color: 'rgba(124,77,255,0.55)' }}>~{data.total_duration}</span>
+            <Clock className="w-3.5 h-3.5" style={{ color: 'rgba(124,77,255,0.85)' }} />
+            <span className="text-xs" style={{ color: 'rgba(124,77,255,0.75)' }}>~{data.total_duration}</span>
           </div>
         )}
         <button
