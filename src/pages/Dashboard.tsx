@@ -852,7 +852,7 @@ const Dashboard = () => {
     // Reconstruct context from project data if not available in memory
     const ctx = lastGenerationContext || (() => {
       const scenario = transcribedText || activeProject?.scenario_description || '';
-      const audience = activeProject?.target_audience || 'Decision makers';
+      const audience = activeProject?.target_audience || '';
       if (!scenario) return null;
       return {
         scenario,
