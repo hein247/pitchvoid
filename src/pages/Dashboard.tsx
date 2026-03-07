@@ -1038,20 +1038,22 @@ const Dashboard = () => {
 
       {/* Dashboard View */}
       {currentView === 'dashboard' &&
-      <div className={showInstallPrompt ? 'pt-14 sm:pt-16' : ''}>
+      <div className={`relative ${showInstallPrompt ? 'pt-14 sm:pt-16' : ''}`}>
           <Navbar variant="dashboard" onSignOut={handleSignOut} />
           
-          {/* Ethereal Shadow Background */}
-          <div className="relative w-full h-48 sm:h-56 -mb-20 sm:-mb-24 overflow-hidden">
+          {/* Ethereal Shadow — absolute background behind all content */}
+          <div className="absolute inset-0 top-14 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
             <EtheralShadow
-              color="rgba(124, 77, 255, 0.35)"
+              color="rgba(124, 77, 255, 0.25)"
               animation={{ scale: 30, speed: 15 }}
               noise={{ opacity: 0.03, scale: 1.2 }}
               className="w-full h-full"
             />
+            {/* Fade out at the bottom */}
+            <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-background to-transparent" />
           </div>
 
-          <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 relative z-10">
+          <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 relative" style={{ zIndex: 1 }}>
             {/* Header */}
             <div className="mb-6">
               <h1 className="text-xl sm:text-2xl font-bold text-foreground font-display">My Void </h1>
