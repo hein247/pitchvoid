@@ -1,6 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import logoImg from '@/assets/logo-pitchvoid.png';
 import { usePricing } from '@/hooks/usePricing';
 import { Mic, Menu, Crown, Settings } from 'lucide-react';
 import {
@@ -18,23 +17,6 @@ interface NavbarProps {
   onSignOut?: () => void;
 }
 
-const GradientLogo = ({ className = 'h-8' }: { className?: string }) => (
-  <div
-    className={`${className} w-auto aspect-[3/1] magenta-gradient`}
-    style={{
-      WebkitMaskImage: `url(${logoImg})`,
-      WebkitMaskSize: 'contain',
-      WebkitMaskRepeat: 'no-repeat',
-      WebkitMaskPosition: 'center',
-      maskImage: `url(${logoImg})`,
-      maskSize: 'contain',
-      maskRepeat: 'no-repeat',
-      maskPosition: 'center',
-    }}
-    aria-label="PitchVoid"
-  />
-);
-
 const Navbar = ({
   variant = 'landing',
   onQuickPitch,
@@ -51,8 +33,11 @@ const Navbar = ({
   if (variant === 'landing') {
     return (
       <nav className="relative z-10 px-4 sm:px-8 py-4 sm:py-6 flex items-center justify-between max-w-7xl mx-auto">
-        <button onClick={() => navigate('/')} className="flex items-center">
-          <GradientLogo className="h-8 sm:h-10" />
+        <button
+          onClick={() => navigate('/')}
+          className="text-xl sm:text-2xl font-semibold font-display brand-gradient-text"
+        >
+          PitchVoid
         </button>
         
         {/* Desktop nav */}
@@ -98,8 +83,8 @@ const Navbar = ({
           </SheetTrigger>
           <SheetContent side="right" className="w-[280px] bg-background border-l border-accent/20">
             <SheetHeader>
-              <SheetTitle className="text-left">
-                <GradientLogo className="h-6" />
+              <SheetTitle className="text-left font-display brand-gradient-text">
+                PitchVoid
               </SheetTitle>
             </SheetHeader>
             <nav className="flex flex-col gap-4 mt-8">
@@ -143,8 +128,11 @@ const Navbar = ({
   if (variant === 'dashboard') {
     return (
       <nav className="glassmorphism px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between sticky top-0 z-40">
-        <button onClick={() => navigate('/')} className="flex items-center">
-          <GradientLogo className="h-7 sm:h-8" />
+        <button
+          onClick={() => navigate('/')}
+          className="text-lg sm:text-xl font-semibold font-display brand-gradient-text"
+        >
+          PitchVoid
         </button>
         <div className="flex items-center gap-2 sm:gap-4">
           {/* Credit pill — tappable, goes to pricing */}
@@ -209,8 +197,11 @@ const Navbar = ({
   // Minimal variant - for auth/tour pages
   return (
     <nav className="relative z-10 px-4 sm:px-8 py-4 sm:py-6 flex items-center justify-center">
-      <button onClick={() => navigate('/')} className="flex items-center">
-        <GradientLogo className="h-8 sm:h-10" />
+      <button
+        onClick={() => navigate('/')}
+        className="text-xl sm:text-2xl font-semibold font-display brand-gradient-text"
+      >
+        PitchVoid
       </button>
     </nav>
   );
