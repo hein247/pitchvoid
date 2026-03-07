@@ -140,7 +140,8 @@ const ProjectCard = ({
           </DropdownMenu>
         </div>
       </div>
-    </motion.button>
+      </motion.button>
+    </div>
   );
 };
 
