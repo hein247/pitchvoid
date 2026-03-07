@@ -18,59 +18,59 @@
 
 @layer base {
   :root {
-    /* Near-black base with warm undertone */
-    --background: 270 12% 4%;
+    /* Pure black base */
+    --background: 0 0% 0%;
     --foreground: 30 15% 92%;
     
-    /* Surface colors – dark with faint warmth */
-    --surface: 270 10% 7%;
-    --surface-light: 270 8% 14%;
+    /* Surface colors – dark */
+    --surface: 0 0% 4%;
+    --surface-light: 0 0% 10%;
 
-    --card: 270 10% 6%;
+    --card: 0 0% 3%;
     --card-foreground: 30 15% 92%;
 
-    --popover: 270 10% 7%;
+    --popover: 0 0% 4%;
     --popover-foreground: 30 15% 92%;
 
     /* Warm peach/amber as Primary */
     --primary: 25 75% 65%;
     --primary-foreground: 270 12% 4%;
 
-    --secondary: 260 45% 50%;
+    --secondary: 263 70% 58%;
     --secondary-foreground: 30 15% 92%;
 
     --muted: 30 10% 90% / 0.05;
     --muted-foreground: 30 10% 58%;
 
-    /* Cool purple-blue as Accent */
-    --accent: 260 45% 50%;
+    /* Bright purple as Accent */
+    --accent: 263 70% 58%;
     --accent-foreground: 30 15% 92%;
 
     --destructive: 0 72% 55%;
     --destructive-foreground: 30 15% 92%;
 
-    --border: 260 30% 40% / 0.2;
-    --input: 260 30% 40% / 0.2;
+    --border: 263 70% 58% / 0.25;
+    --input: 263 70% 58% / 0.2;
     --ring: 25 75% 65%;
 
     --radius: 0.75rem;
 
     /* Brand tokens */
     --electric-magenta: 25 75% 65%;
-    --deep-violet: 260 45% 50%;
-    --void-purple: 260 45% 50%;
+    --deep-violet: 263 70% 58%;
+    --void-purple: 263 70% 58%;
     --void-glow: 25 80% 72%;
     
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(25 75% 65%) 0%, hsl(260 45% 50%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(25 75% 65%) 0%, hsl(263 70% 58%) 100%);
 
-    --sidebar-background: 270 12% 4%;
+    --sidebar-background: 0 0% 0%;
     --sidebar-foreground: 30 15% 92%;
     --sidebar-primary: 25 75% 65%;
-    --sidebar-primary-foreground: 270 12% 4%;
-    --sidebar-accent: 260 45% 50% / 0.1;
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: 263 70% 58% / 0.1;
     --sidebar-accent-foreground: 30 15% 92%;
-    --sidebar-border: 260 30% 40% / 0.2;
+    --sidebar-border: 263 70% 58% / 0.2;
     --sidebar-ring: 25 75% 65%;
   }
 
@@ -93,7 +93,7 @@
   
   /* Dark mode specific bg */
   :root:not(.light) body {
-    background-color: hsl(270 12% 4%);
+    background-color: hsl(0 0% 0%);
   }
   
   .light body {
