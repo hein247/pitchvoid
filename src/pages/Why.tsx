@@ -32,11 +32,11 @@ const Why = () => {
                 </p>
 
                 <p>
-                  Dump whatever's in your head — a pitch, an idea, a conversation you've been avoiding, a half-baked thought you'll forget by tomorrow. PitchVoid finds the structure hiding inside your mess and hands it back clean. Three sections. Your words. Nothing invented.
+                  Dump whatever's in your head, a pitch, an idea, a conversation you've been avoiding, a half-baked thought you'll forget by tomorrow. PitchVoid finds the structure hiding inside your mess and hands it back clean. Three sections. Your words. Nothing invented.
                 </p>
 
                 <p>
-                  It's not a writing tool. It doesn't think for you. It shows you what you're already thinking — just organized enough to actually use.
+                  It's not a writing tool and it doesn't think for you. It shows you what you're already thinking, and just organized enough to actually use.
                 </p>
               </div>
             </motion.div>
