@@ -46,7 +46,7 @@ export function UpgradeNudge({ message, show, onDismiss }: UpgradeNudgeProps) {
                 </Button>
                 <button
                   onClick={onDismiss}
-                  className="text-muted-foreground hover:text-foreground transition-colors p-1"
+                  className="text-foreground/70 hover:text-foreground transition-colors p-1.5 rounded-md hover:bg-white/10"
                   aria-label="Dismiss"
                 >
                   <X className="w-4 h-4" />
