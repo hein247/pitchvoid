@@ -47,6 +47,8 @@ interface ParsedContext {
   suggested_length: 'quick' | 'standard' | 'detailed';
   clarifying_questions: string[];
   summary: string;
+  mode?: 'thinking' | 'performance' | 'clarity';
+  who_confidence?: 'high' | 'medium' | 'low';
 }
 
 // Project interface is now from useProjects hook
@@ -426,17 +428,19 @@ const Dashboard = () => {
       });
       // Fallback - set defaults and continue
       setParsedContext({
-        audience: 'Decision makers',
+        audience: '',
         audience_detail: '',
         subject: 'Your pitch',
         subject_detail: transcribedText,
-        goal: 'Persuade',
-        tone: 'confident',
+        goal: 'Organize thoughts',
+        tone: 'balanced',
         urgency: 'not specified',
         suggested_format: 'one-pager',
         suggested_length: 'standard',
         clarifying_questions: [],
-        summary: transcribedText
+        summary: transcribedText,
+        mode: 'thinking',
+        who_confidence: 'low'
       });
       setQuickPitchStep(2);
     } finally {
@@ -580,7 +584,8 @@ const Dashboard = () => {
     filter((f) => f.type.startsWith('image/')).
     map((f) => `Uploaded image: ${f.name}`);
 
-    const targetAudience = parsedContext?.audience_detail || parsedContext?.audience || 'Decision makers';
+    const isThinkingMode = parsedContext?.mode === 'thinking' || parsedContext?.who_confidence === 'low';
+    const targetAudience = isThinkingMode ? '' : (parsedContext?.audience_detail || parsedContext?.audience || '');
 
     // Store context for later regeneration in different formats
     setLastGenerationContext({
