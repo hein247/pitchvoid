@@ -27,7 +27,6 @@ const InlineFeedback = ({ projectId, format, generatedOutput, generationKey }: I
   const [comment, setComment] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showMobileSheet, setShowMobileSheet] = useState(false);
 
   // Reset on new generation
   useEffect(() => {
