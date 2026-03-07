@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       ai_feedback: {
         Row: {
+          comment: string | null
           created_at: string
           generated_output: Json | null
           id: string
@@ -25,6 +26,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          comment?: string | null
           created_at?: string
           generated_output?: Json | null
           id?: string
@@ -34,6 +36,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          comment?: string | null
           created_at?: string
           generated_output?: Json | null
           id?: string
