@@ -41,7 +41,7 @@ const RefinementBar = ({
       className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-xl border-t border-border z-40"
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
-      <div className="max-w-5xl mx-auto px-3 sm:px-4 pt-4 sm:pt-5 pb-3 sm:pb-4">
+      <div className="max-w-5xl mx-auto px-3 sm:px-4 pt-5 sm:pt-6 pb-4 sm:pb-5">
         {/* Label */}
         <p className="text-[10px] sm:text-xs text-muted-foreground mb-2 sm:mb-2.5 font-medium">Refine your pitch</p>
 
