@@ -184,6 +184,7 @@ export interface MobileFeedbackSheetProps {
 export const MobileFeedbackSheet = ({ isOpen, onClose, projectId, format, generatedOutput }: MobileFeedbackSheetProps) => {
   const { user } = useAuth();
   const [selectedIssues, setSelectedIssues] = useState<string[]>([]);
+  const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const toggleIssue = (value: string) => {
@@ -201,6 +202,7 @@ export const MobileFeedbackSheet = ({ isOpen, onClose, projectId, format, genera
           project_id: projectId,
           rating: 1,
           issues: selectedIssues,
+          comment: comment.trim() || null,
           format,
           output_json: generatedOutput || null,
         },
@@ -210,6 +212,7 @@ export const MobileFeedbackSheet = ({ isOpen, onClose, projectId, format, genera
     } finally {
       setIsSubmitting(false);
       setSelectedIssues([]);
+      setComment('');
       onClose();
     }
   };
@@ -241,7 +244,17 @@ export const MobileFeedbackSheet = ({ isOpen, onClose, projectId, format, genera
             </button>
           ))}
         </div>
-        {selectedIssues.length > 0 && (
+
+        {/* Comment textarea */}
+        <textarea
+          value={comment}
+          onChange={(e) => setComment(e.target.value.slice(0, 500))}
+          placeholder="Anything else? (optional)"
+          rows={2}
+          className="w-full rounded-xl border border-border bg-card/50 px-4 py-3 text-sm text-foreground/80 placeholder:text-muted-foreground/40 resize-none focus:outline-none focus:border-primary/30 transition-colors mb-4 min-h-[44px]"
+        />
+
+        {(selectedIssues.length > 0 || comment.trim().length > 0) && (
           <button
             onClick={handleSubmit}
             disabled={isSubmitting}
