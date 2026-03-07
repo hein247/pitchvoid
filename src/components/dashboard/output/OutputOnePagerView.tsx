@@ -30,7 +30,7 @@ const OutputOnePagerView = ({ data }: OutputOnePagerViewProps) => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-3xl mx-auto mb-16">
       {/* Document Preview */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
