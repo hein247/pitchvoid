@@ -32,6 +32,7 @@ import MobileOverflowMenu from '@/components/dashboard/MobileOverflowMenu';
 import DesktopOverflowMenu from '@/components/dashboard/DesktopOverflowMenu';
 import { useProjects, type ProjectRecord, type DraftState } from '@/hooks/useProjects';
 import { validateFiles, FILE_UPLOAD_CONFIG, formatFileSize as formatFileSizeUtil } from '@/lib/fileValidation';
+import PageTransition from '@/components/ui/PageTransition';
 
 type OutputFormat = 'one-pager' | 'script';
 
@@ -1008,7 +1009,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen relative transition-colors duration-300 bg-background">
+    <PageTransition><div className="min-h-screen relative transition-colors duration-300 bg-background">
       {/* Install Banner */}
       {showInstallPrompt && currentView === 'dashboard' &&
       <div className="fixed top-0 left-0 right-0 z-50 p-2 sm:p-3 install-banner animate-slideDown">
@@ -1885,7 +1886,7 @@ const Dashboard = () => {
         show={showNudge}
         onDismiss={dismissNudge} />
 
-    </div>);
+    </div></PageTransition>);
 
 };
 
