@@ -56,8 +56,11 @@ export interface UsePricingReturn {
   isFree: boolean;
 }
 
+const OWNER_EMAIL = "heinthantaung.1993@gmail.com";
+
 export function usePricing(): UsePricingReturn {
   const { user } = useAuth();
+  const isOwner = user?.email?.toLowerCase() === OWNER_EMAIL;
   const [isLoading, setIsLoading] = useState(true);
   const [pricingData, setPricingData] = useState<UserPricingData>({
     plan: 'free',
@@ -132,9 +135,10 @@ export function usePricing(): UsePricingReturn {
 
   const canPerformAction = useCallback(
     (action: PaywallAction, options: ActionCheckOptions = {}): PaywallCheckResult => {
+      if (isOwner) return { allowed: true };
       return canUserPerformAction(pricingData.plan, pricingData.pitchCount, action, options);
     },
-    [pricingData.plan, pricingData.pitchCount]
+    [pricingData.plan, pricingData.pitchCount, isOwner]
   );
 
   const checkAndTriggerPaywall = useCallback(
@@ -158,12 +162,13 @@ export function usePricing(): UsePricingReturn {
    * The actual decrement happens server-side in edge functions.
    */
   const optimisticDecrementCredits = useCallback(() => {
+    if (isOwner) return; // Owner never loses credits
     setPricingData(prev => ({
       ...prev,
       credits: Math.max(0, prev.credits - 1),
       pitchCount: prev.pitchCount + 1,
     }));
-  }, []);
+  }, [isOwner]);
 
   /**
    * Refresh credits from the server to sync with database
@@ -195,7 +200,7 @@ export function usePricing(): UsePricingReturn {
     setNudgeDismissed(true);
   }, []);
 
-  const nudgeMessage = pricingData.credits === 1 ? '1 credit left' : null;
+  const nudgeMessage = !isOwner && pricingData.credits === 1 ? '1 credit left' : null;
 
   return {
     // Data
@@ -224,8 +229,8 @@ export function usePricing(): UsePricingReturn {
     
     // Plan info
     planLimits: PRICING[pricingData.plan].limits,
-    isPro: pricingData.plan === 'pro',
+    isPro: isOwner || pricingData.plan === 'pro',
     isTeams: pricingData.plan === 'teams',
-    isFree: pricingData.plan === 'free',
+    isFree: !isOwner && pricingData.plan === 'free',
   };
 }

@@ -92,10 +92,19 @@ export async function authenticateRequest(
   };
 }
 
+/** Owner email — bypasses all credit and plan checks */
+const OWNER_EMAIL = "heinthantaung.1993@gmail.com";
+
+export function isOwner(email: string): boolean {
+  return email.toLowerCase() === OWNER_EMAIL;
+}
+
 /**
  * Checks if user has credits available for generation
  */
-export function checkCredits(profile: UserProfile): PaywallResult {
+export function checkCredits(profile: UserProfile, email?: string): PaywallResult {
+  if (email && isOwner(email)) return { allowed: true };
+
   const credits = profile.credits ?? 0;
 
   if (credits <= 0) {
@@ -113,8 +122,8 @@ export function checkCredits(profile: UserProfile): PaywallResult {
 /**
  * Legacy pitch limit check — now delegates to credit check
  */
-export function checkPitchLimit(profile: UserProfile): PaywallResult {
-  return checkCredits(profile);
+export function checkPitchLimit(profile: UserProfile, email?: string): PaywallResult {
+  return checkCredits(profile, email);
 }
 
 /**
@@ -139,7 +148,10 @@ export function checkFormatAccess(profile: UserProfile, format: string): Paywall
  * Decrements the user's credit balance and increments pitch_count after successful generation.
  * This is the ONLY place credits are deducted — server-side authoritative.
  */
-export async function incrementPitchCount(userId: string): Promise<void> {
+export async function incrementPitchCount(userId: string, email?: string): Promise<void> {
+  // Owner never loses credits
+  if (email && isOwner(email)) return;
+
   const supabaseClient = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
