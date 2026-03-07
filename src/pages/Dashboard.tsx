@@ -1041,7 +1041,17 @@ const Dashboard = () => {
       <div className={showInstallPrompt ? 'pt-14 sm:pt-16' : ''}>
           <Navbar variant="dashboard" onSignOut={handleSignOut} />
           
-          <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+          {/* Ethereal Shadow Background */}
+          <div className="relative w-full h-48 sm:h-56 -mb-20 sm:-mb-24 overflow-hidden">
+            <EtheralShadow
+              color="rgba(124, 77, 255, 0.35)"
+              animation={{ scale: 30, speed: 15 }}
+              noise={{ opacity: 0.03, scale: 1.2 }}
+              className="w-full h-full"
+            />
+          </div>
+
+          <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 relative z-10">
             {/* Header */}
             <div className="mb-6">
               <h1 className="text-xl sm:text-2xl font-bold text-foreground font-display">My Void </h1>
