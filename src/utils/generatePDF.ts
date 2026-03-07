@@ -167,11 +167,11 @@ async function renderAndDownload(html: string, filename: string): Promise<void> 
 export async function exportOnePagerPDF(data: OnePagerData, isPro: boolean): Promise<void> {
   const html = buildOnePagerHTML(data, !isPro);
   const filename = `${data.title.replace(/[^a-zA-Z0-9]/g, '-').replace(/-+/g, '-').toLowerCase()}-pitchvoid.pdf`;
-  await renderInIframe(html, filename);
+  await renderAndDownload(html, filename);
 }
 
 export async function exportScriptPDF(data: ScriptData, isPro: boolean): Promise<void> {
   const html = buildScriptHTML(data, !isPro);
   const filename = `${data.title.replace(/[^a-zA-Z0-9]/g, '-').replace(/-+/g, '-').toLowerCase()}-script-pitchvoid.pdf`;
-  await renderInIframe(html, filename);
+  await renderAndDownload(html, filename);
 }
