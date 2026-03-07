@@ -43,7 +43,7 @@ const DesktopOverflowMenu = ({
       </button>
 
       {isOpen && (
-        <div className="absolute top-full right-0 mt-2 w-48 rounded-xl border border-border bg-card shadow-xl z-50 py-1 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute top-full right-0 mt-2 w-48 rounded-xl border border-border bg-card shadow-xl z-[100] py-1 animate-in fade-in slide-in-from-top-2 duration-200">
           {onEdit && (
             <MenuItem icon={<Edit2 className="w-4 h-4" />} label="Edit" onClick={() => { setIsOpen(false); onEdit(); }} />
           )}

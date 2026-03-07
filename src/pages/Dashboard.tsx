@@ -1167,7 +1167,7 @@ const Dashboard = () => {
       <div className="min-h-screen flex flex-col bg-background">
           {/* Preview Panel — full screen */}
           <div className="grain-bg flex flex-col relative flex-1">
-            <header className="px-3 sm:px-6 py-3 sm:py-4 flex items-center gap-2 sm:gap-3 justify-between border-b border-border relative z-10">
+            <header className="px-3 sm:px-6 py-3 sm:py-4 flex items-center gap-2 sm:gap-3 justify-between border-b border-border relative z-50">
               {/* Left: Back + Title */}
               <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
                 <button
