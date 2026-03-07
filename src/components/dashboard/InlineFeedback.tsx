@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { ThumbsUp, ThumbsDown, Send } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { MobileFeedbackSheet } from './TopBarFeedback';
 
 const ISSUE_CHIPS: { label: string; value: string }[] = [
   { label: 'Too formal', value: 'too_formal' },
