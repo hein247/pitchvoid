@@ -53,14 +53,23 @@ const ProjectCard = ({
   const hasScript = !!(outputData?.script);
 
   return (
-    <motion.button
-      onClick={status === 'draft' && onContinue ? onContinue : onOpen}
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -2 }}
-      transition={{ duration: 0.25 }}
-      className="group relative w-full text-left rounded-xl border border-border/50 bg-card/60 backdrop-blur-sm hover:border-[hsl(270_60%_60%/0.2)] hover:bg-card/80 transition-all duration-200 p-4 sm:p-5 cursor-pointer"
-    >
+    <div className="group/glow relative">
+      <GlowingEffect
+        spread={40}
+        glow
+        disabled={false}
+        proximity={64}
+        inactiveZone={0.01}
+        borderWidth={2}
+      />
+      <motion.button
+        onClick={status === 'draft' && onContinue ? onContinue : onOpen}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ y: -2 }}
+        transition={{ duration: 0.25 }}
+        className="relative w-full text-left rounded-xl border border-border/50 bg-card/60 backdrop-blur-sm hover:border-[hsl(270_60%_60%/0.2)] hover:bg-card/80 transition-all duration-200 p-4 sm:p-5 cursor-pointer"
+      >
       {/* Title */}
       <h3 className="text-[15px] font-semibold text-foreground group-hover:text-primary transition-colors truncate font-display leading-snug">
         {displayTitle}
