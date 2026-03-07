@@ -46,7 +46,7 @@ const RefinementBar = ({
         <p className="text-[10px] sm:text-xs text-muted-foreground mb-1.5 sm:mb-2 font-medium">Refine your pitch</p>
 
         {/* Quick Edit Chips */}
-        <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3 overflow-x-auto pb-1.5 sm:pb-2 scrollbar-hide">
+        <div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4 overflow-x-auto pb-1.5 sm:pb-2 scrollbar-hide">
           {/* Undo button */}
           {showUndo && onUndo && (
             <button
