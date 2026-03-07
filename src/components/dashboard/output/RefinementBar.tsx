@@ -41,9 +41,9 @@ const RefinementBar = ({
       className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-xl border-t border-border z-40"
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
-      <div className="max-w-5xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
+      <div className="max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-5">
         {/* Label */}
-        <p className="text-[10px] sm:text-xs text-muted-foreground mb-1.5 sm:mb-2 font-medium">Refine your pitch</p>
+        <p className="text-[10px] sm:text-xs text-muted-foreground mb-2.5 sm:mb-3 font-medium">Refine your pitch</p>
 
         {/* Quick Edit Chips */}
         <div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4 overflow-x-auto pb-1.5 sm:pb-2 scrollbar-hide">
