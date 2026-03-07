@@ -122,8 +122,8 @@ export function checkCredits(profile: UserProfile, email?: string): PaywallResul
 /**
  * Legacy pitch limit check — now delegates to credit check
  */
-export function checkPitchLimit(profile: UserProfile): PaywallResult {
-  return checkCredits(profile);
+export function checkPitchLimit(profile: UserProfile, email?: string): PaywallResult {
+  return checkCredits(profile, email);
 }
 
 /**

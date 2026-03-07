@@ -25,7 +25,7 @@ serve(async (req) => {
       return rateLimitResponse(rateLimitResult);
     }
 
-    const limitCheck = checkPitchLimit(profile);
+    const limitCheck = checkPitchLimit(profile, user.email);
     if (!limitCheck.allowed) {
       return jsonResponse({ error: limitCheck.error, code: limitCheck.errorCode || 'LIMIT_REACHED' }, limitCheck.statusCode || 402);
     }
@@ -246,7 +246,7 @@ Generate the JSON now. Output ONLY the JSON object, no other text.`;
     (script as any).format = "script";
     (script as any).version = 1;
 
-    await incrementPitchCount(user.id);
+    await incrementPitchCount(user.id, user.email);
 
     // Save to output_versions table
     const projectId = body.projectId;
