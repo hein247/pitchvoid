@@ -118,32 +118,47 @@ function buildScriptHTML(data: ScriptData, showWatermark: boolean): string {
 }
 
 /**
- * Renders HTML and uses html2pdf to generate a clean white PDF.
- * Uses a hidden div instead of iframe to avoid sandbox restrictions.
+ * Renders HTML inside a Shadow DOM container to isolate from the app's
+ * dark theme, then uses html2pdf to capture it as a clean white PDF.
  */
 async function renderAndDownload(html: string, filename: string): Promise<void> {
-  // Create a hidden container in the current document
-  const container = document.createElement('div');
-  container.style.position = 'fixed';
-  container.style.left = '-9999px';
-  container.style.top = '0';
-  container.style.width = '7.5in';
-  container.style.background = '#ffffff';
-  container.style.color = '#333333';
-  container.style.zIndex = '-1';
-  document.body.appendChild(container);
+  // Create host element off-screen
+  const host = document.createElement('div');
+  host.style.position = 'fixed';
+  host.style.left = '-9999px';
+  host.style.top = '0';
+  host.style.width = '7.5in';
+  host.style.zIndex = '-1';
+  document.body.appendChild(host);
 
-  // Insert the content (strip the full HTML wrapper, just use the body content)
+  // Attach shadow DOM for style isolation
+  const shadow = host.attachShadow({ mode: 'open' });
+
+  // Extract body content from full HTML
   const bodyMatch = html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
-  container.innerHTML = bodyMatch ? bodyMatch[1] : html;
+  const bodyContent = bodyMatch ? bodyMatch[1] : html;
 
-  // Apply reset styles directly
+  // Build isolated content inside shadow DOM
+  const wrapper = document.createElement('div');
+  wrapper.style.background = '#ffffff';
+  wrapper.style.color = '#333333';
+  wrapper.style.fontFamily = 'system-ui, -apple-system, sans-serif';
+  wrapper.style.padding = '0';
+  wrapper.innerHTML = bodyContent;
+
+  // Add reset styles inside shadow DOM
   const style = document.createElement('style');
-  style.textContent = RESET_CSS;
-  container.prepend(style);
+  style.textContent = `
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :host { background: #ffffff !important; color: #333333 !important; }
+    div, p, h1, h2, h3, span { color: inherit; }
+    strong { font-weight: 700; color: #1a1a1a; }
+  `;
+  shadow.appendChild(style);
+  shadow.appendChild(wrapper);
 
-  // Wait for layout
-  await new Promise(r => setTimeout(r, 400));
+  // Wait for layout to settle
+  await new Promise(r => setTimeout(r, 500));
 
   try {
     await html2pdf().set({
@@ -158,9 +173,9 @@ async function renderAndDownload(html: string, filename: string): Promise<void> 
         windowWidth: 672,
       },
       jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
-    }).from(container).save();
+    }).from(wrapper).save();
   } finally {
-    document.body.removeChild(container);
+    document.body.removeChild(host);
   }
 }
 
