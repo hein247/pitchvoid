@@ -7,6 +7,7 @@ import HowItWorks from '@/components/landing/HowItWorks';
 import AnimatedShaderBackground from '@/components/ui/animated-shader-background';
 import Footer from '@/components/Footer';
 import VoidTransition from '@/components/ui/VoidTransition';
+import PageTransition from '@/components/ui/PageTransition';
 const ROTATING_WORDS = ['process', 'analyze', 'prepare', 'articulate', 'connect'];
 
 const containerVariants = {
@@ -52,7 +53,7 @@ const Landing = () => {
     }, 1800);
     return () => clearInterval(interval);
   }, []);
-  return <div className="min-h-screen relative bg-[radial-gradient(ellipse_at_top,_hsl(25_75%_65%/0.08)_0%,_transparent_50%),_radial-gradient(ellipse_at_bottom_right,_hsl(260_60%_55%/0.06)_0%,_transparent_50%)]">
+  return <PageTransition><div className="min-h-screen relative bg-[radial-gradient(ellipse_at_top,_hsl(25_75%_65%/0.08)_0%,_transparent_50%),_radial-gradient(ellipse_at_bottom_right,_hsl(260_60%_55%/0.06)_0%,_transparent_50%)]">
       <AnimatedShaderBackground />
       <VoidTransition isActive={voidActive} onComplete={() => navigate('/dashboard')} />
       {/* Navigation */}
@@ -124,6 +125,6 @@ const Landing = () => {
 
         <Footer />
       </div>
-    </div>;
+    </div></PageTransition>;
 };
 export default Landing;
