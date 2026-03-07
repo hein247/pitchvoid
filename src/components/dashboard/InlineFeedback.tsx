@@ -72,11 +72,7 @@ const InlineFeedback = ({ projectId, format, generatedOutput, generationKey }: I
   const handleThumbsDown = () => {
     if (submitted || isSubmitting) return;
     setRating(1);
-    if (window.innerWidth < 640) {
-      setShowMobileSheet(true);
-    } else {
-      setShowIssues(true);
-    }
+    setShowIssues(true);
   };
 
   const toggleIssue = (value: string) => {
