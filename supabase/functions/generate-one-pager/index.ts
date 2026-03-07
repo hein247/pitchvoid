@@ -182,7 +182,7 @@ Output: {"title":"Focus Mode Software Concept","context_line":"Organizing a prod
     const userPrompt = `Create a clarity cheat sheet from this input:
 
 **Scenario:** ${sanitizedScenario}
-${sanitizedAudience ? `**Target Audience:** ${sanitizedAudience}` : ''}
+${sanitizedAudience ? `**Target Audience:** ${sanitizedAudience}` : '**Target Audience:** None specified — the user is organizing their own thoughts, not preparing to present to anyone. Use CLARITY/THINKING mode with labels: HERE\'S THE IDEA / HERE\'S HOW IT WORKS / HERE\'S WHAT\'S NEXT.'}
 ${sanitizedContext ? `**Additional Context:** ${sanitizedContext}` : ''}${imageContext}
 ${sanitizedStyle ? `**Tone/Style:** ${sanitizedStyle}` : ''}
 
