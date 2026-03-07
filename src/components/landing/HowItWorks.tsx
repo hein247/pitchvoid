@@ -10,31 +10,30 @@ const CHAOS_FRAGMENTS = [
   { text: 'your competitor just launched', size: 13, opacity: 0.6, color: 'rgba(255,150,170,0.75)' },
   { text: 'meeting in 5', size: 11, opacity: 0.5, color: 'rgba(180,220,140,0.7)' },
   { text: 'Q3 numbers are in', size: 14, opacity: 0.6, color: 'rgba(250,210,120,0.8)' },
-  { text: 'can you hop on a quick call', size: 12, opacity: 0.5, color: 'rgba(200,160,255,0.7)' },
+  { text: 'can we align on this?', size: 12, opacity: 0.5, color: 'rgba(200,160,255,0.7)' },
   { text: 'sent you a Slack', size: 10, opacity: 0.45, color: 'rgba(130,210,230,0.7)' },
   { text: 'URGENT:', size: 16, opacity: 0.7, color: 'rgba(255,100,80,0.9)' },
   { text: 'thoughts?', size: 11, opacity: 0.5, color: 'rgba(180,180,255,0.7)' },
   { text: 'following up on my last email', size: 12, opacity: 0.5, color: 'rgba(255,180,140,0.7)' },
   { text: 'AI will replace you if—', size: 13, opacity: 0.65, color: 'rgba(255,210,80,0.85)' },
-  { text: 'just one more tab', size: 11, opacity: 0.5, color: 'rgba(140,220,200,0.7)' },
+  { text: 'investor meeting in 2 hours', size: 12, opacity: 0.55, color: 'rgba(255,140,180,0.8)' },
   { text: 'new framework dropped', size: 12, opacity: 0.5, color: 'rgba(200,140,255,0.7)' },
-  { text: 'pivot', size: 10, opacity: 0.45, color: 'rgba(255,160,200,0.65)' },
-  { text: 'synergy', size: 10, opacity: 0.45, color: 'rgba(120,180,255,0.65)' },
-  { text: 'circle back', size: 11, opacity: 0.5, color: 'rgba(250,190,100,0.7)' },
+  { text: 'deck due tomorrow', size: 11, opacity: 0.5, color: 'rgba(255,160,200,0.7)' },
+  { text: 'did you see my DM?', size: 11, opacity: 0.5, color: 'rgba(120,180,255,0.7)' },
+  { text: 'just one more tab', size: 11, opacity: 0.5, color: 'rgba(250,190,100,0.7)' },
   { text: 'let\'s take this offline', size: 12, opacity: 0.5, color: 'rgba(160,230,180,0.7)' },
 ];
 
-/* ── Landing positions for chaos — scattered across stage ── */
 /* ── Landing positions for chaos — kept within 5–90% to avoid overflow ── */
 const CHAOS_POSITIONS = CHAOS_FRAGMENTS.map((_, i) => ({
-  x: ((i * 137) % 80) + 5,   // 5–85% from left
-  y: ((i * 89 + 30) % 75) + 8, // 8–83% from top
+  x: ((i * 137) % 80) + 5,
+  y: ((i * 89 + 30) % 75) + 8,
   rotation: ((i * 17) % 21) - 10,
 }));
 
 const TRUTH_LINES = [
   { text: 'You don\'t need another AI tool.', bright: false },
-  { text: 'You just need a minute of clarity', bright: false },
+  { text: 'You need one clear minute', bright: false },
   { text: 'before you open your mouth.', bright: true },
 ];
 
@@ -44,7 +43,7 @@ const PIVOT_LINES = [
   'and makes it sound like you know what you\'re doing.',
 ];
 
-const DEMO_INPUT = 'meeting with ceo tomorrow, revenue down 15%, competitors have apps, need 180k budget...';
+const DEMO_INPUT = 'ceo wants update tmrw, revenue down 15%, no app yet, competitors crushing it, need to ask for 180k without sounding desperate...';
 
 const OUTPUT_SECTIONS = [
   { label: 'THE PROBLEM', text: 'Revenue declined 15% YoY — no digital presence' },
@@ -78,6 +77,7 @@ export default function HowItWorks() {
   const stageRef = useRef<HTMLDivElement>(null);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -89,140 +89,202 @@ export default function HowItWorks() {
   }, []);
 
   useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
+  useEffect(() => {
     if (prefersReducedMotion || !stageRef.current) return;
 
+    const fragmentCount = isMobile ? 12 : CHAOS_FRAGMENTS.length;
+
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ repeat: -1, repeatDelay: 1.5 });
+      const tl = gsap.timeline({ repeat: -1, repeatDelay: 2 });
 
       /* ── Reset everything ── */
-      tl.set('.chaos-fragment, .opening-line, .truth-line, .pivot-line, .demo-area, .demo-tagline, .cta-area', { opacity: 0 });
-      tl.set('.chaos-fragment', { scale: 1 });
+      tl.set('.chaos-fragment, .opening-line, .truth-line, .pivot-line, .demo-area, .demo-tagline, .cta-area, .scanline', { opacity: 0 });
+      tl.set('.chaos-fragment', { scale: 1, filter: 'blur(0px)' });
       tl.set('.typewriter-text', { width: 0 });
+      tl.set('.stage-container', { filter: 'blur(0px)' });
 
-      /* ═══ PHASE 1 — THE ASSAULT (0s–4s) ═══ */
-      // Opening line appears
+      /* ═══ PHASE 1 — THE ASSAULT ═══ */
+      // Opening line with glow pulse
       tl.fromTo('.opening-line',
-        { opacity: 0, scale: 0.95 },
-        { opacity: 1, scale: 1, duration: 0.8, ease: 'power2.out' }
+        { opacity: 0, scale: 0.97, filter: 'blur(6px)' },
+        { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 0.9, ease: 'power2.out' }
       );
-      tl.to({}, { duration: 1.5 }); // hold
+      // Glow pulse on opening line
+      tl.to('.opening-line', {
+        textShadow: '0 0 30px rgba(168,85,247,0.4), 0 0 60px rgba(168,85,247,0.15)',
+        duration: 0.6,
+        ease: 'power2.inOut',
+      });
+      tl.to('.opening-line', {
+        textShadow: '0 0 0px rgba(168,85,247,0)',
+        duration: 0.8,
+        ease: 'power2.out',
+      });
+      tl.to({}, { duration: 0.5 }); // hold after glow
 
-      // Chaos fragments flood in from off-screen
-      CHAOS_FRAGMENTS.forEach((frag, i) => {
+      // Chaos fragments flood in
+      for (let i = 0; i < fragmentCount; i++) {
+        const frag = CHAOS_FRAGMENTS[i];
         const startX = i % 2 === 0 ? -300 : 300;
         const startY = gsap.utils.random(-200, 200);
         tl.fromTo(`.chaos-${i}`,
-          { opacity: 0, x: startX, y: startY, rotation: gsap.utils.random(-20, 20) },
+          { opacity: 0, x: startX, y: startY, rotation: gsap.utils.random(-20, 20), filter: 'blur(4px)' },
           {
             opacity: frag.opacity,
             x: 0, y: 0,
             rotation: CHAOS_POSITIONS[i].rotation,
-            duration: 0.3,
+            filter: 'blur(0px)',
+            duration: 0.25,
             ease: 'power2.out',
           },
-          i === 0 ? '+=0' : '<+=0.08'
+          i === 0 ? '+=0' : '<+=0.07'
         );
+      }
+
+      // URGENT fragment shake
+      const urgentIdx = CHAOS_FRAGMENTS.findIndex(f => f.text === 'URGENT:');
+      if (urgentIdx < fragmentCount) {
+        tl.to(`.chaos-${urgentIdx}`, {
+          x: '+=3', duration: 0.05, repeat: 5, yoyo: true, ease: 'none',
+        }, '-=0.2');
+      }
+
+      // Drift/jitter on all chaos fragments while they sit
+      tl.to('.chaos-fragment', {
+        x: '+=random(-6, 6)',
+        y: '+=random(-4, 4)',
+        rotation: '+=random(-3, 3)',
+        duration: 0.8,
+        ease: 'sine.inOut',
+        stagger: { each: 0.04, from: 'random' },
       });
-      tl.to({}, { duration: 1.5 }); // let chaos sit
 
-      /* ═══ PHASE 2 — THE FREEZE + DISSOLVE (4s–6s) ═══ */
-      tl.to({}, { duration: 0.5 }); // freeze hold
+      tl.to({}, { duration: 0.2 }); // brief pause
 
-      // Dissolve all fragments + opening line outward
+      /* ═══ PHASE 2 — THE FREEZE + DISSOLVE ═══ */
+      tl.to({}, { duration: 0.3 }); // freeze
+
+      // Dissolve all fragments + opening line
       tl.to('.chaos-fragment', {
         opacity: 0,
         scale: 0.3,
+        filter: 'blur(8px)',
         x: () => gsap.utils.random(-200, 200),
         y: () => gsap.utils.random(-200, 200),
         rotation: () => gsap.utils.random(-30, 30),
         stagger: { each: 0.02, from: 'center' },
-        duration: 0.8,
+        duration: 0.7,
         ease: 'power2.in',
       });
-      tl.to('.opening-line', { opacity: 0, duration: 0.5 }, '<');
+      tl.to('.opening-line', { opacity: 0, filter: 'blur(4px)', duration: 0.4 }, '<');
 
-      /* ═══ PHASE 3 — THE TRUTH (6s–12s) ═══ */
-      tl.to({}, { duration: 0.8 }); // silence
+      /* ═══ PHASE 3 — THE TRUTH ═══ */
+      tl.to({}, { duration: 0.6 }); // silence
 
       // Line 1
-      tl.fromTo('.truth-0', { opacity: 0, y: 10 }, { opacity: 0.7, y: 0, duration: 0.6, ease: 'power2.out' });
-      tl.to({}, { duration: 1.5 });
-      tl.to('.truth-0', { opacity: 0.3, duration: 0.4 });
+      tl.fromTo('.truth-0',
+        { opacity: 0, y: 10, filter: 'blur(4px)' },
+        { opacity: 0.7, y: 0, filter: 'blur(0px)', duration: 0.5, ease: 'power2.out' }
+      );
+      tl.to({}, { duration: 1 });
+      tl.to('.truth-0', { opacity: 0.3, duration: 0.3 });
 
       // Line 2
-      tl.fromTo('.truth-1', { opacity: 0, y: 10 }, { opacity: 0.7, y: 0, duration: 0.6, ease: 'power2.out' });
-      tl.to({}, { duration: 1.5 });
-      tl.to('.truth-1', { opacity: 0.3, duration: 0.4 });
+      tl.fromTo('.truth-1',
+        { opacity: 0, y: 10, filter: 'blur(4px)' },
+        { opacity: 0.7, y: 0, filter: 'blur(0px)', duration: 0.5, ease: 'power2.out' }
+      );
+      tl.to({}, { duration: 1 });
+      tl.to('.truth-1', { opacity: 0.3, duration: 0.3 });
 
-      // Line 3 — punchline, stays bright
-      tl.fromTo('.truth-2', { opacity: 0, y: 10 }, { opacity: 0.9, y: 0, duration: 0.6, ease: 'power2.out' });
-      tl.to({}, { duration: 2 });
+      // Line 3 — punchline
+      tl.fromTo('.truth-2',
+        { opacity: 0, y: 10, filter: 'blur(4px)' },
+        { opacity: 0.9, y: 0, filter: 'blur(0px)', duration: 0.5, ease: 'power2.out' }
+      );
+      tl.to({}, { duration: 1.2 });
 
-      // All visible together briefly, then fade
-      tl.to('.truth-line', { opacity: 0, duration: 0.6 });
+      // Fade all truth
+      tl.to('.truth-line', { opacity: 0, filter: 'blur(3px)', duration: 0.5 });
 
-      /* ═══ PHASE 4 — THE PIVOT (12s–16s) ═══ */
-      // Pivot text
+      /* ═══ PHASE 4 — THE PIVOT ═══ */
       tl.fromTo('.pivot-line',
-        { opacity: 0, y: 10 },
-        { opacity: 0.9, y: 0, stagger: 0.3, duration: 0.5, ease: 'power2.out' }
+        { opacity: 0, y: 10, filter: 'blur(3px)' },
+        { opacity: 0.9, y: 0, filter: 'blur(0px)', stagger: 0.25, duration: 0.45, ease: 'power2.out' }
       );
-      tl.to({}, { duration: 3 }); // hold
+      tl.to({}, { duration: 2 }); // hold
 
-      // Fade out pivot
-      tl.to('.pivot-line', { opacity: 0, duration: 0.5 });
+      tl.to('.pivot-line', { opacity: 0, filter: 'blur(3px)', duration: 0.4 });
 
-      /* ═══ PHASE 5 — THE DEMO (16s–22s) ═══ */
+      /* ═══ PHASE 5 — THE DEMO ═══ */
       tl.fromTo('.demo-area',
-        { opacity: 0 },
-        { opacity: 1, duration: 0.4 }
+        { opacity: 0, scale: 0.97 },
+        { opacity: 1, scale: 1, duration: 0.4 }
       );
 
-      // Typewriter effect on input
+      // Scanline sweep on input side
+      tl.fromTo('.scanline',
+        { opacity: 0.5, top: '0%' },
+        { opacity: 0, top: '100%', duration: 1.8, ease: 'none' },
+        '<'
+      );
+
+      // Typewriter
       tl.fromTo('.typewriter-text',
         { width: 0 },
-        { width: '100%', duration: 2, ease: 'none' }
+        { width: '100%', duration: 1.8, ease: 'none' },
+        '<'
       );
 
-      // Arrow pulse
+      // Arrow
       tl.fromTo('.demo-arrow',
         { opacity: 0, scale: 0.8 },
         { opacity: 0.6, scale: 1, duration: 0.3, ease: 'back.out(2)' },
-        '-=1'
+        '-=0.8'
       );
 
-      // Output sections appear staggered
+      // Output sections with glow on labels
       tl.fromTo('.output-section',
         { opacity: 0, y: 10 },
-        { opacity: 1, y: 0, stagger: 0.2, duration: 0.4, ease: 'power2.out' },
-        '-=0.5'
+        { opacity: 1, y: 0, stagger: 0.2, duration: 0.35, ease: 'power2.out' },
+        '-=0.4'
+      );
+      tl.fromTo('.output-label',
+        { textShadow: '0 0 12px rgba(168,85,247,0.6)' },
+        { textShadow: '0 0 0px rgba(168,85,247,0)', duration: 1, ease: 'power2.out' },
+        '-=0.6'
       );
 
       // Tagline
       tl.fromTo('.demo-tagline',
         { opacity: 0 },
-        { opacity: 0.4, duration: 0.5 }
+        { opacity: 0.5, duration: 0.4 }
       );
-      tl.to({}, { duration: 3 }); // hold
+      tl.to({}, { duration: 2.5 }); // hold
 
       // Fade out demo
-      tl.to('.demo-area, .demo-tagline', { opacity: 0, duration: 0.5 });
+      tl.to('.demo-area, .demo-tagline', { opacity: 0, scale: 0.98, duration: 0.4 });
 
-      /* ═══ PHASE 6 — CTA (22s–24s+) ═══ */
+      /* ═══ PHASE 6 — CTA ═══ */
       tl.fromTo('.cta-area',
-        { opacity: 0, scale: 0.9 },
-        { opacity: 1, scale: 1, duration: 0.5, ease: 'back.out(1.4)' }
+        { opacity: 0, scale: 0.92, filter: 'blur(4px)' },
+        { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 0.5, ease: 'back.out(1.4)' }
       );
-      tl.to({}, { duration: 3 }); // hold
+      tl.to({}, { duration: 2.5 }); // hold
 
-      // Fade for loop
-      tl.to('.cta-area', { opacity: 0, duration: 0.5 });
+      tl.to('.cta-area', { opacity: 0, filter: 'blur(3px)', duration: 0.4 });
 
       tlRef.current = tl;
     }, stageRef);
 
     return () => ctx.revert();
-  }, [prefersReducedMotion]);
+  }, [prefersReducedMotion, isMobile]);
 
   if (prefersReducedMotion) {
     return (
@@ -231,6 +293,8 @@ export default function HowItWorks() {
       </section>
     );
   }
+
+  const fragmentCount = isMobile ? 12 : CHAOS_FRAGMENTS.length;
 
   return (
     <section className="py-20 sm:py-32 px-4 sm:px-8">
@@ -242,11 +306,11 @@ export default function HowItWorks() {
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
           border: '1px solid rgba(168,85,247,0.08)',
-          minHeight: 'clamp(400px, 55vw, 500px)',
+          minHeight: isMobile ? '440px' : 'clamp(400px, 55vw, 500px)',
         }}
       >
         {/* ── THE STAGE ── */}
-        <div className="relative w-full h-full flex items-center justify-center" style={{ minHeight: 'clamp(400px, 55vw, 500px)' }}>
+        <div className="stage-container relative w-full h-full flex items-center justify-center" style={{ minHeight: isMobile ? '440px' : 'clamp(400px, 55vw, 500px)' }}>
 
           {/* Opening line */}
           <p
@@ -257,14 +321,14 @@ export default function HowItWorks() {
           </p>
 
           {/* Chaos fragments */}
-          {CHAOS_FRAGMENTS.map((frag, i) => (
+          {CHAOS_FRAGMENTS.slice(0, fragmentCount).map((frag, i) => (
             <span
               key={i}
               className={`chaos-fragment chaos-${i} absolute will-change-transform`}
               style={{
                 left: `${CHAOS_POSITIONS[i].x}%`,
                 top: `${CHAOS_POSITIONS[i].y}%`,
-                fontSize: frag.size,
+                fontSize: Math.max(frag.size, isMobile ? 10 : frag.size),
                 color: frag.color,
                 fontFamily: "'Be Vietnam Pro', sans-serif",
                 whiteSpace: 'nowrap',
@@ -297,10 +361,7 @@ export default function HowItWorks() {
             ))}
           </div>
 
-
-
-
-          {/* Pivot lines — positioned below divider */}
+          {/* Pivot lines */}
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 px-6 pt-8">
             {PIVOT_LINES.map((line, i) => (
               <p
@@ -319,12 +380,26 @@ export default function HowItWorks() {
           </div>
 
           {/* Demo area */}
-          <div className="demo-area absolute inset-0 flex items-center justify-center px-4 sm:px-8 gap-3 sm:gap-6" style={{ opacity: 0 }}>
+          <div className={`demo-area absolute inset-0 flex items-center justify-center px-4 sm:px-8 ${isMobile ? 'flex-col gap-3' : 'flex-row gap-6'}`} style={{ opacity: 0 }}>
             {/* Left — messy input */}
             <div
-              className="flex-1 rounded-lg p-3 sm:p-4 overflow-hidden"
-              style={{ background: 'rgba(14,12,24,0.6)', border: '1px solid rgba(240,237,246,0.06)', maxWidth: 340 }}
+              className="relative rounded-lg p-3 sm:p-4 overflow-hidden"
+              style={{
+                background: 'rgba(14,12,24,0.6)',
+                border: '1px solid rgba(240,237,246,0.06)',
+                maxWidth: isMobile ? '100%' : 340,
+                flex: isMobile ? 'none' : 1,
+                width: isMobile ? '100%' : 'auto',
+              }}
             >
+              {/* Scanline sweep */}
+              <div
+                className="scanline absolute left-0 right-0 h-px pointer-events-none z-10"
+                style={{
+                  background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.4), transparent)',
+                  opacity: 0,
+                }}
+              />
               <p className="text-[9px] sm:text-[10px] font-medium uppercase tracking-[0.15em] mb-2 font-sans" style={{ color: 'rgba(168,85,247,0.6)' }}>
                 YOUR MESS
               </p>
@@ -339,12 +414,20 @@ export default function HowItWorks() {
             </div>
 
             {/* Arrow */}
-            <span className="demo-arrow text-lg sm:text-xl shrink-0" style={{ color: 'rgba(168,85,247,0.6)', opacity: 0 }}>→</span>
+            <span className="demo-arrow text-lg sm:text-xl shrink-0" style={{ color: 'rgba(168,85,247,0.6)', opacity: 0 }}>
+              {isMobile ? '↓' : '→'}
+            </span>
 
             {/* Right — clean output */}
             <div
-              className="flex-1 rounded-lg overflow-hidden"
-              style={{ background: 'rgba(14,12,24,0.8)', border: '1px solid rgba(168,85,247,0.15)', maxWidth: 340 }}
+              className="rounded-lg overflow-hidden"
+              style={{
+                background: 'rgba(14,12,24,0.8)',
+                border: '1px solid rgba(168,85,247,0.15)',
+                maxWidth: isMobile ? '100%' : 340,
+                flex: isMobile ? 'none' : 1,
+                width: isMobile ? '100%' : 'auto',
+              }}
             >
               {OUTPUT_SECTIONS.map((section, sIdx) => (
                 <div
@@ -355,7 +438,7 @@ export default function HowItWorks() {
                     opacity: 0,
                   }}
                 >
-                  <p className="text-[8px] sm:text-[9px] font-medium uppercase tracking-[0.15em] mb-1 font-sans m-0" style={{ color: 'rgba(168,85,247,0.7)' }}>
+                  <p className="output-label text-[8px] sm:text-[9px] font-medium uppercase tracking-[0.15em] mb-1 font-sans m-0" style={{ color: 'rgba(168,85,247,0.7)' }}>
                     {section.label}
                   </p>
                   <p className="text-[10px] sm:text-[11px] m-0 leading-relaxed font-sans" style={{ color: 'rgba(240,237,246,0.7)' }}>
@@ -371,7 +454,7 @@ export default function HowItWorks() {
             className="demo-tagline absolute bottom-6 left-0 right-0 text-center font-sans"
             style={{ fontSize: 'clamp(11px, 1.8vw, 13px)', color: 'rgba(240,237,246,0.4)', opacity: 0 }}
           >
-            From overstimulated to articulate. In seconds.
+            Overstimulated → Articulate. In seconds.
           </p>
 
           {/* CTA */}
@@ -380,7 +463,7 @@ export default function HowItWorks() {
               onClick={() => navigate('/dashboard')}
               className="px-8 py-3.5 rounded-full text-primary-foreground font-medium magenta-gradient text-base hover:opacity-90 hover:scale-105 transition-all cursor-pointer"
             >
-        Clear your head →
+              Clear your head →
             </button>
           </div>
         </div>
