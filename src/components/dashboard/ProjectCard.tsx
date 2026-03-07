@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Download, Trash2, MoreVertical, FileText, ScrollText } from 'lucide-react';
+import { GlowingEffect } from '@/components/ui/glowing-effect';
 import {
   DropdownMenu,
   DropdownMenuContent,
