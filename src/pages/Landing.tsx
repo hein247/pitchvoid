@@ -115,7 +115,7 @@ const Landing = () => {
             Your next conversation is one brain dump away.
           </h2>
           <p className="text-muted-foreground mb-6 sm:mb-8 text-sm sm:text-base max-w-lg mx-auto">
-            Investor pitch. Job interview. Difficult conversation. Whatever it is — dump the mess, get the clarity.
+            Concept, Investor pitch. Job interview. Difficult conversation. Whatever it is, just dump the mess and get the clarity.
           </p>
           <button onClick={enterVoid} className="px-8 py-4 rounded-xl text-primary-foreground font-medium magenta-gradient text-base sm:text-lg hover:opacity-90 transition-opacity group inline-flex items-center gap-3">
             Enter the void
