@@ -1344,7 +1344,7 @@ const Dashboard = () => {
             }
             </header>
             
-            <div className={`overflow-y-auto px-5 sm:p-6 lg:p-8 py-4 relative z-10 transition-opacity duration-500 ${isRefining ? 'opacity-50' : 'opacity-100'}`} style={{ paddingBottom: onePagerData || scriptData ? '140px' : undefined }}>
+            <div className={`overflow-y-auto px-5 sm:p-6 lg:p-8 py-4 relative z-10 transition-opacity duration-500 ${isRefining ? 'opacity-50' : 'opacity-100'}`} style={{ paddingBottom: onePagerData || scriptData ? '260px' : undefined }}>
               {/* Show skeleton during regeneration */}
               {isRegenerating ?
             <GenerationSkeleton format={outputFormat} /> :
