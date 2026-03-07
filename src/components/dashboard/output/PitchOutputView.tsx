@@ -178,7 +178,7 @@ const PitchOutputView = ({
       </div>
 
       {/* Content Area */}
-      <main className="max-w-5xl mx-auto px-4 pb-[280px]">
+      <main className="max-w-5xl mx-auto px-4 pb-[320px]">
         {format === 'onepager' && onePager && (
           <OutputOnePagerView data={onePager} />
         )}
