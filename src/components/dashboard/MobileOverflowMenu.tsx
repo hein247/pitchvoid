@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom';
 import { MoreVertical, Share2, Download, Play, Copy, History, Lock, Edit2, FileText, ScrollText, RefreshCw } from 'lucide-react';
 import { VersionHistorySheet } from './VersionHistoryDropdown';
 import type { ProjectVersion, ProjectRecord } from '@/hooks/useProjects';
-import type { ProjectVersion, ProjectRecord } from '@/hooks/useProjects';
 
 type OutputFormat = 'one-pager' | 'script';
 
