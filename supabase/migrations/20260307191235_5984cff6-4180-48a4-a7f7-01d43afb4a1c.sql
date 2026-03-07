@@ -1,0 +1,1 @@
+ALTER TABLE public.ai_feedback ADD COLUMN comment text DEFAULT NULL;

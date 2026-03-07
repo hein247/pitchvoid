@@ -49,7 +49,7 @@ serve(async (req) => {
     }
 
     const body = await req.json();
-    const { project_id, rating, issues, format, output_json } = body;
+    const { project_id, rating, issues, format, output_json, comment } = body;
 
     // Validate project_id
     if (!project_id || typeof project_id !== "string" || project_id.length > 100) {
@@ -86,6 +86,9 @@ serve(async (req) => {
       );
     }
 
+    // Validate comment
+    const validatedComment = typeof comment === "string" ? comment.trim().slice(0, 1000) : null;
+
     // Save to ai_feedback
     const { error: insertError } = await supabase.from("ai_feedback").insert({
       project_id,
@@ -93,6 +96,7 @@ serve(async (req) => {
       rating: ratingValue,
       issues: validatedIssues,
       generated_output: output_json || null,
+      comment: validatedComment || null,
     });
 
     if (insertError) {

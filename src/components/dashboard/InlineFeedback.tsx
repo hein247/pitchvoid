@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ThumbsUp, ThumbsDown } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, Send } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { MobileFeedbackSheet } from './TopBarFeedback';
@@ -25,6 +25,7 @@ const InlineFeedback = ({ projectId, format, generatedOutput, generationKey }: I
   const [rating, setRating] = useState<1 | 5 | null>(null);
   const [showIssues, setShowIssues] = useState(false);
   const [selectedIssues, setSelectedIssues] = useState<string[]>([]);
+  const [comment, setComment] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showMobileSheet, setShowMobileSheet] = useState(false);
@@ -34,11 +35,12 @@ const InlineFeedback = ({ projectId, format, generatedOutput, generationKey }: I
     setRating(null);
     setShowIssues(false);
     setSelectedIssues([]);
+    setComment('');
     setSubmitted(false);
     setIsSubmitting(false);
   }, [generationKey]);
 
-  const submitFeedback = async (r: 1 | 5, issues: string[] = []) => {
+  const submitFeedback = async (r: 1 | 5, issues: string[] = [], commentText: string = '') => {
     if (!user) return;
     setIsSubmitting(true);
     try {
@@ -47,6 +49,7 @@ const InlineFeedback = ({ projectId, format, generatedOutput, generationKey }: I
           project_id: projectId,
           rating: r,
           issues,
+          comment: commentText.trim() || null,
           format,
           output_json: generatedOutput || null,
         },
@@ -69,7 +72,6 @@ const InlineFeedback = ({ projectId, format, generatedOutput, generationKey }: I
   const handleThumbsDown = () => {
     if (submitted || isSubmitting) return;
     setRating(1);
-    // On mobile, show bottom sheet; on desktop, show inline chips
     if (window.innerWidth < 640) {
       setShowMobileSheet(true);
     } else {
@@ -84,7 +86,7 @@ const InlineFeedback = ({ projectId, format, generatedOutput, generationKey }: I
   };
 
   const handleSubmitIssues = () => {
-    submitFeedback(1, selectedIssues);
+    submitFeedback(1, selectedIssues, comment);
     setShowIssues(false);
   };
 
@@ -112,9 +114,6 @@ const InlineFeedback = ({ projectId, format, generatedOutput, generationKey }: I
             onClick={handleThumbsUp}
             disabled={isSubmitting}
             className="p-3 rounded-xl transition-all min-h-[44px] min-w-[44px] flex items-center justify-center"
-            style={{
-              color: rating === 5 ? 'rgba(74,222,128,0.7)' : undefined,
-            }}
             title="Yes, this helped"
           >
             <ThumbsUp
@@ -159,9 +158,9 @@ const InlineFeedback = ({ projectId, format, generatedOutput, generationKey }: I
           </button>
         </div>
 
-        {/* Desktop issue chips */}
+        {/* Issue chips + comment */}
         {showIssues && (
-          <div className="flex flex-col items-center gap-3 animate-fadeIn max-w-md">
+          <div className="flex flex-col items-center gap-3 animate-fadeIn w-full max-w-md">
             <p style={{ fontSize: 12, color: 'rgba(240,237,246,0.4)' }} className="font-medium">
               What went wrong?
             </p>
@@ -180,12 +179,33 @@ const InlineFeedback = ({ projectId, format, generatedOutput, generationKey }: I
                 </button>
               ))}
             </div>
-            {selectedIssues.length > 0 && (
+
+            {/* Comment textarea */}
+            <div className="w-full relative">
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value.slice(0, 500))}
+                placeholder="Anything else? (optional)"
+                rows={2}
+                className="w-full rounded-xl border border-border/30 bg-card/50 px-4 py-3 text-xs text-foreground/80 placeholder:text-muted-foreground/30 resize-none focus:outline-none focus:border-primary/30 transition-colors"
+                style={{ fontSize: 12 }}
+              />
+              <span
+                className="absolute bottom-2 right-3 text-[10px]"
+                style={{ color: 'rgba(240,237,246,0.2)' }}
+              >
+                {comment.length}/500
+              </span>
+            </div>
+
+            {/* Submit button — show when chips selected or comment typed */}
+            {(selectedIssues.length > 0 || comment.trim().length > 0) && (
               <button
                 onClick={handleSubmitIssues}
                 disabled={isSubmitting}
-                className="px-5 py-2 rounded-full text-xs font-medium bg-primary/10 text-primary/60 hover:bg-primary/15 transition-all disabled:opacity-50"
+                className="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-medium bg-primary/10 text-primary/60 hover:bg-primary/15 transition-all disabled:opacity-50"
               >
+                <Send className="w-3 h-3" />
                 Submit
               </button>
             )}
@@ -198,7 +218,6 @@ const InlineFeedback = ({ projectId, format, generatedOutput, generationKey }: I
         isOpen={showMobileSheet}
         onClose={() => {
           setShowMobileSheet(false);
-          // If they closed without submitting, mark as submitted with just the rating
           if (!submitted) {
             submitFeedback(1);
           }
