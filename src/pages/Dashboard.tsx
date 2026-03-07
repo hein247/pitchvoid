@@ -33,6 +33,7 @@ import DesktopOverflowMenu from '@/components/dashboard/DesktopOverflowMenu';
 import { useProjects, type ProjectRecord, type DraftState } from '@/hooks/useProjects';
 import { validateFiles, FILE_UPLOAD_CONFIG, formatFileSize as formatFileSizeUtil } from '@/lib/fileValidation';
 import PageTransition from '@/components/ui/PageTransition';
+import { EtheralShadow } from '@/components/ui/etheral-shadow';
 
 type OutputFormat = 'one-pager' | 'script';
 
