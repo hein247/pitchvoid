@@ -208,19 +208,6 @@ const InlineFeedback = ({ projectId, format, generatedOutput, generationKey }: I
         )}
       </div>
 
-      {/* Mobile feedback sheet */}
-      <MobileFeedbackSheet
-        isOpen={showMobileSheet}
-        onClose={() => {
-          setShowMobileSheet(false);
-          if (!submitted) {
-            submitFeedback(1);
-          }
-        }}
-        projectId={projectId}
-        format={format}
-        generatedOutput={generatedOutput}
-      />
     </>
   );
 };
