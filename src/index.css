@@ -136,33 +136,27 @@
     font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
   }
 
-  /* Grain background texture */
+  /* Grain background texture — disabled, pure black bg */
   .grain-bg::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-    opacity: 0.03;
-    pointer-events: none;
-    z-index: 0;
+    display: none;
   }
 
   /* Glassmorphism */
   .glassmorphism {
-    background: linear-gradient(135deg, rgba(90, 60, 130, 0.1) 0%, rgba(200, 160, 120, 0.05) 100%);
+    background: linear-gradient(135deg, rgba(124, 77, 255, 0.1) 0%, rgba(200, 160, 120, 0.05) 100%);
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(90, 60, 130, 0.18);
+    border: 1px solid rgba(124, 77, 255, 0.22);
   }
 
   .glassmorphism-dark {
-    background: linear-gradient(145deg, rgba(10, 8, 16, 0.98) 0%, rgba(20, 14, 30, 0.99) 100%);
+    background: linear-gradient(145deg, rgba(0, 0, 0, 0.98) 0%, rgba(10, 5, 20, 0.99) 100%);
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(90, 60, 130, 0.22);
+    border: 1px solid rgba(124, 77, 255, 0.25);
   }
 
   /* Warm gradient button (was magenta) */
   .magenta-gradient {
-    background: linear-gradient(135deg, hsl(25 75% 65%) 0%, hsl(260 45% 50%) 100%);
+    background: linear-gradient(135deg, hsl(25 75% 65%) 0%, hsl(263 70% 58%) 100%);
   }
 
   /* Brand logo text gradient */
@@ -177,19 +171,19 @@
   .hero-gradient {
     background: 
       radial-gradient(ellipse 80% 50% at 50% -20%, rgba(200, 150, 100, 0.12) 0%, transparent 50%),
-      radial-gradient(ellipse 60% 40% at 80% 50%, rgba(90, 60, 130, 0.08) 0%, transparent 50%);
+      radial-gradient(ellipse 60% 40% at 80% 50%, rgba(124, 77, 255, 0.08) 0%, transparent 50%);
   }
 
   /* Modal overlay */
   .modal-overlay {
-    background: rgba(8, 6, 14, 0.88);
+    background: rgba(0, 0, 0, 0.88);
     backdrop-filter: blur(12px);
   }
 
   /* Input field styling */
   .input-field {
-    background: rgba(10, 8, 16, 0.6);
-    border: 1px solid rgba(90, 60, 130, 0.2);
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(124, 77, 255, 0.25);
     transition: all 0.3s ease;
   }
 
@@ -200,49 +194,49 @@
 
   /* Project card */
   .project-card {
-    background: linear-gradient(145deg, rgba(10, 8, 16, 0.8) 0%, rgba(20, 14, 30, 0.9) 100%);
-    border: 1px solid rgba(90, 60, 130, 0.18);
+    background: linear-gradient(145deg, rgba(0, 0, 0, 0.8) 0%, rgba(10, 5, 20, 0.9) 100%);
+    border: 1px solid rgba(124, 77, 255, 0.22);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .project-card:hover {
-    border-color: rgba(200, 150, 100, 0.4);
+    border-color: rgba(124, 77, 255, 0.5);
     transform: translateY(-4px);
-    box-shadow: 0 20px 40px rgba(200, 150, 100, 0.08);
+    box-shadow: 0 20px 40px rgba(124, 77, 255, 0.08);
   }
 
   /* Slide card */
   .slide-card {
-    background: linear-gradient(145deg, rgba(10, 8, 16, 0.95) 0%, rgba(20, 14, 30, 0.98) 100%);
-    border: 1px solid rgba(90, 60, 130, 0.18);
+    background: linear-gradient(145deg, rgba(0, 0, 0, 0.95) 0%, rgba(10, 5, 20, 0.98) 100%);
+    border: 1px solid rgba(124, 77, 255, 0.22);
     transition: all 0.3s ease;
   }
 
   .slide-card:hover, .slide-card.active {
-    border-color: rgba(200, 150, 100, 0.4);
-    box-shadow: 0 8px 32px rgba(200, 150, 100, 0.1);
+    border-color: rgba(124, 77, 255, 0.5);
+    box-shadow: 0 8px 32px rgba(124, 77, 255, 0.1);
   }
 
   /* Message bubbles */
   .message-user {
-    background: linear-gradient(135deg, rgba(200, 150, 100, 0.12) 0%, rgba(90, 60, 130, 0.08) 100%);
+    background: linear-gradient(135deg, rgba(200, 150, 100, 0.12) 0%, rgba(124, 77, 255, 0.08) 100%);
     border: 1px solid rgba(200, 150, 100, 0.18);
   }
 
   .message-assistant {
-    background: linear-gradient(135deg, rgba(90, 60, 130, 0.08) 0%, rgba(10, 8, 16, 0.8) 100%);
-    border: 1px solid rgba(90, 60, 130, 0.12);
+    background: linear-gradient(135deg, rgba(124, 77, 255, 0.08) 0%, rgba(0, 0, 0, 0.8) 100%);
+    border: 1px solid rgba(124, 77, 255, 0.15);
   }
 
   .message-system {
-    background: rgba(90, 60, 130, 0.05);
-    border: 1px dashed rgba(90, 60, 130, 0.18);
+    background: rgba(124, 77, 255, 0.05);
+    border: 1px dashed rgba(124, 77, 255, 0.22);
   }
 
   /* Input area */
   .input-area {
-    background: linear-gradient(135deg, rgba(10, 8, 16, 0.95) 0%, rgba(20, 14, 30, 0.98) 100%);
-    border: 1px solid rgba(90, 60, 130, 0.18);
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(10, 5, 20, 0.98) 100%);
+    border: 1px solid rgba(124, 77, 255, 0.22);
   }
 
   .input-area:focus-within {
@@ -263,47 +257,47 @@
 
   /* Credit bar */
   .credit-bar {
-    background: rgba(90, 60, 130, 0.2);
+    background: rgba(124, 77, 255, 0.2);
   }
 
   .credit-fill {
-    background: linear-gradient(90deg, hsl(260 45% 50%) 0%, hsl(25 75% 65%) 100%);
+    background: linear-gradient(90deg, hsl(263 70% 58%) 0%, hsl(25 75% 65%) 100%);
   }
 
   /* Thumbnail gradients */
   .thumbnail-gradient-1 {
-    background: linear-gradient(135deg, hsl(25 75% 65%) 0%, hsl(260 45% 50%) 50%, hsl(270 12% 4%) 100%);
+    background: linear-gradient(135deg, hsl(25 75% 65%) 0%, hsl(263 70% 58%) 50%, hsl(0 0% 0%) 100%);
   }
 
   .thumbnail-gradient-2 {
-    background: linear-gradient(135deg, hsl(260 45% 50%) 0%, hsl(200 60% 50%) 50%, hsl(270 12% 4%) 100%);
+    background: linear-gradient(135deg, hsl(263 70% 58%) 0%, hsl(200 60% 50%) 50%, hsl(0 0% 0%) 100%);
   }
 
   .thumbnail-gradient-3 {
-    background: linear-gradient(135deg, hsl(40 90% 55%) 0%, hsl(25 75% 65%) 50%, hsl(270 12% 4%) 100%);
+    background: linear-gradient(135deg, hsl(40 90% 55%) 0%, hsl(25 75% 65%) 50%, hsl(0 0% 0%) 100%);
   }
 
   /* Tour visual */
   .tour-visual {
-    background: linear-gradient(145deg, rgba(90, 60, 130, 0.08) 0%, rgba(200, 150, 100, 0.04) 100%);
-    border: 1px solid rgba(90, 60, 130, 0.18);
+    background: linear-gradient(145deg, rgba(124, 77, 255, 0.08) 0%, rgba(200, 150, 100, 0.04) 100%);
+    border: 1px solid rgba(124, 77, 255, 0.22);
   }
 
   /* Slide visual */
   .slide-visual {
-    background: linear-gradient(135deg, rgba(90, 60, 130, 0.15) 0%, rgba(200, 150, 100, 0.08) 100%);
+    background: linear-gradient(135deg, rgba(124, 77, 255, 0.15) 0%, rgba(200, 150, 100, 0.08) 100%);
   }
 
   /* Install banner */
   .install-banner {
-    background: linear-gradient(135deg, rgba(90, 60, 130, 0.12) 0%, rgba(200, 150, 100, 0.08) 100%);
-    border: 1px solid rgba(90, 60, 130, 0.18);
+    background: linear-gradient(135deg, rgba(124, 77, 255, 0.12) 0%, rgba(200, 150, 100, 0.08) 100%);
+    border: 1px solid rgba(124, 77, 255, 0.22);
   }
 
   /* Keyboard shortcut */
   .kbd {
-    background: rgba(90, 60, 130, 0.18);
-    border: 1px solid rgba(90, 60, 130, 0.28);
+    background: rgba(124, 77, 255, 0.18);
+    border: 1px solid rgba(124, 77, 255, 0.28);
     border-radius: 4px;
     padding: 2px 6px;
     font-size: 11px;
@@ -379,11 +373,11 @@
   }
 
   .scrollbar-thin::-webkit-scrollbar-track {
-    background: rgba(90, 60, 130, 0.08);
+    background: rgba(124, 77, 255, 0.08);
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: rgba(90, 60, 130, 0.25);
+    background: rgba(124, 77, 255, 0.25);
     border-radius: 3px;
   }
 }
