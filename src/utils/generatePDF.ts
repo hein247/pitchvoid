@@ -118,70 +118,60 @@ function buildScriptHTML(data: ScriptData, showWatermark: boolean): string {
 }
 
 /**
- * Renders HTML inside an isolated iframe so no dark-theme styles leak in,
- * then uses html2pdf to capture it as a clean white PDF.
+ * Renders HTML and uses html2pdf to generate a clean white PDF.
+ * Uses a hidden div instead of iframe to avoid sandbox restrictions.
  */
-async function renderInIframe(html: string, filename: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const iframe = document.createElement('iframe');
-    iframe.style.position = 'fixed';
-    iframe.style.left = '-9999px';
-    iframe.style.top = '0';
-    iframe.style.width = '7.5in';
-    iframe.style.height = '10in';
-    iframe.style.border = 'none';
-    iframe.style.background = '#ffffff';
-    document.body.appendChild(iframe);
+async function renderAndDownload(html: string, filename: string): Promise<void> {
+  // Create a hidden container in the current document
+  const container = document.createElement('div');
+  container.style.position = 'fixed';
+  container.style.left = '-9999px';
+  container.style.top = '0';
+  container.style.width = '7.5in';
+  container.style.background = '#ffffff';
+  container.style.color = '#333333';
+  container.style.zIndex = '-1';
+  document.body.appendChild(container);
 
-    iframe.onload = async () => {
-      try {
-        const doc = iframe.contentDocument;
-        if (!doc) throw new Error('Could not access iframe document');
+  // Insert the content (strip the full HTML wrapper, just use the body content)
+  const bodyMatch = html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+  container.innerHTML = bodyMatch ? bodyMatch[1] : html;
 
-        doc.open();
-        doc.write(html);
-        doc.close();
+  // Apply reset styles directly
+  const style = document.createElement('style');
+  style.textContent = RESET_CSS;
+  container.prepend(style);
 
-        // Wait for fonts/layout
-        await new Promise(r => setTimeout(r, 300));
+  // Wait for layout
+  await new Promise(r => setTimeout(r, 400));
 
-        const content = doc.body;
-
-        await html2pdf().set({
-          margin: [0.75, 0.75, 0.75, 0.75],
-          filename,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: '#ffffff',
-            foreignObjectRendering: false,
-            windowWidth: 672, // 7in * 96dpi
-          },
-          jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
-        }).from(content).save();
-
-        document.body.removeChild(iframe);
-        resolve();
-      } catch (err) {
-        document.body.removeChild(iframe);
-        reject(err);
-      }
-    };
-
-    // Trigger load
-    iframe.srcdoc = html;
-  });
+  try {
+    await html2pdf().set({
+      margin: [0.75, 0.75, 0.75, 0.75],
+      filename,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        foreignObjectRendering: false,
+        windowWidth: 672,
+      },
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
+    }).from(container).save();
+  } finally {
+    document.body.removeChild(container);
+  }
 }
 
 export async function exportOnePagerPDF(data: OnePagerData, isPro: boolean): Promise<void> {
   const html = buildOnePagerHTML(data, !isPro);
   const filename = `${data.title.replace(/[^a-zA-Z0-9]/g, '-').replace(/-+/g, '-').toLowerCase()}-pitchvoid.pdf`;
-  await renderInIframe(html, filename);
+  await renderAndDownload(html, filename);
 }
 
 export async function exportScriptPDF(data: ScriptData, isPro: boolean): Promise<void> {
   const html = buildScriptHTML(data, !isPro);
   const filename = `${data.title.replace(/[^a-zA-Z0-9]/g, '-').replace(/-+/g, '-').toLowerCase()}-script-pitchvoid.pdf`;
-  await renderInIframe(html, filename);
+  await renderAndDownload(html, filename);
 }
