@@ -1322,14 +1322,6 @@ const Dashboard = () => {
                     setOutputFormat('one-pager');
                   }
                 }}
-                feedbackProjectId={activeProject?.id}
-                feedbackFormat={outputFormat === 'script' ? 'script' : 'one-pager'}
-                feedbackOutput={
-                outputFormat === 'script' ?
-                scriptData as unknown as Record<string, unknown> :
-                onePagerData as unknown as Record<string, unknown>
-                }
-                feedbackKey={feedbackKey}
                 // Format toggle props for mobile
                 activeFormat={outputFormat}
                 onFormatChange={handleFormatChange}

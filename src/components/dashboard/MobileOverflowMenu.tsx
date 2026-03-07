@@ -51,8 +51,6 @@ const MobileOverflowMenu = ({
   const [isOpen, setIsOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [showVersionSheet, setShowVersionSheet] = useState(false);
-  const [showFeedbackSheet, setShowFeedbackSheet] = useState(false);
-  const [showCheck, setShowCheck] = useState(false);
 
   // Handle open/close animation
   useEffect(() => {
@@ -215,53 +213,6 @@ const MobileOverflowMenu = ({
                 onClick={() => { handleClose(); setShowVersionSheet(true); }}
               />
             )}
-
-            {/* Divider */}
-            <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '8px 0' }} />
-
-            {/* Feedback row — side by side */}
-            {feedbackProjectId && (
-              <div style={{ display: 'flex', padding: '0 24px', gap: 8, marginBottom: 8 }}>
-                <button
-                  onClick={() => {
-                    if (!feedbackSubmitted) {
-                      onThumbsUp?.();
-                      setShowCheck(true);
-                      setTimeout(() => setShowCheck(false), 800);
-                      handleClose();
-                    }
-                  }}
-                  disabled={feedbackSubmitted}
-                  style={{
-                    ...feedbackBtnStyle,
-                    opacity: feedbackSubmitted ? 0.3 : 1,
-                  }}
-                >
-                  {showCheck ? (
-                    <Check style={{ width: 16, height: 16, color: '#4ade80' }} />
-                  ) : (
-                    <ThumbsUp style={{ width: 16, height: 16, color: 'rgba(240,237,246,0.5)' }} />
-                  )}
-                  <span style={{ fontSize: 14, color: 'rgba(240,237,246,0.8)' }}>Good</span>
-                </button>
-                <button
-                  onClick={() => {
-                    if (!feedbackSubmitted) {
-                      handleClose();
-                      setShowFeedbackSheet(true);
-                    }
-                  }}
-                  disabled={feedbackSubmitted}
-                  style={{
-                    ...feedbackBtnStyle,
-                    opacity: feedbackSubmitted ? 0.3 : 1,
-                  }}
-                >
-                  <ThumbsDown style={{ width: 16, height: 16, color: 'rgba(240,237,246,0.5)' }} />
-                  <span style={{ fontSize: 14, color: 'rgba(240,237,246,0.8)' }}>Needs work</span>
-                </button>
-              </div>
-            )}
           </div>
         </>, document.body
       )}
@@ -275,17 +226,6 @@ const MobileOverflowMenu = ({
           currentVersionId={activeVersionId}
           fetchVersions={fetchVersions}
           onSelectVersion={onSelectVersion}
-        />
-      )}
-
-      {/* Mobile Feedback Bottom Sheet */}
-      {feedbackProjectId && feedbackFormat && (
-        <MobileFeedbackSheet
-          isOpen={showFeedbackSheet}
-          onClose={() => setShowFeedbackSheet(false)}
-          projectId={feedbackProjectId}
-          format={feedbackFormat}
-          generatedOutput={feedbackOutput}
         />
       )}
     </div>
