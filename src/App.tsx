@@ -15,6 +15,7 @@ import Pricing from "./pages/Pricing";
 import Settings from "./pages/Settings";
 import FAQ from "./pages/FAQ";
 import Legal from "./pages/Legal";
+import Why from "./pages/Why";
 import NotFound from "./pages/NotFound";
 
 const CaseStudy = lazy(() => import("./pages/CaseStudy"));
