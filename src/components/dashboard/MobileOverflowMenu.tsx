@@ -236,18 +236,6 @@ const MobileOverflowMenu = ({
 
 const iconStyle: React.CSSProperties = { width: 16, height: 16, color: 'rgba(240,237,246,0.5)' };
 
-const feedbackBtnStyle: React.CSSProperties = {
-  flex: 1,
-  height: 48,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: 8,
-  background: 'rgba(168,85,247,0.06)',
-  border: '1px solid rgba(168,85,247,0.1)',
-  borderRadius: 12,
-  cursor: 'pointer',
-};
 
 /* ---- MenuItem sub-component ---- */
 
