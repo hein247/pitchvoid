@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { ThumbsUp, ThumbsDown, Send } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { MobileFeedbackSheet } from './TopBarFeedback';
 
 const ISSUE_CHIPS: { label: string; value: string }[] = [
   { label: 'Too formal', value: 'too_formal' },
@@ -28,7 +27,6 @@ const InlineFeedback = ({ projectId, format, generatedOutput, generationKey }: I
   const [comment, setComment] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showMobileSheet, setShowMobileSheet] = useState(false);
 
   // Reset on new generation
   useEffect(() => {
@@ -72,11 +70,7 @@ const InlineFeedback = ({ projectId, format, generatedOutput, generationKey }: I
   const handleThumbsDown = () => {
     if (submitted || isSubmitting) return;
     setRating(1);
-    if (window.innerWidth < 640) {
-      setShowMobileSheet(true);
-    } else {
-      setShowIssues(true);
-    }
+    setShowIssues(true);
   };
 
   const toggleIssue = (value: string) => {
@@ -213,19 +207,6 @@ const InlineFeedback = ({ projectId, format, generatedOutput, generationKey }: I
         )}
       </div>
 
-      {/* Mobile feedback sheet */}
-      <MobileFeedbackSheet
-        isOpen={showMobileSheet}
-        onClose={() => {
-          setShowMobileSheet(false);
-          if (!submitted) {
-            submitFeedback(1);
-          }
-        }}
-        projectId={projectId}
-        format={format}
-        generatedOutput={generatedOutput}
-      />
     </>
   );
 };
