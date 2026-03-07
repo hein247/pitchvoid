@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { MoreVertical, Share2, Download, Play, Copy, History, Lock, ThumbsUp, ThumbsDown, Check, Edit2, FileText, ScrollText, RefreshCw } from 'lucide-react';
+import { MoreVertical, Share2, Download, Play, Copy, History, Lock, Edit2, FileText, ScrollText, RefreshCw } from 'lucide-react';
 import { VersionHistorySheet } from './VersionHistoryDropdown';
-import { MobileFeedbackSheet } from './TopBarFeedback';
+import type { ProjectVersion, ProjectRecord } from '@/hooks/useProjects';
 import type { ProjectVersion, ProjectRecord } from '@/hooks/useProjects';
 
 type OutputFormat = 'one-pager' | 'script';
@@ -19,12 +19,6 @@ interface MobileOverflowMenuProps {
   activeVersionId?: string;
   fetchVersions: (projectId: string) => Promise<ProjectVersion[]>;
   onSelectVersion: (version: ProjectVersion) => void;
-  feedbackProjectId?: string;
-  feedbackFormat?: 'one-pager' | 'script';
-  feedbackOutput?: Record<string, unknown>;
-  feedbackKey?: number;
-  onThumbsUp?: () => void;
-  feedbackSubmitted?: boolean;
   activeFormat: OutputFormat;
   onFormatChange: (format: OutputFormat) => void;
   hasOnePager: boolean;
@@ -46,11 +40,6 @@ const MobileOverflowMenu = ({
   activeVersionId,
   fetchVersions,
   onSelectVersion,
-  feedbackProjectId,
-  feedbackFormat,
-  feedbackOutput,
-  feedbackSubmitted = false,
-  onThumbsUp,
   activeFormat,
   onFormatChange,
   hasOnePager,
