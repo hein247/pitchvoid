@@ -105,7 +105,12 @@ PERFORMANCE CONTEXTS:
 CLARITY CONTEXTS:
 - Difficult Conversation (conflict, negotiation, boundaries, landlord, raise) → sections: HERE'S WHAT'S GOING ON / HERE'S WHAT I KNOW / HERE'S WHAT I NEED
 - Personal / Life (therapy, decisions, self-reflection, relationships) → sections: HERE'S WHAT'S GOING ON / HERE'S WHAT I KNOW / HERE'S WHAT I NEED
+- Thinking / Ideas (no audience, exploring an idea, organizing thoughts, brainstorming) → sections: HERE'S THE IDEA / HERE'S HOW IT WORKS / HERE'S WHAT'S NEXT
 - General (unclear context, figuring something out) → sections: HERE'S WHAT'S GOING ON / HERE'S WHAT I KNOW / HERE'S WHAT I NEED
+
+CLARITY MODE also applies when the user is NOT preparing for any specific conversation or audience. If the input has no audience, no meeting, no person they're talking to — the user is thinking, not performing. They're using this tool as a mirror to see their own thoughts organized.
+
+Detection: If the parsed input has no clear WHO (audience/listener), default to clarity/thinking mode. Do not assume a business pitch just because the content mentions software, products, revenue, or business concepts.
 
 If the audience is professional/business but the content is creative (e.g. pitching a comedy special to Netflix), prioritize the AUDIENCE context over the content.
 
