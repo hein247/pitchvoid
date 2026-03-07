@@ -1,5 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import logoImg from '@/assets/logo-pitchvoid.png';
 import { usePricing } from '@/hooks/usePricing';
 import { Mic, Menu, Crown, Settings } from 'lucide-react';
 import {
@@ -33,11 +34,8 @@ const Navbar = ({
   if (variant === 'landing') {
     return (
       <nav className="relative z-10 px-4 sm:px-8 py-4 sm:py-6 flex items-center justify-between max-w-7xl mx-auto">
-        <button
-          onClick={() => navigate('/')}
-          className="text-xl sm:text-2xl font-semibold font-display brand-gradient-text"
-        >
-          <span style={{ fontFamily: "'Times New Roman', Times, serif" }}>Pitch</span><span className="font-sans">Void</span>
+        <button onClick={() => navigate('/')} className="flex items-center">
+          <img src={logoImg} alt="PitchVoid" className="h-6 sm:h-7 w-auto" />
         </button>
         
         {/* Desktop nav */}
@@ -83,8 +81,8 @@ const Navbar = ({
           </SheetTrigger>
           <SheetContent side="right" className="w-[280px] bg-background border-l border-accent/20">
             <SheetHeader>
-              <SheetTitle className="text-left font-display brand-gradient-text">
-                <span style={{ fontFamily: "'Times New Roman', Times, serif" }}>Pitch</span><span className="font-sans">Void</span>
+              <SheetTitle className="text-left">
+                <img src={logoImg} alt="PitchVoid" className="h-5 w-auto" />
               </SheetTitle>
             </SheetHeader>
             <nav className="flex flex-col gap-4 mt-8">
@@ -128,11 +126,8 @@ const Navbar = ({
   if (variant === 'dashboard') {
     return (
       <nav className="glassmorphism px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between sticky top-0 z-40">
-        <button
-          onClick={() => navigate('/')}
-          className="text-lg sm:text-xl font-semibold font-display brand-gradient-text"
-        >
-          <span style={{ fontFamily: "'Times New Roman', Times, serif" }}>Pitch</span><span className="font-sans">Void</span>
+        <button onClick={() => navigate('/')} className="flex items-center">
+          <img src={logoImg} alt="PitchVoid" className="h-5 sm:h-6 w-auto" />
         </button>
         <div className="flex items-center gap-2 sm:gap-4">
           {/* Credit pill — tappable, goes to pricing */}
@@ -197,11 +192,8 @@ const Navbar = ({
   // Minimal variant - for auth/tour pages
   return (
     <nav className="relative z-10 px-4 sm:px-8 py-4 sm:py-6 flex items-center justify-center">
-      <button
-        onClick={() => navigate('/')}
-        className="text-xl sm:text-2xl font-semibold font-display brand-gradient-text"
-      >
-        <span style={{ fontFamily: "'Times New Roman', Times, serif" }}>Pitch</span><span className="font-sans">Void</span>
+      <button onClick={() => navigate('/')} className="flex items-center">
+        <img src={logoImg} alt="PitchVoid" className="h-6 sm:h-7 w-auto" />
       </button>
     </nav>
   );
