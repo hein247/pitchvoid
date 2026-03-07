@@ -18,6 +18,23 @@ interface NavbarProps {
   onSignOut?: () => void;
 }
 
+const GradientLogo = ({ className = 'h-8' }: { className?: string }) => (
+  <div
+    className={`${className} w-auto aspect-[3/1] magenta-gradient`}
+    style={{
+      WebkitMaskImage: `url(${logoImg})`,
+      WebkitMaskSize: 'contain',
+      WebkitMaskRepeat: 'no-repeat',
+      WebkitMaskPosition: 'center',
+      maskImage: `url(${logoImg})`,
+      maskSize: 'contain',
+      maskRepeat: 'no-repeat',
+      maskPosition: 'center',
+    }}
+    aria-label="PitchVoid"
+  />
+);
+
 const Navbar = ({
   variant = 'landing',
   onQuickPitch,
@@ -35,7 +52,7 @@ const Navbar = ({
     return (
       <nav className="relative z-10 px-4 sm:px-8 py-4 sm:py-6 flex items-center justify-between max-w-7xl mx-auto">
         <button onClick={() => navigate('/')} className="flex items-center">
-          <img src={logoImg} alt="PitchVoid" className="h-6 sm:h-7 w-auto" />
+          <GradientLogo className="h-8 sm:h-10" />
         </button>
         
         {/* Desktop nav */}
@@ -82,7 +99,7 @@ const Navbar = ({
           <SheetContent side="right" className="w-[280px] bg-background border-l border-accent/20">
             <SheetHeader>
               <SheetTitle className="text-left">
-                <img src={logoImg} alt="PitchVoid" className="h-5 w-auto" />
+                <GradientLogo className="h-6" />
               </SheetTitle>
             </SheetHeader>
             <nav className="flex flex-col gap-4 mt-8">
@@ -127,7 +144,7 @@ const Navbar = ({
     return (
       <nav className="glassmorphism px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between sticky top-0 z-40">
         <button onClick={() => navigate('/')} className="flex items-center">
-          <img src={logoImg} alt="PitchVoid" className="h-5 sm:h-6 w-auto" />
+          <GradientLogo className="h-7 sm:h-8" />
         </button>
         <div className="flex items-center gap-2 sm:gap-4">
           {/* Credit pill — tappable, goes to pricing */}
@@ -193,7 +210,7 @@ const Navbar = ({
   return (
     <nav className="relative z-10 px-4 sm:px-8 py-4 sm:py-6 flex items-center justify-center">
       <button onClick={() => navigate('/')} className="flex items-center">
-        <img src={logoImg} alt="PitchVoid" className="h-6 sm:h-7 w-auto" />
+        <GradientLogo className="h-8 sm:h-10" />
       </button>
     </nav>
   );
