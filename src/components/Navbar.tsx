@@ -37,7 +37,7 @@ const Navbar = ({
           onClick={() => navigate('/')}
           className="text-xl sm:text-2xl font-semibold font-display brand-gradient-text"
         >
-          PitchVoid
+          <span style={{ fontFamily: "'Times New Roman', Times, serif" }}>Pitch</span><span className="font-sans">Void</span>
         </button>
         
         {/* Desktop nav */}
@@ -84,7 +84,7 @@ const Navbar = ({
           <SheetContent side="right" className="w-[280px] bg-background border-l border-accent/20">
             <SheetHeader>
               <SheetTitle className="text-left font-display brand-gradient-text">
-                PitchVoid
+                <span style={{ fontFamily: "'Times New Roman', Times, serif" }}>Pitch</span><span className="font-sans">Void</span>
               </SheetTitle>
             </SheetHeader>
             <nav className="flex flex-col gap-4 mt-8">
@@ -132,7 +132,7 @@ const Navbar = ({
           onClick={() => navigate('/')}
           className="text-lg sm:text-xl font-semibold font-display brand-gradient-text"
         >
-          PitchVoid
+          <span style={{ fontFamily: "'Times New Roman', Times, serif" }}>Pitch</span><span className="font-sans">Void</span>
         </button>
         <div className="flex items-center gap-2 sm:gap-4">
           {/* Credit pill — tappable, goes to pricing */}
@@ -201,7 +201,7 @@ const Navbar = ({
         onClick={() => navigate('/')}
         className="text-xl sm:text-2xl font-semibold font-display brand-gradient-text"
       >
-        PitchVoid
+        <span style={{ fontFamily: "'Times New Roman', Times, serif" }}>Pitch</span><span className="font-sans">Void</span>
       </button>
     </nav>
   );
