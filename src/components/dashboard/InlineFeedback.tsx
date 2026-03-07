@@ -22,7 +22,6 @@ interface InlineFeedbackProps {
 const InlineFeedback = ({ projectId, format, generatedOutput, generationKey }: InlineFeedbackProps) => {
   const { user } = useAuth();
   const [rating, setRating] = useState<1 | 5 | null>(null);
-  const [showIssues, setShowIssues] = useState(false);
   const [selectedIssues, setSelectedIssues] = useState<string[]>([]);
   const [comment, setComment] = useState('');
   const [submitted, setSubmitted] = useState(false);
@@ -31,7 +30,6 @@ const InlineFeedback = ({ projectId, format, generatedOutput, generationKey }: I
   // Reset on new generation
   useEffect(() => {
     setRating(null);
-    setShowIssues(false);
     setSelectedIssues([]);
     setComment('');
     setSubmitted(false);
@@ -63,14 +61,12 @@ const InlineFeedback = ({ projectId, format, generatedOutput, generationKey }: I
   const handleThumbsUp = () => {
     if (submitted || isSubmitting) return;
     setRating(5);
-    setShowIssues(false);
     submitFeedback(5);
   };
 
   const handleThumbsDown = () => {
     if (submitted || isSubmitting) return;
     setRating(1);
-    setShowIssues(true);
   };
 
   const toggleIssue = (value: string) => {
@@ -81,7 +77,6 @@ const InlineFeedback = ({ projectId, format, generatedOutput, generationKey }: I
 
   const handleSubmitIssues = () => {
     submitFeedback(1, selectedIssues, comment);
-    setShowIssues(false);
   };
 
   if (submitted) {
@@ -152,59 +147,56 @@ const InlineFeedback = ({ projectId, format, generatedOutput, generationKey }: I
           </button>
         </div>
 
-        {/* Issue chips + comment */}
-        {showIssues && (
-          <div className="flex flex-col items-center gap-3 animate-fadeIn w-full max-w-md">
-            <p style={{ fontSize: 12, color: 'rgba(240,237,246,0.4)' }} className="font-medium">
-              What went wrong?
-            </p>
-            <div className="flex flex-wrap justify-center gap-2">
-              {ISSUE_CHIPS.map((chip) => (
-                <button
-                  key={chip.value}
-                  onClick={() => toggleIssue(chip.value)}
-                  className={`px-3 py-1.5 rounded-full text-[11px] border transition-all ${
-                    selectedIssues.includes(chip.value)
-                      ? 'border-primary/30 bg-primary/10 text-primary/80'
-                      : 'border-border/30 text-muted-foreground/40 hover:border-border/50 hover:text-muted-foreground/60'
-                  }`}
-                >
-                  {chip.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Comment textarea */}
-            <div className="w-full relative">
-              <textarea
-                value={comment}
-                onChange={(e) => setComment(e.target.value.slice(0, 500))}
-                placeholder="Anything else? (optional)"
-                rows={2}
-                className="w-full rounded-xl border border-border/30 bg-card/50 px-4 py-3 text-xs text-foreground/80 placeholder:text-muted-foreground/30 resize-none focus:outline-none focus:border-primary/30 transition-colors"
-                style={{ fontSize: 12 }}
-              />
-              <span
-                className="absolute bottom-2 right-3 text-[10px]"
-                style={{ color: 'rgba(240,237,246,0.2)' }}
-              >
-                {comment.length}/500
-              </span>
-            </div>
-
-            {/* Submit button — show when chips selected or comment typed */}
-            {(selectedIssues.length > 0 || comment.trim().length > 0) && (
+        <div className="flex flex-col items-center gap-3 animate-fadeIn w-full max-w-md">
+          <p style={{ fontSize: 12, color: 'rgba(240,237,246,0.4)' }} className="font-medium">
+            Tell us what to improve (optional)
+          </p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {ISSUE_CHIPS.map((chip) => (
               <button
-                onClick={handleSubmitIssues}
-                disabled={isSubmitting}
-                className="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-medium bg-primary/10 text-primary/60 hover:bg-primary/15 transition-all disabled:opacity-50"
+                key={chip.value}
+                onClick={() => toggleIssue(chip.value)}
+                className={`px-3 py-1.5 rounded-full text-[11px] border transition-all ${
+                  selectedIssues.includes(chip.value)
+                    ? 'border-primary/30 bg-primary/10 text-primary/80'
+                    : 'border-border/30 text-muted-foreground/40 hover:border-border/50 hover:text-muted-foreground/60'
+                }`}
               >
-                <Send className="w-3 h-3" />
-                Submit
+                {chip.label}
               </button>
-            )}
+            ))}
           </div>
-        )}
+
+          {/* Comment textarea */}
+          <div className="w-full relative">
+            <textarea
+              value={comment}
+              onChange={(e) => setComment(e.target.value.slice(0, 500))}
+              placeholder="Anything else? (optional)"
+              rows={2}
+              className="w-full rounded-xl border border-border/30 bg-card/50 px-4 py-3 text-xs text-foreground/80 placeholder:text-muted-foreground/30 resize-none focus:outline-none focus:border-primary/30 transition-colors"
+              style={{ fontSize: 12 }}
+            />
+            <span
+              className="absolute bottom-2 right-3 text-[10px]"
+              style={{ color: 'rgba(240,237,246,0.2)' }}
+            >
+              {comment.length}/500
+            </span>
+          </div>
+
+          {/* Submit button — show when chips selected or comment typed */}
+          {(selectedIssues.length > 0 || comment.trim().length > 0) && (
+            <button
+              onClick={handleSubmitIssues}
+              disabled={isSubmitting}
+              className="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-medium bg-primary/10 text-primary/60 hover:bg-primary/15 transition-all disabled:opacity-50"
+            >
+              <Send className="w-3 h-3" />
+              Submit
+            </button>
+          )}
+        </div>
       </div>
 
     </>
