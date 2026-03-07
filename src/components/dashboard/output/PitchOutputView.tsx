@@ -106,7 +106,10 @@ const PitchOutputView = ({
                   } else if (onePager) {
                     await exportOnePagerPDF(onePager as any, true);
                   }
-                } catch (e) { console.error('PDF export failed', e); }
+                } catch (e) {
+                  console.error('PDF export failed:', e);
+                  alert('PDF export failed. Please try again.');
+                }
               }}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${
                 isPro
