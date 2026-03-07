@@ -112,6 +112,8 @@ CLARITY MODE also applies when the user is NOT preparing for any specific conver
 
 Detection: If the parsed input has no clear WHO (audience/listener), default to clarity/thinking mode. Do not assume a business pitch just because the content mentions software, products, revenue, or business concepts.
 
+If the input has no clear audience or listener — no person, no meeting, no conversation — the user is thinking, not performing. Default to clarity mode with these labels: HERE'S THE IDEA / HERE'S HOW IT WORKS / HERE'S WHAT'S NEXT. Do not assume a business pitch just because the content mentions software, products, or business concepts. The absence of an audience means the user is organizing their own thoughts, not preparing to present.
+
 If the audience is professional/business but the content is creative (e.g. pitching a comedy special to Netflix), prioritize the AUDIENCE context over the content.
 
 STEP 2 — GENERATE using these HARD RULES (violating ANY is a failure):
@@ -169,7 +171,7 @@ Input: "seeing my therapist thursday, been feeling overwhelmed since the layoff 
 Output: {"title":"Therapy Session Prep","context_line":"Organizing thoughts before Thursday's therapy appointment","sections":[{"title":"WHAT'S HAPPENING","points":["**3 months** since the layoff. **47** applications submitted with only **2** interviews — the ratio is creating a cycle of diminishing confidence."]},{"title":"WHAT I KNOW","points":["Partner is suggesting a break, but guilt about not working is preventing rest. The career change question is surfacing but hasn't been examined yet."]},{"title":"WHAT I NEED","points":["Clarity on whether the job search strategy needs to change or whether the career itself does — and permission to pause without interpreting rest as failure."]}]}
 
 Input: "need to ask my landlord to fix the heating, it's been broken for 2 weeks, I've sent 3 emails with no response, temperature drops to 55 degrees at night, lease says they have to maintain heating, paying 2800 a month"
-Output: {"title":"Landlord Heating Request","context_line":"Heating repair escalation for landlord","sections":[{"title":"THE ISSUE","points":["Heating non-functional for **2 weeks** despite **3** unanswered emails. Nighttime temperatures drop to **55°F** in a unit costing **$2,800**/month."]},{"title":"THE FACTS","points":["The lease requires maintained heating as a habitability standard. **3** documented contact attempts with no landlord response establishes a paper trail."]},{"title":"THE RESOLUTION","points":["Request a repair within **48 hours** with written confirmation, or escalate to the housing authority with the documented communication history."]}]}
+Output: {"title":"Landlord Heating Request","context_line":"Heating repair escalation for landlord","sections":[{"title":"HERE'S WHAT'S GOING ON","points":["Heating non-functional for **2 weeks** despite **3** unanswered emails. Nighttime temperatures drop to **55°F** in a unit costing **$2,800**/month."]},{"title":"HERE'S WHAT I KNOW","points":["The lease requires maintained heating as a habitability standard. **3** documented contact attempts with no landlord response establishes a paper trail."]},{"title":"HERE'S WHAT I NEED","points":["Request a repair within **48 hours** with written confirmation, or escalate to the housing authority with the documented communication history."]}]}
 
 Input: "doing open mic friday, bit about how we all know epstein didn't kill himself but we just meme about it, same as knowing your boss steals credit but you just post instagram stories"
 Output: {"title":"Open Mic Friday Set","context_line":"Comedy bit for open mic night","sections":[{"title":"THE SETUP","points":["Everyone collectively agreed Epstein didn't kill himself — and the bravest thing anyone did about it was tweet."]},{"title":"THE TURN","points":["Same energy at every tech company: your manager presents your work at the all-hands, and your response is a passive-aggressive Instagram story at 11pm."]},{"title":"THE CLOSER","points":["The real conspiracy isn't Epstein. It's that an entire generation saw the dumpster fire and chose to make content about it instead of grabbing a fire extinguisher."]}]}`;
@@ -194,7 +196,7 @@ Generate the JSON now. Output ONLY the JSON object, no other text.`;
     }
 
     // Enforce section limits: if more than 4, merge last two into one
-    if (Array.isArray(onePager.sections) && onePager.sections.length > 4) {
+    if (Array.isArray(onePager.sections) && onePager.sections.length > 3) {
       const sections = onePager.sections as Array<Record<string, unknown>>;
       const lastTwo = sections.splice(-2, 2);
       const merged = {
@@ -211,8 +213,8 @@ Generate the JSON now. Output ONLY the JSON object, no other text.`;
     // Enforce point limits: max 3 points per section
     if (Array.isArray(onePager.sections)) {
       for (const section of onePager.sections as Array<Record<string, unknown>>) {
-        if (Array.isArray(section.points) && section.points.length > 3) {
-          section.points = (section.points as unknown[]).slice(0, 3);
+        if (Array.isArray(section.points) && section.points.length > 2) {
+          section.points = (section.points as unknown[]).slice(0, 2);
         }
       }
     }
