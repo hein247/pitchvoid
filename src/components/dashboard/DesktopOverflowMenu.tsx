@@ -7,7 +7,6 @@ interface DesktopOverflowMenuProps {
   onEdit?: () => void;
   onCopyAll: () => void;
   isFree: boolean;
-  feedbackNode?: React.ReactNode;
 }
 
 const DesktopOverflowMenu = ({
@@ -16,7 +15,6 @@ const DesktopOverflowMenu = ({
   onEdit,
   onCopyAll,
   isFree,
-  feedbackNode,
 }: DesktopOverflowMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -55,16 +53,6 @@ const DesktopOverflowMenu = ({
           />
           <MenuItem icon={<Share2 className="w-4 h-4" />} label="Share" onClick={() => { setIsOpen(false); onShare(); }} />
           <MenuItem icon={<Copy className="w-4 h-4" />} label="Copy all" onClick={() => { setIsOpen(false); onCopyAll(); }} />
-          
-          {feedbackNode && (
-            <>
-              <div className="h-px bg-border my-1" />
-              <div className="px-3 py-1 flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Feedback</span>
-                {feedbackNode}
-              </div>
-            </>
-          )}
         </div>
       )}
     </div>

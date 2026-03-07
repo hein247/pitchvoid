@@ -11,7 +11,7 @@ import { Progress } from '@/components/ui/progress';
 import Navbar from '@/components/Navbar';
 import RefinementPanel from '@/components/dashboard/RefinementPanel';
 import RefinementBar from '@/components/dashboard/output/RefinementBar';
-import TopBarFeedback from '@/components/dashboard/TopBarFeedback';
+import InlineFeedback from '@/components/dashboard/InlineFeedback';
 import OnePager, { OnePagerData } from '@/components/dashboard/OnePager';
 import OnePagerEditor from '@/components/dashboard/OnePagerEditor';
 import MobileEditorSheet from '@/components/dashboard/MobileEditorSheet';
@@ -1279,20 +1279,6 @@ const Dashboard = () => {
                         }
                       }}
                       isFree={isFree}
-                      feedbackNode={
-                        activeProject && (onePagerData || scriptData) && !isRegenerating ? (
-                          <TopBarFeedback
-                            projectId={activeProject.id}
-                            format={outputFormat === 'script' ? 'script' : 'one-pager'}
-                            generationKey={feedbackKey}
-                            generatedOutput={
-                              outputFormat === 'script' ?
-                              scriptData as unknown as Record<string, unknown> :
-                              onePagerData as unknown as Record<string, unknown>
-                            }
-                          />
-                        ) : null
-                      }
                     />
                   </div>
 
@@ -1336,14 +1322,6 @@ const Dashboard = () => {
                     setOutputFormat('one-pager');
                   }
                 }}
-                feedbackProjectId={activeProject?.id}
-                feedbackFormat={outputFormat === 'script' ? 'script' : 'one-pager'}
-                feedbackOutput={
-                outputFormat === 'script' ?
-                scriptData as unknown as Record<string, unknown> :
-                onePagerData as unknown as Record<string, unknown>
-                }
-                feedbackKey={feedbackKey}
                 // Format toggle props for mobile
                 activeFormat={outputFormat}
                 onFormatChange={handleFormatChange}
@@ -1397,6 +1375,20 @@ const Dashboard = () => {
                   </div>
                 </div>
             }
+
+            {/* Inline Feedback — visible after content */}
+            {activeProject && ((outputFormat === 'one-pager' && onePagerData) || (outputFormat === 'script' && scriptData)) && !isRegenerating && (
+              <InlineFeedback
+                projectId={activeProject.id}
+                format={outputFormat === 'script' ? 'script' : 'one-pager'}
+                generationKey={feedbackKey}
+                generatedOutput={
+                  outputFormat === 'script'
+                    ? (scriptData as unknown as Record<string, unknown>)
+                    : (onePagerData as unknown as Record<string, unknown>)
+                }
+              />
+            )}
             </div>
 
             {/* Refinement Bar */}

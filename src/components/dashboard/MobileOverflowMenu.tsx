@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { MoreVertical, Share2, Download, Play, Copy, History, Lock, ThumbsUp, ThumbsDown, Check, Edit2, FileText, ScrollText, RefreshCw } from 'lucide-react';
+import { MoreVertical, Share2, Download, Play, Copy, History, Lock, Edit2, FileText, ScrollText, RefreshCw } from 'lucide-react';
 import { VersionHistorySheet } from './VersionHistoryDropdown';
-import { MobileFeedbackSheet } from './TopBarFeedback';
 import type { ProjectVersion, ProjectRecord } from '@/hooks/useProjects';
 
 type OutputFormat = 'one-pager' | 'script';
@@ -19,12 +18,6 @@ interface MobileOverflowMenuProps {
   activeVersionId?: string;
   fetchVersions: (projectId: string) => Promise<ProjectVersion[]>;
   onSelectVersion: (version: ProjectVersion) => void;
-  feedbackProjectId?: string;
-  feedbackFormat?: 'one-pager' | 'script';
-  feedbackOutput?: Record<string, unknown>;
-  feedbackKey?: number;
-  onThumbsUp?: () => void;
-  feedbackSubmitted?: boolean;
   activeFormat: OutputFormat;
   onFormatChange: (format: OutputFormat) => void;
   hasOnePager: boolean;
@@ -46,11 +39,6 @@ const MobileOverflowMenu = ({
   activeVersionId,
   fetchVersions,
   onSelectVersion,
-  feedbackProjectId,
-  feedbackFormat,
-  feedbackOutput,
-  feedbackSubmitted = false,
-  onThumbsUp,
   activeFormat,
   onFormatChange,
   hasOnePager,
@@ -63,8 +51,6 @@ const MobileOverflowMenu = ({
   const [isOpen, setIsOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [showVersionSheet, setShowVersionSheet] = useState(false);
-  const [showFeedbackSheet, setShowFeedbackSheet] = useState(false);
-  const [showCheck, setShowCheck] = useState(false);
 
   // Handle open/close animation
   useEffect(() => {
@@ -227,53 +213,6 @@ const MobileOverflowMenu = ({
                 onClick={() => { handleClose(); setShowVersionSheet(true); }}
               />
             )}
-
-            {/* Divider */}
-            <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '8px 0' }} />
-
-            {/* Feedback row — side by side */}
-            {feedbackProjectId && (
-              <div style={{ display: 'flex', padding: '0 24px', gap: 8, marginBottom: 8 }}>
-                <button
-                  onClick={() => {
-                    if (!feedbackSubmitted) {
-                      onThumbsUp?.();
-                      setShowCheck(true);
-                      setTimeout(() => setShowCheck(false), 800);
-                      handleClose();
-                    }
-                  }}
-                  disabled={feedbackSubmitted}
-                  style={{
-                    ...feedbackBtnStyle,
-                    opacity: feedbackSubmitted ? 0.3 : 1,
-                  }}
-                >
-                  {showCheck ? (
-                    <Check style={{ width: 16, height: 16, color: '#4ade80' }} />
-                  ) : (
-                    <ThumbsUp style={{ width: 16, height: 16, color: 'rgba(240,237,246,0.5)' }} />
-                  )}
-                  <span style={{ fontSize: 14, color: 'rgba(240,237,246,0.8)' }}>Good</span>
-                </button>
-                <button
-                  onClick={() => {
-                    if (!feedbackSubmitted) {
-                      handleClose();
-                      setShowFeedbackSheet(true);
-                    }
-                  }}
-                  disabled={feedbackSubmitted}
-                  style={{
-                    ...feedbackBtnStyle,
-                    opacity: feedbackSubmitted ? 0.3 : 1,
-                  }}
-                >
-                  <ThumbsDown style={{ width: 16, height: 16, color: 'rgba(240,237,246,0.5)' }} />
-                  <span style={{ fontSize: 14, color: 'rgba(240,237,246,0.8)' }}>Needs work</span>
-                </button>
-              </div>
-            )}
           </div>
         </>, document.body
       )}
@@ -289,17 +228,6 @@ const MobileOverflowMenu = ({
           onSelectVersion={onSelectVersion}
         />
       )}
-
-      {/* Mobile Feedback Bottom Sheet */}
-      {feedbackProjectId && feedbackFormat && (
-        <MobileFeedbackSheet
-          isOpen={showFeedbackSheet}
-          onClose={() => setShowFeedbackSheet(false)}
-          projectId={feedbackProjectId}
-          format={feedbackFormat}
-          generatedOutput={feedbackOutput}
-        />
-      )}
     </div>
   );
 };
@@ -308,18 +236,6 @@ const MobileOverflowMenu = ({
 
 const iconStyle: React.CSSProperties = { width: 16, height: 16, color: 'rgba(240,237,246,0.5)' };
 
-const feedbackBtnStyle: React.CSSProperties = {
-  flex: 1,
-  height: 48,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: 8,
-  background: 'rgba(168,85,247,0.06)',
-  border: '1px solid rgba(168,85,247,0.1)',
-  borderRadius: 12,
-  cursor: 'pointer',
-};
 
 /* ---- MenuItem sub-component ---- */
 
