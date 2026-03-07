@@ -114,7 +114,7 @@ const ProjectCard = ({
           <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
             <DropdownMenuTrigger asChild>
               <button
-                className="p-1 rounded-md opacity-0 group-hover:opacity-100 focus:opacity-100 hover:bg-accent/10 transition-all"
+                className="p-1 rounded-md opacity-0 group-hover/glow:opacity-100 focus:opacity-100 hover:bg-accent/10 transition-all"
                 aria-label="Project actions"
               >
                 <MoreVertical className="w-3.5 h-3.5 text-muted-foreground" />
