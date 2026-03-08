@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Settings, Undo2, ThumbsUp, ThumbsDown, Send } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -40,6 +41,7 @@ const RefinementBar = ({
   generationKey = 0,
 }: RefinementBarProps) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [inputValue, setInputValue] = useState('');
 
   // Feedback state
@@ -140,7 +142,16 @@ const RefinementBar = ({
       <div className="bg-background/95 backdrop-blur-xl border-t border-border">
       <div className="max-w-5xl mx-auto px-3 sm:px-4 pt-5 sm:pt-6 pb-4 sm:pb-5">
         {/* Label */}
-        <p className="text-[10px] sm:text-xs text-muted-foreground mb-2 sm:mb-2.5 font-medium">Refine your pitch</p>
+        <div className="flex items-center justify-between mb-2 sm:mb-2.5">
+          <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">Refine your pitch</p>
+          <button
+            onClick={() => navigate('/feedback')}
+            className="hidden sm:flex items-center gap-1 text-[10px] text-muted-foreground/40 hover:text-primary/60 transition-colors"
+          >
+            <span>Feedback</span>
+            <kbd className="px-1.5 py-0.5 rounded border border-border/50 bg-card/50 text-[9px] font-mono">⌘K</kbd>
+          </button>
+        </div>
 
         {/* Quick Edit Chips */}
         <div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4 overflow-x-auto pb-1.5 sm:pb-2 scrollbar-hide">
