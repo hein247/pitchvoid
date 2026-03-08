@@ -22,8 +22,10 @@ export function UpgradeNudge({ message, show, onDismiss }: UpgradeNudgeProps) {
           transition={{ duration: 0.3 }}
           className="fixed top-4 right-4 z-50 max-w-sm w-auto"
         >
-          <div className="bg-card/90 backdrop-blur-xl border border-accent/25 rounded-xl p-3.5 shadow-[0_8px_32px_rgba(124,77,255,0.12)]">
-            <div className="flex items-center gap-3">
+          <div className="relative overflow-hidden bg-card/90 backdrop-blur-xl border border-accent/25 rounded-xl p-3.5 shadow-[0_8px_32px_rgba(124,77,255,0.12)]">
+            {/* Purple gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[hsl(263_70%_58%/0.5)] to-[hsl(263_50%_40%/0.2)] rounded-xl pointer-events-none" />
+            <div className="relative flex items-center gap-3">
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium text-foreground leading-tight">{message}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
