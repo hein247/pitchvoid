@@ -9,6 +9,7 @@ import {
   Head,
   Heading,
   Html,
+  Img,
   Link,
   Preview,
   Text,
@@ -21,6 +22,8 @@ interface SignupEmailProps {
   confirmationUrl: string
 }
 
+const logoUrl = 'https://kixwyufvyfnvtgzbisqy.supabase.co/storage/v1/object/public/email-assets/pitchvoid-logo.png'
+
 export const SignupEmail = ({
   siteName,
   siteUrl,
@@ -29,29 +32,30 @@ export const SignupEmail = ({
 }: SignupEmailProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Confirm your email for {siteName}</Preview>
+    <Preview>You're in // confirm your PitchVoid account</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Heading style={h1}>Confirm your email</Heading>
+        <Img src={logoUrl} alt="PitchVoid" height="28" style={logo} />
+        <Heading style={h1}>You're almost in.</Heading>
         <Text style={text}>
-          Thanks for signing up for{' '}
+          Welcome to{' '}
           <Link href={siteUrl} style={link}>
-            <strong>{siteName}</strong>
+            <strong>PitchVoid</strong>
           </Link>
-          !
+          . One click and you're ready to craft your next pitch.
         </Text>
         <Text style={text}>
-          Please confirm your email address (
+          Confirm your email (
           <Link href={`mailto:${recipient}`} style={link}>
             {recipient}
           </Link>
-          ) by clicking the button below:
+          ) to get started:
         </Text>
         <Button style={button} href={confirmationUrl}>
-          Verify Email
+          Confirm &amp; Get Started
         </Button>
         <Text style={footer}>
-          If you didn't create an account, you can safely ignore this email.
+          Didn't sign up? Ignore this — nothing will change.
         </Text>
       </Container>
     </Body>
@@ -60,27 +64,29 @@ export const SignupEmail = ({
 
 export default SignupEmail
 
-const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
-const container = { padding: '20px 25px' }
+const main = { backgroundColor: '#ffffff', fontFamily: "'Be Vietnam Pro', Arial, sans-serif" }
+const container = { padding: '40px 32px' }
+const logo = { marginBottom: '32px' }
 const h1 = {
-  fontSize: '22px',
-  fontWeight: 'bold' as const,
-  color: '#000000',
-  margin: '0 0 20px',
+  fontSize: '24px',
+  fontWeight: '600' as const,
+  color: '#1a1018',
+  margin: '0 0 16px',
 }
 const text = {
   fontSize: '14px',
-  color: '#55575d',
-  lineHeight: '1.5',
-  margin: '0 0 25px',
+  color: '#7a7068',
+  lineHeight: '1.6',
+  margin: '0 0 24px',
 }
-const link = { color: 'inherit', textDecoration: 'underline' }
+const link = { color: '#1a1018', textDecoration: 'underline' }
 const button = {
-  backgroundColor: '#000000',
-  color: '#ffffff',
+  backgroundColor: 'hsl(25, 75%, 65%)',
+  color: '#1a1018',
   fontSize: '14px',
-  borderRadius: '8px',
-  padding: '12px 20px',
+  fontWeight: '500' as const,
+  borderRadius: '12px',
+  padding: '14px 24px',
   textDecoration: 'none',
 }
-const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }
+const footer = { fontSize: '12px', color: '#a09890', margin: '32px 0 0' }
