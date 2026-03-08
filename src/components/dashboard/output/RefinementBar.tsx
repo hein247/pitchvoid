@@ -45,51 +45,6 @@ const RefinementBar = ({
     return () => document.removeEventListener('keydown', handler);
   }, [navigate]);
 
-  const submitFeedback = async (rating: string, issues: string[] = []) => {
-    if (!user || !projectId) return;
-    setIsSubmittingFeedback(true);
-    try {
-      await supabase.functions.invoke('submit-feedback', {
-        body: {
-          project_id: projectId,
-          rating: rating === 'up' ? 5 : 1,
-          issues,
-          format: format || 'one-pager',
-          output_json: generatedOutput || null,
-        },
-      });
-    } catch {
-      // Non-critical
-    } finally {
-      setIsSubmittingFeedback(false);
-      setFeedbackSubmitted(true);
-    }
-  };
-
-  const handleThumbsUp = () => {
-    if (feedbackSubmitted || isSubmittingFeedback) return;
-    setFeedbackRating('up');
-    setShowPopover(false);
-    submitFeedback('up');
-  };
-
-  const handleThumbsDown = () => {
-    if (feedbackSubmitted || isSubmittingFeedback) return;
-    setFeedbackRating('down');
-    setShowPopover(true);
-  };
-
-  const toggleIssue = (value: string) => {
-    setSelectedIssues(prev =>
-      prev.includes(value) ? prev.filter(i => i !== value) : [...prev, value]
-    );
-  };
-
-  const handleSubmitIssues = () => {
-    submitFeedback('down', selectedIssues);
-    setShowPopover(false);
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (inputValue.trim() && !isRefining) {
