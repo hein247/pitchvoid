@@ -187,19 +187,19 @@ const RefinementBar = ({
         </div>
 
         {/* Chat Input + Feedback Thumbs */}
-        <form onSubmit={handleSubmit} className="relative flex items-center gap-2">
+        <form onSubmit={handleSubmit} className="flex items-center gap-2">
           <input
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             placeholder="Tell me what to change..."
             disabled={isRefining}
-            className="flex-1 bg-card border border-border rounded-xl px-3 sm:px-4 py-3 min-h-[44px] pr-20 sm:pr-24 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
+            className="flex-1 min-w-0 bg-card border border-border rounded-xl px-3 sm:px-4 py-3 min-h-[44px] text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
           />
           <button
             type="submit"
             disabled={!inputValue.trim() || isRefining}
-            className={`absolute right-14 sm:right-[4.5rem] top-1/2 -translate-y-1/2 px-3 sm:px-4 py-1.5 min-h-[36px] bg-gradient-to-r from-primary to-accent rounded-lg text-xs sm:text-sm font-medium transition-opacity text-primary-foreground ${
+            className={`flex-shrink-0 px-3 sm:px-4 py-2.5 min-h-[44px] bg-gradient-to-r from-primary to-accent rounded-lg text-xs sm:text-sm font-medium transition-opacity text-primary-foreground ${
               isRefining ? 'opacity-40 pointer-events-none' : 'hover:opacity-90 disabled:opacity-50'
             }`}
           >
@@ -208,30 +208,22 @@ const RefinementBar = ({
 
           {/* Feedback thumbs */}
           {projectId && (
-            <div className="relative flex items-center gap-0.5 flex-shrink-0" ref={popoverRef}>
+            <div className="relative flex items-center gap-0 flex-shrink-0" ref={popoverRef}>
               <button
                 type="button"
                 onClick={handleThumbsUp}
                 disabled={feedbackSubmitted}
-                className="p-2 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                className="p-1.5 rounded-lg transition-colors"
                 title="Good output"
               >
                 <ThumbsUp
-                  className="transition-colors"
+                  className="w-[18px] h-[18px] transition-colors"
                   style={{
-                    width: 18,
-                    height: 18,
                     color: feedbackRating === 'up'
                       ? 'rgba(74,222,128,0.7)'
                       : feedbackSubmitted
                         ? 'rgba(240,237,246,0.12)'
                         : 'rgba(240,237,246,0.25)',
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!feedbackSubmitted && !feedbackRating) (e.currentTarget as SVGElement).style.color = 'rgba(240,237,246,0.5)';
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!feedbackSubmitted && !feedbackRating) (e.currentTarget as SVGElement).style.color = 'rgba(240,237,246,0.25)';
                   }}
                 />
               </button>
@@ -239,25 +231,17 @@ const RefinementBar = ({
                 type="button"
                 onClick={handleThumbsDown}
                 disabled={feedbackSubmitted}
-                className="p-2 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                className="p-1.5 rounded-lg transition-colors"
                 title="Needs improvement"
               >
                 <ThumbsDown
-                  className="transition-colors"
+                  className="w-[18px] h-[18px] transition-colors"
                   style={{
-                    width: 18,
-                    height: 18,
                     color: feedbackRating === 'down'
                       ? 'rgba(248,113,113,0.7)'
                       : feedbackSubmitted
                         ? 'rgba(240,237,246,0.12)'
                         : 'rgba(240,237,246,0.25)',
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!feedbackSubmitted && !feedbackRating) (e.currentTarget as SVGElement).style.color = 'rgba(240,237,246,0.5)';
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!feedbackSubmitted && !feedbackRating) (e.currentTarget as SVGElement).style.color = 'rgba(240,237,246,0.25)';
                   }}
                 />
               </button>
