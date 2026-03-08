@@ -109,10 +109,10 @@ const SwipeablePointCard = ({
         onTouchStart={onDelete ? handleTouchStart : undefined}
         onTouchMove={onDelete ? handleTouchMove : undefined}
         onTouchEnd={onDelete ? handleTouchEnd : undefined}
-        className="group w-full text-left relative rounded-xl border transition-all duration-200 min-h-[44px]"
+        className="group w-full text-left relative rounded-xl border transition-all duration-200 min-h-[44px] overflow-hidden"
         style={{
           borderColor: isCopied ? 'rgba(74,222,128,0.4)' : 'rgba(240,237,246,0.08)',
-          backgroundColor: 'rgba(240,237,246,0.05)',
+          background: 'linear-gradient(135deg, rgba(124,77,255,0.08) 0%, rgba(124,77,255,0.03) 100%)',
           padding: '20px 24px 20px 24px',
           transform: `translateX(${offsetX}px)`,
           transition: startXRef.current !== null ? 'none' : 'transform 0.2s ease-out',
