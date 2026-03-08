@@ -13,7 +13,7 @@ export default function Footer() {
           <Link to="/faq" className="hover:text-foreground/30 transition-colors">FAQ</Link> ·{' '}
           <Link to="/legal" className="hover:text-foreground/30 transition-colors">Legal</Link> ·{' '}
           <Link to="/legal" className="hover:text-foreground/30 transition-colors">Privacy</Link> ·{' '}
-          <a href="mailto:support@pitchvoid.com" className="hover:text-foreground/30 transition-colors">Contact</a>
+          <Link to="/feedback" className="hover:text-foreground/30 transition-colors">Feedback</Link>
         </p>
       </div>
     </footer>
