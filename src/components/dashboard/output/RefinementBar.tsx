@@ -1,16 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings, Undo2, ThumbsUp, ThumbsDown, Send } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
-
-const ISSUE_CHIPS: { label: string; value: string }[] = [
-  { label: 'Too formal', value: 'too_formal' },
-  { label: 'Too vague', value: 'too_vague' },
-  { label: 'Wrong tone', value: 'wrong_tone' },
-  { label: 'Missing detail', value: 'missing_detail' },
-  { label: 'Made something up', value: 'hallucinated' },
-];
+import { Settings, Undo2 } from 'lucide-react';
 
 interface RefinementBarProps {
   onRefine: (prompt: string) => void;
@@ -40,26 +30,8 @@ const RefinementBar = ({
   generatedOutput,
   generationKey = 0,
 }: RefinementBarProps) => {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const [inputValue, setInputValue] = useState('');
-
-  // Feedback state
-  const [feedbackRating, setFeedbackRating] = useState<'up' | 'down' | null>(null);
-  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
-  const [showPopover, setShowPopover] = useState(false);
-  const [selectedIssues, setSelectedIssues] = useState<string[]>([]);
-  const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
-  const popoverRef = useRef<HTMLDivElement>(null);
-
-  // Reset feedback on new generation
-  useEffect(() => {
-    setFeedbackRating(null);
-    setFeedbackSubmitted(false);
-    setShowPopover(false);
-    setSelectedIssues([]);
-    setIsSubmittingFeedback(false);
-  }, [generationKey]);
 
   // ⌘K shortcut to feedback page
   useEffect(() => {
@@ -72,63 +44,6 @@ const RefinementBar = ({
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
   }, [navigate]);
-
-  // Close popover on outside click
-  useEffect(() => {
-    if (!showPopover) return;
-    const handler = (e: MouseEvent) => {
-      if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
-        setShowPopover(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [showPopover]);
-
-  const submitFeedback = async (rating: string, issues: string[] = []) => {
-    if (!user || !projectId) return;
-    setIsSubmittingFeedback(true);
-    try {
-      await supabase.functions.invoke('submit-feedback', {
-        body: {
-          project_id: projectId,
-          rating: rating === 'up' ? 5 : 1,
-          issues,
-          format: format || 'one-pager',
-          output_json: generatedOutput || null,
-        },
-      });
-    } catch {
-      // Non-critical
-    } finally {
-      setIsSubmittingFeedback(false);
-      setFeedbackSubmitted(true);
-    }
-  };
-
-  const handleThumbsUp = () => {
-    if (feedbackSubmitted || isSubmittingFeedback) return;
-    setFeedbackRating('up');
-    setShowPopover(false);
-    submitFeedback('up');
-  };
-
-  const handleThumbsDown = () => {
-    if (feedbackSubmitted || isSubmittingFeedback) return;
-    setFeedbackRating('down');
-    setShowPopover(true);
-  };
-
-  const toggleIssue = (value: string) => {
-    setSelectedIssues(prev =>
-      prev.includes(value) ? prev.filter(i => i !== value) : [...prev, value]
-    );
-  };
-
-  const handleSubmitIssues = () => {
-    submitFeedback('down', selectedIssues);
-    setShowPopover(false);
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -144,80 +59,15 @@ const RefinementBar = ({
     }
   };
 
-  const thumbsMarkup = projectId ? (
-    <div className="relative flex items-center gap-0 flex-shrink-0" ref={popoverRef}>
-      <button
-        type="button"
-        onClick={handleThumbsUp}
-        disabled={feedbackSubmitted}
-        className="p-1 rounded transition-colors"
-        title="Good output"
-      >
-        <ThumbsUp
-          className="w-4 h-4 transition-colors"
-          style={{
-            color: feedbackRating === 'up'
-              ? 'rgba(74,222,128,0.7)'
-              : feedbackSubmitted
-                ? 'rgba(240,237,246,0.1)'
-                : 'rgba(240,237,246,0.2)',
-          }}
-        />
-      </button>
-      <button
-        type="button"
-        onClick={handleThumbsDown}
-        disabled={feedbackSubmitted}
-        className="p-1 rounded transition-colors"
-        title="Needs improvement"
-      >
-        <ThumbsDown
-          className="w-4 h-4 transition-colors"
-          style={{
-            color: feedbackRating === 'down'
-              ? 'rgba(248,113,113,0.7)'
-              : feedbackSubmitted
-                ? 'rgba(240,237,246,0.1)'
-                : 'rgba(240,237,246,0.2)',
-          }}
-        />
-      </button>
-
-      {/* Thumbs-down popover */}
-      {showPopover && (
-        <div className="absolute bottom-full right-0 mb-2 w-56 rounded-xl border border-border bg-card shadow-xl z-50 p-3 animate-in fade-in slide-in-from-bottom-2 duration-200">
-          <p className="text-xs text-muted-foreground mb-2 font-medium">What went wrong?</p>
-          <div className="flex flex-wrap gap-1.5 mb-2">
-            {ISSUE_CHIPS.map((chip) => (
-              <button
-                key={chip.value}
-                type="button"
-                onClick={() => toggleIssue(chip.value)}
-                className={`px-2.5 py-1.5 rounded-full text-[11px] border transition-all ${
-                  selectedIssues.includes(chip.value)
-                    ? 'border-primary/30 bg-primary/10 text-primary/80'
-                    : 'border-border text-muted-foreground hover:border-border/80 hover:text-foreground'
-                }`}
-              >
-                {chip.label}
-              </button>
-            ))}
-          </div>
-          {selectedIssues.length > 0 && (
-            <button
-              type="button"
-              onClick={handleSubmitIssues}
-              disabled={isSubmittingFeedback}
-              className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium bg-primary/10 text-primary hover:bg-primary/15 transition-all disabled:opacity-50"
-            >
-              <Send className="w-3 h-3" />
-              Send
-            </button>
-          )}
-        </div>
-      )}
-    </div>
-  ) : null;
+  const feedbackLink = (
+    <button
+      type="button"
+      onClick={() => navigate('/feedback')}
+      className="flex-shrink-0 px-3 py-2 rounded-full text-[11px] text-muted-foreground/40 hover:text-muted-foreground/60 transition-colors"
+    >
+      Feedback
+    </button>
+  );
 
   return (
     <div
@@ -298,8 +148,8 @@ const RefinementBar = ({
               {isRefining ? 'Refining...' : 'Refine'}
             </button>
 
-            {/* Thumbs */}
-            {thumbsMarkup}
+            {/* Feedback link */}
+            {feedbackLink}
           </form>
 
           {/* MOBILE: two rows */}
@@ -366,7 +216,7 @@ const RefinementBar = ({
               >
                 {isRefining ? '...' : 'Refine'}
               </button>
-              {thumbsMarkup}
+              {feedbackLink}
             </form>
           </div>
 
