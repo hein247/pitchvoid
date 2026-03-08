@@ -61,6 +61,18 @@ const RefinementBar = ({
     setIsSubmittingFeedback(false);
   }, [generationKey]);
 
+  // ⌘K shortcut to feedback page
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        navigate('/feedback');
+      }
+    };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [navigate]);
+
   // Close popover on outside click
   useEffect(() => {
     if (!showPopover) return;
