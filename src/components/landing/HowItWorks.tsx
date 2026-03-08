@@ -32,7 +32,7 @@ const CHAOS_POSITIONS = CHAOS_FRAGMENTS.map((_, i) => ({
 }));
 
 const TRUTH_LINES = [
-  { text: 'You don\'t need another AI tool.', bright: false },
+  { text: 'You already know what to say.', bright: false },
   { text: 'You need one clear minute', bright: false },
   { text: 'before you open your mouth.', bright: true },
 ];
