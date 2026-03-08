@@ -63,7 +63,7 @@ const RefinementBar = ({
     <button
       type="button"
       onClick={() => navigate('/feedback')}
-      className="flex-shrink-0 px-3 py-2 rounded-full text-[11px] text-muted-foreground/40 hover:text-muted-foreground/60 transition-colors"
+      className="flex-shrink-0 px-3 py-2 rounded-full text-[11px] text-foreground/40 hover:text-foreground/60 transition-colors"
     >
       Feedback
     </button>
