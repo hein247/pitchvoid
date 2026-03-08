@@ -158,10 +158,10 @@ const RefinementBar = ({
           <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">Refine your pitch</p>
           <button
             onClick={() => navigate('/feedback')}
-            className="hidden sm:flex items-center gap-1 text-[10px] text-muted-foreground/40 hover:text-primary/60 transition-colors"
+            className="hidden sm:flex items-center gap-1 text-[10px] text-foreground/60 hover:text-primary/60 transition-colors"
           >
             <span>Feedback</span>
-            <kbd className="px-1.5 py-0.5 rounded border border-border/50 bg-card/50 text-[9px] font-mono">⌘K</kbd>
+            <kbd className="px-1.5 py-0.5 rounded border border-foreground/20 bg-foreground/5 text-[9px] font-mono text-foreground/60">⌘K</kbd>
           </button>
         </div>
 
