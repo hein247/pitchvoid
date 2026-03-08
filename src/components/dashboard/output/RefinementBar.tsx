@@ -233,8 +233,8 @@ const RefinementBar = ({
               {isRefining ? 'Refining...' : 'Refine'}
             </button>
 
-            {/* Thumbs */}
-            {thumbsMarkup}
+            {/* Feedback link */}
+            {feedbackLink}
           </form>
 
           {/* MOBILE: two rows */}
@@ -301,7 +301,7 @@ const RefinementBar = ({
               >
                 {isRefining ? '...' : 'Refine'}
               </button>
-              {thumbsMarkup}
+              {feedbackLink}
             </form>
           </div>
 
