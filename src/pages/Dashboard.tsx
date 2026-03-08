@@ -24,6 +24,7 @@ import TypewriterText from '@/components/ui/TypewriterText';
 import { useIsMobile } from '@/hooks/use-mobile';
 import GenerationError from '@/components/dashboard/GenerationError';
 import GenerationSkeleton from '@/components/dashboard/GenerationSkeleton';
+import { OrbitalLoader } from '@/components/ui/orbital-loader';
 import PitchUsageBanner from '@/components/dashboard/PitchUsageBanner';
 import ProjectCard from '@/components/dashboard/ProjectCard';
 import OnboardingPrompt from '@/components/dashboard/OnboardingPrompt';
@@ -1337,9 +1338,14 @@ const Dashboard = () => {
             </header>
             
             <div className={`overflow-y-auto px-5 sm:p-6 lg:p-8 py-4 relative z-10 transition-opacity duration-500 ${isRefining ? 'opacity-50' : 'opacity-100'}`} style={{ paddingBottom: onePagerData || scriptData ? '260px' : undefined }}>
-              {/* Show skeleton during regeneration */}
+              {/* Show orbital loader during regeneration */}
               {isRegenerating ?
-            <GenerationSkeleton format={outputFormat} /> :
+            <div className="py-16 flex items-center justify-center">
+              <OrbitalLoader
+                messages={['Finding the structure...', 'Organizing your thoughts...', 'Almost there...']}
+                messageInterval={2000}
+              />
+            </div> :
             outputFormat === 'script' && scriptData ?
             <ScriptViewer
               data={scriptData}
@@ -1355,13 +1361,11 @@ const Dashboard = () => {
             (onePagerData || scriptData) && !isRegenerating ? (
             /* Format not yet generated — show loading, useEffect will trigger generation */
             <div className="py-16 flex items-center justify-center animate-fadeIn">
-                  <div className="text-center">
-                    <Loader2 className="w-8 h-8 mx-auto mb-4 text-primary/60 animate-spin" />
-                    <p className="text-muted-foreground text-sm animate-pulse">
-                      Generating your {outputFormat === 'script' ? 'script' : 'one-pager'}...
-                    </p>
-                  </div>
-                </div>) :
+              <OrbitalLoader
+                messages={['Finding the structure...', 'Organizing your thoughts...', 'Almost there...']}
+                messageInterval={2000}
+              />
+            </div>) :
 
             <div className="py-16 flex items-center justify-center">
                   <div className="text-center">
@@ -1840,23 +1844,12 @@ const Dashboard = () => {
               }} /> :
 
 
-            <div className="py-8 sm:py-12 text-center">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 sm:mb-6 relative flex items-center justify-center">
-                      <div
-                  className="absolute inset-0 rounded-full opacity-30 blur-xl"
-                  style={{ background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%)' }} />
-
-                      <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 text-primary relative z-10" />
-                    </div>
-                    <p className="text-foreground font-medium text-sm sm:text-base">
-                      <TypewriterText text={generationPhase} speed={40} />
-                    </p>
-                    <p className="text-muted-foreground text-xs mt-2">This usually takes 10-15 seconds</p>
-                    
-                    {/* Generation skeleton preview */}
-                    <div className="mt-8 max-w-lg mx-auto text-left">
-                      <GenerationSkeleton format={outputFormat} />
-                    </div>
+            <div className="py-8 sm:py-12 flex flex-col items-center justify-center">
+                    <OrbitalLoader
+                      messages={['Finding the structure...', 'Organizing your thoughts...', 'Almost there...']}
+                      messageInterval={2000}
+                    />
+                    <p className="text-muted-foreground text-xs mt-4">This usually takes 10-15 seconds</p>
                   </div>
             }
               </>
