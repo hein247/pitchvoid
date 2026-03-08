@@ -30,26 +30,8 @@ const RefinementBar = ({
   generatedOutput,
   generationKey = 0,
 }: RefinementBarProps) => {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const [inputValue, setInputValue] = useState('');
-
-  // Feedback state
-  const [feedbackRating, setFeedbackRating] = useState<'up' | 'down' | null>(null);
-  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
-  const [showPopover, setShowPopover] = useState(false);
-  const [selectedIssues, setSelectedIssues] = useState<string[]>([]);
-  const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
-  const popoverRef = useRef<HTMLDivElement>(null);
-
-  // Reset feedback on new generation
-  useEffect(() => {
-    setFeedbackRating(null);
-    setFeedbackSubmitted(false);
-    setShowPopover(false);
-    setSelectedIssues([]);
-    setIsSubmittingFeedback(false);
-  }, [generationKey]);
 
   // ⌘K shortcut to feedback page
   useEffect(() => {
@@ -62,18 +44,6 @@ const RefinementBar = ({
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
   }, [navigate]);
-
-  // Close popover on outside click
-  useEffect(() => {
-    if (!showPopover) return;
-    const handler = (e: MouseEvent) => {
-      if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
-        setShowPopover(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [showPopover]);
 
   const submitFeedback = async (rating: string, issues: string[] = []) => {
     if (!user || !projectId) return;
