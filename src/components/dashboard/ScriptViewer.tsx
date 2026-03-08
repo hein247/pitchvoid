@@ -209,7 +209,7 @@ const ScriptViewer = ({ data: rawData, refineAnimationKey, onDeleteLine }: Scrip
 
       {/* Context line — Level 3 */}
       {data.context_line && (
-        <p className="text-xs mb-4 relative z-10" style={{ color: 'rgba(124,77,255,0.55)' }}>
+        <p className="text-sm mb-4 relative z-10 text-primary/90 font-medium">
           {data.context_line}
         </p>
       )}
