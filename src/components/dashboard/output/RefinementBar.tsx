@@ -1,16 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings, Undo2, ThumbsUp, ThumbsDown, Send } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
-
-const ISSUE_CHIPS: { label: string; value: string }[] = [
-  { label: 'Too formal', value: 'too_formal' },
-  { label: 'Too vague', value: 'too_vague' },
-  { label: 'Wrong tone', value: 'wrong_tone' },
-  { label: 'Missing detail', value: 'missing_detail' },
-  { label: 'Made something up', value: 'hallucinated' },
-];
+import { Settings, Undo2 } from 'lucide-react';
 
 interface RefinementBarProps {
   onRefine: (prompt: string) => void;
