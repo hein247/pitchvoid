@@ -144,80 +144,15 @@ const RefinementBar = ({
     }
   };
 
-  const thumbsMarkup = projectId ? (
-    <div className="relative flex items-center gap-0 flex-shrink-0" ref={popoverRef}>
-      <button
-        type="button"
-        onClick={handleThumbsUp}
-        disabled={feedbackSubmitted}
-        className="p-1 rounded transition-colors"
-        title="Good output"
-      >
-        <ThumbsUp
-          className="w-4 h-4 transition-colors"
-          style={{
-            color: feedbackRating === 'up'
-              ? 'rgba(74,222,128,0.7)'
-              : feedbackSubmitted
-                ? 'rgba(240,237,246,0.1)'
-                : 'rgba(240,237,246,0.2)',
-          }}
-        />
-      </button>
-      <button
-        type="button"
-        onClick={handleThumbsDown}
-        disabled={feedbackSubmitted}
-        className="p-1 rounded transition-colors"
-        title="Needs improvement"
-      >
-        <ThumbsDown
-          className="w-4 h-4 transition-colors"
-          style={{
-            color: feedbackRating === 'down'
-              ? 'rgba(248,113,113,0.7)'
-              : feedbackSubmitted
-                ? 'rgba(240,237,246,0.1)'
-                : 'rgba(240,237,246,0.2)',
-          }}
-        />
-      </button>
-
-      {/* Thumbs-down popover */}
-      {showPopover && (
-        <div className="absolute bottom-full right-0 mb-2 w-56 rounded-xl border border-border bg-card shadow-xl z-50 p-3 animate-in fade-in slide-in-from-bottom-2 duration-200">
-          <p className="text-xs text-muted-foreground mb-2 font-medium">What went wrong?</p>
-          <div className="flex flex-wrap gap-1.5 mb-2">
-            {ISSUE_CHIPS.map((chip) => (
-              <button
-                key={chip.value}
-                type="button"
-                onClick={() => toggleIssue(chip.value)}
-                className={`px-2.5 py-1.5 rounded-full text-[11px] border transition-all ${
-                  selectedIssues.includes(chip.value)
-                    ? 'border-primary/30 bg-primary/10 text-primary/80'
-                    : 'border-border text-muted-foreground hover:border-border/80 hover:text-foreground'
-                }`}
-              >
-                {chip.label}
-              </button>
-            ))}
-          </div>
-          {selectedIssues.length > 0 && (
-            <button
-              type="button"
-              onClick={handleSubmitIssues}
-              disabled={isSubmittingFeedback}
-              className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium bg-primary/10 text-primary hover:bg-primary/15 transition-all disabled:opacity-50"
-            >
-              <Send className="w-3 h-3" />
-              Send
-            </button>
-          )}
-        </div>
-      )}
-    </div>
-  ) : null;
+  const feedbackLink = (
+    <button
+      type="button"
+      onClick={() => navigate('/feedback')}
+      className="flex-shrink-0 px-3 py-2 rounded-full text-[11px] text-muted-foreground/40 hover:text-muted-foreground/60 transition-colors"
+    >
+      Feedback
+    </button>
+  );
 
   return (
     <div
