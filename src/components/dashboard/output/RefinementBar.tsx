@@ -140,7 +140,7 @@ const RefinementBar = ({
             <button
               type="submit"
               disabled={!inputValue.trim() || isRefining}
-              className={`flex-shrink-0 px-4 py-2.5 rounded-lg text-xs font-medium transition-opacity text-background ${
+              className={`flex-shrink-0 px-4 py-2.5 rounded-full text-xs font-medium transition-opacity text-background ${
                 isRefining ? 'opacity-40 pointer-events-none' : 'hover:opacity-90 disabled:opacity-50'
               }`}
               style={{ background: 'linear-gradient(135deg, #ffb380, #ff8f5a)' }}
