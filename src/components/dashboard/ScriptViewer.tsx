@@ -203,7 +203,7 @@ const ScriptViewer = ({ data: rawData, refineAnimationKey, onDeleteLine }: Scrip
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse at center, rgba(124,77,255,0.04) 0%, transparent 70%)',
+          background: 'radial-gradient(ellipse at center, rgba(200,150,100,0.04) 0%, transparent 70%)',
         }}
       />
 
@@ -218,8 +218,8 @@ const ScriptViewer = ({ data: rawData, refineAnimationKey, onDeleteLine }: Scrip
       <div className="flex items-center justify-between mb-6 sm:mb-8 relative z-10">
         {data.total_duration && (
           <div className="flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5" style={{ color: 'rgba(124,77,255,0.85)' }} />
-            <span className="text-xs" style={{ color: 'rgba(124,77,255,0.75)' }}>~{data.total_duration}</span>
+            <Clock className="w-3.5 h-3.5" style={{ color: 'hsl(25 75% 65% / 0.85)' }} />
+            <span className="text-xs" style={{ color: 'hsl(25 75% 65% / 0.75)' }}>~{data.total_duration}</span>
           </div>
         )}
         <button
@@ -262,14 +262,14 @@ const ScriptViewer = ({ data: rawData, refineAnimationKey, onDeleteLine }: Scrip
                   {/* Label — Level 2 */}
                   <p
                     className="text-[13px] uppercase tracking-[0.15em] font-medium mb-3 sm:mb-4"
-                    style={{ color: 'rgba(124,77,255,0.9)' }}
+                    style={{ color: 'hsl(25 75% 65% / 0.9)' }}
                   >
                     Open with
                   </p>
                   <button
                     onClick={() => copyLine(line.text || '', key)}
                     className="w-full text-left relative min-h-[44px]"
-                    style={{ borderLeft: '2px solid rgba(124,77,255,0.3)', paddingLeft: 16 }}
+                    style={{ borderLeft: '2px solid hsl(25 75% 65% / 0.3)', paddingLeft: 16 }}
                   >
                     {/* Main line — Level 1 */}
                     <p
@@ -280,8 +280,8 @@ const ScriptViewer = ({ data: rawData, refineAnimationKey, onDeleteLine }: Scrip
                     </p>
                     {/* Stage direction — Level 3 */}
                     {line.note && (
-                      <p className="mt-2 text-[11px] italic" style={{ color: 'rgba(124,77,255,0.55)' }}>
-                        <span style={{ color: 'rgba(124,77,255,0.45)', marginRight: 6 }}>◆</span>
+                      <p className="mt-2 text-[11px] italic" style={{ color: 'hsl(25 75% 65% / 0.55)' }}>
+                        <span style={{ color: 'hsl(25 75% 65% / 0.45)', marginRight: 6 }}>◆</span>
                         {line.note}
                       </p>
                     )}
@@ -291,7 +291,7 @@ const ScriptViewer = ({ data: rawData, refineAnimationKey, onDeleteLine }: Scrip
                       </span>
                     )}
                   </button>
-                  <div className="mt-4 sm:mt-5 border-b" style={{ borderColor: 'rgba(124,77,255,0.15)' }} />
+                  <div className="mt-4 sm:mt-5 border-b" style={{ borderColor: 'hsl(25 75% 65% / 0.15)' }} />
                 </motion.div>
               </SwipeableLineWrapper>
             );
@@ -308,12 +308,12 @@ const ScriptViewer = ({ data: rawData, refineAnimationKey, onDeleteLine }: Scrip
                 className="text-center"
                 style={{ paddingTop: 32, paddingBottom: 32 }}
               >
-                <p className="text-sm tracking-[0.3em] mb-1" style={{ color: 'rgba(124,77,255,0.4)' }}>
+                <p className="text-sm tracking-[0.3em] mb-1" style={{ color: 'hsl(25 75% 65% / 0.4)' }}>
                   · · ·
                 </p>
                 {line.note && (
-                  <p className="text-[11px] italic" style={{ color: 'rgba(124,77,255,0.55)' }}>
-                    <span style={{ color: 'rgba(124,77,255,0.45)', marginRight: 6 }}>◆</span>
+                  <p className="text-[11px] italic" style={{ color: 'hsl(25 75% 65% / 0.55)' }}>
+                    <span style={{ color: 'hsl(25 75% 65% / 0.45)', marginRight: 6 }}>◆</span>
                     {line.note}
                   </p>
                 )}
@@ -332,8 +332,8 @@ const ScriptViewer = ({ data: rawData, refineAnimationKey, onDeleteLine }: Scrip
                 className="py-3"
                 style={{ paddingLeft: 42 }}
               >
-                <p className="text-[13px] italic" style={{ color: 'rgba(124,77,255,0.55)' }}>
-                  <span style={{ color: 'rgba(124,77,255,0.45)', marginRight: 6 }}>◆</span>
+                <p className="text-[13px] italic" style={{ color: 'hsl(25 75% 65% / 0.55)' }}>
+                  <span style={{ color: 'hsl(25 75% 65% / 0.45)', marginRight: 6 }}>◆</span>
                   {renderLineText(line.text || '')}
                 </p>
               </motion.div>
@@ -350,18 +350,18 @@ const ScriptViewer = ({ data: rawData, refineAnimationKey, onDeleteLine }: Scrip
                   transition={{ delay: idx * 0.04 }}
                   className="mt-6 sm:mt-8"
                 >
-                  <div className="mb-4 sm:mb-5 border-b" style={{ borderColor: 'rgba(124,77,255,0.15)' }} />
+                  <div className="mb-4 sm:mb-5 border-b" style={{ borderColor: 'hsl(25 75% 65% / 0.15)' }} />
                   {/* Label — Level 2 */}
                   <p
                     className="text-[13px] uppercase tracking-[0.15em] font-medium mb-3 sm:mb-4"
-                    style={{ color: 'rgba(124,77,255,0.9)' }}
+                    style={{ color: 'hsl(25 75% 65% / 0.9)' }}
                   >
                     Close with
                   </p>
                   <button
                     onClick={() => copyLine(line.text || '', key)}
                     className="w-full text-left relative min-h-[44px]"
-                    style={{ borderLeft: '2px solid rgba(124,77,255,0.3)', paddingLeft: 16 }}
+                    style={{ borderLeft: '2px solid hsl(25 75% 65% / 0.3)', paddingLeft: 16 }}
                   >
                     {/* Main line — Level 1 */}
                     <p
@@ -372,8 +372,8 @@ const ScriptViewer = ({ data: rawData, refineAnimationKey, onDeleteLine }: Scrip
                     </p>
                     {/* Stage direction — Level 3 */}
                     {line.note && (
-                      <p className="mt-2 text-[11px] italic" style={{ color: 'rgba(124,77,255,0.55)' }}>
-                        <span style={{ color: 'rgba(124,77,255,0.45)', marginRight: 6 }}>◆</span>
+                      <p className="mt-2 text-[11px] italic" style={{ color: 'hsl(25 75% 65% / 0.55)' }}>
+                        <span style={{ color: 'hsl(25 75% 65% / 0.45)', marginRight: 6 }}>◆</span>
                         {line.note}
                       </p>
                     )}
@@ -407,7 +407,7 @@ const ScriptViewer = ({ data: rawData, refineAnimationKey, onDeleteLine }: Scrip
                   {/* Line number — Level 4 */}
                   <span
                     className="text-[11px] font-mono pt-0.5 shrink-0 select-none"
-                    style={{ color: 'rgba(124,77,255,0.65)', width: 24 }}
+                    style={{ color: 'hsl(25 75% 65% / 0.65)', width: 24 }}
                   >
                     {num}
                   </span>
@@ -417,7 +417,7 @@ const ScriptViewer = ({ data: rawData, refineAnimationKey, onDeleteLine }: Scrip
                     className="text-[14px] sm:text-[15px] leading-[1.7] flex-1"
                     style={{
                       color: 'rgba(240,237,246,0.92)',
-                      borderLeft: '2px solid rgba(124,77,255,0.3)',
+                      borderLeft: '2px solid hsl(25 75% 65% / 0.3)',
                       paddingLeft: 16,
                     }}
                   >
