@@ -1337,7 +1337,13 @@ const Dashboard = () => {
             }
             </header>
             
-            <div className={`overflow-y-auto px-5 sm:p-6 lg:p-8 py-4 relative z-10 transition-opacity duration-500 ${isRefining ? 'opacity-50' : 'opacity-100'}`} style={{ paddingBottom: onePagerData || scriptData ? '260px' : undefined }}>
+            <div className={`overflow-y-auto px-5 sm:p-6 lg:p-8 py-4 relative z-10 transition-opacity duration-300 ${isRefining ? 'opacity-30' : 'opacity-100'}`} style={{ paddingBottom: onePagerData || scriptData ? '260px' : undefined }}>
+              {/* Inline refining overlay */}
+              {isRefining && (
+                <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+                  <OrbitalLoader size="sm" message="Refining..." />
+                </div>
+              )}
               {/* Show orbital loader during regeneration */}
               {isRegenerating ?
             <div className="py-16 flex items-center justify-center">
