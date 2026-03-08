@@ -53,7 +53,7 @@ const ProjectCard = ({
   const hasScript = !!(outputData?.script);
 
   return (
-    <div className="group/glow relative">
+    <div className="group/glow relative rounded-[10px]">
       <GlowingEffect
         spread={40}
         glow
