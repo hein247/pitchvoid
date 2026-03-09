@@ -27,7 +27,7 @@ export function UpgradeNudge({ message, show, onDismiss }: UpgradeNudgeProps) {
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium text-foreground leading-tight">{message}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Get unlimited for $9/mo
+                  Get more credits to keep generating
                 </p>
               </div>
               <div className="flex items-center gap-1.5 flex-shrink-0 ml-2">
