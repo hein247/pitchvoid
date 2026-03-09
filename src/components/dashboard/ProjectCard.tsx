@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { useMemo, useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Download, Trash2, MoreVertical, FileText, ScrollText } from 'lucide-react';
 import { GlowingEffect } from '@/components/ui/glowing-effect';
 import {
@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import type { ProjectStatus } from '@/hooks/useProjects';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProjectCardProps {
   id: string;
