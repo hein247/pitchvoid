@@ -128,7 +128,7 @@ export function usePricing(): UsePricingReturn {
   useEffect(() => {
     if (nudgeDismissed) return;
     
-    if (pricingData.credits <= 1 && pricingData.credits >= 0) {
+    if (pricingData.credits <= 3 && pricingData.credits >= 0) {
       setShowNudge(true);
     }
   }, [pricingData.credits, nudgeDismissed]);
