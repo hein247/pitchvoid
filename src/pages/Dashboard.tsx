@@ -1133,6 +1133,9 @@ const Dashboard = () => {
           }
 
 
+            {/* Separator */}
+            <div className="h-px w-full bg-border/40 mb-6" />
+
             {/* Projects Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {projectsLoading ?
