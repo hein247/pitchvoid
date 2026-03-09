@@ -201,7 +201,7 @@ export function usePricing(): UsePricingReturn {
   }, []);
 
   const nudgeMessage = pricingData.credits === 0
-    ? 'You're out of credits'
+    ? 'You\'re out of credits'
     : pricingData.credits === 1
       ? '1 credit remaining'
       : pricingData.credits <= 3 && pricingData.credits > 0
