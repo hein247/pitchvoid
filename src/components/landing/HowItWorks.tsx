@@ -441,7 +441,7 @@ export default function HowItWorks() {
                   <p className="output-label text-[8px] sm:text-[9px] font-medium uppercase tracking-[0.15em] mb-1 font-sans m-0" style={{ color: 'rgba(168,85,247,0.7)' }}>
                     {section.label}
                   </p>
-                  <p className="text-[10px] sm:text-[11px] m-0 leading-relaxed font-sans" style={{ color: 'rgba(240,237,246,0.7)' }}>
+                  <p className="text-[10px] sm:text-[11px] m-0 leading-relaxed font-sans" style={{ color: '#ffffff' }}>
                     {section.text}
                   </p>
                 </div>
