@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { useMemo, useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Download, Trash2, MoreVertical, FileText, ScrollText } from 'lucide-react';
 import { GlowingEffect } from '@/components/ui/glowing-effect';
 import {
@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import type { ProjectStatus } from '@/hooks/useProjects';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProjectCardProps {
   id: string;
@@ -39,6 +40,10 @@ const ProjectCard = ({
   onDelete,
 }: ProjectCardProps) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const isMobile = useIsMobile();
+  const reduceMotion = useReducedMotion();
+  const enableMotion = useMemo(() => !isMobile && !reduceMotion, [isMobile, reduceMotion]);
+
   const timeAgo = getTimeAgo(createdAt);
 
   // Pull AI-generated title from output data
@@ -56,19 +61,19 @@ const ProjectCard = ({
     <div className="group/glow relative rounded-[10px]">
       <GlowingEffect
         spread={40}
-        glow
-        disabled={false}
+        glow={!isMobile}
+        disabled={isMobile}
         proximity={64}
         inactiveZone={0.01}
         borderWidth={2}
       />
       <motion.button
         onClick={status === 'draft' && onContinue ? onContinue : onOpen}
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        whileHover={{ y: -2 }}
-        transition={{ duration: 0.25 }}
-        className="relative w-full text-left rounded-[10px] border border-border/50 bg-card/60 backdrop-blur-sm hover:border-[hsl(270_60%_60%/0.2)] hover:bg-card/80 transition-all duration-200 p-4 sm:p-5 cursor-pointer"
+        initial={enableMotion ? { opacity: 0, y: 8 } : false}
+        animate={enableMotion ? { opacity: 1, y: 0 } : undefined}
+        whileHover={enableMotion ? { y: -2 } : undefined}
+        transition={enableMotion ? { duration: 0.25 } : undefined}
+        className={`relative w-full text-left rounded-[10px] border border-border/50 bg-card/60 backdrop-blur-sm hover:border-[hsl(270_60%_60%/0.2)] hover:bg-card/80 transition-all ${enableMotion ? 'duration-200 hover:transform-gpu hover:will-change-transform' : 'duration-150'} p-4 sm:p-5 cursor-pointer`}
       >
       {/* Title */}
       <h3 className="text-[15px] font-semibold text-foreground group-hover/glow:text-primary transition-colors truncate font-display leading-snug">

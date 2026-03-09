@@ -4,6 +4,58 @@ import { memo, useCallback, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { animate } from "motion/react";
 
+type PointerPosition = { x: number; y: number };
+
+// ---- Global event + rAF fanout (prevents N instances attaching N global listeners) ----
+const subscribers = new Set<(pos?: PointerPosition) => void>();
+let globalListenersAttached = false;
+let lastPointer: PointerPosition | undefined;
+let rafId = 0;
+
+let onGlobalScroll: (() => void) | null = null;
+let onGlobalPointerMove: ((e: PointerEvent) => void) | null = null;
+
+function scheduleGlobalTick() {
+  if (rafId) return;
+  rafId = requestAnimationFrame(() => {
+    rafId = 0;
+    subscribers.forEach((fn) => fn(lastPointer));
+  });
+}
+
+function attachGlobalListeners() {
+  if (globalListenersAttached) return;
+  globalListenersAttached = true;
+
+  onGlobalScroll = () => scheduleGlobalTick();
+  onGlobalPointerMove = (e: PointerEvent) => {
+    lastPointer = { x: e.x, y: e.y };
+    scheduleGlobalTick();
+  };
+
+  window.addEventListener("scroll", onGlobalScroll, { passive: true });
+  document.body.addEventListener("pointermove", onGlobalPointerMove, {
+    passive: true,
+  });
+}
+
+function detachGlobalListeners() {
+  if (!globalListenersAttached) return;
+  globalListenersAttached = false;
+
+  if (onGlobalScroll) window.removeEventListener("scroll", onGlobalScroll);
+  if (onGlobalPointerMove)
+    document.body.removeEventListener("pointermove", onGlobalPointerMove);
+
+  onGlobalScroll = null;
+  onGlobalPointerMove = null;
+
+  if (rafId) {
+    cancelAnimationFrame(rafId);
+    rafId = 0;
+  }
+}
+
 interface GlowingEffectProps {
   blur?: number;
   inactiveZone?: number;
@@ -31,68 +83,62 @@ const GlowingEffect = memo(
     disabled = true,
   }: GlowingEffectProps) => {
     const containerRef = useRef<HTMLDivElement>(null);
-    const lastPosition = useRef({ x: 0, y: 0 });
-    const animationFrameRef = useRef<number>(0);
+    const lastPosition = useRef<PointerPosition | null>(null);
+    const angleAnimationRef = useRef<{ stop?: () => void } | null>(null);
 
     const handleMove = useCallback(
-      (e?: MouseEvent | { x: number; y: number }) => {
-        if (!containerRef.current) return;
+      (pos?: PointerPosition) => {
+        const element = containerRef.current;
+        if (!element) return;
 
-        if (animationFrameRef.current) {
-          cancelAnimationFrame(animationFrameRef.current);
+        const { left, top, width, height } = element.getBoundingClientRect();
+
+        const mouseX = pos?.x ?? lastPosition.current?.x;
+        const mouseY = pos?.y ?? lastPosition.current?.y;
+
+        // No pointer yet (common on touch-only devices) => keep inactive.
+        if (mouseX == null || mouseY == null) {
+          element.style.setProperty("--active", "0");
+          return;
         }
 
-        animationFrameRef.current = requestAnimationFrame(() => {
-          const element = containerRef.current;
-          if (!element) return;
+        if (pos) lastPosition.current = { x: mouseX, y: mouseY };
 
-          const { left, top, width, height } = element.getBoundingClientRect();
-          const mouseX = e?.x ?? lastPosition.current.x;
-          const mouseY = e?.y ?? lastPosition.current.y;
+        const center = [left + width * 0.5, top + height * 0.5];
+        const distanceFromCenter = Math.hypot(mouseX - center[0], mouseY - center[1]);
+        const inactiveRadius = 0.5 * Math.min(width, height) * inactiveZone;
 
-          if (e) {
-            lastPosition.current = { x: mouseX, y: mouseY };
-          }
+        if (distanceFromCenter < inactiveRadius) {
+          element.style.setProperty("--active", "0");
+          return;
+        }
 
-          const center = [left + width * 0.5, top + height * 0.5];
-          const distanceFromCenter = Math.hypot(
-            mouseX - center[0],
-            mouseY - center[1]
-          );
-          const inactiveRadius = 0.5 * Math.min(width, height) * inactiveZone;
+        const isActive =
+          mouseX > left - proximity &&
+          mouseX < left + width + proximity &&
+          mouseY > top - proximity &&
+          mouseY < top + height + proximity;
 
-          if (distanceFromCenter < inactiveRadius) {
-            element.style.setProperty("--active", "0");
-            return;
-          }
+        element.style.setProperty("--active", isActive ? "1" : "0");
+        if (!isActive) return;
 
-          const isActive =
-            mouseX > left - proximity &&
-            mouseX < left + width + proximity &&
-            mouseY > top - proximity &&
-            mouseY < top + height + proximity;
+        const currentAngle = parseFloat(element.style.getPropertyValue("--start")) || 0;
 
-          element.style.setProperty("--active", isActive ? "1" : "0");
+        const targetAngle =
+          (180 * Math.atan2(mouseY - center[1], mouseX - center[0])) / Math.PI + 90;
 
-          if (!isActive) return;
+        const angleDiff = ((targetAngle - currentAngle + 180) % 360) - 180;
+        if (Math.abs(angleDiff) < 0.1) return;
 
-          const currentAngle =
-            parseFloat(element.style.getPropertyValue("--start")) || 0;
-          let targetAngle =
-            (180 * Math.atan2(mouseY - center[1], mouseX - center[0])) /
-              Math.PI +
-            90;
+        const newAngle = currentAngle + angleDiff;
 
-          const angleDiff = ((targetAngle - currentAngle + 180) % 360) - 180;
-          const newAngle = currentAngle + angleDiff;
-
-          animate(currentAngle, newAngle, {
-            duration: movementDuration,
-            ease: [0.16, 1, 0.3, 1],
-            onUpdate: (value) => {
-              element.style.setProperty("--start", String(value));
-            },
-          });
+        angleAnimationRef.current?.stop?.();
+        angleAnimationRef.current = animate(currentAngle, newAngle, {
+          duration: movementDuration,
+          ease: [0.16, 1, 0.3, 1],
+          onUpdate: (value) => {
+            element.style.setProperty("--start", String(value));
+          },
         });
       },
       [inactiveZone, proximity, movementDuration]
@@ -101,20 +147,14 @@ const GlowingEffect = memo(
     useEffect(() => {
       if (disabled) return;
 
-      const handleScroll = () => handleMove();
-      const handlePointerMove = (e: PointerEvent) => handleMove(e);
-
-      window.addEventListener("scroll", handleScroll, { passive: true });
-      document.body.addEventListener("pointermove", handlePointerMove, {
-        passive: true,
-      });
+      subscribers.add(handleMove);
+      attachGlobalListeners();
+      scheduleGlobalTick();
 
       return () => {
-        if (animationFrameRef.current) {
-          cancelAnimationFrame(animationFrameRef.current);
-        }
-        window.removeEventListener("scroll", handleScroll);
-        document.body.removeEventListener("pointermove", handlePointerMove);
+        subscribers.delete(handleMove);
+        angleAnimationRef.current?.stop?.();
+        if (subscribers.size === 0) detachGlobalListeners();
       };
     }, [handleMove, disabled]);
 
@@ -124,9 +164,7 @@ const GlowingEffect = memo(
           className={cn(
             "pointer-events-none absolute -inset-px rounded-[inherit] border opacity-0 transition-opacity",
             glow ? "duration-300" : "duration-500",
-            variant === "white"
-              ? "border-white"
-              : "border-[hsl(var(--primary))]",
+            variant === "white" ? "border-white" : "border-[hsl(var(--primary))]",
             disabled ? "!hidden" : "group-hover/glow:opacity-100"
           )}
           style={
@@ -181,8 +219,10 @@ const GlowingEffect = memo(
               maskComposite: "exclude",
               WebkitMaskComposite: "xor",
               backgroundAttachment: "fixed",
-              backgroundSize: "calc(100% + 2 * var(--spread) * 1px) calc(100% + 2 * var(--spread) * 1px)",
-              backgroundPosition: "calc(-1 * var(--spread) * 1px) calc(-1 * var(--spread) * 1px)",
+              backgroundSize:
+                "calc(100% + 2 * var(--spread) * 1px) calc(100% + 2 * var(--spread) * 1px)",
+              backgroundPosition:
+                "calc(-1 * var(--spread) * 1px) calc(-1 * var(--spread) * 1px)",
               backgroundImage: "var(--gradient)",
               opacity: "var(--active)",
               transition: "opacity 0.25s ease",
