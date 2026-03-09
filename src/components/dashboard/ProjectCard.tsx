@@ -40,6 +40,10 @@ const ProjectCard = ({
   onDelete,
 }: ProjectCardProps) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const isMobile = useIsMobile();
+  const reduceMotion = useReducedMotion();
+  const enableMotion = useMemo(() => !isMobile && !reduceMotion, [isMobile, reduceMotion]);
+
   const timeAgo = getTimeAgo(createdAt);
 
   // Pull AI-generated title from output data
