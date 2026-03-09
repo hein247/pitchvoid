@@ -406,7 +406,7 @@ export default function HowItWorks() {
               <div className="overflow-hidden">
                 <p
                   className="typewriter-text font-mono overflow-hidden"
-                  style={{ fontSize: 'clamp(10px, 1.5vw, 12px)', color: 'rgba(240,237,246,0.45)', width: 0, whiteSpace: 'normal', wordBreak: 'break-word' }}
+                  style={{ fontSize: 'clamp(10px, 1.5vw, 12px)', color: '#ffffff', width: 0, whiteSpace: 'normal', wordBreak: 'break-word' }}
                 >
                   {DEMO_INPUT}
                 </p>
