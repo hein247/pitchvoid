@@ -452,7 +452,7 @@ export default function HowItWorks() {
           {/* Demo tagline */}
           <p
             className="demo-tagline absolute bottom-6 left-0 right-0 text-center font-sans"
-            style={{ fontSize: 'clamp(11px, 1.8vw, 13px)', color: 'rgba(240,237,246,0.4)', opacity: 0 }}
+            style={{ fontSize: 'clamp(11px, 1.8vw, 13px)', color: '#ffffff', opacity: 0 }}
           >
             Overstimulated → Articulate. In seconds.
           </p>
