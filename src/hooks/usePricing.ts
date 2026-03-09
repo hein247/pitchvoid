@@ -128,7 +128,7 @@ export function usePricing(): UsePricingReturn {
   useEffect(() => {
     if (nudgeDismissed) return;
     
-    if (pricingData.credits <= 1 && pricingData.credits >= 0) {
+    if (pricingData.credits <= 3 && pricingData.credits >= 0) {
       setShowNudge(true);
     }
   }, [pricingData.credits, nudgeDismissed]);
@@ -200,7 +200,13 @@ export function usePricing(): UsePricingReturn {
     setNudgeDismissed(true);
   }, []);
 
-  const nudgeMessage = !isOwner && pricingData.credits === 1 ? '1 credit left' : null;
+  const nudgeMessage = pricingData.credits === 0
+    ? 'You\'re out of credits'
+    : pricingData.credits === 1
+      ? '1 credit remaining'
+      : pricingData.credits <= 3 && pricingData.credits > 0
+        ? `${pricingData.credits} credits remaining`
+        : null;
 
   return {
     // Data
