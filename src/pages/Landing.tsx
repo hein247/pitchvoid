@@ -101,7 +101,7 @@ const Landing = () => {
               </div>
 
               <p className="text-sm text-muted-foreground">
-                No signup required · works for pitches, interviews, tough conversations, and more
+                3 free credits · works for pitches, interviews, tough conversations, and more
               </p>
             </div>
           </div>
