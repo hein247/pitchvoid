@@ -9,7 +9,7 @@ export default function Footer() {
           <img src={pitchvoidLogo} alt="PitchVoid" className="h-6" />
         </Link>
         <p className="text-[11px] text-foreground/60 text-center">
-          © 2026 PitchVoid ·{' '}
+          © 2026 PitchVoid® ·{' '}
           <Link to="/faq" className="hover:text-foreground/30 transition-colors">FAQ</Link> ·{' '}
           <Link to="/legal" className="hover:text-foreground/30 transition-colors">Legal</Link> ·{' '}
           <Link to="/legal" className="hover:text-foreground/30 transition-colors">Privacy</Link> ·{' '}

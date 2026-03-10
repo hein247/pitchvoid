@@ -13,7 +13,7 @@ const CaseStudyFooter = () => (
     >
       View the live product <ExternalLink className="w-3.5 h-3.5" />
     </a>
-    <p className="text-xs mt-6 text-muted-foreground/40">© 2025</p>
+    <p className="text-xs mt-6 text-muted-foreground/40">© 2026 PitchVoid®</p>
   </footer>
 );
 
