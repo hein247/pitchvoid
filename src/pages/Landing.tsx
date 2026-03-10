@@ -13,11 +13,11 @@ const ROTATING_WORDS = ['process', 'analyze', 'prepare', 'articulate', 'connect'
 const containerVariants = {
   hidden: {},
   visible: {
-    transition: { staggerChildren: 0.045, delayChildren: 0.02 },
+    transition: { staggerChildren: 0.045, delayChildren: 0.02 }
   },
   exit: {
-    transition: { duration: 0.18 },
-  },
+    transition: { duration: 0.18 }
+  }
 };
 
 const letterVariants = {
@@ -28,14 +28,14 @@ const letterVariants = {
     transition: {
       type: 'spring' as const,
       damping: 20,
-      stiffness: 300,
-    },
+      stiffness: 300
+    }
   },
   exit: {
     opacity: 0,
     y: -8,
-    transition: { duration: 0.12, ease: 'easeIn' as const },
-  },
+    transition: { duration: 0.12, ease: 'easeIn' as const }
+  }
 };
 
 const Landing = () => {
@@ -76,13 +76,13 @@ const Landing = () => {
                       initial="hidden"
                       animate="visible"
                       exit="exit"
-                      className="inline-flex brand-gradient-text"
-                    >
-                      {ROTATING_WORDS[wordIndex].split('').map((char, i) => (
-                        <motion.span key={i} variants={letterVariants}>
+                      className="inline-flex brand-gradient-text">
+                      
+                      {ROTATING_WORDS[wordIndex].split('').map((char, i) =>
+                      <motion.span key={i} variants={letterVariants}>
                           {char}
                         </motion.span>
-                      ))}
+                      )}
                       <motion.span variants={letterVariants}>.</motion.span>
                       <span className="animate-blink text-primary">|</span>
                     </motion.span>
@@ -101,7 +101,7 @@ const Landing = () => {
               </div>
 
               <p className="text-sm text-muted-foreground">
-                3 free credits · works for pitches, interviews, tough conversations, and more
+                3 free credits · works for meetings, ideas, conversations, and everything in between
               </p>
             </div>
           </div>
