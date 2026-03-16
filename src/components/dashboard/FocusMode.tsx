@@ -514,7 +514,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
                 background: 'rgba(168,85,247,0.06)',
                 border: '1px solid rgba(168,85,247,0.2)',
                 borderRadius: '28px',
-                color: 'rgba(240,237,246,0.55)',
+                color: '#ffffff',
                 fontSize: '13px',
                 fontWeight: 300,
                 letterSpacing: '0.06em',
