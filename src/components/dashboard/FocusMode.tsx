@@ -652,8 +652,8 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
           <p
             className="text-center font-sans z-10"
             style={{
-              fontSize: '14px',
-              color: 'rgba(240,237,246,0.8)',
+              fontSize: '15px',
+              color: '#ffffff',
               animation: `focusFadeInOut 2s ${APPLE_EASE} forwards`,
             }}
           >
