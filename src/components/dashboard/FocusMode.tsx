@@ -458,7 +458,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
             style={{ animation: `focusFadeInOut 2s ${APPLE_EASE} forwards` }}
           >
             <p style={{ fontSize: '22px', marginBottom: '6px' }}>🎧</p>
-            <p style={{ fontSize: '11px', color: 'rgba(240,237,246,0.6)' }}>
+            <p style={{ fontSize: '13px', color: '#ffffff' }}>
               For the full experience, use headphones
             </p>
           </div>
@@ -470,7 +470,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
             className="text-center font-sans z-10"
             style={{
               fontSize: '15px',
-              color: 'rgba(240,237,246,0.8)',
+              color: '#ffffff',
               animation: `focusFadeInOut 2s ${APPLE_EASE} forwards`,
             }}
           >
@@ -488,7 +488,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
             <div className="text-center mb-12" style={{ minHeight: '44px' }}>
               <p style={{
                 fontSize: '15px',
-                color: 'rgba(240,237,246,0.35)',
+                color: 'rgba(255,255,255,0.7)',
                 lineHeight: 1.7,
                 maxWidth: '240px',
                 fontWeight: 200,
@@ -514,7 +514,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
                 background: 'rgba(168,85,247,0.06)',
                 border: '1px solid rgba(168,85,247,0.2)',
                 borderRadius: '28px',
-                color: 'rgba(240,237,246,0.55)',
+                color: '#ffffff',
                 fontSize: '13px',
                 fontWeight: 300,
                 letterSpacing: '0.06em',
@@ -564,7 +564,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
                 </p>
                 <p style={{
                   fontSize: '36px',
-                  color: 'rgba(240,237,246,0.92)',
+                  color: '#ffffff',
                   fontFamily: "'Cormorant Garamond', serif",
                   fontWeight: 300,
                   fontStyle: 'italic',
@@ -652,8 +652,8 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
           <p
             className="text-center font-sans z-10"
             style={{
-              fontSize: '14px',
-              color: 'rgba(240,237,246,0.8)',
+              fontSize: '15px',
+              color: '#ffffff',
               animation: `focusFadeInOut 2s ${APPLE_EASE} forwards`,
             }}
           >
@@ -667,7 +667,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
             className="text-center px-8 max-w-lg z-10"
             style={{
               fontSize: '13px',
-              color: 'rgba(240,237,246,0.3)',
+              color: 'rgba(255,255,255,0.7)',
               animation: `focusFadeInOut 4s ${APPLE_EASE} forwards`,
             }}
           >
@@ -681,7 +681,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
             className="text-center px-8 max-w-lg font-medium z-10"
             style={{
               fontSize: '20px',
-              color: 'rgba(240,237,246,0.8)',
+              color: '#ffffff',
               animation: `focusFadeInOut 4s ${APPLE_EASE} forwards`,
             }}
           >
@@ -758,7 +758,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
             <X className="w-5 h-5" />
           </button>
 
-          <span className="font-mono text-lg" style={{ color: 'rgba(240,237,246,0.5)' }}>
+          <span className="font-mono text-lg" style={{ color: '#ffffff' }}>
             {formatTimer(elapsed)}
           </span>
 
@@ -820,7 +820,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
                   <p
                     style={{
                       fontSize,
-                      color: isCurrent ? 'rgba(240,237,246,0.85)' : 'rgba(240,237,246,0.5)',
+                      color: isCurrent ? '#ffffff' : 'rgba(255,255,255,0.45)',
                       fontStyle: isTransition ? 'italic' : 'normal',
                       fontWeight: isCurrent ? 500 : 400,
                       lineHeight: 1.6,
@@ -898,7 +898,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
             className="text-center mb-10 z-10"
             style={{
               fontSize: '38px',
-              color: 'rgba(240,237,246,0.9)',
+              color: '#ffffff',
               fontFamily: "'Cormorant Garamond', serif",
               fontWeight: 300,
               fontStyle: 'italic',
@@ -915,7 +915,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
           className="text-center mb-8 z-10"
           style={{
             fontSize: '13px',
-            color: 'rgba(240,237,246,0.3)',
+            color: 'rgba(255,255,255,0.7)',
             animation: `focusFadeUp 1s ease 0.4s both`,
           }}
         >
@@ -936,7 +936,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
               background: 'rgba(168,85,247,0.08)',
               border: '1px solid rgba(168,85,247,0.22)',
               borderRadius: '24px',
-              color: 'rgba(240,237,246,0.6)',
+              color: '#ffffff',
               fontSize: '13px',
               fontWeight: 300,
               letterSpacing: '0.05em',
@@ -952,7 +952,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
               background: 'rgba(168,85,247,0.08)',
               border: '1px solid rgba(168,85,247,0.22)',
               borderRadius: '24px',
-              color: 'rgba(240,237,246,0.6)',
+              color: '#ffffff',
               fontSize: '13px',
               fontWeight: 300,
               letterSpacing: '0.05em',
