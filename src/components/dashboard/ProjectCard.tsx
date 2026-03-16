@@ -91,19 +91,19 @@ const ProjectCard = ({
       <div className="mt-3 flex items-center gap-2">
         {/* Format pills */}
         {hasOnePager && (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-accent/10 border border-accent/20 text-[10px] text-muted-foreground">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-accent/10 border border-accent/20 text-[10px] text-white/60">
             <FileText className="w-2.5 h-2.5" />
             One-Pager
           </span>
         )}
         {hasScript && (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 border border-primary/20 text-[10px] text-muted-foreground">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 border border-primary/20 text-[10px] text-white/60">
             <ScrollText className="w-2.5 h-2.5" />
             Script
           </span>
         )}
         {status === 'draft' && !hasOnePager && !hasScript && (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-muted/30 border border-border/40 text-[10px] text-muted-foreground/70">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-muted/30 border border-border/40 text-[10px] text-white/40">
             Draft
           </span>
         )}
@@ -112,7 +112,7 @@ const ProjectCard = ({
         <span className="flex-1" />
 
         {/* Timestamp */}
-        <span className="text-[11px] text-muted-foreground/50 flex-shrink-0">{timeAgo}</span>
+        <span className="text-[11px] text-white/35 flex-shrink-0">{timeAgo}</span>
 
         {/* Overflow menu */}
         <div onClick={e => e.stopPropagation()}>
