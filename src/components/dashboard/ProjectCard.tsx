@@ -76,13 +76,13 @@ const ProjectCard = ({
         className={`relative w-full text-left rounded-[10px] border border-border/50 bg-card/60 backdrop-blur-sm hover:border-[hsl(270_60%_60%/0.2)] hover:bg-card/80 transition-all ${enableMotion ? 'duration-200 hover:transform-gpu hover:will-change-transform' : 'duration-150'} p-4 sm:p-5 cursor-pointer`}
       >
       {/* Title */}
-      <h3 className="text-[15px] font-semibold text-foreground group-hover/glow:text-primary transition-colors truncate font-display leading-snug">
+      <h3 className="text-[15px] font-semibold text-white/90 group-hover/glow:text-primary transition-colors truncate font-display leading-snug">
         {displayTitle}
       </h3>
 
       {/* Description */}
       {scenarioDescription && (
-        <p className="mt-1.5 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+        <p className="mt-1.5 text-xs text-white/50 line-clamp-2 leading-relaxed">
           {scenarioDescription}
         </p>
       )}
