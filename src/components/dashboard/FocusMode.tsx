@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { X } from 'lucide-react';
 import type { ScriptData, ScriptLine } from './ScriptViewer';
 import BreathingCanvas from './BreathingCanvas';
+import Teleprompter from './Teleprompter';
 
 interface FocusModeProps {
   scriptData: ScriptData;
