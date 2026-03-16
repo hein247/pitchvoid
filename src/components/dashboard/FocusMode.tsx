@@ -530,7 +530,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
               className="cursor-pointer bg-transparent border-none mt-8"
               style={{
                 fontSize: '11px',
-                color: 'rgba(240,237,246,0.12)',
+                color: 'rgba(255,255,255,0.3)',
                 fontWeight: 200,
                 letterSpacing: '0.1em',
               }}
@@ -619,7 +619,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
                 {/* Timing hint */}
                 <p className="mt-4 z-10" style={{
                   fontSize: '10px',
-                  color: 'rgba(240,237,246,0.12)',
+                  color: 'rgba(255,255,255,0.35)',
                   letterSpacing: '0.15em',
                   fontWeight: 200,
                 }}>
@@ -635,7 +635,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
                   className="mt-8 cursor-pointer bg-transparent border-none z-10"
                   style={{
                     fontSize: '11px',
-                    color: 'rgba(240,237,246,0.12)',
+                    color: 'rgba(255,255,255,0.3)',
                     fontWeight: 200,
                     letterSpacing: '0.1em',
                   }}
@@ -707,7 +707,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
         <button
           onClick={skipCentering}
           className="fixed bottom-8 right-8 z-50"
-          style={{ fontSize: '10px', color: 'rgba(240,237,246,0.1)' }}
+          style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)' }}
         >
           Skip →
         </button>
