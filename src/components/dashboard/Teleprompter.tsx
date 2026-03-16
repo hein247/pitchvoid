@@ -25,6 +25,8 @@ export default function Teleprompter({ sections, onExit, onComplete }: Telepromp
   const draggingRef = useRef(false);
   const dragStartYRef = useRef(0);
   const dragStartOffsetRef = useRef(0);
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
   const getPixelsPerSec = useCallback(() => {
     const s = 0.2 + (speed / 100) * 1.8;
