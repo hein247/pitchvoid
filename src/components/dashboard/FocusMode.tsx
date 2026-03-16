@@ -707,7 +707,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
         <button
           onClick={skipCentering}
           className="fixed bottom-8 right-8 z-50"
-          style={{ fontSize: '10px', color: 'rgba(240,237,246,0.1)' }}
+          style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)' }}
         >
           Skip →
         </button>
