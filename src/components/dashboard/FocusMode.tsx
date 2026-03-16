@@ -564,7 +564,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
                 </p>
                 <p style={{
                   fontSize: '36px',
-                  color: 'rgba(240,237,246,0.92)',
+                  color: '#ffffff',
                   fontFamily: "'Cormorant Garamond', serif",
                   fontWeight: 300,
                   fontStyle: 'italic',
