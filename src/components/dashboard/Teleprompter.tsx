@@ -60,7 +60,7 @@ export default function Teleprompter({ sections, onExit, onComplete }: Telepromp
       if (offsetRef.current < maxScroll) {
         offsetRef.current = maxScroll;
         setPlaying(false);
-        onComplete?.();
+        onCompleteRef.current?.();
         return;
       }
     }
