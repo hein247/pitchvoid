@@ -458,7 +458,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
             style={{ animation: `focusFadeInOut 2s ${APPLE_EASE} forwards` }}
           >
             <p style={{ fontSize: '22px', marginBottom: '6px' }}>🎧</p>
-            <p style={{ fontSize: '11px', color: 'rgba(240,237,246,0.6)' }}>
+            <p style={{ fontSize: '13px', color: '#ffffff' }}>
               For the full experience, use headphones
             </p>
           </div>
