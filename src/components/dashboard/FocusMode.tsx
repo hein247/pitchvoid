@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { X } from 'lucide-react';
 import type { ScriptData, ScriptLine } from './ScriptViewer';
+import BreathingCanvas from './BreathingCanvas';
 
 interface FocusModeProps {
   scriptData: ScriptData;
@@ -15,15 +16,7 @@ type CenterStep =
   | 'headphones'
   | 'zone_intro'
   | 'choice'
-  | 'follow_breathing'
-  | 'breathe1_inhale'
-  | 'breathe1_hold'
-  | 'breathe1_exhale'
-  | 'between_cycles'
-  | 'one_more'
-  | 'breathe2_inhale'
-  | 'breathe2_hold'
-  | 'breathe2_exhale'
+  | 'breathing'
   | 'breathe_fadeout'
   | 'in_the_zone'
   | 'context'
@@ -32,6 +25,9 @@ type CenterStep =
   | 'done';
 
 const APPLE_EASE = 'cubic-bezier(0.25, 0.1, 0.25, 1.0)';
+const BREATH_PHASES = ['Inhale', 'Hold', 'Exhale'];
+const BREATH_HINTS = ['4s inhale', '7s hold', '8s exhale'];
+const CYCLES = 3;
 
 /** Parse duration strings like "10 sec", "2 min", "10s" */
 function parseDuration(dur: string): number | null {
@@ -90,8 +86,9 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
 
   // --- Centering state ---
   const [centerStep, setCenterStep] = useState<CenterStep>('black');
-  const [breatheCountdown, setBreatheCountdown] = useState<number | null>(null);
-  const countdownIntervalsRef = useRef<ReturnType<typeof setInterval>[]>([]);
+  const [breathPhase, setBreathPhase] = useState(0);
+  const [breathHint, setBreathHint] = useState('4s inhale');
+  const [completedCycles, setCompletedCycles] = useState<number[]>([]);
   const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   // --- Audio refs ---
@@ -160,7 +157,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
       const now = ctx.currentTime;
       leftGain.gain.linearRampToValueAtTime(0.15, now + 3);
       rightGain.gain.linearRampToValueAtTime(0.15, now + 3);
-    } catch { /* audio unsupported — visual still works */ }
+    } catch { /* audio unsupported */ }
   }, []);
 
   const fadeOutAudio = useCallback(() => {
@@ -210,110 +207,37 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
   }, [stopAudioImmediately]);
 
   // ===================== CENTERING SEQUENCE =====================
-  // --- Countdown helper ---
-  const startCountdown = useCallback((from: number, durationSec: number) => {
-    setBreatheCountdown(from);
-    let count = from;
-    const intervalMs = (durationSec / from) * 1000;
-    const iv = setInterval(() => {
-      count--;
-      if (count <= 0) {
-        clearInterval(iv);
-        setBreatheCountdown(null);
-      } else {
-        setBreatheCountdown(count);
-      }
-    }, intervalMs);
-    countdownIntervalsRef.current.push(iv);
-  }, []);
 
-  // Start the breathing sequence (called when user picks 'Enter the Void')
   const startBreathingSequence = useCallback(() => {
+    startAudio();
+    setCenterStep('breathing');
+    setCompletedCycles([]);
+  }, [startAudio]);
+
+  const handleBreathingComplete = useCallback(() => {
+    setCenterStep('breathe_fadeout');
+    fadeOutAudio();
+
     const ids: ReturnType<typeof setTimeout>[] = [];
     const q = (fn: () => void, ms: number) => { ids.push(setTimeout(fn, ms)); };
 
-    // 0.0s — 'Follow the breathing' (1.5s)
-    setCenterStep('follow_breathing');
-    setBreatheCountdown(null);
+    q(() => setCenterStep('in_the_zone'), 2000);
 
-    // 1.5s — Audio fade-in, brief black
-    q(() => {
-      startAudio();
-      setCenterStep('black');
-    }, 1500);
-
-    // 1.7s — Cycle 1 Inhale (4s)
-    q(() => {
-      setCenterStep('breathe1_inhale');
-      startCountdown(4, 4);
-    }, 1700);
-
-    // 5.7s — Cycle 1 Hold (7s)
-    q(() => {
-      setCenterStep('breathe1_hold');
-      startCountdown(7, 7);
-    }, 5700);
-
-    // 12.7s — Cycle 1 Exhale (8s)
-    q(() => {
-      setCenterStep('breathe1_exhale');
-      startCountdown(8, 8);
-    }, 12700);
-
-    // 20.7s — 1s pause
-    q(() => {
-      setCenterStep('between_cycles');
-      setBreatheCountdown(null);
-    }, 20700);
-
-    // 21.7s — 'one more' (1.5s)
-    q(() => setCenterStep('one_more'), 21700);
-
-    // 23.2s — Cycle 2 Inhale (4s)
-    q(() => {
-      setCenterStep('breathe2_inhale');
-      startCountdown(4, 4);
-    }, 23200);
-
-    // 27.2s — Cycle 2 Hold (7s)
-    q(() => {
-      setCenterStep('breathe2_hold');
-      startCountdown(7, 7);
-    }, 27200);
-
-    // 34.2s — Cycle 2 Exhale (8s)
-    q(() => {
-      setCenterStep('breathe2_exhale');
-      startCountdown(8, 8);
-    }, 34200);
-
-    // 42.2s — Circle fades, audio fades
-    q(() => {
-      setCenterStep('breathe_fadeout');
-      setBreatheCountdown(null);
-      fadeOutAudio();
-    }, 42200);
-
-    // 44.2s — 'you're in the zone' (2s)
-    q(() => setCenterStep('in_the_zone'), 44200);
-
-    // 46.2s — Existing focus sequence: context line
     const contextLine = scriptData.context_line || '';
-    q(() => setCenterStep(contextLine ? 'context' : 'opener'), 46200);
+    q(() => setCenterStep(contextLine ? 'context' : 'opener'), 4000);
 
     if (contextLine) {
-      q(() => setCenterStep('opener'), 50200);
+      q(() => setCenterStep('opener'), 8000);
     }
 
-    const openerOffset = contextLine ? 54200 : 50200;
+    const openerOffset = contextLine ? 12000 : 8000;
     q(() => setCenterStep('ready'), openerOffset);
     q(() => setCenterStep('done'), openerOffset + 2000);
     q(() => setPhase('teleprompter'), openerOffset + 2500);
 
     timeoutsRef.current.push(...ids);
-  }, [startAudio, fadeOutAudio, scriptData.context_line, startCountdown]);
+  }, [fadeOutAudio, scriptData.context_line]);
 
-  // Start the focus sequence directly (skip breathing, go to context → opener → ready)
   const startFocusSequenceDirect = useCallback(() => {
     const ids: ReturnType<typeof setTimeout>[] = [];
     const q = (fn: () => void, ms: number) => { ids.push(setTimeout(fn, ms)); };
@@ -338,15 +262,9 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
     const q = (fn: () => void, ms: number) => { ids.push(setTimeout(fn, ms)); };
 
     setCenterStep('black');
-    setBreatheCountdown(null);
 
-    // 0.3s — headphone suggestion (2s)
     q(() => setCenterStep('headphones'), 300);
-
-    // 2.3s — 'Let's get you in the zone' (2s)
     q(() => setCenterStep('zone_intro'), 2300);
-
-    // 4.3s — Show choice screen (waits for user tap)
     q(() => setCenterStep('choice'), 4300);
 
     timeoutsRef.current = ids;
@@ -356,23 +274,17 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
     if (phase === 'centering') startCentering();
     return () => {
       timeoutsRef.current.forEach(clearTimeout);
-      countdownIntervalsRef.current.forEach(clearInterval);
-      countdownIntervalsRef.current = [];
     };
   }, [phase, startCentering]);
 
   const skipCentering = () => {
     timeoutsRef.current.forEach(clearTimeout);
-    countdownIntervalsRef.current.forEach(clearInterval);
-    countdownIntervalsRef.current = [];
     stopAudioImmediately();
-    setBreatheCountdown(null);
     setPhase('teleprompter');
   };
 
   // ===================== TELEPROMPTER =====================
 
-  // RAF timer
   useEffect(() => {
     if (phase !== 'teleprompter') return;
     if (paused) {
@@ -389,7 +301,6 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
     return () => cancelAnimationFrame(rafRef.current);
   }, [phase, paused]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Auto-advance
   const scheduleNext = useCallback(() => {
     if (lineTimerRef.current) clearTimeout(lineTimerRef.current);
     if (currentLine >= lines.length) {
@@ -419,7 +330,6 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
     return () => { if (lineTimerRef.current) clearTimeout(lineTimerRef.current); };
   }, [phase, paused, currentLine, speed, scheduleNext]);
 
-  // Keyboard
   useEffect(() => {
     if (phase !== 'teleprompter') return;
     const handler = (e: KeyboardEvent) => {
@@ -432,7 +342,6 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
     return () => window.removeEventListener('keydown', handler);
   }, [phase, lines.length, onExit]);
 
-  // Swipe gestures (vertical)
   const onTouchStart = (e: React.TouchEvent) => { touchStartY.current = e.touches[0].clientY; };
   const onTouchEnd = (e: React.TouchEvent) => {
     if (touchStartY.current === null) return;
@@ -444,7 +353,6 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
     touchStartY.current = null;
   };
 
-  // Calculate translateY to center current line
   const getTranslateY = () => {
     if (!lineRefs.current[currentLine]) return 0;
     const lineEl = lineRefs.current[currentLine]!;
@@ -481,64 +389,76 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
     setPaused(false);
     setSpeed(1);
     setCenterStep('black');
-    setBreatheCountdown(null);
-    countdownIntervalsRef.current.forEach(clearInterval);
-    countdownIntervalsRef.current = [];
+    setCompletedCycles([]);
     setCoolStep('black');
     setPhase('centering');
   };
 
   // ===================== RENDER =====================
 
-  // --- Helper: is this a breathing step? ---
-  const isBreathingStep = (s: CenterStep) =>
-    s.startsWith('breathe1_') || s.startsWith('breathe2_') || s === 'breathe_fadeout';
-
   // --- Centering Phase ---
   if (phase === 'centering') {
     const openerText = lines.find(l => l.type === 'opener')?.text || '';
     const contextLine = scriptData.context_line || '';
-
-    // Breathing circle params
-    const isCycle1 = centerStep.startsWith('breathe1_');
-    const isCycle2 = centerStep.startsWith('breathe2_');
-    const isInhale = centerStep.endsWith('_inhale');
-    const isHold = centerStep.endsWith('_hold');
-    const isExhale = centerStep.endsWith('_exhale');
+    const isBreathing = centerStep === 'breathing';
     const isFadeout = centerStep === 'breathe_fadeout';
 
-    const strokeBase = isCycle2 ? 0.6 : 0.5;
-    const strokePulseHigh = isCycle2 ? 0.8 : 0.7;
-
-    // Determine circle radius for current step
-    let circleR = 15;
-    let circleDuration = '0s';
-    let circleEasing = 'linear';
-    if (isInhale) { circleR = 70; circleDuration = '4s'; circleEasing = 'ease-in'; }
-    else if (isHold) { circleR = 70; circleDuration = '0s'; }
-    else if (isExhale) { circleR = 15; circleDuration = '8s'; circleEasing = 'ease-out'; }
-
-    // Breathing label
-    let breatheLabel = '';
-    if (isInhale) breatheLabel = 'breathe in';
-    else if (isHold) breatheLabel = 'hold';
-    else if (isExhale) breatheLabel = 'breathe out';
-
-    const showBreathing = isCycle1 || isCycle2 || isFadeout;
-
     return (
-      <div className="fixed inset-0 z-50 bg-black flex items-center justify-center font-sans select-none">
+      <div className="fixed inset-0 z-50 flex items-center justify-center font-sans select-none"
+        style={{ background: '#080710' }}
+      >
+        {/* Gradient background */}
+        <div
+          className="absolute inset-0 pointer-events-none transition-opacity duration-1000"
+          style={{
+            background: isBreathing
+              ? 'radial-gradient(ellipse 70% 50% at 50% 45%, rgba(148,80,240,0.18) 0%, transparent 70%), radial-gradient(ellipse 50% 60% at 35% 55%, rgba(120,50,220,0.12) 0%, transparent 60%), radial-gradient(ellipse 50% 50% at 65% 40%, rgba(180,100,255,0.09) 0%, transparent 55%)'
+              : 'radial-gradient(ellipse 70% 50% at 50% 45%, rgba(128,60,220,0.12) 0%, transparent 70%), radial-gradient(ellipse 50% 60% at 35% 55%, rgba(100,40,200,0.08) 0%, transparent 60%), radial-gradient(ellipse 50% 50% at 65% 40%, rgba(160,80,240,0.06) 0%, transparent 55%)',
+          }}
+        />
 
-        {/* Centering phase renders based on centerStep */}
+        {/* Noise overlay */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            opacity: 0.025,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+            backgroundSize: '128px 128px',
+            mixBlendMode: 'overlay',
+          }}
+        />
+
+        {/* Vignette */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse at center, transparent 50%, rgba(8,7,16,0.6) 100%)' }}
+        />
+
+        {/* Practice badge */}
+        <div
+          className="absolute top-7 left-7 z-10"
+          style={{
+            padding: '4px 10px',
+            border: '1px solid rgba(168,85,247,0.18)',
+            borderRadius: '4px',
+            fontSize: '10px',
+            color: 'rgba(168,85,247,0.4)',
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+            fontWeight: 300,
+          }}
+        >
+          practice
+        </div>
 
         {/* Headphone suggestion */}
         {centerStep === 'headphones' && (
           <div
-            className="text-center"
+            className="text-center z-10"
             style={{ animation: `focusFadeInOut 2s ${APPLE_EASE} forwards` }}
           >
             <p style={{ fontSize: '22px', marginBottom: '6px' }}>🎧</p>
-            <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)' }}>
+            <p style={{ fontSize: '11px', color: 'rgba(240,237,246,0.6)' }}>
               For the full experience, use headphones
             </p>
           </div>
@@ -547,10 +467,10 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
         {/* 'Let's get you in the zone' */}
         {centerStep === 'zone_intro' && (
           <p
-            className="text-center font-sans"
+            className="text-center font-sans z-10"
             style={{
               fontSize: '15px',
-              color: 'rgba(255,255,255,0.8)',
+              color: 'rgba(240,237,246,0.8)',
               animation: `focusFadeInOut 2s ${APPLE_EASE} forwards`,
             }}
           >
@@ -558,79 +478,182 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
           </p>
         )}
 
-        {/* Choice screen */}
+        {/* Choice screen — idle canvas + buttons */}
         {centerStep === 'choice' && (
           <div
-            className="flex flex-col items-center justify-center gap-6 font-sans"
+            className="flex flex-col items-center justify-center z-10"
             style={{ animation: `focusFadeIn 0.6s ${APPLE_EASE} forwards` }}
           >
+            {/* Idle instruction */}
+            <div className="text-center mb-12" style={{ minHeight: '44px' }}>
+              <p style={{
+                fontSize: '15px',
+                color: 'rgba(240,237,246,0.35)',
+                lineHeight: 1.7,
+                maxWidth: '240px',
+                fontWeight: 200,
+                letterSpacing: '0.02em',
+              }}>
+                Take this moment.<br />Prepare yourself and your thoughts.
+              </p>
+            </div>
+
+            {/* Idle canvas */}
+            <div className="mb-12">
+              <BreathingCanvas state="idle" size={280} />
+            </div>
+
             <button
               onClick={() => {
                 timeoutsRef.current.forEach(clearTimeout);
                 startBreathingSequence();
               }}
-              className="font-sans cursor-pointer transition-all duration-300 hover:scale-105"
+              className="cursor-pointer transition-all duration-300"
               style={{
-                fontSize: '14px',
-                color: 'rgba(240,237,246,0.6)',
-                background: 'rgba(168,85,247,0.1)',
-                border: '1px solid rgba(168,85,247,0.2)',
-                borderRadius: '999px',
                 padding: '12px 32px',
+                background: 'rgba(168,85,247,0.06)',
+                border: '1px solid rgba(168,85,247,0.2)',
+                borderRadius: '28px',
+                color: 'rgba(240,237,246,0.55)',
+                fontSize: '13px',
+                fontWeight: 300,
+                letterSpacing: '0.06em',
               }}
             >
-              Enter the Void
+              Begin breathing
             </button>
             <button
               onClick={() => {
                 timeoutsRef.current.forEach(clearTimeout);
                 startFocusSequenceDirect();
               }}
-              className="font-sans cursor-pointer bg-transparent border-none"
+              className="cursor-pointer bg-transparent border-none mt-8"
               style={{
                 fontSize: '11px',
                 color: 'rgba(240,237,246,0.12)',
+                fontWeight: 200,
+                letterSpacing: '0.1em',
               }}
             >
-              Skip to practice →
+              skip
             </button>
           </div>
         )}
 
-        {centerStep === 'follow_breathing' && (
-          <p
-            className="text-center font-sans"
+        {/* Breathing animation */}
+        {(isBreathing || isFadeout) && (
+          <div
+            className="flex flex-col items-center z-10"
             style={{
-              fontSize: '12px',
-              color: 'rgba(255,255,255,0.7)',
-              animation: `focusFadeInOut 1.5s ${APPLE_EASE} forwards`,
+              opacity: isFadeout ? 0 : 1,
+              transition: `opacity 1.5s ${APPLE_EASE}`,
             }}
           >
-            Follow the breathing
-          </p>
+            {/* Phase label */}
+            {isBreathing && (
+              <div className="text-center mb-12" style={{ minHeight: '44px' }}>
+                <p style={{
+                  fontSize: '11px',
+                  color: 'rgba(168,85,247,0.45)',
+                  letterSpacing: '0.3em',
+                  textTransform: 'uppercase',
+                  fontWeight: 300,
+                  marginBottom: '8px',
+                }}>
+                  breath
+                </p>
+                <p style={{
+                  fontSize: '36px',
+                  color: 'rgba(240,237,246,0.92)',
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontWeight: 300,
+                  fontStyle: 'italic',
+                  letterSpacing: '0.04em',
+                }}>
+                  {BREATH_PHASES[breathPhase]}
+                </p>
+              </div>
+            )}
+
+            {/* Canvas */}
+            <BreathingCanvas
+              state={isBreathing ? 'breathing' : 'stopped'}
+              cycles={CYCLES}
+              size={280}
+              onPhaseUpdate={(p) => {
+                setBreathPhase(p);
+                setBreathHint(BREATH_HINTS[p]);
+              }}
+              onCycleUpdate={(cycle) => {
+                setCompletedCycles(prev => {
+                  const next = [...prev];
+                  if (!next.includes(cycle)) next.push(cycle);
+                  return next;
+                });
+              }}
+              onComplete={handleBreathingComplete}
+            />
+
+            {/* Cycle dots */}
+            {isBreathing && (
+              <>
+                <div className="flex gap-3 mt-11 z-10">
+                  {Array.from({ length: CYCLES }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="rounded-full transition-all duration-700"
+                      style={{
+                        width: '4px',
+                        height: '4px',
+                        background: completedCycles.includes(i)
+                          ? 'rgba(190,140,255,0.6)'
+                          : 'rgba(168,85,247,0.12)',
+                        boxShadow: completedCycles.includes(i)
+                          ? '0 0 8px rgba(168,85,247,0.3)'
+                          : 'none',
+                      }}
+                    />
+                  ))}
+                </div>
+
+                {/* Timing hint */}
+                <p className="mt-4 z-10" style={{
+                  fontSize: '10px',
+                  color: 'rgba(240,237,246,0.12)',
+                  letterSpacing: '0.15em',
+                  fontWeight: 200,
+                }}>
+                  {breathHint}
+                </p>
+
+                {/* Skip during breathing */}
+                <button
+                  onClick={() => {
+                    stopAudioImmediately();
+                    handleBreathingComplete();
+                  }}
+                  className="mt-8 cursor-pointer bg-transparent border-none z-10"
+                  style={{
+                    fontSize: '11px',
+                    color: 'rgba(240,237,246,0.12)',
+                    fontWeight: 200,
+                    letterSpacing: '0.1em',
+                  }}
+                >
+                  skip
+                </button>
+              </>
+            )}
+          </div>
         )}
 
-        {/* Between cycles 'one more' */}
-        {centerStep === 'one_more' && (
-          <p
-            className="text-center font-sans"
-            style={{
-              fontSize: '12px',
-              color: 'rgba(168,85,247,0.7)',
-              animation: `focusFadeInOut 1.5s ${APPLE_EASE} forwards`,
-            }}
-          >
-            one more
-          </p>
-        )}
-
-        {/* 'you're in the zone' after breathing */}
+        {/* 'you're in the zone' */}
         {centerStep === 'in_the_zone' && (
           <p
-            className="text-center font-sans"
+            className="text-center font-sans z-10"
             style={{
               fontSize: '14px',
-              color: 'rgba(255,255,255,0.8)',
+              color: 'rgba(240,237,246,0.8)',
               animation: `focusFadeInOut 2s ${APPLE_EASE} forwards`,
             }}
           >
@@ -638,83 +661,10 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
           </p>
         )}
 
-        {/* Breathing circle */}
-        {showBreathing && (
-          <div
-            className="flex flex-col items-center"
-            style={{
-              opacity: isFadeout ? 0 : 1,
-              transition: `opacity 1s ${APPLE_EASE}`,
-            }}
-          >
-            {/* Phase label ABOVE circle */}
-            {breatheLabel && !isFadeout && (
-              <p
-                key={`label-${centerStep}`}
-                style={{
-                  fontSize: '11px',
-                  color: 'rgba(255,255,255,0.7)',
-                  marginBottom: '20px',
-                  animation: `focusFadeInOut ${isInhale ? '4s' : isHold ? '7s' : '8s'} ${APPLE_EASE} forwards`,
-                }}
-              >
-                {breatheLabel}
-              </p>
-            )}
-
-            {/* SVG circle with countdown inside */}
-            <div style={{ position: 'relative', width: '160px', height: '160px' }}>
-              <svg width="160" height="160" viewBox="0 0 160 160" className="overflow-visible">
-                <circle
-                  cx="80" cy="80"
-                  r={isHold || isFadeout ? 70 : circleR}
-                  fill="none"
-                  strokeWidth="1"
-                  style={{
-                    stroke: isHold
-                      ? undefined
-                      : `rgba(168,85,247,${strokeBase})`,
-                    transition: isHold
-                      ? undefined
-                      : `r ${circleDuration} ${circleEasing}`,
-                    animation: isHold
-                      ? `holdPulse 500ms ease-in-out infinite alternate`
-                      : undefined,
-                    ...(isHold ? {
-                      '--pulse-low': `rgba(168,85,247,${strokeBase})`,
-                      '--pulse-high': `rgba(168,85,247,${strokePulseHigh})`,
-                    } as React.CSSProperties : {}),
-                  }}
-                />
-              </svg>
-
-              {/* Countdown number inside circle */}
-              {breatheCountdown !== null && !isFadeout && (
-                <span
-                  key={`cd-${breatheCountdown}-${centerStep}`}
-                  style={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    fontSize: '28px',
-                    fontWeight: 300,
-                    color: isHold ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.8)',
-                    fontFamily: "'Be Vietnam Pro', sans-serif",
-                    animation: `countdownPulse 1s ${APPLE_EASE} forwards`,
-                  }}
-                >
-                  {breatheCountdown}
-                </span>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Context line (existing) */}
+        {/* Context line */}
         {centerStep === 'context' && contextLine && (
           <p
-            className="text-center px-8 max-w-lg"
+            className="text-center px-8 max-w-lg z-10"
             style={{
               fontSize: '13px',
               color: 'rgba(240,237,246,0.3)',
@@ -725,10 +675,10 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
           </p>
         )}
 
-        {/* Opener (existing) */}
+        {/* Opener */}
         {centerStep === 'opener' && openerText && (
           <p
-            className="text-center px-8 max-w-lg font-medium"
+            className="text-center px-8 max-w-lg font-medium z-10"
             style={{
               fontSize: '20px',
               color: 'rgba(240,237,246,0.8)',
@@ -739,10 +689,10 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
           </p>
         )}
 
-        {/* Ready (existing) */}
+        {/* Ready */}
         {centerStep === 'ready' && (
           <p
-            className="text-center lowercase"
+            className="text-center lowercase z-10"
             style={{
               fontSize: '14px',
               color: 'rgba(168,85,247,0.8)',
@@ -753,7 +703,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
           </p>
         )}
 
-        {/* Skip button */}
+        {/* Skip button (always visible) */}
         <button
           onClick={skipCentering}
           className="fixed bottom-8 right-8 z-50"
@@ -762,7 +712,6 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
           Skip →
         </button>
 
-        {/* Keyframe styles */}
         <style>{`
           @keyframes focusFadeInOut {
             0% { opacity: 0; }
@@ -770,15 +719,9 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
             75% { opacity: 1; }
             100% { opacity: 0; }
           }
-          @keyframes holdPulse {
-            from { stroke: rgba(168,85,247,${strokeBase}); }
-            to { stroke: rgba(168,85,247,${strokePulseHigh}); }
-          }
-          @keyframes countdownPulse {
-            0% { opacity: 0; }
-            15% { opacity: 1; }
-            70% { opacity: 1; }
-            100% { opacity: 0; }
+          @keyframes focusFadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
           }
         `}</style>
       </div>
@@ -921,27 +864,59 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
 
   // --- Cool-Down Phase ---
   return (
-    <div className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center font-sans select-none">
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center font-sans select-none"
+      style={{ background: '#080710' }}
+    >
+      {/* Gradient bg for completion */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse 60% 50% at 50% 45%, rgba(148,80,240,0.14) 0%, transparent 70%), radial-gradient(ellipse 40% 40% at 45% 50%, rgba(120,50,220,0.08) 0%, transparent 55%)',
+        }}
+      />
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{ background: 'radial-gradient(ellipse at center, transparent 50%, rgba(8,7,16,0.6) 100%)' }}
+      />
+
       {(coolStep === 'ready' || coolStep === 'time' || coolStep === 'buttons') && (
-        <p
-          className="text-center mb-4"
-          style={{
-            fontSize: '16px',
-            color: '#ffffff',
-            animation: `focusFadeIn 600ms ${APPLE_EASE} forwards`,
-          }}
-        >
-          You're ready.
-        </p>
+        <>
+          <p
+            className="text-center mb-4 z-10"
+            style={{
+              fontSize: '11px',
+              color: 'rgba(168,85,247,0.4)',
+              letterSpacing: '0.3em',
+              textTransform: 'uppercase',
+              fontWeight: 300,
+              animation: `focusFadeUp 1s ease both`,
+            }}
+          >
+            ready
+          </p>
+          <p
+            className="text-center mb-10 z-10"
+            style={{
+              fontSize: '38px',
+              color: 'rgba(240,237,246,0.9)',
+              fontFamily: "'Cormorant Garamond', serif",
+              fontWeight: 300,
+              fontStyle: 'italic',
+              animation: `focusFadeUp 1s ease 0.2s both`,
+            }}
+          >
+            You're ready.
+          </p>
+        </>
       )}
 
       {(coolStep === 'time' || coolStep === 'buttons') && (
         <p
-          className="text-center mb-8"
+          className="text-center mb-8 z-10"
           style={{
             fontSize: '13px',
             color: 'rgba(240,237,246,0.3)',
-            animation: `focusFadeIn 600ms ${APPLE_EASE} forwards`,
+            animation: `focusFadeUp 1s ease 0.4s both`,
           }}
         >
           {formatTimer(elapsed)}
@@ -950,24 +925,37 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
 
       {coolStep === 'buttons' && (
         <div
-          className="flex gap-4"
-          style={{ animation: `focusFadeIn 600ms ${APPLE_EASE} forwards` }}
+          className="flex gap-4 z-10"
+          style={{ animation: `focusFadeUp 1s ease 0.4s both` }}
         >
           <button
             onClick={restartPractice}
-            className="px-6 py-3 rounded-xl text-sm font-medium transition-colors"
+            className="transition-all duration-300 cursor-pointer"
             style={{
-              border: '1px solid rgba(240,237,246,0.15)',
+              padding: '12px 28px',
+              background: 'rgba(168,85,247,0.08)',
+              border: '1px solid rgba(168,85,247,0.22)',
+              borderRadius: '24px',
               color: 'rgba(240,237,246,0.6)',
+              fontSize: '13px',
+              fontWeight: 300,
+              letterSpacing: '0.05em',
             }}
           >
             Practice again
           </button>
           <button
             onClick={onExit}
-            className="px-6 py-3 rounded-xl text-sm font-medium text-white"
+            className="transition-all duration-300 cursor-pointer"
             style={{
-              background: 'linear-gradient(135deg, rgba(168,85,247,0.8), rgba(236,72,153,0.8))',
+              padding: '12px 28px',
+              background: 'rgba(168,85,247,0.08)',
+              border: '1px solid rgba(168,85,247,0.22)',
+              borderRadius: '24px',
+              color: 'rgba(240,237,246,0.6)',
+              fontSize: '13px',
+              fontWeight: 300,
+              letterSpacing: '0.05em',
             }}
           >
             Done
@@ -976,6 +964,10 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
       )}
 
       <style>{`
+        @keyframes focusFadeUp {
+          from { opacity: 0; transform: translateY(12px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
         @keyframes focusFadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
