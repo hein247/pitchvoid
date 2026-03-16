@@ -68,7 +68,7 @@ export default function Teleprompter({ sections, onExit, onComplete }: Telepromp
     updateTrack();
     setElapsed(Math.floor((ts - startTimeRef.current) / 1000));
     animRef.current = requestAnimationFrame(scroll);
-  }, [playing, getPixelsPerSec, updateTrack, onComplete]);
+  }, [playing, getPixelsPerSec, updateTrack]);
 
   useEffect(() => {
     if (playing) {
