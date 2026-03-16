@@ -820,7 +820,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
                   <p
                     style={{
                       fontSize,
-                      color: isCurrent ? 'rgba(240,237,246,0.85)' : 'rgba(240,237,246,0.5)',
+                      color: isCurrent ? '#ffffff' : 'rgba(255,255,255,0.45)',
                       fontStyle: isTransition ? 'italic' : 'normal',
                       fontWeight: isCurrent ? 500 : 400,
                       lineHeight: 1.6,
