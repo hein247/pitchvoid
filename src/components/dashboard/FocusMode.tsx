@@ -488,7 +488,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
             <div className="text-center mb-12" style={{ minHeight: '44px' }}>
               <p style={{
                 fontSize: '15px',
-                color: 'rgba(240,237,246,0.35)',
+                color: 'rgba(255,255,255,0.7)',
                 lineHeight: 1.7,
                 maxWidth: '240px',
                 fontWeight: 200,
