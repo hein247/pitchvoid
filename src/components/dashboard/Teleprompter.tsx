@@ -25,6 +25,8 @@ export default function Teleprompter({ sections, onExit, onComplete }: Telepromp
   const draggingRef = useRef(false);
   const dragStartYRef = useRef(0);
   const dragStartOffsetRef = useRef(0);
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
   const getPixelsPerSec = useCallback(() => {
     const s = 0.2 + (speed / 100) * 1.8;
@@ -58,7 +60,7 @@ export default function Teleprompter({ sections, onExit, onComplete }: Telepromp
       if (offsetRef.current < maxScroll) {
         offsetRef.current = maxScroll;
         setPlaying(false);
-        onComplete?.();
+        onCompleteRef.current?.();
         return;
       }
     }
@@ -66,7 +68,7 @@ export default function Teleprompter({ sections, onExit, onComplete }: Telepromp
     updateTrack();
     setElapsed(Math.floor((ts - startTimeRef.current) / 1000));
     animRef.current = requestAnimationFrame(scroll);
-  }, [playing, getPixelsPerSec, updateTrack, onComplete]);
+  }, [playing, getPixelsPerSec, updateTrack]);
 
   useEffect(() => {
     if (playing) {
