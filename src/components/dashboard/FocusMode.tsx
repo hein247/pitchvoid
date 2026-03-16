@@ -530,7 +530,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
               className="cursor-pointer bg-transparent border-none mt-8"
               style={{
                 fontSize: '11px',
-                color: 'rgba(240,237,246,0.12)',
+                color: 'rgba(255,255,255,0.3)',
                 fontWeight: 200,
                 letterSpacing: '0.1em',
               }}
