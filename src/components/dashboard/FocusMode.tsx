@@ -758,7 +758,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
             <X className="w-5 h-5" />
           </button>
 
-          <span className="font-mono text-lg" style={{ color: 'rgba(240,237,246,0.5)' }}>
+          <span className="font-mono text-lg" style={{ color: '#ffffff' }}>
             {formatTimer(elapsed)}
           </span>
 
