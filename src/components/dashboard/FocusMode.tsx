@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { X } from 'lucide-react';
 import type { ScriptData, ScriptLine } from './ScriptViewer';
 import BreathingCanvas from './BreathingCanvas';
+import Teleprompter from './Teleprompter';
 
 interface FocusModeProps {
   scriptData: ScriptData;
@@ -730,135 +731,64 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
 
   // --- Teleprompter Phase ---
   if (phase === 'teleprompter') {
-    const translateY = getTranslateY();
+    // Convert flat lines into sections for the Teleprompter component
+    const teleprompterSections = (() => {
+      const sections: { title: string; points: string[]; coaching?: string }[] = [];
+      let currentSection: { title: string; points: string[]; coaching?: string } | null = null;
+
+      // Try using scriptData.sections first (original format)
+      if (Array.isArray(scriptData.sections) && scriptData.sections.length > 0) {
+        for (const sec of scriptData.sections) {
+          sections.push({
+            title: (sec as any).name || '',
+            points: Array.isArray((sec as any).points) ? (sec as any).points : [(sec as any).content || ''],
+            coaching: (sec as any).transition,
+          });
+        }
+      } else {
+        // Fallback: convert flat lines to sections
+        for (const line of lines) {
+          if (line.type === 'opener') {
+            currentSection = { title: 'Opening', points: [] };
+            if (line.text) currentSection.points.push(line.text);
+            if (line.note) currentSection.coaching = line.note;
+            sections.push(currentSection);
+            currentSection = null;
+          } else if (line.type === 'closer') {
+            currentSection = { title: 'Closing', points: [] };
+            if (line.text) currentSection.points.push(line.text);
+            if (line.note) currentSection.coaching = line.note;
+            sections.push(currentSection);
+            currentSection = null;
+          } else if (line.type === 'transition') {
+            if (currentSection && line.text) {
+              currentSection.coaching = line.text;
+            }
+            if (currentSection) {
+              sections.push(currentSection);
+              currentSection = null;
+            }
+          } else if (line.type === 'line') {
+            if (!currentSection) {
+              currentSection = { title: `Section ${sections.length + 1}`, points: [] };
+            }
+            if (line.text) currentSection.points.push(line.text);
+          }
+        }
+        if (currentSection && currentSection.points.length > 0) {
+          sections.push(currentSection);
+        }
+      }
+
+      return sections.length > 0 ? sections : [{ title: 'Script', points: lines.filter(l => l.text).map(l => l.text!) }];
+    })();
 
     return (
-      <div
-        className="fixed inset-0 z-50 font-sans select-none overflow-hidden"
-        style={{ animation: `ambientPulse 4s ease infinite` }}
-        onTouchStart={onTouchStart}
-        onTouchEnd={onTouchEnd}
-        onClick={(e) => {
-          if ((e.target as HTMLElement).closest('[data-topbar]')) return;
-          setPaused(p => !p);
-        }}
-      >
-        {/* Top bar */}
-        <div
-          data-topbar
-          className="fixed top-0 left-0 right-0 z-10 flex items-center justify-between px-4 sm:px-6 py-3"
-          style={{ backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}
-          onClick={e => e.stopPropagation()}
-        >
-          <button
-            onClick={onExit}
-            className="min-h-[44px] min-w-[44px] flex items-center justify-center"
-            style={{ color: 'rgba(240,237,246,0.4)' }}
-          >
-            <X className="w-5 h-5" />
-          </button>
-
-          <span className="font-mono text-lg" style={{ color: '#ffffff' }}>
-            {formatTimer(elapsed)}
-          </span>
-
-          <div className="flex gap-1">
-            {([0.75, 1, 1.25] as Speed[]).map(s => (
-              <button
-                key={s}
-                onClick={() => setSpeed(s)}
-                className="px-2 py-1 rounded-full text-[10px] font-mono transition-all"
-                style={{
-                  color: 'rgba(240,237,246,0.35)',
-                  border: speed === s ? '1px solid rgba(168,85,247,0.5)' : '1px solid rgba(240,237,246,0.08)',
-                }}
-              >
-                {s}x
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Lines container */}
-        <div
-          className="absolute inset-0 flex flex-col items-center"
-          style={{
-            transform: `translateY(${translateY}px)`,
-            transition: `transform 400ms ${APPLE_EASE}`,
-            paddingTop: '50vh',
-          }}
-        >
-          {lines.map((line, idx) => {
-            const isCurrent = idx === currentLine;
-            const isPast = idx < currentLine;
-            const isTransition = line.type === 'transition';
-            const isPauseLine = line.type === 'pause';
-
-            let opacity = 0.2;
-            if (isCurrent) opacity = 1;
-            else if (isPast) opacity = 0.15;
-
-            let fontSize = '22px';
-            if (isTransition) fontSize = '18px';
-            if (isPauseLine) fontSize = '14px';
-
-            return (
-              <div
-                key={idx}
-                ref={el => { lineRefs.current[idx] = el; }}
-                className="w-full max-w-2xl px-8 py-3 text-center"
-                style={{
-                  opacity,
-                  transition: `opacity 400ms ${APPLE_EASE}`,
-                }}
-              >
-                {isPauseLine ? (
-                  <p style={{ color: 'rgba(240,237,246,0.2)', fontSize, letterSpacing: '0.3em' }}>
-                    · · ·
-                  </p>
-                ) : (
-                  <p
-                    style={{
-                      fontSize,
-                      color: isCurrent ? '#ffffff' : 'rgba(255,255,255,0.45)',
-                      fontStyle: isTransition ? 'italic' : 'normal',
-                      fontWeight: isCurrent ? 500 : 400,
-                      lineHeight: 1.6,
-                      transition: `color 400ms ${APPLE_EASE}, font-weight 400ms ${APPLE_EASE}`,
-                    }}
-                  >
-                    {line.text}
-                  </p>
-                )}
-
-                {isCurrent && paused && (
-                  <p
-                    className="mt-2"
-                    style={{
-                      fontSize: '12px',
-                      color: 'rgba(240,237,246,0.15)',
-                      animation: `focusFadeIn 300ms ${APPLE_EASE} forwards`,
-                    }}
-                  >
-                    paused
-                  </p>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        <style>{`
-          @keyframes ambientPulse {
-            0%, 100% { background-color: #000000; }
-            50% { background-color: #020103; }
-          }
-          @keyframes focusFadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-          }
-        `}</style>
-      </div>
+      <Teleprompter
+        sections={teleprompterSections}
+        onExit={onExit}
+        onComplete={() => setPhase('cooldown')}
+      />
     );
   }
 
