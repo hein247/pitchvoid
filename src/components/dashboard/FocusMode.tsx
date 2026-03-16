@@ -898,7 +898,7 @@ const FocusMode = ({ scriptData, onExit }: FocusModeProps) => {
             className="text-center mb-10 z-10"
             style={{
               fontSize: '38px',
-              color: 'rgba(240,237,246,0.9)',
+              color: '#ffffff',
               fontFamily: "'Cormorant Garamond', serif",
               fontWeight: 300,
               fontStyle: 'italic',
