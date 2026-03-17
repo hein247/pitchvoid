@@ -500,7 +500,7 @@ export default function HowItWorks() {
               style={{ opacity: 0, transform: 'translateY(10px)', fontSize: rv(11, 13, 15, width) as number }}>
               Overstimulated → Articulate. In seconds.
             </p>
-            <div className="cta-area pointer-events-auto" style={{ opacity: 0, scale: 0.9 }}>
+            <div className="cta-area pointer-events-auto" style={{ opacity: 0, transform: 'scale(0.9)' }}>
               <button
                 onClick={() => navigate('/dashboard')}
                 className="rounded-full text-white font-semibold bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90 hover:scale-105 transition-all cursor-pointer shadow-[0_0_30px_rgba(168,85,247,0.5)] border border-white/20"
