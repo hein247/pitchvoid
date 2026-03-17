@@ -366,7 +366,7 @@ export default function HowItWorks() {
               </div>
 
               {/* iMessage */}
-              <div className="upload-item upload-item-1 absolute w-[160px] h-[210px] bg-zinc-950/90 backdrop-blur-xl rounded-2xl border border-green-500/20 shadow-[0_20px_40px_rgba(0,0,0,0.6)] flex flex-col p-3 gap-2 justify-end origin-center mt-16 sm:mt-20" style={{ opacity: 0 }}>
+              <div className="upload-item upload-item-1 absolute w-[110px] sm:w-[160px] h-[150px] sm:h-[210px] bg-zinc-950/90 backdrop-blur-xl rounded-xl sm:rounded-2xl border border-green-500/20 shadow-[0_20px_40px_rgba(0,0,0,0.6)] flex flex-col p-2 sm:p-3 gap-1.5 sm:gap-2 justify-end origin-center mt-12 sm:mt-20" style={{ opacity: 0 }}>
                 <div className="self-start bg-zinc-800 w-3/4 h-7 rounded-2xl rounded-bl-sm" />
                 <div className="self-end bg-green-600 w-2/3 h-7 rounded-2xl rounded-br-sm" />
                 <div className="self-end bg-green-600 w-5/6 h-12 rounded-2xl rounded-br-sm" />
