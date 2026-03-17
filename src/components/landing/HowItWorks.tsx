@@ -25,23 +25,32 @@ const MESS_CARDS = [
 
 /* ── Responsive Positioning Logic ── */
 const getScatteredPositions = (windowWidth: number) => {
+  const isMobile = windowWidth < 640;
   const containerWidth = Math.min(windowWidth - 32, 1100);
-  const containerHeight = Math.min(windowWidth < 640 ? 680 : windowWidth * 0.75, 760);
+  const containerHeight = isMobile ? 440 : Math.min(windowWidth * 0.75, 760);
 
-  const scale = windowWidth < 640 ? 0.65 : (windowWidth < 1024 ? 0.85 : 1);
-  const cardW = (windowWidth < 640 ? 240 : 320) * scale;
-  const cardH = 150 * scale;
+  const scale = isMobile ? 0.55 : (windowWidth < 1024 ? 0.85 : 1);
+  const cardW = (isMobile ? 200 : 320) * scale;
+  const cardH = 120 * scale;
 
-  const maxX = Math.max(0, (containerWidth / 2) - (cardW / 2) - 15);
-  const maxY = Math.max(0, (containerHeight / 2) - (cardH / 2) - 15);
+  const maxX = Math.max(0, (containerWidth / 2) - (cardW / 2) - 10);
+  const maxY = Math.max(0, (containerHeight / 2) - (cardH / 2) - 10);
 
-  const normalized = [
-    { x: -0.6, y: -0.5, r: -8 },
-    { x: 0.6, y: -0.4, r: 12 },
-    { x: 0, y: 0.05, r: -4 },
-    { x: -0.5, y: 0.55, r: 10 },
-    { x: 0.55, y: 0.5, r: -6 },
-  ];
+  const normalized = isMobile
+    ? [
+        { x: -0.3, y: -0.55, r: -6 },
+        { x: 0.3, y: -0.3, r: 8 },
+        { x: 0, y: 0.05, r: -3 },
+        { x: -0.35, y: 0.4, r: 7 },
+        { x: 0.35, y: 0.55, r: -5 },
+      ]
+    : [
+        { x: -0.6, y: -0.5, r: -8 },
+        { x: 0.6, y: -0.4, r: 12 },
+        { x: 0, y: 0.05, r: -4 },
+        { x: -0.5, y: 0.55, r: 10 },
+        { x: 0.55, y: 0.5, r: -6 },
+      ];
 
   return normalized.map(p => ({
     x: p.x * maxX,
@@ -51,7 +60,15 @@ const getScatteredPositions = (windowWidth: number) => {
 };
 
 const getUploadPositions = (windowWidth: number) => {
-  const scale = windowWidth < 640 ? 0.6 : (windowWidth < 1024 ? 0.8 : 1);
+  if (windowWidth < 640) {
+    return [
+      { x: -70, y: -60, r: -6 },
+      { x: 70, y: -30, r: 8 },
+      { x: -50, y: 50, r: 4 },
+      { x: 60, y: 60, r: -7 },
+    ];
+  }
+  const scale = windowWidth < 1024 ? 0.8 : 1;
   return [
     { x: -160 * scale, y: -40 * scale, r: -8 },
     { x: 140 * scale, y: 30 * scale, r: 12 },
@@ -138,7 +155,7 @@ export default function HowItWorks() {
 
           const currentWidth = window.innerWidth;
           const positions = getScatteredPositions(currentWidth);
-          const cardScale = currentWidth < 640 ? 0.65 : (currentWidth < 1024 ? 0.85 : 1);
+          const cardScale = currentWidth < 640 ? 0.55 : (currentWidth < 1024 ? 0.85 : 1);
 
           const scatterAnims: any[] = MESS_CARDS.map((_, i) => [
             `.mess-card-${i}`,
@@ -179,7 +196,7 @@ export default function HowItWorks() {
           ]);
 
           const uploadPositions = getUploadPositions(currentWidth);
-          const uploadScale = currentWidth < 640 ? 0.7 : 0.9;
+          const uploadScale = currentWidth < 640 ? 0.55 : 0.9;
 
           const dropAnims: any[] = [0, 1, 2, 3].map((i) => [
             `.upload-item-${i}`,
@@ -266,16 +283,16 @@ export default function HowItWorks() {
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
           border: '1px solid rgba(168,85,247,0.15)',
-          minHeight: isMobile ? '680px' : 'clamp(680px, 75vw, 760px)',
+          minHeight: isMobile ? '460px' : 'clamp(680px, 75vw, 760px)',
         }}
       >
-        <div className="relative w-full h-full flex items-center justify-center" style={{ minHeight: isMobile ? '680px' : 'clamp(680px, 75vw, 760px)' }}>
+        <div className="relative w-full h-full flex items-center justify-center" style={{ minHeight: isMobile ? '460px' : 'clamp(680px, 75vw, 760px)' }}>
 
           {/* ======================= */}
           {/* PAGE 1: TEXT */}
           {/* ======================= */}
-          <div className="core-text-1 absolute inset-0 flex items-center justify-center pointer-events-none z-40 px-6" style={{ opacity: 0 }}>
-            <h3 className="text-2xl sm:text-3xl md:text-4xl font-medium text-white/90 text-center max-w-lg leading-tight font-sans drop-shadow-2xl">
+          <div className="core-text-1 absolute inset-0 flex items-center justify-center pointer-events-none z-40 px-5" style={{ opacity: 0 }}>
+            <h3 className="text-xl sm:text-3xl md:text-4xl font-medium text-white/90 text-center max-w-lg leading-tight font-sans drop-shadow-2xl">
               Your brain is a group chat<br className="hidden sm:block" /> you can't mute.
             </h3>
           </div>
@@ -287,7 +304,7 @@ export default function HowItWorks() {
             {MESS_CARDS.map((card, i) => (
               <div
                 key={i}
-                className={`mess-card mess-card-${i} absolute w-[240px] sm:w-[320px] rounded-2xl bg-[#1c1c1e]/85 backdrop-blur-2xl border border-white/10 p-4 sm:p-5 shadow-2xl flex flex-col gap-2.5 origin-center`}
+                className={`mess-card mess-card-${i} absolute w-[180px] sm:w-[320px] rounded-xl sm:rounded-2xl bg-[#1c1c1e]/85 backdrop-blur-2xl border border-white/10 p-3 sm:p-5 shadow-2xl flex flex-col gap-1.5 sm:gap-2.5 origin-center`}
                 style={{ opacity: 0, zIndex: MESS_CARDS.length - i }}
               >
                 <div className="flex items-center gap-2">
@@ -308,8 +325,8 @@ export default function HowItWorks() {
           {/* ======================= */}
           {/* PAGE 2: CONTEXT TEXT */}
           {/* ======================= */}
-          <div className="core-text-2 absolute inset-0 flex items-center justify-center pointer-events-none z-40 px-6" style={{ opacity: 0 }}>
-            <h3 className="text-lg sm:text-xl md:text-2xl font-medium text-white/95 text-center max-w-2xl leading-relaxed font-sans drop-shadow-2xl">
+          <div className="core-text-2 absolute inset-0 flex items-center justify-center pointer-events-none z-40 px-5" style={{ opacity: 0 }}>
+            <h3 className="text-base sm:text-xl md:text-2xl font-medium text-white/95 text-center max-w-2xl leading-relaxed font-sans drop-shadow-2xl">
               You had the idea. The pitch. The thing you needed to say.<br className="hidden sm:block" />
               <span className="text-white/60">But by the time you sat down to organize it, ten other things had already gotten in the way.</span>
             </h3>
@@ -318,22 +335,22 @@ export default function HowItWorks() {
           {/* ======================= */}
           {/* PAGE 3: UPLOAD PAGE */}
           {/* ======================= */}
-          <div className="core-text-3 absolute top-12 sm:top-16 left-0 right-0 flex flex-col items-center gap-3 z-40 pointer-events-none px-6" style={{ opacity: 0 }}>
-            <h3 className="text-lg sm:text-xl md:text-2xl font-medium text-white/95 text-center max-w-2xl leading-relaxed drop-shadow-2xl">
+          <div className="core-text-3 absolute top-8 sm:top-16 left-0 right-0 flex flex-col items-center gap-3 z-40 pointer-events-none px-5" style={{ opacity: 0 }}>
+            <h3 className="text-base sm:text-xl md:text-2xl font-medium text-white/95 text-center max-w-2xl leading-relaxed drop-shadow-2xl">
               Paste your notes. Drop your screenshots.<br className="hidden sm:block" />
               <span className="text-white/60">We'll find the structure hiding inside your mess.</span>
             </h3>
           </div>
 
           <div className="upload-page-container absolute inset-0 flex items-center justify-center pointer-events-none z-30" style={{ opacity: 0 }}>
-            <div className="upload-dropzone w-[90%] max-w-[800px] h-[300px] sm:h-[400px] mt-16 sm:mt-20 rounded-3xl border-2 border-dashed border-purple-500/20 bg-white/5 backdrop-blur-sm flex flex-col items-center justify-center gap-4 relative overflow-hidden transition-colors" style={{ opacity: 0, transform: 'scale(0.95)' }}>
+            <div className="upload-dropzone w-[88%] max-w-[800px] h-[200px] sm:h-[400px] mt-12 sm:mt-20 rounded-2xl sm:rounded-3xl border-2 border-dashed border-purple-500/20 bg-white/5 backdrop-blur-sm flex flex-col items-center justify-center gap-3 sm:gap-4 relative overflow-hidden transition-colors" style={{ opacity: 0, transform: 'scale(0.95)' }}>
               <UploadCloud className="upload-icon w-12 h-12 text-purple-500/50" />
               <p className="text-sm font-medium text-purple-200/50 font-sans tracking-wide uppercase">Drop your mess here</p>
             </div>
 
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-35" aria-hidden="true">
               {/* Chart/App Screenshot */}
-              <div className="upload-item upload-item-0 absolute w-[140px] h-[180px] bg-zinc-900/90 backdrop-blur-xl rounded-xl border border-zinc-700 shadow-[0_20px_40px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden origin-center mt-16 sm:mt-20" style={{ opacity: 0 }}>
+              <div className="upload-item upload-item-0 absolute w-[100px] sm:w-[140px] h-[130px] sm:h-[180px] bg-zinc-900/90 backdrop-blur-xl rounded-xl border border-zinc-700 shadow-[0_20px_40px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden origin-center mt-12 sm:mt-20" style={{ opacity: 0 }}>
                 <div className="h-6 bg-zinc-800/80 flex items-center px-2.5 gap-1.5 border-b border-white/5">
                   <div className="w-1.5 h-1.5 rounded-full bg-red-400/80" />
                   <div className="w-1.5 h-1.5 rounded-full bg-yellow-400/80" />
@@ -349,7 +366,7 @@ export default function HowItWorks() {
               </div>
 
               {/* iMessage */}
-              <div className="upload-item upload-item-1 absolute w-[160px] h-[210px] bg-zinc-950/90 backdrop-blur-xl rounded-2xl border border-green-500/20 shadow-[0_20px_40px_rgba(0,0,0,0.6)] flex flex-col p-3 gap-2 justify-end origin-center mt-16 sm:mt-20" style={{ opacity: 0 }}>
+              <div className="upload-item upload-item-1 absolute w-[110px] sm:w-[160px] h-[150px] sm:h-[210px] bg-zinc-950/90 backdrop-blur-xl rounded-xl sm:rounded-2xl border border-green-500/20 shadow-[0_20px_40px_rgba(0,0,0,0.6)] flex flex-col p-2 sm:p-3 gap-1.5 sm:gap-2 justify-end origin-center mt-12 sm:mt-20" style={{ opacity: 0 }}>
                 <div className="self-start bg-zinc-800 w-3/4 h-7 rounded-2xl rounded-bl-sm" />
                 <div className="self-end bg-green-600 w-2/3 h-7 rounded-2xl rounded-br-sm" />
                 <div className="self-end bg-green-600 w-5/6 h-12 rounded-2xl rounded-br-sm" />
@@ -357,7 +374,7 @@ export default function HowItWorks() {
               </div>
 
               {/* Apple Note */}
-              <div className="upload-item upload-item-2 absolute w-[160px] h-[160px] bg-[#fbf9f1]/95 backdrop-blur-xl rounded-xl border border-yellow-300/50 shadow-[0_20px_40px_rgba(0,0,0,0.6)] p-4 flex flex-col gap-2.5 origin-center mt-16 sm:mt-20" style={{ opacity: 0 }}>
+              <div className="upload-item upload-item-2 absolute w-[110px] sm:w-[160px] h-[110px] sm:h-[160px] bg-[#fbf9f1]/95 backdrop-blur-xl rounded-lg sm:rounded-xl border border-yellow-300/50 shadow-[0_20px_40px_rgba(0,0,0,0.6)] p-3 sm:p-4 flex flex-col gap-1.5 sm:gap-2.5 origin-center mt-12 sm:mt-20" style={{ opacity: 0 }}>
                 <div className="text-yellow-900 font-bold text-[12px] font-sans tracking-tight">Meeting Notes</div>
                 <div className="w-full h-1.5 bg-yellow-800/15 rounded-full mt-1" />
                 <div className="w-5/6 h-1.5 bg-yellow-800/15 rounded-full" />
@@ -367,7 +384,7 @@ export default function HowItWorks() {
               </div>
 
               {/* Image */}
-              <div className="upload-item upload-item-3 absolute w-[140px] h-[140px] bg-zinc-800/90 backdrop-blur-xl rounded-xl border border-blue-500/20 shadow-[0_20px_40px_rgba(0,0,0,0.6)] flex items-center justify-center relative overflow-hidden origin-center mt-16 sm:mt-20" style={{ opacity: 0 }}>
+              <div className="upload-item upload-item-3 absolute w-[100px] sm:w-[140px] h-[100px] sm:h-[140px] bg-zinc-800/90 backdrop-blur-xl rounded-lg sm:rounded-xl border border-blue-500/20 shadow-[0_20px_40px_rgba(0,0,0,0.6)] flex items-center justify-center relative overflow-hidden origin-center mt-12 sm:mt-20" style={{ opacity: 0 }}>
                 <ImageIcon className="text-blue-300/80 w-10 h-10 z-10 drop-shadow-lg" />
                 <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/20 to-purple-500/20" />
               </div>
@@ -379,8 +396,8 @@ export default function HowItWorks() {
           {/* ======================= */}
           <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
             <div
-              className="consolidated-card relative w-[92%] max-w-[640px] bg-[#14121a]/95 backdrop-blur-2xl border border-purple-500/40 rounded-2xl shadow-[0_0_80px_rgba(168,85,247,0.25)] overflow-hidden flex flex-col"
-              style={{ opacity: 0, scale: 0.5, filter: 'blur(10px)', minHeight: '340px' }}
+              className="consolidated-card relative w-[92%] max-w-[640px] bg-[#14121a]/95 backdrop-blur-2xl border border-purple-500/40 rounded-xl sm:rounded-2xl shadow-[0_0_80px_rgba(168,85,247,0.25)] overflow-hidden flex flex-col"
+              style={{ opacity: 0, scale: 0.5, filter: 'blur(10px)', minHeight: isMobile ? '280px' : '340px' }}
             >
               {/* Simplified header */}
               <div className="h-11 bg-white/5 border-b border-white/10 flex items-center justify-between px-5">
@@ -394,8 +411,8 @@ export default function HowItWorks() {
                 </div>
               </div>
 
-              <div className="relative p-6 sm:p-8 flex-1 flex flex-col justify-center">
-                <div className="mess-text-container absolute inset-0 p-6 sm:p-10 flex flex-col justify-center gap-5">
+              <div className="relative p-4 sm:p-8 flex-1 flex flex-col justify-center">
+                <div className="mess-text-container absolute inset-0 p-4 sm:p-10 flex flex-col justify-center gap-3 sm:gap-5">
                   {COMBINED_MESS.map((paragraph, idx) => (
                     <p key={idx} className="font-mono text-[11px] sm:text-[13px] text-white/50 leading-relaxed">
                       {paragraph}
@@ -409,7 +426,7 @@ export default function HowItWorks() {
                 />
 
                 {/* 3 clean output sections */}
-                <div className="clean-sections absolute inset-0 p-6 sm:p-10 flex flex-col justify-center gap-6 sm:gap-8 z-10">
+                <div className="clean-sections absolute inset-0 p-4 sm:p-10 flex flex-col justify-center gap-4 sm:gap-8 z-10">
                   {OUTPUT_SECTIONS.map((sec, i) => (
                     <div key={i} className={`clean-sec clean-sec-${i}`} style={{ opacity: 0, transform: 'translateY(15px)', filter: 'blur(4px)' }}>
                       <p className="text-[10px] sm:text-[11px] font-bold text-purple-400 tracking-[0.2em] uppercase mb-1.5 sm:mb-2 font-sans">
@@ -428,7 +445,7 @@ export default function HowItWorks() {
           {/* ======================= */}
           {/* PAGE 5: CTA */}
           {/* ======================= */}
-          <div className="absolute bottom-8 sm:bottom-12 left-0 right-0 flex flex-col items-center gap-5 z-50 pointer-events-none">
+          <div className="absolute bottom-4 sm:bottom-12 left-0 right-0 flex flex-col items-center gap-3 sm:gap-5 z-50 pointer-events-none">
             <p
               className="demo-tagline font-sans font-medium text-[13px] sm:text-[15px]"
               style={{ color: '#ffffff', opacity: 0 }}
