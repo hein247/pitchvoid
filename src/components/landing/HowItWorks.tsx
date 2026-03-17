@@ -29,7 +29,7 @@ const getScatteredPositions = (windowWidth: number) => {
   const containerWidth = Math.min(windowWidth - 32, 1100);
   const containerHeight = isMobile ? 560 : Math.min(windowWidth * 0.75, 760);
 
-  const scale = isMobile ? 0.6 : (windowWidth < 1024 ? 0.85 : 1);
+  const scale = isMobile ? 0.72 : (windowWidth < 1024 ? 0.85 : 1);
   const cardW = (isMobile ? 180 : 320) * scale;
   const cardH = 120 * scale;
 
