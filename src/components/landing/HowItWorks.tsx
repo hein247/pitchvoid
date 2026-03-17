@@ -435,7 +435,7 @@ export default function HowItWorks() {
               className="consolidated-card relative bg-[#14121a]/95 backdrop-blur-2xl border border-purple-500/40 shadow-[0_0_80px_rgba(168,85,247,0.25)] overflow-hidden flex flex-col"
               style={{
                 opacity: 0,
-                scale: 0.5,
+                transform: 'scale(0.5)',
                 filter: 'blur(10px)',
                 width: isMobile ? '96%' : '92%',
                 maxWidth: 640,
