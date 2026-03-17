@@ -62,10 +62,10 @@ const getScatteredPositions = (windowWidth: number) => {
 const getUploadPositions = (windowWidth: number) => {
   if (windowWidth < 640) {
     return [
-      { x: -70, y: -60, r: -6 },
-      { x: 70, y: -30, r: 8 },
-      { x: -50, y: 50, r: 4 },
-      { x: 60, y: 60, r: -7 },
+      { x: -80, y: -70, r: -6 },
+      { x: 80, y: -40, r: 8 },
+      { x: -60, y: 60, r: 4 },
+      { x: 70, y: 70, r: -7 },
     ];
   }
   const scale = windowWidth < 1024 ? 0.8 : 1;
