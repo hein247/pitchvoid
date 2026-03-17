@@ -343,7 +343,7 @@ export default function HowItWorks() {
           </div>
 
           <div className="upload-page-container absolute inset-0 flex items-center justify-center pointer-events-none z-30" style={{ opacity: 0 }}>
-            <div className="upload-dropzone w-[90%] max-w-[800px] h-[300px] sm:h-[400px] mt-16 sm:mt-20 rounded-3xl border-2 border-dashed border-purple-500/20 bg-white/5 backdrop-blur-sm flex flex-col items-center justify-center gap-4 relative overflow-hidden transition-colors" style={{ opacity: 0, transform: 'scale(0.95)' }}>
+            <div className="upload-dropzone w-[88%] max-w-[800px] h-[200px] sm:h-[400px] mt-12 sm:mt-20 rounded-2xl sm:rounded-3xl border-2 border-dashed border-purple-500/20 bg-white/5 backdrop-blur-sm flex flex-col items-center justify-center gap-3 sm:gap-4 relative overflow-hidden transition-colors" style={{ opacity: 0, transform: 'scale(0.95)' }}>
               <UploadCloud className="upload-icon w-12 h-12 text-purple-500/50" />
               <p className="text-sm font-medium text-purple-200/50 font-sans tracking-wide uppercase">Drop your mess here</p>
             </div>
