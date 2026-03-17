@@ -27,22 +27,22 @@ const MESS_CARDS = [
 const getScatteredPositions = (windowWidth: number) => {
   const isMobile = windowWidth < 640;
   const containerWidth = Math.min(windowWidth - 32, 1100);
-  const containerHeight = isMobile ? 440 : Math.min(windowWidth * 0.75, 760);
+  const containerHeight = isMobile ? 560 : Math.min(windowWidth * 0.75, 760);
 
-  const scale = isMobile ? 0.55 : (windowWidth < 1024 ? 0.85 : 1);
-  const cardW = (isMobile ? 200 : 320) * scale;
+  const scale = isMobile ? 0.6 : (windowWidth < 1024 ? 0.85 : 1);
+  const cardW = (isMobile ? 180 : 320) * scale;
   const cardH = 120 * scale;
 
   const maxX = Math.max(0, (containerWidth / 2) - (cardW / 2) - 10);
-  const maxY = Math.max(0, (containerHeight / 2) - (cardH / 2) - 10);
+  const maxY = Math.max(0, (containerHeight / 2) - (cardH / 2) - 20);
 
   const normalized = isMobile
     ? [
-        { x: -0.3, y: -0.55, r: -6 },
-        { x: 0.3, y: -0.3, r: 8 },
-        { x: 0, y: 0.05, r: -3 },
-        { x: -0.35, y: 0.4, r: 7 },
-        { x: 0.35, y: 0.55, r: -5 },
+        { x: -0.25, y: -0.6, r: -6 },
+        { x: 0.25, y: -0.35, r: 8 },
+        { x: -0.05, y: -0.05, r: -3 },
+        { x: -0.3, y: 0.3, r: 7 },
+        { x: 0.3, y: 0.55, r: -5 },
       ]
     : [
         { x: -0.6, y: -0.5, r: -8 },
