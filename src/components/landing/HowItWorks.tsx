@@ -155,7 +155,7 @@ export default function HowItWorks() {
 
           const currentWidth = window.innerWidth;
           const positions = getScatteredPositions(currentWidth);
-          const cardScale = currentWidth < 640 ? 0.55 : (currentWidth < 1024 ? 0.85 : 1);
+          const cardScale = currentWidth < 640 ? 0.6 : (currentWidth < 1024 ? 0.85 : 1);
 
           const scatterAnims: any[] = MESS_CARDS.map((_, i) => [
             `.mess-card-${i}`,
