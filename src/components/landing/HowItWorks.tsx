@@ -25,23 +25,32 @@ const MESS_CARDS = [
 
 /* ── Responsive Positioning Logic ── */
 const getScatteredPositions = (windowWidth: number) => {
+  const isMobile = windowWidth < 640;
   const containerWidth = Math.min(windowWidth - 32, 1100);
-  const containerHeight = Math.min(windowWidth < 640 ? 680 : windowWidth * 0.75, 760);
+  const containerHeight = isMobile ? 440 : Math.min(windowWidth * 0.75, 760);
 
-  const scale = windowWidth < 640 ? 0.65 : (windowWidth < 1024 ? 0.85 : 1);
-  const cardW = (windowWidth < 640 ? 240 : 320) * scale;
-  const cardH = 150 * scale;
+  const scale = isMobile ? 0.55 : (windowWidth < 1024 ? 0.85 : 1);
+  const cardW = (isMobile ? 200 : 320) * scale;
+  const cardH = 120 * scale;
 
-  const maxX = Math.max(0, (containerWidth / 2) - (cardW / 2) - 15);
-  const maxY = Math.max(0, (containerHeight / 2) - (cardH / 2) - 15);
+  const maxX = Math.max(0, (containerWidth / 2) - (cardW / 2) - 10);
+  const maxY = Math.max(0, (containerHeight / 2) - (cardH / 2) - 10);
 
-  const normalized = [
-    { x: -0.6, y: -0.5, r: -8 },
-    { x: 0.6, y: -0.4, r: 12 },
-    { x: 0, y: 0.05, r: -4 },
-    { x: -0.5, y: 0.55, r: 10 },
-    { x: 0.55, y: 0.5, r: -6 },
-  ];
+  const normalized = isMobile
+    ? [
+        { x: -0.3, y: -0.55, r: -6 },
+        { x: 0.3, y: -0.3, r: 8 },
+        { x: 0, y: 0.05, r: -3 },
+        { x: -0.35, y: 0.4, r: 7 },
+        { x: 0.35, y: 0.55, r: -5 },
+      ]
+    : [
+        { x: -0.6, y: -0.5, r: -8 },
+        { x: 0.6, y: -0.4, r: 12 },
+        { x: 0, y: 0.05, r: -4 },
+        { x: -0.5, y: 0.55, r: 10 },
+        { x: 0.55, y: 0.5, r: -6 },
+      ];
 
   return normalized.map(p => ({
     x: p.x * maxX,
@@ -51,7 +60,15 @@ const getScatteredPositions = (windowWidth: number) => {
 };
 
 const getUploadPositions = (windowWidth: number) => {
-  const scale = windowWidth < 640 ? 0.6 : (windowWidth < 1024 ? 0.8 : 1);
+  if (windowWidth < 640) {
+    return [
+      { x: -70, y: -60, r: -6 },
+      { x: 70, y: -30, r: 8 },
+      { x: -50, y: 50, r: 4 },
+      { x: 60, y: 60, r: -7 },
+    ];
+  }
+  const scale = windowWidth < 1024 ? 0.8 : 1;
   return [
     { x: -160 * scale, y: -40 * scale, r: -8 },
     { x: 140 * scale, y: 30 * scale, r: 12 },
