@@ -384,7 +384,7 @@ export default function HowItWorks() {
               </div>
 
               {/* Image */}
-              <div className="upload-item upload-item-3 absolute w-[140px] h-[140px] bg-zinc-800/90 backdrop-blur-xl rounded-xl border border-blue-500/20 shadow-[0_20px_40px_rgba(0,0,0,0.6)] flex items-center justify-center relative overflow-hidden origin-center mt-16 sm:mt-20" style={{ opacity: 0 }}>
+              <div className="upload-item upload-item-3 absolute w-[100px] sm:w-[140px] h-[100px] sm:h-[140px] bg-zinc-800/90 backdrop-blur-xl rounded-lg sm:rounded-xl border border-blue-500/20 shadow-[0_20px_40px_rgba(0,0,0,0.6)] flex items-center justify-center relative overflow-hidden origin-center mt-12 sm:mt-20" style={{ opacity: 0 }}>
                 <ImageIcon className="text-blue-300/80 w-10 h-10 z-10 drop-shadow-lg" />
                 <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/20 to-purple-500/20" />
               </div>
