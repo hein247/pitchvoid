@@ -336,8 +336,8 @@ export default function HowItWorks() {
           {/* PAGE 3: UPLOAD PAGE */}
           {/* ======================= */}
           <div className="core-text-3 absolute top-8 sm:top-16 left-0 right-0 flex flex-col items-center gap-3 z-40 pointer-events-none px-5" style={{ opacity: 0 }}>
-            <h3 className="text-base sm:text-xl md:text-2xl font-medium text-white/95 text-center max-w-2xl leading-relaxed drop-shadow-2xl">
-              Paste your notes. Drop your screenshots.<br className="hidden sm:block" />
+            <h3 className="text-base sm:text-xl md:text-2xl font-medium text-white/95 text-center max-w-[19ch] sm:max-w-2xl leading-relaxed font-sans drop-shadow-2xl">
+              Paste your notes. Drop your screenshots.{" "}
               <span className="text-white/60">We'll find the structure hiding inside your mess.</span>
             </h3>
           </div>
