@@ -283,10 +283,10 @@ export default function HowItWorks() {
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
           border: '1px solid rgba(168,85,247,0.15)',
-          minHeight: isMobile ? '680px' : 'clamp(680px, 75vw, 760px)',
+          minHeight: isMobile ? '460px' : 'clamp(680px, 75vw, 760px)',
         }}
       >
-        <div className="relative w-full h-full flex items-center justify-center" style={{ minHeight: isMobile ? '680px' : 'clamp(680px, 75vw, 760px)' }}>
+        <div className="relative w-full h-full flex items-center justify-center" style={{ minHeight: isMobile ? '460px' : 'clamp(680px, 75vw, 760px)' }}>
 
           {/* ======================= */}
           {/* PAGE 1: TEXT */}
