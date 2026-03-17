@@ -445,7 +445,7 @@ export default function HowItWorks() {
           {/* ======================= */}
           {/* PAGE 5: CTA */}
           {/* ======================= */}
-          <div className="absolute bottom-8 sm:bottom-12 left-0 right-0 flex flex-col items-center gap-5 z-50 pointer-events-none">
+          <div className="absolute bottom-4 sm:bottom-12 left-0 right-0 flex flex-col items-center gap-3 sm:gap-5 z-50 pointer-events-none">
             <p
               className="demo-tagline font-sans font-medium text-[13px] sm:text-[15px]"
               style={{ color: '#ffffff', opacity: 0 }}
