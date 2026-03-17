@@ -374,7 +374,7 @@ export default function HowItWorks() {
               </div>
 
               {/* Apple Note */}
-              <div className="upload-item upload-item-2 absolute w-[160px] h-[160px] bg-[#fbf9f1]/95 backdrop-blur-xl rounded-xl border border-yellow-300/50 shadow-[0_20px_40px_rgba(0,0,0,0.6)] p-4 flex flex-col gap-2.5 origin-center mt-16 sm:mt-20" style={{ opacity: 0 }}>
+              <div className="upload-item upload-item-2 absolute w-[110px] sm:w-[160px] h-[110px] sm:h-[160px] bg-[#fbf9f1]/95 backdrop-blur-xl rounded-lg sm:rounded-xl border border-yellow-300/50 shadow-[0_20px_40px_rgba(0,0,0,0.6)] p-3 sm:p-4 flex flex-col gap-1.5 sm:gap-2.5 origin-center mt-12 sm:mt-20" style={{ opacity: 0 }}>
                 <div className="text-yellow-900 font-bold text-[12px] font-sans tracking-tight">Meeting Notes</div>
                 <div className="w-full h-1.5 bg-yellow-800/15 rounded-full mt-1" />
                 <div className="w-5/6 h-1.5 bg-yellow-800/15 rounded-full" />
