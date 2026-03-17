@@ -412,7 +412,7 @@ export default function HowItWorks() {
               </div>
 
               <div className="relative p-4 sm:p-8 flex-1 flex flex-col justify-center">
-                <div className="mess-text-container absolute inset-0 p-6 sm:p-10 flex flex-col justify-center gap-5">
+                <div className="mess-text-container absolute inset-0 p-4 sm:p-10 flex flex-col justify-center gap-3 sm:gap-5">
                   {COMBINED_MESS.map((paragraph, idx) => (
                     <p key={idx} className="font-mono text-[11px] sm:text-[13px] text-white/50 leading-relaxed">
                       {paragraph}
