@@ -29,7 +29,7 @@ const getScatteredPositions = (windowWidth: number) => {
   const containerWidth = Math.min(windowWidth - 32, 1100);
   const containerHeight = isMobile ? 560 : Math.min(windowWidth * 0.75, 760);
 
-  const scale = isMobile ? 0.6 : (windowWidth < 1024 ? 0.85 : 1);
+  const scale = isMobile ? 0.72 : (windowWidth < 1024 ? 0.85 : 1);
   const cardW = (isMobile ? 180 : 320) * scale;
   const cardH = 120 * scale;
 
@@ -155,7 +155,7 @@ export default function HowItWorks() {
 
           const currentWidth = window.innerWidth;
           const positions = getScatteredPositions(currentWidth);
-          const cardScale = currentWidth < 640 ? 0.6 : (currentWidth < 1024 ? 0.85 : 1);
+          const cardScale = currentWidth < 640 ? 0.72 : (currentWidth < 1024 ? 0.85 : 1);
 
           const scatterAnims: any[] = MESS_CARDS.map((_, i) => [
             `.mess-card-${i}`,
@@ -397,7 +397,7 @@ export default function HowItWorks() {
           <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
             <div
               className="consolidated-card relative w-[92%] max-w-[640px] bg-[#14121a]/95 backdrop-blur-2xl border border-purple-500/40 rounded-xl sm:rounded-2xl shadow-[0_0_80px_rgba(168,85,247,0.25)] overflow-hidden flex flex-col"
-              style={{ opacity: 0, scale: 0.5, filter: 'blur(10px)', minHeight: isMobile ? '360px' : '380px' }}
+              style={{ opacity: 0, scale: 0.5, filter: 'blur(10px)', minHeight: isMobile ? '420px' : '380px' }}
             >
               {/* Simplified header */}
               <div className="h-11 bg-white/5 border-b border-white/10 flex items-center justify-between px-5">
@@ -411,7 +411,7 @@ export default function HowItWorks() {
                 </div>
               </div>
 
-              <div className="relative p-4 sm:p-8 flex-1 flex flex-col justify-center">
+              <div className="relative p-5 sm:p-8 flex-1 flex flex-col justify-center">
                 <div className="mess-text-container absolute inset-0 p-4 sm:p-10 flex flex-col justify-center gap-3 sm:gap-5">
                   {COMBINED_MESS.map((paragraph, idx) => (
                     <p key={idx} className="font-mono text-[11px] sm:text-[13px] text-white/50 leading-relaxed">
@@ -426,7 +426,7 @@ export default function HowItWorks() {
                 />
 
                 {/* 3 clean output sections */}
-                <div className="clean-sections absolute inset-0 p-4 sm:p-10 flex flex-col justify-center gap-4 sm:gap-8 z-10">
+                <div className="clean-sections absolute inset-0 p-5 sm:p-10 flex flex-col justify-center gap-5 sm:gap-8 z-10">
                   {OUTPUT_SECTIONS.map((sec, i) => (
                     <div key={i} className={`clean-sec clean-sec-${i}`} style={{ opacity: 0, transform: 'translateY(15px)', filter: 'blur(4px)' }}>
                       <p className="text-[10px] sm:text-[11px] font-bold text-purple-400 tracking-[0.2em] uppercase mb-1.5 sm:mb-2 font-sans">
