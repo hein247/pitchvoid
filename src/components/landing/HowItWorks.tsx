@@ -336,8 +336,8 @@ export default function HowItWorks() {
           {/* PAGE 3: UPLOAD PAGE */}
           {/* ======================= */}
           <div className="core-text-3 absolute top-8 sm:top-16 left-0 right-0 flex flex-col items-center gap-3 z-40 pointer-events-none px-5" style={{ opacity: 0 }}>
-            <h3 className="text-base sm:text-xl md:text-2xl font-medium text-white/95 text-center max-w-2xl leading-relaxed drop-shadow-2xl">
-              Paste your notes. Drop your screenshots.<br className="hidden sm:block" />
+            <h3 className="text-base sm:text-xl md:text-2xl font-medium text-white/95 text-center max-w-[19ch] sm:max-w-2xl leading-relaxed font-sans drop-shadow-2xl">
+              Paste your notes. Drop your screenshots.{" "}
               <span className="text-white/60">We'll find the structure hiding inside your mess.</span>
             </h3>
           </div>
@@ -445,9 +445,9 @@ export default function HowItWorks() {
           {/* ======================= */}
           {/* PAGE 5: CTA */}
           {/* ======================= */}
-          <div className="absolute bottom-6 sm:bottom-12 left-0 right-0 flex flex-col items-center gap-6 sm:gap-5 z-50 pointer-events-none">
+          <div className="absolute bottom-2 sm:bottom-12 left-0 right-0 flex flex-col items-center gap-7 sm:gap-5 z-50 pointer-events-none px-4">
             <p
-              className="demo-tagline font-sans font-medium text-[13px] sm:text-[15px]"
+              className="demo-tagline max-w-[280px] text-center leading-tight font-sans font-medium text-[13px] sm:max-w-none sm:text-[15px]"
               style={{ color: '#ffffff', opacity: 0 }}
             >
               Overstimulated → Articulate. In seconds.
