@@ -1,92 +1,82 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import gsap from 'gsap';
+import { useAnimate, stagger, useReducedMotion } from 'motion/react';
+import { Bot, NotebookPen, MessageSquare, Mail, Calendar, FileText, Hash, Sparkles, UploadCloud, Image as ImageIcon } from 'lucide-react';
 
-/* ── Chaos fragments — overwhelming noise ── */
-const CHAOS_FRAGMENTS = [
-  { text: 'check this AI tool', size: 14, opacity: 0.6, color: 'rgba(250,180,120,0.8)' },
-  { text: 'have you tried ChatGPT for—', size: 12, opacity: 0.5, color: 'rgba(168,130,246,0.75)' },
-  { text: '10x your productivity', size: 15, opacity: 0.55, color: 'rgba(120,200,255,0.7)' },
-  { text: 'your competitor just launched', size: 13, opacity: 0.6, color: 'rgba(255,150,170,0.75)' },
-  { text: 'meeting in 5', size: 11, opacity: 0.5, color: 'rgba(180,220,140,0.7)' },
-  { text: 'Q3 numbers are in', size: 14, opacity: 0.6, color: 'rgba(250,210,120,0.8)' },
-  { text: 'can we align on this?', size: 12, opacity: 0.5, color: 'rgba(200,160,255,0.7)' },
-  { text: 'sent you a Slack', size: 10, opacity: 0.45, color: 'rgba(130,210,230,0.7)' },
-  { text: 'URGENT:', size: 16, opacity: 0.7, color: 'rgba(255,100,80,0.9)' },
-  { text: 'thoughts?', size: 11, opacity: 0.5, color: 'rgba(180,180,255,0.7)' },
-  { text: 'following up on my last email', size: 12, opacity: 0.5, color: 'rgba(255,180,140,0.7)' },
-  { text: 'AI will replace you if—', size: 13, opacity: 0.65, color: 'rgba(255,210,80,0.85)' },
-  { text: 'investor meeting in 2 hours', size: 12, opacity: 0.55, color: 'rgba(255,140,180,0.8)' },
-  { text: 'new framework dropped', size: 12, opacity: 0.5, color: 'rgba(200,140,255,0.7)' },
-  { text: 'deck due tomorrow', size: 11, opacity: 0.5, color: 'rgba(255,160,200,0.7)' },
-  { text: 'did you see my DM?', size: 11, opacity: 0.5, color: 'rgba(120,180,255,0.7)' },
-  { text: 'just one more tab', size: 11, opacity: 0.5, color: 'rgba(250,190,100,0.7)' },
-  { text: 'let\'s take this offline', size: 12, opacity: 0.5, color: 'rgba(160,230,180,0.7)' },
+/* ── App UI Definitions ── */
+const APPS = {
+  notes: { name: 'Notes', icon: NotebookPen, bg: 'bg-gradient-to-b from-yellow-300 to-yellow-500', color: 'text-yellow-900', border: 'border-yellow-500/20' },
+  chatgpt: { name: 'ChatGPT', icon: Bot, bg: 'bg-[#10a37f]', color: 'text-white', border: 'border-[#10a37f]/50' },
+  notion: { name: 'Notion', icon: FileText, bg: 'bg-white', color: 'text-black', border: 'border-slate-200' },
+  slack: { name: 'Slack', icon: Hash, bg: 'bg-gradient-to-b from-purple-500 to-purple-700', color: 'text-white', border: 'border-purple-500/30' },
+  messages: { name: 'Messages', icon: MessageSquare, bg: 'bg-gradient-to-b from-green-400 to-green-600', color: 'text-white', border: 'border-green-500/30' },
+  mail: { name: 'Mail', icon: Mail, bg: 'bg-gradient-to-b from-blue-400 to-blue-600', color: 'text-white', border: 'border-blue-500/30' },
+  calendar: { name: 'Calendar', icon: Calendar, bg: 'bg-gradient-to-b from-red-400 to-red-600', color: 'text-white', border: 'border-red-500/30' }
+};
+
+/* ── Content Data (5 Messy Fragments) ── */
+const MESS_CARDS = [
+  { app: APPS.slack, text: "@here revenue down 15% this quarter, churn is spiking. Need all hands on deck to brainstorm retention strategies before Friday." },
+  { app: APPS.messages, text: "did you see what they just shipped? 😭 It's exactly our Q4 roadmap but they actually executed it and it looks gorgeous." },
+  { app: APPS.notes, text: "startup pivot ideas... b2b ai wrapper? no wait. maybe we focus entirely on the enterprise workflow segment instead of smb." },
+  { app: APPS.chatgpt, text: "how to not sound desperate asking for 180k. 'We see an opportunity to accelerate growth...' no that sounds like corporate BS." },
+  { app: APPS.notion, text: "Brainstorming document 3 (Final_v2) - If we pivot to a B2B SaaS model, we can probably charge 10x more for the same API." },
 ];
 
-/* ── Landing positions for chaos — kept within 5–90% to avoid overflow ── */
-const CHAOS_POSITIONS = CHAOS_FRAGMENTS.map((_, i) => ({
-  x: ((i * 137) % 80) + 5,
-  y: ((i * 89 + 30) % 75) + 8,
-  rotation: ((i * 17) % 21) - 10,
-}));
+/* ── Responsive Positioning Logic ── */
+const getScatteredPositions = (windowWidth: number) => {
+  const containerWidth = Math.min(windowWidth - 32, 1100);
+  const containerHeight = Math.min(windowWidth < 640 ? 680 : windowWidth * 0.75, 760);
 
-const TRUTH_LINES = [
-  { text: 'You already know what to say.', bright: false },
-  { text: 'You need one clear minute', bright: false },
-  { text: 'before you open your mouth.', bright: true },
+  const scale = windowWidth < 640 ? 0.65 : (windowWidth < 1024 ? 0.85 : 1);
+  const cardW = (windowWidth < 640 ? 240 : 320) * scale;
+  const cardH = 150 * scale;
+
+  const maxX = Math.max(0, (containerWidth / 2) - (cardW / 2) - 15);
+  const maxY = Math.max(0, (containerHeight / 2) - (cardH / 2) - 15);
+
+  const normalized = [
+    { x: -0.6, y: -0.5, r: -8 },
+    { x: 0.6, y: -0.4, r: 12 },
+    { x: 0, y: 0.05, r: -4 },
+    { x: -0.5, y: 0.55, r: 10 },
+    { x: 0.55, y: 0.5, r: -6 },
+  ];
+
+  return normalized.map(p => ({
+    x: p.x * maxX,
+    y: p.y * maxY,
+    r: p.r
+  }));
+};
+
+const getUploadPositions = (windowWidth: number) => {
+  const scale = windowWidth < 640 ? 0.6 : (windowWidth < 1024 ? 0.8 : 1);
+  return [
+    { x: -160 * scale, y: -40 * scale, r: -8 },
+    { x: 140 * scale, y: 30 * scale, r: 12 },
+    { x: -80 * scale, y: 80 * scale, r: 5 },
+    { x: 100 * scale, y: -80 * scale, r: -10 },
+  ];
+};
+
+const COMBINED_MESS = [
+  "startup pivot ideas... b2b ai wrapper? no wait. ceo wants update tomorrow on the roadmap, but revenue is down 15% this quarter and churn is spiking. we have no actual app yet, just a figma prototype that barely works on mobile, and investors are getting anxious about our burn rate.",
+  "competitors are crushing it. we need to figure out how to ask for 180k in bridge funding without sounding completely desperate... emergency sync to figure out our narrative before the board meeting."
 ];
 
-const PIVOT_LINES = [
-  'PitchVoid doesn\'t generate ideas for you.',
-  'It takes the mess already in your head',
-  'and makes it sound like you know what you\'re doing.',
-];
-
-const DEMO_INPUT = 'ceo wants update tmrw, revenue down 15%, no app yet, competitors crushing it, need to ask for 180k without sounding desperate...';
-
+/* ── 3 Output Sections (matches PitchVoid's actual 3-section structure) ── */
 const OUTPUT_SECTIONS = [
-  { label: 'THE PROBLEM', text: 'Revenue declined 15% YoY — no digital presence' },
-  { label: 'PROVEN RESULTS', text: 'Previous engagement → 35% repeat customers in 4 months' },
-  { label: 'THE PROPOSAL', text: '$180K engagement, starting with 2-week diagnostic' },
+  { label: 'THE SITUATION', text: 'Revenue down 15% with spiking churn. Competitors shipped the Q4 roadmap first. No production app, only a prototype.' },
+  { label: 'THE EVIDENCE', text: 'Enterprise B2B pivot unlocks 10x pricing on existing architecture. Current SMB model is unsustainable at this burn rate.' },
+  { label: 'THE ASK', text: 'Secure $180K bridge round framed as strategic repositioning into enterprise, not a lifeline.' },
 ];
 
-/* ── Static fallback for reduced motion ── */
-function StaticFallback() {
-  const navigate = useNavigate();
-  return (
-    <div className="max-w-[900px] mx-auto text-center px-4 py-16">
-      <h3 className="text-xl sm:text-2xl text-foreground/80 font-sans mb-4">
-        Your brain is a group chat you can't mute.
-      </h3>
-      <p className="text-sm text-foreground/40 mb-8 max-w-md mx-auto">
-        PitchVoid takes the mess already in your head and makes it sound like you know what you're doing.
-      </p>
-      <button
-        onClick={() => navigate('/dashboard')}
-        className="px-8 py-3.5 rounded-full text-primary-foreground font-medium magenta-gradient text-base hover:opacity-90 transition-opacity"
-      >
-        Clear your head →
-      </button>
-    </div>
-  );
-}
-
-/* ── Main Component ── */
 export default function HowItWorks() {
-  const stageRef = useRef<HTMLDivElement>(null);
-  const tlRef = useRef<gsap.core.Timeline | null>(null);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [scope, animate] = useAnimate();
   const [isMobile, setIsMobile] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setPrefersReducedMotion(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 640);
@@ -96,376 +86,365 @@ export default function HowItWorks() {
   }, []);
 
   useEffect(() => {
-    if (prefersReducedMotion || !stageRef.current) return;
+    let isActive = true;
 
-    const fragmentCount = isMobile ? 12 : CHAOS_FRAGMENTS.length;
+    const safeDelay = async (ms: number) => {
+      await new Promise(r => setTimeout(r, ms));
+      if (!isActive) throw new Error("cancelled");
+    };
 
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ repeat: -1, repeatDelay: 2 });
+    const runAnimation = async () => {
+      try {
+        if (prefersReducedMotion) {
+          if (!scope.current) return;
+          await animate('.consolidated-card', { opacity: 1, scale: 1, filter: 'blur(0px)' }, { duration: 0 });
+          await animate('.mess-text-container', { opacity: 0 }, { duration: 0 });
+          await animate('.clean-sec', { opacity: 1, y: 0, filter: 'blur(0px)' }, { duration: 0 });
+          await animate('.demo-tagline', { opacity: 1, y: 0 }, { duration: 0 });
+          await animate('.cta-area', { opacity: 1, scale: 1, filter: 'blur(0px)', pointerEvents: 'auto' }, { duration: 0 });
+          return;
+        }
 
-      /* ── Reset everything ── */
-      tl.set('.chaos-fragment, .opening-line, .truth-line, .pivot-line, .demo-area, .demo-tagline, .cta-area, .scanline', { opacity: 0 });
-      tl.set('.chaos-fragment', { scale: 1, filter: 'blur(0px)' });
-      tl.set('.typewriter-text', { width: 0 });
-      tl.set('.stage-container', { filter: 'blur(0px)' });
+        while (isActive) {
+          if (!scope.current) break;
 
-      /* ═══ PHASE 1 — THE ASSAULT ═══ */
-      // Opening line with glow pulse
-      tl.fromTo('.opening-line',
-        { opacity: 0, scale: 0.97, filter: 'blur(6px)' },
-        { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 0.9, ease: 'power2.out' }
-      );
-      // Glow pulse on opening line
-      tl.to('.opening-line', {
-        textShadow: '0 0 30px rgba(168,85,247,0.4), 0 0 60px rgba(168,85,247,0.15)',
-        duration: 0.6,
-        ease: 'power2.inOut',
-      });
-      tl.to('.opening-line', {
-        textShadow: '0 0 0px rgba(168,85,247,0)',
-        duration: 0.8,
-        ease: 'power2.out',
-      });
-      tl.to({}, { duration: 0.5 }); // hold after glow
+          // --- 0. Reset Phase ---
+          await animate([
+            ['.core-text-1', { opacity: 0, scale: 1, filter: 'blur(6px)' }, { duration: 0, at: 0 }],
+            ['.core-text-2', { opacity: 0, scale: 1, filter: 'blur(6px)' }, { duration: 0, at: 0 }],
+            ['.core-text-3', { opacity: 0, y: -10, filter: 'blur(6px)' }, { duration: 0, at: 0 }],
+            ['.mess-card', { opacity: 0, scale: 0.2, x: 0, y: 0, rotate: 0, filter: 'blur(0px)' }, { duration: 0, at: 0 }],
+            ['.upload-page-container', { opacity: 0 }, { duration: 0, at: 0 }],
+            ['.upload-dropzone', { opacity: 0, scale: 0.95, borderColor: 'rgba(168,85,247,0.2)', backgroundColor: 'rgba(255,255,255,0.02)' }, { duration: 0, at: 0 }],
+            ['.upload-icon', { y: 0, color: 'rgba(168,85,247,0.5)' }, { duration: 0, at: 0 }],
+            ['.upload-item', { opacity: 0, scale: 1.5, x: 0, y: -200, rotate: 0, filter: 'blur(10px)' }, { duration: 0, at: 0 }],
+            ['.consolidated-card', { opacity: 0, scale: 0.5, filter: 'blur(10px)' }, { duration: 0, at: 0 }],
+            ['.mess-text-container', { opacity: 1, filter: 'blur(0px)' }, { duration: 0, at: 0 }],
+            ['.process-scanline', { opacity: 0, top: '0%' }, { duration: 0, at: 0 }],
+            ['.clean-sec', { opacity: 0, y: 15, filter: 'blur(4px)' }, { duration: 0, at: 0 }],
+            ['.demo-tagline', { opacity: 0, y: 10 }, { duration: 0, at: 0 }],
+            ['.cta-area', { opacity: 0, scale: 0.9, filter: 'blur(4px)', pointerEvents: 'none' }, { duration: 0, at: 0 }],
+          ]);
 
-      // Chaos fragments flood in
-      for (let i = 0; i < fragmentCount; i++) {
-        const frag = CHAOS_FRAGMENTS[i];
-        const startX = i % 2 === 0 ? -300 : 300;
-        const startY = gsap.utils.random(-200, 200);
-        tl.fromTo(`.chaos-${i}`,
-          { opacity: 0, x: startX, y: startY, rotation: gsap.utils.random(-20, 20), filter: 'blur(4px)' },
-          {
-            opacity: frag.opacity,
-            x: 0, y: 0,
-            rotation: CHAOS_POSITIONS[i].rotation,
-            filter: 'blur(0px)',
-            duration: 0.25,
-            ease: 'power2.out',
-          },
-          i === 0 ? '+=0' : '<+=0.07'
-        );
+          if (!isActive) break;
+
+          // ==========================================
+          // PAGE 1: THE CHAOS
+          // ==========================================
+          await animate('.core-text-1', { opacity: 1, filter: 'blur(0px)' }, { duration: 0.8, ease: "easeOut" });
+          await safeDelay(1200);
+
+          animate('.core-text-1', { opacity: 0, scale: 0.9, filter: 'blur(6px)' }, { duration: 0.4 });
+
+          const currentWidth = window.innerWidth;
+          const positions = getScatteredPositions(currentWidth);
+          const cardScale = currentWidth < 640 ? 0.65 : (currentWidth < 1024 ? 0.85 : 1);
+
+          const scatterAnims: any[] = MESS_CARDS.map((_, i) => [
+            `.mess-card-${i}`,
+            { opacity: 1, scale: cardScale, x: positions[i].x, y: positions[i].y, rotate: positions[i].r },
+            { type: 'spring', bounce: 0.5, duration: 0.6, at: i * 0.015 }
+          ]);
+
+          await animate(scatterAnims);
+          await safeDelay(2200);
+
+          const clearChaosAnims: any[] = MESS_CARDS.map((_, i) => [
+            `.mess-card-${i}`,
+            { opacity: 0, scale: 0.5, filter: 'blur(10px)' },
+            { duration: 0.4, at: i * 0.015 }
+          ]);
+          await animate(clearChaosAnims);
+          await safeDelay(400);
+
+          if (!isActive) break;
+
+          // ==========================================
+          // PAGE 2: THE PROBLEM
+          // ==========================================
+          await animate('.core-text-2', { opacity: 1, filter: 'blur(0px)' }, { duration: 0.8, ease: "easeOut" });
+          await safeDelay(3600);
+          await animate('.core-text-2', { opacity: 0, scale: 0.95, filter: 'blur(6px)' }, { duration: 0.6 });
+
+          if (!isActive) break;
+
+          // ==========================================
+          // PAGE 3: THE UPLOAD
+          // ==========================================
+          animate('.upload-page-container', { opacity: 1 }, { duration: 0 });
+
+          await animate([
+            ['.core-text-3', { opacity: 1, y: 0, filter: 'blur(0px)' }, { duration: 0.8, ease: "easeOut", at: 0 }],
+            ['.upload-dropzone', { opacity: 1, scale: 1 }, { duration: 0.8, type: "spring", bounce: 0.4, at: 0.2 }]
+          ]);
+
+          const uploadPositions = getUploadPositions(currentWidth);
+          const uploadScale = currentWidth < 640 ? 0.7 : 0.9;
+
+          const dropAnims: any[] = [0, 1, 2, 3].map((i) => [
+            `.upload-item-${i}`,
+            { opacity: 1, scale: uploadScale, x: uploadPositions[i].x, y: uploadPositions[i].y, rotate: uploadPositions[i].r, filter: 'blur(0px)' },
+            { type: 'spring', bounce: 0.4, duration: 0.8, at: i * 0.15 }
+          ]);
+
+          await animate(dropAnims);
+
+          animate('.upload-dropzone',
+            { borderColor: ['rgba(168,85,247,0.2)', 'rgba(168,85,247,0.8)', 'rgba(168,85,247,0.4)'], backgroundColor: ['rgba(255,255,255,0.02)', 'rgba(168,85,247,0.1)', 'rgba(255,255,255,0.04)'] },
+            { duration: 1.5, times: [0, 0.2, 1] }
+          );
+          animate('.upload-icon', { y: [0, -10, 0], color: ['rgba(168,85,247,0.5)', 'rgba(168,85,247,1)', 'rgba(168,85,247,0.8)'] }, { duration: 0.6 });
+
+          await safeDelay(2000);
+
+          await animate([
+            ['.core-text-3', { opacity: 0, y: -10, filter: 'blur(6px)' }, { duration: 0.6, at: 0 }],
+            ['.upload-dropzone', { opacity: 0, scale: 0.95 }, { duration: 0.6, at: 0.1 }]
+          ]);
+
+          if (!isActive) break;
+
+          // ==========================================
+          // PAGE 4: THE SYNTHESIS
+          // ==========================================
+          const suckAnims: any[] = [];
+
+          [0, 1, 2, 3].forEach(i => {
+            suckAnims.push([
+              `.upload-item-${i}`,
+              { opacity: 0, scale: 0.1, x: 0, y: 0, rotate: uploadPositions[i].r - 180, filter: 'blur(8px)' },
+              { duration: 0.6, ease: "anticipate", at: i * 0.05 }
+            ]);
+          });
+
+          suckAnims.push([
+            '.consolidated-card',
+            { opacity: 1, scale: 1, filter: 'blur(0px)' },
+            { duration: 0.6, type: 'spring', bounce: 0.4, at: 0.3 }
+          ]);
+
+          await animate(suckAnims);
+          if (!isActive) break;
+
+          await safeDelay(800);
+
+          animate('.process-scanline', { opacity: [0, 1, 1, 0], top: ['0%', '100%'] }, { duration: 3.5, ease: "linear", times: [0, 0.1, 0.9, 1] });
+          animate('.mess-text-container', { opacity: 0, filter: 'blur(4px)' }, { duration: 1.2, delay: 1.2 });
+          await animate('.clean-sec', { opacity: 1, y: 0, filter: 'blur(0px)' }, { duration: 0.6, delay: stagger(0.3, { startDelay: 1.5 }), ease: "easeOut" });
+
+          if (!isActive) break;
+          await safeDelay(500);
+
+          animate('.demo-tagline', { opacity: 1, y: 0 }, { duration: 0.5 });
+          await animate('.cta-area', { opacity: 1, scale: 1, filter: 'blur(0px)', pointerEvents: 'auto' }, { duration: 0.6, type: "spring", bounce: 0.5, delay: 0.1 });
+
+          await safeDelay(4500);
+
+          await animate([
+            ['.consolidated-card', { opacity: 0, scale: 0.95, filter: 'blur(10px)' }, { duration: 0.5, at: 0 }],
+            ['.demo-tagline', { opacity: 0 }, { duration: 0.4, at: 0 }],
+            ['.cta-area', { opacity: 0, filter: 'blur(4px)', pointerEvents: 'none' }, { duration: 0.4, at: 0 }]
+          ]);
+          await safeDelay(400);
+        }
+      } catch (error: any) {
+        if (isActive && error.message !== "cancelled") console.error("Animation error:", error);
       }
+    };
 
-      // URGENT fragment shake
-      const urgentIdx = CHAOS_FRAGMENTS.findIndex(f => f.text === 'URGENT:');
-      if (urgentIdx < fragmentCount) {
-        tl.to(`.chaos-${urgentIdx}`, {
-          x: '+=3', duration: 0.05, repeat: 5, yoyo: true, ease: 'none',
-        }, '-=0.2');
-      }
-
-      // Drift/jitter on all chaos fragments while they sit
-      tl.to('.chaos-fragment', {
-        x: '+=random(-6, 6)',
-        y: '+=random(-4, 4)',
-        rotation: '+=random(-3, 3)',
-        duration: 0.8,
-        ease: 'sine.inOut',
-        stagger: { each: 0.04, from: 'random' },
-      });
-
-      tl.to({}, { duration: 0.2 }); // brief pause
-
-      /* ═══ PHASE 2 — THE FREEZE + DISSOLVE ═══ */
-      tl.to({}, { duration: 0.3 }); // freeze
-
-      // Dissolve all fragments + opening line
-      tl.to('.chaos-fragment', {
-        opacity: 0,
-        scale: 0.3,
-        filter: 'blur(8px)',
-        x: () => gsap.utils.random(-200, 200),
-        y: () => gsap.utils.random(-200, 200),
-        rotation: () => gsap.utils.random(-30, 30),
-        stagger: { each: 0.02, from: 'center' },
-        duration: 0.7,
-        ease: 'power2.in',
-      });
-      tl.to('.opening-line', { opacity: 0, filter: 'blur(4px)', duration: 0.4 }, '<');
-
-      /* ═══ PHASE 3 — THE TRUTH ═══ */
-      tl.to({}, { duration: 0.6 }); // silence
-
-      // Line 1
-      tl.fromTo('.truth-0',
-        { opacity: 0, y: 10, filter: 'blur(4px)' },
-        { opacity: 0.7, y: 0, filter: 'blur(0px)', duration: 0.5, ease: 'power2.out' }
-      );
-      tl.to({}, { duration: 1 });
-      tl.to('.truth-0', { opacity: 0.3, duration: 0.3 });
-
-      // Line 2
-      tl.fromTo('.truth-1',
-        { opacity: 0, y: 10, filter: 'blur(4px)' },
-        { opacity: 0.7, y: 0, filter: 'blur(0px)', duration: 0.5, ease: 'power2.out' }
-      );
-      tl.to({}, { duration: 1 });
-      tl.to('.truth-1', { opacity: 0.3, duration: 0.3 });
-
-      // Line 3 — punchline
-      tl.fromTo('.truth-2',
-        { opacity: 0, y: 10, filter: 'blur(4px)' },
-        { opacity: 0.9, y: 0, filter: 'blur(0px)', duration: 0.5, ease: 'power2.out' }
-      );
-      tl.to({}, { duration: 1.2 });
-
-      // Fade all truth
-      tl.to('.truth-line', { opacity: 0, filter: 'blur(3px)', duration: 0.5 });
-
-      /* ═══ PHASE 4 — THE PIVOT ═══ */
-      tl.fromTo('.pivot-line',
-        { opacity: 0, y: 10, filter: 'blur(3px)' },
-        { opacity: 0.9, y: 0, filter: 'blur(0px)', stagger: 0.25, duration: 0.45, ease: 'power2.out' }
-      );
-      tl.to({}, { duration: 2 }); // hold
-
-      tl.to('.pivot-line', { opacity: 0, filter: 'blur(3px)', duration: 0.4 });
-
-      /* ═══ PHASE 5 — THE DEMO ═══ */
-      tl.fromTo('.demo-area',
-        { opacity: 0, scale: 0.97 },
-        { opacity: 1, scale: 1, duration: 0.4 }
-      );
-
-      // Scanline sweep on input side
-      tl.fromTo('.scanline',
-        { opacity: 0.5, top: '0%' },
-        { opacity: 0, top: '100%', duration: 1.8, ease: 'none' },
-        '<'
-      );
-
-      // Typewriter
-      tl.fromTo('.typewriter-text',
-        { width: 0 },
-        { width: '100%', duration: 1.8, ease: 'none' },
-        '<'
-      );
-
-      // Arrow
-      tl.fromTo('.demo-arrow',
-        { opacity: 0, scale: 0.8 },
-        { opacity: 0.6, scale: 1, duration: 0.3, ease: 'back.out(2)' },
-        '-=0.8'
-      );
-
-      // Output sections with glow on labels
-      tl.fromTo('.output-section',
-        { opacity: 0, y: 10 },
-        { opacity: 1, y: 0, stagger: 0.2, duration: 0.35, ease: 'power2.out' },
-        '-=0.4'
-      );
-      tl.fromTo('.output-label',
-        { textShadow: '0 0 12px rgba(168,85,247,0.6)' },
-        { textShadow: '0 0 0px rgba(168,85,247,0)', duration: 1, ease: 'power2.out' },
-        '-=0.6'
-      );
-
-      // Tagline
-      tl.fromTo('.demo-tagline',
-        { opacity: 0 },
-        { opacity: 0.5, duration: 0.4 }
-      );
-      tl.to({}, { duration: 2.5 }); // hold
-
-      // Fade out demo
-      tl.to('.demo-area, .demo-tagline', { opacity: 0, scale: 0.98, duration: 0.4 });
-
-      /* ═══ PHASE 6 — CTA ═══ */
-      tl.fromTo('.cta-area',
-        { opacity: 0, scale: 0.92, filter: 'blur(4px)' },
-        { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 0.5, ease: 'back.out(1.4)' }
-      );
-      tl.to({}, { duration: 2.5 }); // hold
-
-      tl.to('.cta-area', { opacity: 0, filter: 'blur(3px)', duration: 0.4 });
-
-      tlRef.current = tl;
-    }, stageRef);
-
-    return () => ctx.revert();
-  }, [prefersReducedMotion, isMobile]);
-
-  if (prefersReducedMotion) {
-    return (
-      <section className="py-20 sm:py-32 px-4 sm:px-8">
-        <StaticFallback />
-      </section>
-    );
-  }
-
-  const fragmentCount = isMobile ? 12 : CHAOS_FRAGMENTS.length;
+    runAnimation();
+    return () => { isActive = false; };
+  }, [animate, prefersReducedMotion]);
 
   return (
-    <section className="py-20 sm:py-32 px-4 sm:px-8">
+    <section className="w-full py-20 sm:py-32 px-4 sm:px-8">
       <div
-        ref={stageRef}
-        className="max-w-[900px] mx-auto rounded-[20px] relative overflow-hidden"
+        ref={scope}
+        className="w-full max-w-[1100px] mx-auto rounded-[24px] relative overflow-hidden shadow-2xl"
         style={{
           background: 'rgba(9,8,15,0.92)',
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
-          border: '1px solid rgba(168,85,247,0.08)',
-          minHeight: isMobile ? '440px' : 'clamp(400px, 55vw, 500px)',
+          border: '1px solid rgba(168,85,247,0.15)',
+          minHeight: isMobile ? '680px' : 'clamp(680px, 75vw, 760px)',
         }}
       >
-        {/* ── THE STAGE ── */}
-        <div className="stage-container relative w-full h-full flex items-center justify-center" style={{ minHeight: isMobile ? '440px' : 'clamp(400px, 55vw, 500px)' }}>
+        <div className="relative w-full h-full flex items-center justify-center" style={{ minHeight: isMobile ? '680px' : 'clamp(680px, 75vw, 760px)' }}>
 
-          {/* Opening line */}
-          <p
-            className="opening-line absolute inset-0 flex items-center justify-center text-center px-6 font-sans font-medium z-10"
-            style={{ fontSize: 'clamp(18px, 3.5vw, 28px)', color: 'rgba(240,237,246,0.85)', opacity: 0 }}
-          >
-            Your brain is a group chat you can't mute.
-          </p>
-
-          {/* Chaos fragments */}
-          {CHAOS_FRAGMENTS.slice(0, fragmentCount).map((frag, i) => (
-            <span
-              key={i}
-              className={`chaos-fragment chaos-${i} absolute will-change-transform`}
-              style={{
-                left: `${CHAOS_POSITIONS[i].x}%`,
-                top: `${CHAOS_POSITIONS[i].y}%`,
-                fontSize: Math.max(frag.size, isMobile ? 10 : frag.size),
-                color: frag.color,
-                fontFamily: "'Be Vietnam Pro', sans-serif",
-                whiteSpace: 'nowrap',
-                maxWidth: '90%',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                opacity: 0,
-                pointerEvents: 'none',
-              }}
-            >
-              {frag.text}
-            </span>
-          ))}
-
-          {/* Truth lines */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-6">
-            {TRUTH_LINES.map((line, i) => (
-              <p
-                key={i}
-                className={`truth-line truth-${i} font-sans text-center`}
-                style={{
-                  fontSize: 'clamp(14px, 2.5vw, 18px)',
-                  color: line.bright ? 'rgba(240,237,246,0.9)' : 'rgba(240,237,246,0.7)',
-                  fontWeight: line.bright ? 500 : 400,
-                  opacity: 0,
-                }}
-              >
-                {line.text}
-              </p>
-            ))}
+          {/* ======================= */}
+          {/* PAGE 1: TEXT */}
+          {/* ======================= */}
+          <div className="core-text-1 absolute inset-0 flex items-center justify-center pointer-events-none z-40 px-6" style={{ opacity: 0 }}>
+            <h3 className="text-2xl sm:text-3xl md:text-4xl font-medium text-white/90 text-center max-w-lg leading-tight font-sans drop-shadow-2xl">
+              Your brain is a group chat<br className="hidden sm:block" /> you can't mute.
+            </h3>
           </div>
 
-          {/* Pivot lines */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 px-6 pt-8">
-            {PIVOT_LINES.map((line, i) => (
-              <p
-                key={i}
-                className={`pivot-line font-sans text-center`}
-                style={{
-                  fontSize: 'clamp(12px, 2vw, 14px)',
-                  color: 'rgba(240,237,246,0.9)',
-                  lineHeight: 1.8,
-                  opacity: 0,
-                }}
-              >
-                {line}
-              </p>
-            ))}
-          </div>
-
-          {/* Demo area */}
-          <div className={`demo-area absolute inset-0 flex items-center justify-center px-4 sm:px-8 ${isMobile ? 'flex-col gap-3' : 'flex-row gap-6'}`} style={{ opacity: 0 }}>
-            {/* Left — messy input */}
-            <div
-              className="relative rounded-lg p-3 sm:p-4 overflow-hidden"
-              style={{
-                background: 'rgba(14,12,24,0.6)',
-                border: '1px solid rgba(240,237,246,0.06)',
-                maxWidth: isMobile ? '100%' : 340,
-                flex: isMobile ? 'none' : 1,
-                width: isMobile ? '100%' : 'auto',
-              }}
-            >
-              {/* Scanline sweep */}
+          {/* ======================= */}
+          {/* PAGE 1: CHAOS CARDS */}
+          {/* ======================= */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30 perspective-1000" aria-hidden="true">
+            {MESS_CARDS.map((card, i) => (
               <div
-                className="scanline absolute left-0 right-0 h-px pointer-events-none z-10"
-                style={{
-                  background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.4), transparent)',
-                  opacity: 0,
-                }}
-              />
-              <p className="text-[9px] sm:text-[10px] font-medium uppercase tracking-[0.15em] mb-2 font-sans" style={{ color: 'rgba(168,85,247,0.6)' }}>
-                YOUR MESS
-              </p>
-              <div className="overflow-hidden">
-                <p
-                  className="typewriter-text font-mono overflow-hidden"
-                  style={{ fontSize: 'clamp(10px, 1.5vw, 12px)', color: '#ffffff', width: 0, whiteSpace: 'normal', wordBreak: 'break-word' }}
-                >
-                  {DEMO_INPUT}
+                key={i}
+                className={`mess-card mess-card-${i} absolute w-[240px] sm:w-[320px] rounded-2xl bg-[#1c1c1e]/85 backdrop-blur-2xl border border-white/10 p-4 sm:p-5 shadow-2xl flex flex-col gap-2.5 origin-center`}
+                style={{ opacity: 0, zIndex: MESS_CARDS.length - i }}
+              >
+                <div className="flex items-center gap-2">
+                  <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-[6px] flex items-center justify-center border shadow-inner ${card.app.bg} ${card.app.border}`}>
+                    <card.app.icon size={12} className={card.app.color} strokeWidth={2.5} />
+                  </div>
+                  <span className="text-[11px] sm:text-[12px] font-semibold tracking-wide text-white/60 uppercase">
+                    {card.app.name}
+                  </span>
+                </div>
+                <p className="text-[13px] sm:text-[14px] text-white/95 leading-relaxed font-medium line-clamp-4">
+                  {card.text}
                 </p>
               </div>
+            ))}
+          </div>
+
+          {/* ======================= */}
+          {/* PAGE 2: CONTEXT TEXT */}
+          {/* ======================= */}
+          <div className="core-text-2 absolute inset-0 flex items-center justify-center pointer-events-none z-40 px-6" style={{ opacity: 0 }}>
+            <h3 className="text-lg sm:text-xl md:text-2xl font-medium text-white/95 text-center max-w-2xl leading-relaxed font-sans drop-shadow-2xl">
+              You had the idea. The pitch. The thing you needed to say.<br className="hidden sm:block" />
+              <span className="text-white/60">But by the time you sat down to organize it, ten other things had already gotten in the way.</span>
+            </h3>
+          </div>
+
+          {/* ======================= */}
+          {/* PAGE 3: UPLOAD PAGE */}
+          {/* ======================= */}
+          <div className="core-text-3 absolute top-12 sm:top-16 left-0 right-0 flex flex-col items-center gap-3 z-40 pointer-events-none px-6" style={{ opacity: 0 }}>
+            <h3 className="text-lg sm:text-xl md:text-2xl font-medium text-white/95 text-center max-w-2xl leading-relaxed drop-shadow-2xl">
+              Paste your notes. Drop your screenshots.<br className="hidden sm:block" />
+              <span className="text-white/60">We'll find the structure hiding inside your mess.</span>
+            </h3>
+          </div>
+
+          <div className="upload-page-container absolute inset-0 flex items-center justify-center pointer-events-none z-30" style={{ opacity: 0 }}>
+            <div className="upload-dropzone w-[90%] max-w-[800px] h-[300px] sm:h-[400px] mt-16 sm:mt-20 rounded-3xl border-2 border-dashed border-purple-500/20 bg-white/5 backdrop-blur-sm flex flex-col items-center justify-center gap-4 relative overflow-hidden transition-colors" style={{ opacity: 0, transform: 'scale(0.95)' }}>
+              <UploadCloud className="upload-icon w-12 h-12 text-purple-500/50" />
+              <p className="text-sm font-medium text-purple-200/50 font-sans tracking-wide uppercase">Drop your mess here</p>
             </div>
 
-            {/* Arrow */}
-            <span className="demo-arrow text-lg sm:text-xl shrink-0" style={{ color: 'rgba(168,85,247,0.6)', opacity: 0 }}>
-              {isMobile ? '↓' : '→'}
-            </span>
-
-            {/* Right — clean output */}
-            <div
-              className="rounded-lg overflow-hidden"
-              style={{
-                background: 'rgba(14,12,24,0.8)',
-                border: '1px solid rgba(168,85,247,0.15)',
-                maxWidth: isMobile ? '100%' : 340,
-                flex: isMobile ? 'none' : 1,
-                width: isMobile ? '100%' : 'auto',
-              }}
-            >
-              {OUTPUT_SECTIONS.map((section, sIdx) => (
-                <div
-                  key={sIdx}
-                  className="output-section px-3 sm:px-4 py-2 sm:py-3"
-                  style={{
-                    borderBottom: sIdx < OUTPUT_SECTIONS.length - 1 ? '1px solid rgba(168,85,247,0.1)' : 'none',
-                    opacity: 0,
-                  }}
-                >
-                  <p className="output-label text-[8px] sm:text-[9px] font-medium uppercase tracking-[0.15em] mb-1 font-sans m-0" style={{ color: 'rgba(168,85,247,0.7)' }}>
-                    {section.label}
-                  </p>
-                  <p className="text-[10px] sm:text-[11px] m-0 leading-relaxed font-sans" style={{ color: '#ffffff' }}>
-                    {section.text}
-                  </p>
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-35" aria-hidden="true">
+              {/* Chart/App Screenshot */}
+              <div className="upload-item upload-item-0 absolute w-[140px] h-[180px] bg-zinc-900/90 backdrop-blur-xl rounded-xl border border-zinc-700 shadow-[0_20px_40px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden origin-center mt-16 sm:mt-20" style={{ opacity: 0 }}>
+                <div className="h-6 bg-zinc-800/80 flex items-center px-2.5 gap-1.5 border-b border-white/5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-red-400/80" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-yellow-400/80" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-400/80" />
                 </div>
-              ))}
+                <div className="flex-1 p-3 flex flex-col gap-2.5">
+                  <div className="w-full h-16 bg-gradient-to-t from-purple-500/20 to-purple-500/5 rounded-md border border-purple-500/20 flex items-end px-1">
+                    <div className="w-full h-8 bg-purple-500/40 rounded-t-md" />
+                  </div>
+                  <div className="w-3/4 h-2.5 bg-zinc-700/80 rounded-full" />
+                  <div className="w-1/2 h-2.5 bg-zinc-700/80 rounded-full" />
+                </div>
+              </div>
+
+              {/* iMessage */}
+              <div className="upload-item upload-item-1 absolute w-[160px] h-[210px] bg-zinc-950/90 backdrop-blur-xl rounded-2xl border border-green-500/20 shadow-[0_20px_40px_rgba(0,0,0,0.6)] flex flex-col p-3 gap-2 justify-end origin-center mt-16 sm:mt-20" style={{ opacity: 0 }}>
+                <div className="self-start bg-zinc-800 w-3/4 h-7 rounded-2xl rounded-bl-sm" />
+                <div className="self-end bg-green-600 w-2/3 h-7 rounded-2xl rounded-br-sm" />
+                <div className="self-end bg-green-600 w-5/6 h-12 rounded-2xl rounded-br-sm" />
+                <div className="self-start bg-zinc-800 w-2/3 h-7 rounded-2xl rounded-bl-sm" />
+              </div>
+
+              {/* Apple Note */}
+              <div className="upload-item upload-item-2 absolute w-[160px] h-[160px] bg-[#fbf9f1]/95 backdrop-blur-xl rounded-xl border border-yellow-300/50 shadow-[0_20px_40px_rgba(0,0,0,0.6)] p-4 flex flex-col gap-2.5 origin-center mt-16 sm:mt-20" style={{ opacity: 0 }}>
+                <div className="text-yellow-900 font-bold text-[12px] font-sans tracking-tight">Meeting Notes</div>
+                <div className="w-full h-1.5 bg-yellow-800/15 rounded-full mt-1" />
+                <div className="w-5/6 h-1.5 bg-yellow-800/15 rounded-full" />
+                <div className="w-full h-1.5 bg-yellow-800/15 rounded-full" />
+                <div className="w-4/6 h-1.5 bg-yellow-800/15 rounded-full" />
+                <div className="w-full h-1.5 bg-yellow-800/15 rounded-full mt-1" />
+              </div>
+
+              {/* Image */}
+              <div className="upload-item upload-item-3 absolute w-[140px] h-[140px] bg-zinc-800/90 backdrop-blur-xl rounded-xl border border-blue-500/20 shadow-[0_20px_40px_rgba(0,0,0,0.6)] flex items-center justify-center relative overflow-hidden origin-center mt-16 sm:mt-20" style={{ opacity: 0 }}>
+                <ImageIcon className="text-blue-300/80 w-10 h-10 z-10 drop-shadow-lg" />
+                <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/20 to-purple-500/20" />
+              </div>
             </div>
           </div>
 
-          {/* Demo tagline */}
-          <p
-            className="demo-tagline absolute bottom-6 left-0 right-0 text-center font-sans"
-            style={{ fontSize: 'clamp(11px, 1.8vw, 13px)', color: '#ffffff', opacity: 0 }}
-          >
-            Overstimulated → Articulate. In seconds.
-          </p>
-
-          {/* CTA */}
-          <div className="cta-area absolute inset-0 flex items-center justify-center z-20" style={{ opacity: 0 }}>
-            <button
-              onClick={() => navigate('/dashboard')}
-              className="px-8 py-3.5 rounded-full text-primary-foreground font-medium magenta-gradient text-base hover:opacity-90 hover:scale-105 transition-all cursor-pointer"
+          {/* ======================= */}
+          {/* PAGE 4: SYNTHESIS */}
+          {/* ======================= */}
+          <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
+            <div
+              className="consolidated-card relative w-[92%] max-w-[640px] bg-[#14121a]/95 backdrop-blur-2xl border border-purple-500/40 rounded-2xl shadow-[0_0_80px_rgba(168,85,247,0.25)] overflow-hidden flex flex-col"
+              style={{ opacity: 0, scale: 0.5, filter: 'blur(10px)', minHeight: '340px' }}
             >
-              Clear your head →
-            </button>
+              {/* Simplified header */}
+              <div className="h-11 bg-white/5 border-b border-white/10 flex items-center justify-between px-5">
+                <div className="flex items-center gap-2.5">
+                  <Sparkles className="text-purple-400 w-4 h-4" />
+                  <span className="text-[11px] font-semibold text-purple-200/80 tracking-widest uppercase font-sans">PitchVoid</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
+                  <span className="text-[10px] font-mono text-purple-300/60 uppercase tracking-wider">Processing</span>
+                </div>
+              </div>
+
+              <div className="relative p-6 sm:p-8 flex-1 flex flex-col justify-center">
+                <div className="mess-text-container absolute inset-0 p-6 sm:p-10 flex flex-col justify-center gap-5">
+                  {COMBINED_MESS.map((paragraph, idx) => (
+                    <p key={idx} className="font-mono text-[11px] sm:text-[13px] text-white/50 leading-relaxed">
+                      {paragraph}
+                    </p>
+                  ))}
+                </div>
+
+                <div
+                  className="process-scanline absolute left-0 right-0 h-[3px] bg-purple-400 shadow-[0_0_25px_3px_rgba(168,85,247,1)] z-20 pointer-events-none"
+                  style={{ opacity: 0, top: '0%' }}
+                />
+
+                {/* 3 clean output sections */}
+                <div className="clean-sections absolute inset-0 p-6 sm:p-10 flex flex-col justify-center gap-6 sm:gap-8 z-10">
+                  {OUTPUT_SECTIONS.map((sec, i) => (
+                    <div key={i} className={`clean-sec clean-sec-${i}`} style={{ opacity: 0, y: 15, filter: 'blur(4px)' }}>
+                      <p className="text-[10px] sm:text-[11px] font-bold text-purple-400 tracking-[0.2em] uppercase mb-1.5 sm:mb-2 font-sans">
+                        {sec.label}
+                      </p>
+                      <p className="text-[14px] sm:text-[16px] text-white/95 font-medium leading-relaxed font-sans">
+                        {sec.text}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
+
+          {/* ======================= */}
+          {/* PAGE 5: CTA */}
+          {/* ======================= */}
+          <div className="absolute bottom-8 sm:bottom-12 left-0 right-0 flex flex-col items-center gap-5 z-50 pointer-events-none">
+            <p
+              className="demo-tagline font-sans font-medium text-[13px] sm:text-[15px]"
+              style={{ color: '#ffffff', opacity: 0 }}
+            >
+              Overstimulated → Articulate. In seconds.
+            </p>
+            <div className="cta-area pointer-events-auto" style={{ opacity: 0, scale: 0.9 }}>
+              <button
+                onClick={() => navigate('/dashboard')}
+                className="px-8 py-3.5 rounded-full text-primary-foreground font-semibold magenta-gradient text-base sm:text-lg hover:opacity-90 hover:scale-105 transition-all cursor-pointer shadow-[0_0_30px_rgba(168,85,247,0.5)] border border-white/20"
+              >
+                Clear your head →
+              </button>
+            </div>
+          </div>
+
         </div>
       </div>
     </section>
