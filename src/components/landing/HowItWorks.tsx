@@ -27,22 +27,22 @@ const MESS_CARDS = [
 const getScatteredPositions = (windowWidth: number) => {
   const isMobile = windowWidth < 640;
   const containerWidth = Math.min(windowWidth - 32, 1100);
-  const containerHeight = isMobile ? 440 : Math.min(windowWidth * 0.75, 760);
+  const containerHeight = isMobile ? 560 : Math.min(windowWidth * 0.75, 760);
 
-  const scale = isMobile ? 0.55 : (windowWidth < 1024 ? 0.85 : 1);
-  const cardW = (isMobile ? 200 : 320) * scale;
+  const scale = isMobile ? 0.6 : (windowWidth < 1024 ? 0.85 : 1);
+  const cardW = (isMobile ? 180 : 320) * scale;
   const cardH = 120 * scale;
 
   const maxX = Math.max(0, (containerWidth / 2) - (cardW / 2) - 10);
-  const maxY = Math.max(0, (containerHeight / 2) - (cardH / 2) - 10);
+  const maxY = Math.max(0, (containerHeight / 2) - (cardH / 2) - 20);
 
   const normalized = isMobile
     ? [
-        { x: -0.3, y: -0.55, r: -6 },
-        { x: 0.3, y: -0.3, r: 8 },
-        { x: 0, y: 0.05, r: -3 },
-        { x: -0.35, y: 0.4, r: 7 },
-        { x: 0.35, y: 0.55, r: -5 },
+        { x: -0.25, y: -0.6, r: -6 },
+        { x: 0.25, y: -0.35, r: 8 },
+        { x: -0.05, y: -0.05, r: -3 },
+        { x: -0.3, y: 0.3, r: 7 },
+        { x: 0.3, y: 0.55, r: -5 },
       ]
     : [
         { x: -0.6, y: -0.5, r: -8 },
@@ -62,10 +62,10 @@ const getScatteredPositions = (windowWidth: number) => {
 const getUploadPositions = (windowWidth: number) => {
   if (windowWidth < 640) {
     return [
-      { x: -70, y: -60, r: -6 },
-      { x: 70, y: -30, r: 8 },
-      { x: -50, y: 50, r: 4 },
-      { x: 60, y: 60, r: -7 },
+      { x: -80, y: -70, r: -6 },
+      { x: 80, y: -40, r: 8 },
+      { x: -60, y: 60, r: 4 },
+      { x: 70, y: 70, r: -7 },
     ];
   }
   const scale = windowWidth < 1024 ? 0.8 : 1;
@@ -155,7 +155,7 @@ export default function HowItWorks() {
 
           const currentWidth = window.innerWidth;
           const positions = getScatteredPositions(currentWidth);
-          const cardScale = currentWidth < 640 ? 0.55 : (currentWidth < 1024 ? 0.85 : 1);
+          const cardScale = currentWidth < 640 ? 0.6 : (currentWidth < 1024 ? 0.85 : 1);
 
           const scatterAnims: any[] = MESS_CARDS.map((_, i) => [
             `.mess-card-${i}`,
@@ -196,7 +196,7 @@ export default function HowItWorks() {
           ]);
 
           const uploadPositions = getUploadPositions(currentWidth);
-          const uploadScale = currentWidth < 640 ? 0.55 : 0.9;
+          const uploadScale = currentWidth < 640 ? 0.6 : 0.9;
 
           const dropAnims: any[] = [0, 1, 2, 3].map((i) => [
             `.upload-item-${i}`,
@@ -283,10 +283,10 @@ export default function HowItWorks() {
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
           border: '1px solid rgba(168,85,247,0.15)',
-          minHeight: isMobile ? '460px' : 'clamp(680px, 75vw, 760px)',
+          minHeight: isMobile ? '580px' : 'clamp(680px, 75vw, 760px)',
         }}
       >
-        <div className="relative w-full h-full flex items-center justify-center" style={{ minHeight: isMobile ? '460px' : 'clamp(680px, 75vw, 760px)' }}>
+        <div className="relative w-full h-full flex items-center justify-center" style={{ minHeight: isMobile ? '580px' : 'clamp(680px, 75vw, 760px)' }}>
 
           {/* ======================= */}
           {/* PAGE 1: TEXT */}
@@ -343,7 +343,7 @@ export default function HowItWorks() {
           </div>
 
           <div className="upload-page-container absolute inset-0 flex items-center justify-center pointer-events-none z-30" style={{ opacity: 0 }}>
-            <div className="upload-dropzone w-[88%] max-w-[800px] h-[200px] sm:h-[400px] mt-12 sm:mt-20 rounded-2xl sm:rounded-3xl border-2 border-dashed border-purple-500/20 bg-white/5 backdrop-blur-sm flex flex-col items-center justify-center gap-3 sm:gap-4 relative overflow-hidden transition-colors" style={{ opacity: 0, transform: 'scale(0.95)' }}>
+            <div className="upload-dropzone w-[88%] max-w-[800px] h-[260px] sm:h-[400px] mt-16 sm:mt-20 rounded-2xl sm:rounded-3xl border-2 border-dashed border-purple-500/20 bg-white/5 backdrop-blur-sm flex flex-col items-center justify-center gap-3 sm:gap-4 relative overflow-hidden transition-colors" style={{ opacity: 0, transform: 'scale(0.95)' }}>
               <UploadCloud className="upload-icon w-12 h-12 text-purple-500/50" />
               <p className="text-sm font-medium text-purple-200/50 font-sans tracking-wide uppercase">Drop your mess here</p>
             </div>
@@ -397,7 +397,7 @@ export default function HowItWorks() {
           <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
             <div
               className="consolidated-card relative w-[92%] max-w-[640px] bg-[#14121a]/95 backdrop-blur-2xl border border-purple-500/40 rounded-xl sm:rounded-2xl shadow-[0_0_80px_rgba(168,85,247,0.25)] overflow-hidden flex flex-col"
-              style={{ opacity: 0, scale: 0.5, filter: 'blur(10px)', minHeight: isMobile ? '280px' : '340px' }}
+              style={{ opacity: 0, scale: 0.5, filter: 'blur(10px)', minHeight: isMobile ? '360px' : '380px' }}
             >
               {/* Simplified header */}
               <div className="h-11 bg-white/5 border-b border-white/10 flex items-center justify-between px-5">
@@ -445,7 +445,7 @@ export default function HowItWorks() {
           {/* ======================= */}
           {/* PAGE 5: CTA */}
           {/* ======================= */}
-          <div className="absolute bottom-4 sm:bottom-12 left-0 right-0 flex flex-col items-center gap-3 sm:gap-5 z-50 pointer-events-none">
+          <div className="absolute bottom-6 sm:bottom-12 left-0 right-0 flex flex-col items-center gap-3 sm:gap-5 z-50 pointer-events-none">
             <p
               className="demo-tagline font-sans font-medium text-[13px] sm:text-[15px]"
               style={{ color: '#ffffff', opacity: 0 }}
