@@ -473,7 +473,7 @@ export default function HowItWorks() {
                 <div className="clean-sections absolute inset-0 flex flex-col justify-center z-10"
                   style={{ padding: rv('14px', '20px 28px', '28px 36px', width) as string, gap: rv(16, 22, 32, width) as number }}>
                   {OUTPUT_SECTIONS.map((sec, i) => (
-                    <div key={i} className={`clean-sec clean-sec-${i}`} style={{ opacity: 0, y: 15, filter: 'blur(4px)' }}>
+                    <div key={i} className={`clean-sec clean-sec-${i}`} style={{ opacity: 0, transform: 'translateY(15px)', filter: 'blur(4px)' }}>
                       <p className="font-bold text-purple-400 tracking-[0.2em] uppercase font-sans"
                         style={{ fontSize: rv(8, 9, 11, width) as number, marginBottom: rv(3, 5, 8, width) as number }}>
                         {sec.label}
