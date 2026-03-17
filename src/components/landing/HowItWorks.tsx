@@ -497,7 +497,7 @@ export default function HowItWorks() {
               padding: '0 16px',
             }}>
             <p className="demo-tagline font-sans font-medium text-white"
-              style={{ opacity: 0, y: 10, fontSize: rv(11, 13, 15, width) as number }}>
+              style={{ opacity: 0, transform: 'translateY(10px)', fontSize: rv(11, 13, 15, width) as number }}>
               Overstimulated → Articulate. In seconds.
             </p>
             <div className="cta-area pointer-events-auto" style={{ opacity: 0, scale: 0.9 }}>
