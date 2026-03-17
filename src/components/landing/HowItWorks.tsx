@@ -304,7 +304,7 @@ export default function HowItWorks() {
             {MESS_CARDS.map((card, i) => (
               <div
                 key={i}
-                className={`mess-card mess-card-${i} absolute w-[240px] sm:w-[320px] rounded-2xl bg-[#1c1c1e]/85 backdrop-blur-2xl border border-white/10 p-4 sm:p-5 shadow-2xl flex flex-col gap-2.5 origin-center`}
+                className={`mess-card mess-card-${i} absolute w-[180px] sm:w-[320px] rounded-xl sm:rounded-2xl bg-[#1c1c1e]/85 backdrop-blur-2xl border border-white/10 p-3 sm:p-5 shadow-2xl flex flex-col gap-1.5 sm:gap-2.5 origin-center`}
                 style={{ opacity: 0, zIndex: MESS_CARDS.length - i }}
               >
                 <div className="flex items-center gap-2">
