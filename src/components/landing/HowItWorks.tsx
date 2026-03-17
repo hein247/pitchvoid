@@ -326,7 +326,7 @@ export default function HowItWorks() {
           {/* PAGE 2: CONTEXT TEXT */}
           {/* ======================= */}
           <div className="core-text-2 absolute inset-0 flex items-center justify-center pointer-events-none z-40 px-5" style={{ opacity: 0 }}>
-            <h3 className="text-lg sm:text-xl md:text-2xl font-medium text-white/95 text-center max-w-2xl leading-relaxed font-sans drop-shadow-2xl">
+            <h3 className="text-base sm:text-xl md:text-2xl font-medium text-white/95 text-center max-w-2xl leading-relaxed font-sans drop-shadow-2xl">
               You had the idea. The pitch. The thing you needed to say.<br className="hidden sm:block" />
               <span className="text-white/60">But by the time you sat down to organize it, ten other things had already gotten in the way.</span>
             </h3>
