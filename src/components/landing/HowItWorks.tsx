@@ -196,7 +196,7 @@ export default function HowItWorks() {
           ]);
 
           const uploadPositions = getUploadPositions(currentWidth);
-          const uploadScale = currentWidth < 640 ? 0.55 : 0.9;
+          const uploadScale = currentWidth < 640 ? 0.6 : 0.9;
 
           const dropAnims: any[] = [0, 1, 2, 3].map((i) => [
             `.upload-item-${i}`,
