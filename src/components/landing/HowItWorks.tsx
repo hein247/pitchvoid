@@ -445,9 +445,9 @@ export default function HowItWorks() {
           {/* ======================= */}
           {/* PAGE 5: CTA */}
           {/* ======================= */}
-          <div className="absolute bottom-6 sm:bottom-12 left-0 right-0 flex flex-col items-center gap-6 sm:gap-5 z-50 pointer-events-none">
+          <div className="absolute bottom-2 sm:bottom-12 left-0 right-0 flex flex-col items-center gap-7 sm:gap-5 z-50 pointer-events-none px-4">
             <p
-              className="demo-tagline font-sans font-medium text-[13px] sm:text-[15px]"
+              className="demo-tagline max-w-[280px] text-center leading-tight font-sans font-medium text-[13px] sm:max-w-none sm:text-[15px]"
               style={{ color: '#ffffff', opacity: 0 }}
             >
               Overstimulated → Articulate. In seconds.
