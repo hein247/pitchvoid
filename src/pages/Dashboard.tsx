@@ -1088,6 +1088,27 @@ const Dashboard = () => {
                 }
               }} />
 
+              {/* Attached files preview */}
+              {attachedFiles.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-3 mb-1">
+                  {attachedFiles.map((af) => {
+                    const FileIcon = getFileIcon(af.type);
+                    return (
+                      <div key={af.id} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-xs text-foreground/80">
+                        <FileIcon className="w-3 h-3 text-accent/60" />
+                        <span className="max-w-[120px] truncate">{af.name}</span>
+                        <button
+                          onClick={() => setAttachedFiles((prev) => prev.filter((f) => f.id !== af.id))}
+                          className="ml-0.5 text-muted-foreground hover:text-foreground"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
               <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/30">
                 <div className="flex items-center gap-2">
                   <button
@@ -1096,8 +1117,41 @@ const Dashboard = () => {
                   isRecording ? 'bg-red-500/20 text-red-400' : 'text-muted-foreground hover:text-foreground hover:bg-accent/10'}`
                   }
                   title="Voice input">
-
                     <Mic className="w-4 h-4" />
+                  </button>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={(e) => {
+                      if (e.target.files) {
+                        const files = Array.from(e.target.files);
+                        const { validFiles, errors, overLimit } = validateFiles(files, attachedFiles.length);
+                        if (overLimit) {
+                          toast({ title: `Max ${MAX_FILES} files`, variant: 'destructive' });
+                        }
+                        errors.forEach((err) => toast({ title: err.message, variant: 'destructive' }));
+                        const newAttached = validFiles.map((f) => ({
+                          id: crypto.randomUUID(),
+                          file: f,
+                          name: f.name,
+                          size: f.size,
+                          type: f.type,
+                          progress: 100,
+                        }));
+                        setAttachedFiles((prev) => [...prev, ...newAttached].slice(0, MAX_FILES));
+                      }
+                      e.target.value = '';
+                    }}
+                    accept={FILE_UPLOAD_CONFIG.acceptString}
+                    multiple
+                    className="hidden"
+                  />
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="p-2 rounded-lg transition-colors text-muted-foreground hover:text-foreground hover:bg-accent/10"
+                    title="Attach files"
+                  >
+                    <Upload className="w-4 h-4" />
                   </button>
                   {isRecording &&
                 <span className="text-xs text-red-400 font-mono">{formatTime(recordingTime)}</span>
