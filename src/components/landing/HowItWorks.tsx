@@ -350,7 +350,7 @@ export default function HowItWorks() {
 
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-35" aria-hidden="true">
               {/* Chart/App Screenshot */}
-              <div className="upload-item upload-item-0 absolute w-[140px] h-[180px] bg-zinc-900/90 backdrop-blur-xl rounded-xl border border-zinc-700 shadow-[0_20px_40px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden origin-center mt-16 sm:mt-20" style={{ opacity: 0 }}>
+              <div className="upload-item upload-item-0 absolute w-[100px] sm:w-[140px] h-[130px] sm:h-[180px] bg-zinc-900/90 backdrop-blur-xl rounded-xl border border-zinc-700 shadow-[0_20px_40px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden origin-center mt-12 sm:mt-20" style={{ opacity: 0 }}>
                 <div className="h-6 bg-zinc-800/80 flex items-center px-2.5 gap-1.5 border-b border-white/5">
                   <div className="w-1.5 h-1.5 rounded-full bg-red-400/80" />
                   <div className="w-1.5 h-1.5 rounded-full bg-yellow-400/80" />
