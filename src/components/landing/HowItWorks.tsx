@@ -291,8 +291,8 @@ export default function HowItWorks() {
           {/* ======================= */}
           {/* PAGE 1: TEXT */}
           {/* ======================= */}
-          <div className="core-text-1 absolute inset-0 flex items-center justify-center pointer-events-none z-40 px-6" style={{ opacity: 0 }}>
-            <h3 className="text-2xl sm:text-3xl md:text-4xl font-medium text-white/90 text-center max-w-lg leading-tight font-sans drop-shadow-2xl">
+          <div className="core-text-1 absolute inset-0 flex items-center justify-center pointer-events-none z-40 px-5" style={{ opacity: 0 }}>
+            <h3 className="text-xl sm:text-3xl md:text-4xl font-medium text-white/90 text-center max-w-lg leading-tight font-sans drop-shadow-2xl">
               Your brain is a group chat<br className="hidden sm:block" /> you can't mute.
             </h3>
           </div>
