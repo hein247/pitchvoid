@@ -103,7 +103,7 @@ const Navbar = ({
               </button>
               <button
                 onClick={() => navigate('/pricing')}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors py-3 text-left border-b border-accent/10"
+                className="text-sm font-display text-muted-foreground hover:text-foreground transition-colors py-3 text-left border-b border-accent/10"
               >
                 Pricing
               </button>
