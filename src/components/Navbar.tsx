@@ -73,7 +73,7 @@ const Navbar = ({
               </button>
               <button
                 onClick={() => navigate('/auth')}
-                className="px-5 py-2.5 rounded-xl text-sm text-primary-foreground font-medium magenta-gradient hover:opacity-90 transition-opacity"
+                className="px-5 py-2.5 rounded-xl text-sm font-display text-primary-foreground font-medium magenta-gradient hover:opacity-90 transition-opacity"
               >
                 Get Started Free
               </button>
