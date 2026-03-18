@@ -97,7 +97,7 @@ const Navbar = ({
             <nav className="flex flex-col gap-4 mt-8">
               <button
                 onClick={() => navigate('/why')}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors py-3 text-left border-b border-accent/10"
+                className="text-sm font-display text-muted-foreground hover:text-foreground transition-colors py-3 text-left border-b border-accent/10"
               >
                 Why The Void?
               </button>
