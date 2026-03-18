@@ -45,7 +45,7 @@ const Navbar = ({
         <div className="hidden md:flex items-center gap-8">
           <button
             onClick={() => navigate('/why')}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="text-sm font-display text-muted-foreground hover:text-foreground transition-colors"
           >
             Why The Void?
           </button>
