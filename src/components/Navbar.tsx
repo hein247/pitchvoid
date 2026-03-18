@@ -51,7 +51,7 @@ const Navbar = ({
           </button>
           <button
             onClick={() => navigate('/pricing')}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="text-sm font-display text-muted-foreground hover:text-foreground transition-colors"
           >
             Pricing
           </button>
