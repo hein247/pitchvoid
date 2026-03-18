@@ -67,7 +67,7 @@ const Navbar = ({
             <>
               <button
                 onClick={() => navigate('/auth')}
-                className="text-sm text-foreground/80 hover:text-foreground transition-colors"
+                className="text-sm font-display text-foreground/80 hover:text-foreground transition-colors"
               >
                 Log In
               </button>
