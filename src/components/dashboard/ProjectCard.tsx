@@ -76,7 +76,7 @@ const ProjectCard = ({
         className={`relative w-full text-left rounded-[10px] border border-border/50 bg-[hsl(260_20%_8%/0.95)] backdrop-blur-md hover:border-[hsl(270_60%_60%/0.3)] hover:bg-[hsl(260_20%_10%/0.95)] transition-all ${enableMotion ? 'duration-200 hover:transform-gpu hover:will-change-transform' : 'duration-150'} p-4 sm:p-5 cursor-pointer`}
       >
       {/* Title */}
-      <h3 className="text-[15px] font-semibold text-white/90 group-hover/glow:text-primary transition-colors truncate font-display leading-snug">
+      <h3 className="text-base sm:text-lg font-semibold text-white group-hover/glow:text-primary transition-colors truncate font-display leading-snug">
         {displayTitle}
       </h3>
 
