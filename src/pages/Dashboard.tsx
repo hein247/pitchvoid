@@ -1188,8 +1188,12 @@ const Dashboard = () => {
           }
 
 
-            {/* Separator */}
-            <div className="h-px w-full bg-border/40 mb-6" />
+            {/* Separator between prompt and projects */}
+            <div className="flex items-center gap-3 mb-6 mt-2">
+              <div className="flex-1 h-px bg-border/30" />
+              <span className="text-[11px] uppercase tracking-widest text-muted-foreground/30 font-medium">Projects</span>
+              <div className="flex-1 h-px bg-border/30" />
+            </div>
 
             {/* Projects Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
