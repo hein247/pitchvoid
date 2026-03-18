@@ -73,7 +73,7 @@ const ProjectCard = ({
         animate={enableMotion ? { opacity: 1, y: 0 } : undefined}
         whileHover={enableMotion ? { y: -2 } : undefined}
         transition={enableMotion ? { duration: 0.25 } : undefined}
-        className={`relative w-full text-left rounded-[10px] border border-border/50 bg-[hsl(260_20%_8%/0.95)] backdrop-blur-md hover:border-[hsl(270_60%_60%/0.3)] hover:bg-[hsl(260_20%_10%/0.95)] transition-all ${enableMotion ? 'duration-200 hover:transform-gpu hover:will-change-transform' : 'duration-150'} p-4 sm:p-5 cursor-pointer`}
+        className={`relative w-full text-left rounded-[10px] border border-white/10 bg-[hsl(260_20%_10%/0.95)] backdrop-blur-md hover:border-[hsl(270_60%_65%/0.4)] hover:bg-[hsl(260_20%_12%/0.95)] transition-all ${enableMotion ? 'duration-200 hover:transform-gpu hover:will-change-transform' : 'duration-150'} p-4 sm:p-5 cursor-pointer`}
       >
       {/* Title */}
       <h3 className="text-base sm:text-lg font-semibold text-white group-hover/glow:text-primary transition-colors truncate font-display leading-snug">
@@ -82,7 +82,7 @@ const ProjectCard = ({
 
       {/* Description */}
       {scenarioDescription && (
-        <p className="mt-1.5 text-xs text-white/50 line-clamp-2 leading-relaxed">
+        <p className="mt-1.5 text-xs text-white/60 line-clamp-2 leading-relaxed">
           {scenarioDescription}
         </p>
       )}
@@ -91,19 +91,19 @@ const ProjectCard = ({
       <div className="mt-3 flex items-center gap-2">
         {/* Format pills */}
         {hasOnePager && (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-accent/10 border border-accent/20 text-[10px] text-white/60">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-accent/15 border border-accent/30 text-[10px] text-white/70">
             <FileText className="w-2.5 h-2.5" />
             One-Pager
           </span>
         )}
         {hasScript && (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 border border-primary/20 text-[10px] text-white/60">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/15 border border-primary/30 text-[10px] text-white/70">
             <ScrollText className="w-2.5 h-2.5" />
             Script
           </span>
         )}
         {status === 'draft' && !hasOnePager && !hasScript && (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-muted/30 border border-border/40 text-[10px] text-white/40">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-muted/30 border border-border/50 text-[10px] text-white/50">
             Draft
           </span>
         )}
@@ -112,7 +112,7 @@ const ProjectCard = ({
         <span className="flex-1" />
 
         {/* Timestamp */}
-        <span className="text-[11px] text-white/35 flex-shrink-0">{timeAgo}</span>
+        <span className="text-[11px] text-white/45 flex-shrink-0">{timeAgo}</span>
 
         {/* Overflow menu */}
         <div onClick={e => e.stopPropagation()}>
