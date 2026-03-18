@@ -45,13 +45,13 @@ const Navbar = ({
         <div className="hidden md:flex items-center gap-8">
           <button
             onClick={() => navigate('/why')}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="text-sm font-display text-muted-foreground hover:text-foreground transition-colors"
           >
             Why The Void?
           </button>
           <button
             onClick={() => navigate('/pricing')}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="text-sm font-display text-muted-foreground hover:text-foreground transition-colors"
           >
             Pricing
           </button>
@@ -67,13 +67,13 @@ const Navbar = ({
             <>
               <button
                 onClick={() => navigate('/auth')}
-                className="text-sm text-foreground/80 hover:text-foreground transition-colors"
+                className="text-sm font-display text-foreground/80 hover:text-foreground transition-colors"
               >
                 Log In
               </button>
               <button
                 onClick={() => navigate('/auth')}
-                className="px-5 py-2.5 rounded-xl text-sm text-primary-foreground font-medium magenta-gradient hover:opacity-90 transition-opacity"
+                className="px-5 py-2.5 rounded-xl text-sm font-display text-primary-foreground font-medium magenta-gradient hover:opacity-90 transition-opacity"
               >
                 Get Started Free
               </button>
@@ -97,13 +97,13 @@ const Navbar = ({
             <nav className="flex flex-col gap-4 mt-8">
               <button
                 onClick={() => navigate('/why')}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors py-3 text-left border-b border-accent/10"
+                className="text-sm font-display text-muted-foreground hover:text-foreground transition-colors py-3 text-left border-b border-accent/10"
               >
                 Why The Void?
               </button>
               <button
                 onClick={() => navigate('/pricing')}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors py-3 text-left border-b border-accent/10"
+                className="text-sm font-display text-muted-foreground hover:text-foreground transition-colors py-3 text-left border-b border-accent/10"
               >
                 Pricing
               </button>
