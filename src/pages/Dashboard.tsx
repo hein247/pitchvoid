@@ -1149,7 +1149,7 @@ const Dashboard = () => {
                   <button
                   onClick={isRecording ? handleStopRecording : () => {setIsRecording(true);setRecordingTime(0);}}
                   className={`p-2 rounded-lg transition-colors ${
-                  isRecording ? 'bg-red-500/20 text-red-400' : 'text-muted-foreground/50 hover:text-foreground hover:bg-accent/10'}`
+                  isRecording ? 'bg-red-500/20 text-red-400' : 'text-white/60 hover:text-white hover:bg-accent/10'}`
                   }
                   title="Voice input">
                     <Mic className="w-4 h-4" />
