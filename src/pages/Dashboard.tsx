@@ -1171,7 +1171,7 @@ const Dashboard = () => {
                 disabled={isParsing || isOffline}
                 className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-primary-foreground magenta-gradient disabled:opacity-40 transition-opacity">
 
-                  {isParsing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                  {isParsing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />}
                   Generate
                 </button>
               </div>
