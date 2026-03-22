@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Mic, Plus, ArrowLeft, X, Play, Share2, Home, FileText, Upload, File, Image, ScrollText, Check, Edit2, Users, Target, Zap, Clock, Briefcase, Handshake, TrendingUp, Presentation, Download, Lock, MoreVertical, Copy } from 'lucide-react';
+import { Loader2, Mic, Plus, ArrowLeft, X, Play, Share2, Home, FileText, Upload, File, Image, ScrollText, Check, Edit2, Users, Target, Sparkles, Zap, Clock, Briefcase, Handshake, TrendingUp, Presentation, Download, Lock, MoreVertical, Copy } from 'lucide-react';
 import ShareModal from '@/components/dashboard/ShareModal';
 import FocusMode from '@/components/dashboard/FocusMode';
 import { Progress } from '@/components/ui/progress';
