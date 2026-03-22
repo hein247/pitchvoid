@@ -19,7 +19,7 @@
 @layer base {
   :root {
     /* Pure black base */
-    --background: 0 0% 0%;
+    --background: 0 0% 7%;
     --foreground: 30 15% 92%;
     
     /* Surface colors – dark */
@@ -93,7 +93,7 @@
   
   /* Dark mode specific bg */
   :root:not(.light) body {
-    background-color: hsl(0 0% 0%);
+    background-color: hsl(0 0% 7%);
   }
   
   .light body {
