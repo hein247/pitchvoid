@@ -1240,7 +1240,7 @@ const Dashboard = () => {
 
       {/* Project View */}
       {currentView === 'project' && activeProject &&
-      <div className="min-h-screen flex flex-col bg-background">
+      <div className="min-h-screen flex flex-col bg-[hsl(0_0%_7%)]">
           {/* Preview Panel — full screen */}
           <div className="grain-bg flex flex-col relative flex-1">
             <header className="px-3 sm:px-6 py-3 sm:py-4 flex items-center gap-2 sm:gap-3 justify-between border-b border-border relative z-50">
