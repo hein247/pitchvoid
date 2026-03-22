@@ -1011,7 +1011,7 @@ const Dashboard = () => {
   }
 
   return (
-    <PageTransition><div className="min-h-screen relative transition-colors duration-300 bg-background">
+    <PageTransition><div className="min-h-screen relative transition-colors duration-300 bg-[hsl(0_0%_7%)]">
       {/* Install Banner */}
       {showInstallPrompt && currentView === 'dashboard' &&
       <div className="fixed top-0 left-0 right-0 z-50 p-2 sm:p-3 install-banner animate-slideDown">
