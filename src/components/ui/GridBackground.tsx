@@ -37,7 +37,7 @@ const GridBackground = () => {
       <div 
         className="absolute inset-0"
         style={{
-          background: 'linear-gradient(180deg, hsl(0 0% 2%) 0%, hsl(0 0% 4%) 50%, hsl(0 0% 2%) 100%)',
+          background: 'linear-gradient(180deg, hsl(0 0% 2% / 0.5) 0%, hsl(0 0% 4% / 0.5) 50%, hsl(0 0% 2% / 0.5) 100%)',
         }}
       />
 
