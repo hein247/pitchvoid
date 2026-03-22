@@ -19,7 +19,7 @@
 @layer base {
   :root {
     /* Pure black base */
-    --background: 0 0% 7%;
+    --background: 0 0% 0%;
     --foreground: 30 15% 92%;
     
     /* Surface colors – dark */
