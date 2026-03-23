@@ -7,6 +7,8 @@ project_id = "kixwyufvyfnvtgzbisqy"
     verify_jwt = false
   [functions.customer-portal]
     verify_jwt = false
+  [functions.generate-demo]
+    verify_jwt = false
   [functions.generate-one-pager]
     verify_jwt = false
   [functions.generate-script]

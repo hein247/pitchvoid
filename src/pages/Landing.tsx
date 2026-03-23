@@ -108,6 +108,7 @@ const Landing = () => {
           </div>
         </section>
 
+        <LiveDemo />
         <HowItWorks />
 
         {/* CTA Section */}
