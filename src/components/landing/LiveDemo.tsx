@@ -47,7 +47,7 @@ const LiveDemo = () => {
         if (data.errorType === 'rate_limit') {
           toast({
             title: 'Demo limit reached',
-            description: 'You've already tried the demo. Sign up for 3 free credits.',
+            description: "You've already tried the demo. Sign up for 3 free credits.",
             variant: 'destructive',
           });
           return;
