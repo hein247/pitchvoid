@@ -114,7 +114,7 @@ const LiveDemo = () => {
               disabled={isGenerating || !!output}
               rows={5}
               maxLength={5000}
-              className="relative w-full rounded-[19px] bg-card/80 text-foreground placeholder:text-muted-foreground/60 px-6 py-5 text-sm sm:text-base leading-relaxed resize-none focus:outline-none transition-all"
+              className="relative w-full rounded-[19px] bg-background text-foreground placeholder:text-muted-foreground/60 px-6 py-5 text-sm sm:text-base leading-relaxed resize-none focus:outline-none transition-all"
               style={{
                 boxShadow: '0 0 40px -10px hsl(25 75% 65% / 0.08)'
               }}
