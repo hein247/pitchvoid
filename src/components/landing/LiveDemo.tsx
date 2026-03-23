@@ -95,18 +95,31 @@ const LiveDemo = () => {
           animate={shakeInput ? { x: [-8, 8, -6, 6, -3, 3, 0] } : {}}
           transition={{ duration: 0.4 }}>
           
-          <textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Brain dump your thoughts here..."
-            disabled={isGenerating || !!output}
-            rows={5}
-            maxLength={5000}
-            className="w-full rounded-[20px] border bg-card/50 text-foreground placeholder:text-muted-foreground/60 px-6 py-5 text-sm sm:text-base leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all opacity-90"
-            style={{
-              borderColor: shakeInput ? 'hsl(0 70% 50% / 0.6)' : 'rgba(240,237,246,0.08)',
-              boxShadow: '0 0 40px -10px hsl(25 75% 65% / 0.08)'
-            }} />
+          <div className="relative rounded-[20px] p-[1px] overflow-hidden">
+            {/* Animated gradient border */}
+            <div
+              className="absolute inset-0 rounded-[20px] animate-gradient-x"
+              style={{
+                background: shakeInput
+                  ? 'hsl(0 70% 50% / 0.6)'
+                  : 'linear-gradient(90deg, hsl(var(--primary)), hsl(var(--secondary)), hsl(var(--primary)), hsl(var(--secondary)))',
+                backgroundSize: '300% 100%',
+                opacity: 0.5,
+              }}
+            />
+            <textarea
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Brain dump your thoughts here..."
+              disabled={isGenerating || !!output}
+              rows={5}
+              maxLength={5000}
+              className="relative w-full rounded-[19px] bg-card/80 text-foreground placeholder:text-muted-foreground/60 px-6 py-5 text-sm sm:text-base leading-relaxed resize-none focus:outline-none transition-all"
+              style={{
+                boxShadow: '0 0 40px -10px hsl(25 75% 65% / 0.08)'
+              }}
+            />
+          </div>
           
         </motion.div>
 
