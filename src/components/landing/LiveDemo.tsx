@@ -79,7 +79,15 @@ const LiveDemo = () => {
   };
 
   return (
-    <section className="max-w-2xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
+    <section className="relative py-20 sm:py-32 overflow-hidden">
+      {/* Top divider */}
+      <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+      {/* Bottom divider */}
+      <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-secondary/30 to-transparent" />
+      {/* Radial glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_hsl(var(--primary)/0.06)_0%,_transparent_70%)]" />
+
+      <div className="relative z-10 max-w-2xl mx-auto px-4 sm:px-8">
       <div className="text-center mb-8">
         <h2 className="text-3xl sm:text-4xl text-foreground font-display mb-3">
           Try it now
@@ -188,6 +196,7 @@ const LiveDemo = () => {
           </motion.div>
         }
       </AnimatePresence>
+      </div>
     </section>);
 
 };
