@@ -58,7 +58,7 @@ const LiveDemo = () => {
       if (data?.needs_more) {
         toast({
           title: 'Need more detail',
-          description: data.suggestion || 'Try describing who you're talking to and what you need to communicate.',
+          description: data.suggestion || "Try describing who you're talking to and what you need to communicate.",
         });
         return;
       }
