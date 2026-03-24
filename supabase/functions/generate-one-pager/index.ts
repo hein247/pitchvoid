@@ -179,12 +179,37 @@ Output: {"title":"Open Mic Friday Set","context_line":"Comedy bit for open mic n
 Input: "Software idea - a focus mode app that locks your screen to only 3 pre-selected tools, blocks notifications and social media, has a timer, and integrates AI helpers so you can search without opening a browser"
 Output: {"title":"Focus Mode Software Concept","context_line":"Organizing a product idea","sections":[{"title":"HERE'S THE IDEA","points":["A desktop app that locks the screen to only 3 pre-selected applications, blocking all notifications, social media, and external browsing to enforce single-task focus."]},{"title":"HERE'S HOW IT WORKS","points":["Screen lock with adjustable full/minimized modes and a built-in timer. Integrated AI helpers (Claude, ChatGPT, Gemini) handle research without leaving the locked environment."]},{"title":"HERE'S WHAT'S NEXT","points":["Define the MVP feature set and decide whether to build as a native desktop app or browser extension."]}]}`;
 
+    // Build parsedContext intelligence block for the prompt
+    let parserIntelligence = '';
+    if (parsedContext) {
+      parserIntelligence = `\n**Parser Intelligence:**
+- Detected mode: ${parsedContext.mode || 'unknown'}
+- Detected context: ${parsedContext.context || 'general'}
+- Confidence: ${parsedContext.confidence || 'medium'}`;
+      if (parsedContext.mode === 'clarity' && parsedContext.clarity_fields) {
+        parserIntelligence += `\n- Core idea: ${parsedContext.clarity_fields.core_idea || ''}`;
+        if (parsedContext.clarity_fields.open_questions?.length) {
+          parserIntelligence += `\n- Open questions to address in final section: ${parsedContext.clarity_fields.open_questions.join(', ')}`;
+        }
+        parserIntelligence += `\n- Emotional tone: ${parsedContext.clarity_fields.emotional_tone || 'neutral'}`;
+        parserIntelligence += `\nIMPORTANT: This is CLARITY MODE. Use section labels: HERE'S THE IDEA / HERE'S HOW IT WORKS / HERE'S WHAT'S NEXT (or appropriate clarity labels based on context).`;
+      }
+      if (parsedContext.mode === 'performance' && parsedContext.performance_fields) {
+        if (parsedContext.performance_fields.urgency) {
+          parserIntelligence += `\n- Urgency: ${parsedContext.performance_fields.urgency}`;
+        }
+        if (parsedContext.performance_fields.why) {
+          parserIntelligence += `\n- Stakes: ${parsedContext.performance_fields.why}`;
+        }
+      }
+    }
+
     const userPrompt = `Create a clarity cheat sheet from this input:
 
 **Scenario:** ${sanitizedScenario}
 ${sanitizedAudience ? `**Target Audience:** ${sanitizedAudience}` : '**Target Audience:** None specified — the user is organizing their own thoughts, not preparing to present to anyone. Use CLARITY/THINKING mode with labels: HERE\'S THE IDEA / HERE\'S HOW IT WORKS / HERE\'S WHAT\'S NEXT.'}
 ${sanitizedContext ? `**Additional Context:** ${sanitizedContext}` : ''}${imageContext}
-${sanitizedStyle ? `**Tone/Style:** ${sanitizedStyle}` : ''}
+${sanitizedStyle ? `**Tone/Style:** ${sanitizedStyle}` : ''}${parserIntelligence}
 
 Generate the JSON now. Output ONLY the JSON object, no other text.`;
 
