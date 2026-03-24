@@ -1668,21 +1668,36 @@ const Dashboard = () => {
                   <div className="flex items-start gap-3">
                     <Sparkles className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-foreground font-medium">{parsedContext.summary}</p>
+                      <p className="text-foreground font-medium">{parsedContext.title_suggestion}</p>
+                      <span className="text-[10px] uppercase tracking-wider" style={{ color: 'rgba(168,85,247,0.55)' }}>
+                        {parsedContext.mode === 'clarity' ? 'clarity' : 'performance'} · {parsedContext.context.replace(/_/g, ' ')}
+                      </span>
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 text-accent" />
-                      <span className="text-muted-foreground">Audience:</span>
-                      <span className="text-foreground">{parsedContext.audience}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Target className="w-4 h-4 text-accent" />
-                      <span className="text-muted-foreground">Goal:</span>
-                      <span className="text-foreground">{parsedContext.goal}</span>
-                    </div>
+                    {parsedContext.mode === 'performance' && parsedContext.performance_fields ? (
+                      <>
+                        <div className="flex items-center gap-2">
+                          <Users className="w-4 h-4 text-accent" />
+                          <span className="text-muted-foreground">Audience:</span>
+                          <span className="text-foreground">{parsedContext.performance_fields.who?.value || 'Not specified'}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Target className="w-4 h-4 text-accent" />
+                          <span className="text-muted-foreground">Goal:</span>
+                          <span className="text-foreground">{parsedContext.performance_fields.what}</span>
+                        </div>
+                      </>
+                    ) : parsedContext.clarity_fields ? (
+                      <>
+                        <div className="flex items-center gap-2 col-span-2">
+                          <Target className="w-4 h-4 text-accent" />
+                          <span className="text-muted-foreground">Core idea:</span>
+                          <span className="text-foreground truncate">{parsedContext.clarity_fields.core_idea}</span>
+                        </div>
+                      </>
+                    ) : null}
                   </div>
                   
                   <div className="flex items-center gap-4 text-sm pt-2 border-t border-accent/10">
