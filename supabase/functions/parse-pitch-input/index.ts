@@ -83,15 +83,17 @@ PERFORMANCE MODE — the user is preparing to say something to someone:
 - They mention a specific event: meeting, interview, pitch, presentation, call, demo, review, conversation
 - They mention a time pressure: tomorrow, next week, friday, in an hour, before the meeting
 - Signal words: "need to tell", "how do I say", "presenting to", "talking to", "asking for", "pitching"
+- CONFRONTATION TARGETS: If the input mentions a specific person they need to confront, negotiate with, or set boundaries with (landlord, boss, partner, roommate, neighbor, coworker, ex, family member), this is PERFORMANCE MODE even without a formal meeting. The presence of a confrontation target = performance mode.
+- Confrontation signal words: "confront", "negotiate", "boundary", "raise", "ask for", "tell them", "deal with", "stand up to", "push back"
 
 CLARITY MODE — the user is thinking, not performing:
-- No specific audience mentioned
+- No specific audience mentioned AND no confrontation target
 - No upcoming event or time pressure
 - They're exploring an idea, making a decision, processing emotions, brainstorming, or just organizing scattered thoughts
 - Signal words: "idea", "what if", "thinking about", "should I", "concept", "brainstorming", "random thought", "just need to organize", "i keep thinking", "notes on"
 - The input reads like a note-to-self, not preparation for a conversation
 
-CRITICAL RULE: If you cannot identify a SPECIFIC audience with HIGH confidence, default to CLARITY MODE. Do NOT invent an audience. "Software idea about a focus app" has no audience. "Meeting with boss tomorrow about a raise" has an audience (boss).
+CRITICAL RULE: If you cannot identify a SPECIFIC audience with HIGH confidence AND there is no confrontation target, default to CLARITY MODE. Do NOT invent an audience. "Software idea about a focus app" has no audience. "Meeting with boss tomorrow about a raise" has an audience (boss). "Need to tell my landlord to fix the heat" has a confrontation target (landlord) — this is PERFORMANCE/difficult_conversation.
 
 STEP 2: DETECT CONTEXT
 
