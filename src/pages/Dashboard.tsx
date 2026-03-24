@@ -429,11 +429,13 @@ const Dashboard = () => {
       setParsedContext(parsed);
       setOutputFormat(parsed.suggested_format);
       setSelectedLength(parsed.suggested_length);
-      setSelectedTone(parsed.tone as 'confident' | 'humble' | 'balanced' | 'bold' || 'balanced');
+      // Tone from performance_fields or default
+      const detectedTone = parsed.performance_fields?.how || 'balanced';
+      setSelectedTone(detectedTone as 'confident' | 'humble' | 'balanced' | 'bold' || 'balanced');
 
       // Create project early so auto-save works
       if (!activeProject) {
-        const newProject = await createProject(parsed.summary || 'Quick Pitch', transcribedText);
+        const newProject = await createProject(parsed.title_suggestion || 'Quick Pitch', transcribedText);
         if (newProject) setActiveProject(newProject);
       }
 
