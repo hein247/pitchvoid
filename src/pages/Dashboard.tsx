@@ -692,6 +692,14 @@ const Dashboard = () => {
         setActiveProject({ ...project, title: projectTitle, status: 'complete', output_format: outputFormat, output_data: outputPayload });
         // Save to DB and create version
         await saveProjectOutput(project.id, outputFormat, outputPayload, lastGenerationContext as unknown as Record<string, unknown>);
+        // Save detected mode/context
+        if (parsedContext) {
+          supabase.from('projects').update({
+            detected_mode: parsedContext.mode,
+            detected_context: parsedContext.context,
+            mode_confidence: parsedContext.confidence,
+          }).eq('id', project.id).then(() => {});
+        }
       }
 
       // Optimistic credit decrement on successful generation
