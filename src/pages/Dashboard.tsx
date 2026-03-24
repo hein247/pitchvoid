@@ -662,7 +662,7 @@ const Dashboard = () => {
 
       // Create or update project in DB — prefer AI-generated title from output
       const aiTitle = outputFormat === 'one-pager' ? data.onePager?.title : data.script?.title;
-      const projectTitle = (aiTitle || parsedContext?.summary || 'Quick Pitch').split(/\s+/).slice(0, 8).join(' ');
+      const projectTitle = (aiTitle || parsedContext?.title_suggestion || 'Quick Pitch').split(/\s+/).slice(0, 8).join(' ');
       let project = activeProject;
 
       if (!project || project.status === 'draft') {
