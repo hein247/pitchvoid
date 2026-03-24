@@ -103,10 +103,15 @@ PERFORMANCE CONTEXTS:
 - Creative Performance (comedy, speeches, toasts, keynotes, TED) → sections: THE SETUP / THE TURN / THE CLOSER
 
 CLARITY CONTEXTS:
-- Difficult Conversation (conflict, negotiation, boundaries, landlord, raise) → sections: HERE'S WHAT'S GOING ON / HERE'S WHAT I KNOW / HERE'S WHAT I NEED
-- Personal / Life (therapy, decisions, self-reflection, relationships) → sections: HERE'S WHAT'S GOING ON / HERE'S WHAT I KNOW / HERE'S WHAT I NEED
 - Thinking / Ideas (no audience, exploring an idea, organizing thoughts, brainstorming) → sections: HERE'S THE IDEA / HERE'S HOW IT WORKS / HERE'S WHAT'S NEXT
+- Thinking / Decision (weighing options, pros and cons, career change) → sections: HERE'S THE CHOICE / HERE'S WHAT I KNOW / HERE'S WHAT MATTERS MOST
+- Thinking / Reflection (processing emotions, journaling, therapy prep, overwhelmed) → sections: HERE'S WHAT'S HAPPENING / HERE'S WHAT I'M FEELING / HERE'S WHAT I NEED
+- Thinking / Notes (organizing information, research, summarizing) → sections: HERE'S THE SUMMARY / KEY DETAILS / WHAT'S MISSING
+- Personal / Life (therapy, decisions, self-reflection, relationships) → sections: HERE'S WHAT'S HAPPENING / HERE'S WHAT I'M FEELING / HERE'S WHAT I NEED
 - General (unclear context, figuring something out) → sections: HERE'S WHAT'S GOING ON / HERE'S WHAT I KNOW / HERE'S WHAT I NEED
+
+PERFORMANCE CONTEXT (often misclassified as clarity):
+- Difficult Conversation (conflict, negotiation, boundaries, landlord, raise, confront) → sections: THE ISSUE / THE FACTS / THE RESOLUTION — this is PERFORMANCE mode because the user has a specific person they need to confront or negotiate with.
 
 CLARITY MODE also applies when the user is NOT preparing for any specific conversation or audience. If the input has no audience, no meeting, no person they're talking to — the user is thinking, not performing. They're using this tool as a mirror to see their own thoughts organized.
 
@@ -171,7 +176,7 @@ Input: "seeing my therapist thursday, been feeling overwhelmed since the layoff 
 Output: {"title":"Therapy Session Prep","context_line":"Organizing thoughts before Thursday's therapy appointment","sections":[{"title":"WHAT'S HAPPENING","points":["**3 months** since the layoff. **47** applications submitted with only **2** interviews — the ratio is creating a cycle of diminishing confidence."]},{"title":"WHAT I KNOW","points":["Partner is suggesting a break, but guilt about not working is preventing rest. The career change question is surfacing but hasn't been examined yet."]},{"title":"WHAT I NEED","points":["Clarity on whether the job search strategy needs to change or whether the career itself does — and permission to pause without interpreting rest as failure."]}]}
 
 Input: "need to ask my landlord to fix the heating, it's been broken for 2 weeks, I've sent 3 emails with no response, temperature drops to 55 degrees at night, lease says they have to maintain heating, paying 2800 a month"
-Output: {"title":"Landlord Heating Request","context_line":"Heating repair escalation for landlord","sections":[{"title":"HERE'S WHAT'S GOING ON","points":["Heating non-functional for **2 weeks** despite **3** unanswered emails. Nighttime temperatures drop to **55°F** in a unit costing **$2,800**/month."]},{"title":"HERE'S WHAT I KNOW","points":["The lease requires maintained heating as a habitability standard. **3** documented contact attempts with no landlord response establishes a paper trail."]},{"title":"HERE'S WHAT I NEED","points":["Request a repair within **48 hours** with written confirmation, or escalate to the housing authority with the documented communication history."]}]}
+Output: {"title":"Landlord Heating Request","context_line":"Heating repair escalation for landlord","sections":[{"title":"THE ISSUE","points":["Heating non-functional for **2 weeks** despite **3** unanswered emails. Nighttime temperatures drop to **55°F** in a unit costing **$2,800**/month."]},{"title":"THE FACTS","points":["The lease requires maintained heating as a habitability standard. **3** documented contact attempts with no landlord response establishes a paper trail."]},{"title":"THE RESOLUTION","points":["Request a repair within **48 hours** with written confirmation, or escalate to the housing authority with the documented communication history."]}]}
 
 Input: "doing open mic friday, bit about how we all know epstein didn't kill himself but we just meme about it, same as knowing your boss steals credit but you just post instagram stories"
 Output: {"title":"Open Mic Friday Set","context_line":"Comedy bit for open mic night","sections":[{"title":"THE SETUP","points":["Everyone collectively agreed Epstein didn't kill himself — and the bravest thing anyone did about it was tweet."]},{"title":"THE TURN","points":["Same energy at every tech company: your manager presents your work at the all-hands, and your response is a passive-aggressive Instagram story at 11pm."]},{"title":"THE CLOSER","points":["The real conspiracy isn't Epstein. It's that an entire generation saw the dumpster fire and chose to make content about it instead of grabbing a fire extinguisher."]}]}
@@ -192,7 +197,16 @@ Output: {"title":"Focus Mode Software Concept","context_line":"Organizing a prod
           parserIntelligence += `\n- Open questions to address in final section: ${parsedContext.clarity_fields.open_questions.join(', ')}`;
         }
         parserIntelligence += `\n- Emotional tone: ${parsedContext.clarity_fields.emotional_tone || 'neutral'}`;
-        parserIntelligence += `\nIMPORTANT: This is CLARITY MODE. Use section labels: HERE'S THE IDEA / HERE'S HOW IT WORKS / HERE'S WHAT'S NEXT (or appropriate clarity labels based on context).`;
+        const clarityLabelMap: Record<string, string> = {
+          thinking_idea: "HERE'S THE IDEA / HERE'S HOW IT WORKS / HERE'S WHAT'S NEXT",
+          thinking_decision: "HERE'S THE CHOICE / HERE'S WHAT I KNOW / HERE'S WHAT MATTERS MOST",
+          thinking_reflection: "HERE'S WHAT'S HAPPENING / HERE'S WHAT I'M FEELING / HERE'S WHAT I NEED",
+          thinking_notes: "HERE'S THE SUMMARY / KEY DETAILS / WHAT'S MISSING",
+          general: "HERE'S WHAT'S GOING ON / HERE'S WHAT I KNOW / HERE'S WHAT I NEED",
+        };
+        const detectedContext = parsedContext.context || 'general';
+        const labels = clarityLabelMap[detectedContext] || clarityLabelMap.general;
+        parserIntelligence += `\nIMPORTANT: This is CLARITY MODE with context "${detectedContext}". Use EXACTLY these section labels: ${labels}.`;
       }
       if (parsedContext.mode === 'performance' && parsedContext.performance_fields) {
         if (parsedContext.performance_fields.urgency) {
