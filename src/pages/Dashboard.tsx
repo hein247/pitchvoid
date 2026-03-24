@@ -39,18 +39,34 @@ import { EtheralShadow } from '@/components/ui/etheral-shadow';
 type OutputFormat = 'one-pager' | 'script';
 
 interface ParsedContext {
-  audience: string;
-  audience_detail: string;
-  subject: string;
-  subject_detail: string;
-  goal: string;
-  tone: string;
-  urgency: string;
+  mode: 'performance' | 'clarity';
+  context: string;
+  confidence: 'high' | 'medium' | 'low';
+  performance_fields: {
+    who: { value: string | null; confidence: string };
+    what: string;
+    why: string | null;
+    how: string | null;
+    urgency: string | null;
+  } | null;
+  clarity_fields: {
+    core_idea: string;
+    supporting_details: string[];
+    open_questions: string[];
+    emotional_tone: string;
+  } | null;
+  title_suggestion: string;
   suggested_format: OutputFormat;
   suggested_length: 'quick' | 'standard' | 'detailed';
-  clarifying_questions: string[];
-  summary: string;
-  mode?: 'thinking' | 'performance' | 'clarity';
+  // Legacy compat fields (populated from new schema)
+  audience?: string;
+  audience_detail?: string;
+  subject?: string;
+  subject_detail?: string;
+  goal?: string;
+  tone?: string;
+  urgency?: string;
+  summary?: string;
   who_confidence?: 'high' | 'medium' | 'low';
 }
 
