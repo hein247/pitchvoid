@@ -605,8 +605,8 @@ const Dashboard = () => {
     filter((f) => f.type.startsWith('image/')).
     map((f) => `Uploaded image: ${f.name}`);
 
-    const isThinkingMode = parsedContext?.mode === 'thinking' || parsedContext?.who_confidence === 'low';
-    const targetAudience = isThinkingMode ? '' : (parsedContext?.audience_detail || parsedContext?.audience || '');
+    const isClarityMode = parsedContext?.mode === 'clarity';
+    const targetAudience = isClarityMode ? '' : (parsedContext?.performance_fields?.who?.value || '');
 
     // Store context for later regeneration in different formats
     setLastGenerationContext({
