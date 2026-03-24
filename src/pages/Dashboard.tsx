@@ -1281,7 +1281,14 @@ const Dashboard = () => {
                   <ArrowLeft className="w-5 h-5" />
                 </button>
                 <div className="min-w-0">
-                  <h2 className="font-medium font-display text-sm sm:text-base truncate max-w-[140px] sm:max-w-[300px] lg:max-w-[400px]" style={{ color: 'rgba(240,237,246,0.95)' }} title={(outputFormat === 'script' ? scriptData?.title : onePagerData?.title) || activeProject.title}>{(outputFormat === 'script' ? scriptData?.title : onePagerData?.title) || activeProject.title}</h2>
+                  <div className="flex items-center gap-2">
+                    <h2 className="font-medium font-display text-sm sm:text-base truncate max-w-[140px] sm:max-w-[300px] lg:max-w-[400px]" style={{ color: 'rgba(240,237,246,0.95)' }} title={(outputFormat === 'script' ? scriptData?.title : onePagerData?.title) || activeProject.title}>{(outputFormat === 'script' ? scriptData?.title : onePagerData?.title) || activeProject.title}</h2>
+                    {parsedContext?.context && parsedContext.context !== 'general' &&
+                      <span className="text-[10px] uppercase tracking-wider hidden sm:inline" style={{ color: 'rgba(168,85,247,0.35)' }}>
+                        {parsedContext.context.replace(/_/g, ' ').replace('thinking ', '')}
+                      </span>
+                    }
+                  </div>
                   {isRegenerating &&
                 <p className="text-xs text-primary animate-pulse">{generationPhase}</p>
                 }
