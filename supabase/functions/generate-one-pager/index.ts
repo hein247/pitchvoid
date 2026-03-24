@@ -41,7 +41,7 @@ serve(async (req) => {
       return jsonResponse({ error: validation.error }, 400);
     }
 
-    const { scenario, targetAudience, documentContext, imageDescriptions, visualStyle } = body;
+    const { scenario, targetAudience, documentContext, imageDescriptions, visualStyle, parsedContext } = body;
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
