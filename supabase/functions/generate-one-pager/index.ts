@@ -197,7 +197,16 @@ Output: {"title":"Focus Mode Software Concept","context_line":"Organizing a prod
           parserIntelligence += `\n- Open questions to address in final section: ${parsedContext.clarity_fields.open_questions.join(', ')}`;
         }
         parserIntelligence += `\n- Emotional tone: ${parsedContext.clarity_fields.emotional_tone || 'neutral'}`;
-        parserIntelligence += `\nIMPORTANT: This is CLARITY MODE. Use section labels: HERE'S THE IDEA / HERE'S HOW IT WORKS / HERE'S WHAT'S NEXT (or appropriate clarity labels based on context).`;
+        const clarityLabelMap: Record<string, string> = {
+          thinking_idea: "HERE'S THE IDEA / HERE'S HOW IT WORKS / HERE'S WHAT'S NEXT",
+          thinking_decision: "HERE'S THE CHOICE / HERE'S WHAT I KNOW / HERE'S WHAT MATTERS MOST",
+          thinking_reflection: "HERE'S WHAT'S HAPPENING / HERE'S WHAT I'M FEELING / HERE'S WHAT I NEED",
+          thinking_notes: "HERE'S THE SUMMARY / KEY DETAILS / WHAT'S MISSING",
+          general: "HERE'S WHAT'S GOING ON / HERE'S WHAT I KNOW / HERE'S WHAT I NEED",
+        };
+        const detectedContext = parsedContext.context || 'general';
+        const labels = clarityLabelMap[detectedContext] || clarityLabelMap.general;
+        parserIntelligence += `\nIMPORTANT: This is CLARITY MODE with context "${detectedContext}". Use EXACTLY these section labels: ${labels}.`;
       }
       if (parsedContext.mode === 'performance' && parsedContext.performance_fields) {
         if (parsedContext.performance_fields.urgency) {

@@ -107,7 +107,7 @@ PERFORMANCE CONTEXTS:
 - sales: prospect, demo, close, deal, pricing, follow-up
 - education: thesis, research, professor, class presentation
 - creative_performance: comedy, speech, toast, open mic, keynote
-- difficult_conversation: conflict, raise, landlord, boundary, breakup, fired, negotiate
+- difficult_conversation: conflict, raise, landlord, boundary, breakup, fired, negotiate, confront, roommate, partner, neighbor — ALWAYS performance mode when a specific person/target is identified
 
 CLARITY CONTEXTS:
 - thinking_idea: product idea, business concept, creative project, brainstorming, "what if"
