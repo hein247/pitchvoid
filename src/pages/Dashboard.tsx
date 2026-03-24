@@ -39,18 +39,34 @@ import { EtheralShadow } from '@/components/ui/etheral-shadow';
 type OutputFormat = 'one-pager' | 'script';
 
 interface ParsedContext {
-  audience: string;
-  audience_detail: string;
-  subject: string;
-  subject_detail: string;
-  goal: string;
-  tone: string;
-  urgency: string;
+  mode: 'performance' | 'clarity';
+  context: string;
+  confidence: 'high' | 'medium' | 'low';
+  performance_fields: {
+    who: { value: string | null; confidence: string };
+    what: string;
+    why: string | null;
+    how: string | null;
+    urgency: string | null;
+  } | null;
+  clarity_fields: {
+    core_idea: string;
+    supporting_details: string[];
+    open_questions: string[];
+    emotional_tone: string;
+  } | null;
+  title_suggestion: string;
   suggested_format: OutputFormat;
   suggested_length: 'quick' | 'standard' | 'detailed';
-  clarifying_questions: string[];
-  summary: string;
-  mode?: 'thinking' | 'performance' | 'clarity';
+  // Legacy compat fields (populated from new schema)
+  audience?: string;
+  audience_detail?: string;
+  subject?: string;
+  subject_detail?: string;
+  goal?: string;
+  tone?: string;
+  urgency?: string;
+  summary?: string;
   who_confidence?: 'high' | 'medium' | 'low';
 }
 
@@ -413,11 +429,13 @@ const Dashboard = () => {
       setParsedContext(parsed);
       setOutputFormat(parsed.suggested_format);
       setSelectedLength(parsed.suggested_length);
-      setSelectedTone(parsed.tone as 'confident' | 'humble' | 'balanced' | 'bold' || 'balanced');
+      // Tone from performance_fields or default
+      const detectedTone = parsed.performance_fields?.how || 'balanced';
+      setSelectedTone(detectedTone as 'confident' | 'humble' | 'balanced' | 'bold' || 'balanced');
 
       // Create project early so auto-save works
       if (!activeProject) {
-        const newProject = await createProject(parsed.summary || 'Quick Pitch', transcribedText);
+        const newProject = await createProject(parsed.title_suggestion || 'Quick Pitch', transcribedText);
         if (newProject) setActiveProject(newProject);
       }
 
@@ -431,19 +449,19 @@ const Dashboard = () => {
       });
       // Fallback - set defaults and continue
       setParsedContext({
-        audience: '',
-        audience_detail: '',
-        subject: 'Your pitch',
-        subject_detail: transcribedText,
-        goal: 'Organize thoughts',
-        tone: 'balanced',
-        urgency: 'not specified',
+        mode: 'clarity',
+        context: 'general',
+        confidence: 'low',
+        performance_fields: null,
+        clarity_fields: {
+          core_idea: transcribedText,
+          supporting_details: [],
+          open_questions: [],
+          emotional_tone: 'neutral'
+        },
+        title_suggestion: 'Quick Pitch',
         suggested_format: 'one-pager',
         suggested_length: 'standard',
-        clarifying_questions: [],
-        summary: transcribedText,
-        mode: 'thinking',
-        who_confidence: 'low'
       });
       setQuickPitchStep(2);
     } finally {
@@ -587,8 +605,8 @@ const Dashboard = () => {
     filter((f) => f.type.startsWith('image/')).
     map((f) => `Uploaded image: ${f.name}`);
 
-    const isThinkingMode = parsedContext?.mode === 'thinking' || parsedContext?.who_confidence === 'low';
-    const targetAudience = isThinkingMode ? '' : (parsedContext?.audience_detail || parsedContext?.audience || '');
+    const isClarityMode = parsedContext?.mode === 'clarity';
+    const targetAudience = isClarityMode ? '' : (parsedContext?.performance_fields?.who?.value || '');
 
     // Store context for later regeneration in different formats
     setLastGenerationContext({
@@ -612,7 +630,8 @@ const Dashboard = () => {
           tone: selectedTone,
           length: selectedLength,
           documentContext: documentContext || undefined,
-          imageDescriptions: imageDescriptions.length > 0 ? imageDescriptions : undefined
+          imageDescriptions: imageDescriptions.length > 0 ? imageDescriptions : undefined,
+          parsedContext: parsedContext || undefined
         };
       } else {
         functionName = 'generate-one-pager';
@@ -621,7 +640,8 @@ const Dashboard = () => {
           targetAudience,
           visualStyle: selectedTone,
           documentContext: documentContext || undefined,
-          imageDescriptions: imageDescriptions.length > 0 ? imageDescriptions : undefined
+          imageDescriptions: imageDescriptions.length > 0 ? imageDescriptions : undefined,
+          parsedContext: parsedContext || undefined
         };
       }
 
@@ -642,7 +662,7 @@ const Dashboard = () => {
 
       // Create or update project in DB — prefer AI-generated title from output
       const aiTitle = outputFormat === 'one-pager' ? data.onePager?.title : data.script?.title;
-      const projectTitle = (aiTitle || parsedContext?.summary || 'Quick Pitch').split(/\s+/).slice(0, 8).join(' ');
+      const projectTitle = (aiTitle || parsedContext?.title_suggestion || 'Quick Pitch').split(/\s+/).slice(0, 8).join(' ');
       let project = activeProject;
 
       if (!project || project.status === 'draft') {
@@ -672,6 +692,14 @@ const Dashboard = () => {
         setActiveProject({ ...project, title: projectTitle, status: 'complete', output_format: outputFormat, output_data: outputPayload });
         // Save to DB and create version
         await saveProjectOutput(project.id, outputFormat, outputPayload, lastGenerationContext as unknown as Record<string, unknown>);
+        // Save detected mode/context
+        if (parsedContext) {
+          supabase.from('projects').update({
+            detected_mode: parsedContext.mode,
+            detected_context: parsedContext.context,
+            mode_confidence: parsedContext.confidence,
+          }).eq('id', project.id).then(() => {});
+        }
       }
 
       // Optimistic credit decrement on successful generation
@@ -1253,7 +1281,14 @@ const Dashboard = () => {
                   <ArrowLeft className="w-5 h-5" />
                 </button>
                 <div className="min-w-0">
-                  <h2 className="font-medium font-display text-sm sm:text-base truncate max-w-[140px] sm:max-w-[300px] lg:max-w-[400px]" style={{ color: 'rgba(240,237,246,0.95)' }} title={(outputFormat === 'script' ? scriptData?.title : onePagerData?.title) || activeProject.title}>{(outputFormat === 'script' ? scriptData?.title : onePagerData?.title) || activeProject.title}</h2>
+                  <div className="flex items-center gap-2">
+                    <h2 className="font-medium font-display text-sm sm:text-base truncate max-w-[140px] sm:max-w-[300px] lg:max-w-[400px]" style={{ color: 'rgba(240,237,246,0.95)' }} title={(outputFormat === 'script' ? scriptData?.title : onePagerData?.title) || activeProject.title}>{(outputFormat === 'script' ? scriptData?.title : onePagerData?.title) || activeProject.title}</h2>
+                    {parsedContext?.context && parsedContext.context !== 'general' &&
+                      <span className="text-[10px] uppercase tracking-wider hidden sm:inline" style={{ color: 'rgba(168,85,247,0.35)' }}>
+                        {parsedContext.context.replace(/_/g, ' ').replace('thinking ', '')}
+                      </span>
+                    }
+                  </div>
                   {isRegenerating &&
                 <p className="text-xs text-primary animate-pulse">{generationPhase}</p>
                 }
@@ -1633,21 +1668,36 @@ const Dashboard = () => {
                   <div className="flex items-start gap-3">
                     <Sparkles className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-foreground font-medium">{parsedContext.summary}</p>
+                      <p className="text-foreground font-medium">{parsedContext.title_suggestion}</p>
+                      <span className="text-[10px] uppercase tracking-wider" style={{ color: 'rgba(168,85,247,0.55)' }}>
+                        {parsedContext.mode === 'clarity' ? 'clarity' : 'performance'} · {parsedContext.context.replace(/_/g, ' ')}
+                      </span>
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 text-accent" />
-                      <span className="text-muted-foreground">Audience:</span>
-                      <span className="text-foreground">{parsedContext.audience}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Target className="w-4 h-4 text-accent" />
-                      <span className="text-muted-foreground">Goal:</span>
-                      <span className="text-foreground">{parsedContext.goal}</span>
-                    </div>
+                    {parsedContext.mode === 'performance' && parsedContext.performance_fields ? (
+                      <>
+                        <div className="flex items-center gap-2">
+                          <Users className="w-4 h-4 text-accent" />
+                          <span className="text-muted-foreground">Audience:</span>
+                          <span className="text-foreground">{parsedContext.performance_fields.who?.value || 'Not specified'}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Target className="w-4 h-4 text-accent" />
+                          <span className="text-muted-foreground">Goal:</span>
+                          <span className="text-foreground">{parsedContext.performance_fields.what}</span>
+                        </div>
+                      </>
+                    ) : parsedContext.clarity_fields ? (
+                      <>
+                        <div className="flex items-center gap-2 col-span-2">
+                          <Target className="w-4 h-4 text-accent" />
+                          <span className="text-muted-foreground">Core idea:</span>
+                          <span className="text-foreground truncate">{parsedContext.clarity_fields.core_idea}</span>
+                        </div>
+                      </>
+                    ) : null}
                   </div>
                   
                   <div className="flex items-center gap-4 text-sm pt-2 border-t border-accent/10">

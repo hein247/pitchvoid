@@ -42,7 +42,7 @@ serve(async (req) => {
     if (wordCount < 5) {
       return jsonResponse({
         needs_more: true,
-        suggestion: "Tell me a bit more \u2014 who are you talking to and what do you need to say?"
+        suggestion: "Tell me a bit more — who are you talking to and what do you need to say?"
       });
     }
 
@@ -68,48 +68,108 @@ serve(async (req) => {
 
     console.log("Parsing pitch input for user:", user.id);
 
-    const systemPrompt = `You are PitchVoid's parsing engine. Your job is to extract structure from messy, scattered user input.
+    const systemPrompt = `You are PitchVoid's input parser. Your job is to read a raw brain dump and determine three things:
 
-The user is busy and overwhelmed. They're dumping rough thoughts — not writing polished text. Your job is to immediately understand what they mean, even when they can't articulate it clearly.
+1. MODE — Is this person preparing to TALK TO SOMEONE, or organizing their OWN THOUGHTS?
+2. CONTEXT — What specific situation is this about?
+3. STRUCTURED FIELDS — Extract whatever useful information exists.
 
-Extract these elements:
-- audience: who will receive this communication (if anyone)
-- audience_detail: more specific description of audience
-- subject: what's the core topic
-- subject_detail: expanded description
-- goal: what the user wants to achieve
-- tone: detected tone (confident, humble, balanced, bold)
-- urgency: how urgent this feels
-- suggested_format: "one-pager" or "script"
-- suggested_length: "quick", "standard", or "detailed"
-- summary: one-sentence summary of the input
-- mode: "thinking" if there's no audience, "performance" if presenting/pitching, "clarity" if personal/emotional
-- who_confidence: "high", "medium", or "low" — how confident you are that a real audience exists
+STEP 1: DETECT MODE
 
-Rules:
-- If the user didn't mention who they're talking to, set audience to "" (empty string), audience_detail to "", who_confidence to "low", and mode to "thinking". Do NOT invent an audience.
-- Do not assume a business pitch just because the content mentions software, products, revenue, or business concepts. The absence of an audience means the user is organizing their own thoughts.
-- If there IS a clear audience, set who_confidence to "high" and mode to "performance" or "clarity" as appropriate.
-- Use the user's own words where possible. If they say "boss", don't upgrade to "senior leadership."
-- NEVER invent specific numbers, company names, or details the user didn't provide.
-- Return ONLY valid JSON. No markdown, no explanation, no text outside the JSON.
+Read the input carefully. Ask: is there a specific person or audience this user needs to communicate with?
 
-Return this schema:
+PERFORMANCE MODE — the user is preparing to say something to someone:
+- They mention a specific audience: investors, boss, interviewer, client, landlord, therapist, audience, crowd, board, team
+- They mention a specific event: meeting, interview, pitch, presentation, call, demo, review, conversation
+- They mention a time pressure: tomorrow, next week, friday, in an hour, before the meeting
+- Signal words: "need to tell", "how do I say", "presenting to", "talking to", "asking for", "pitching"
+
+CLARITY MODE — the user is thinking, not performing:
+- No specific audience mentioned
+- No upcoming event or time pressure
+- They're exploring an idea, making a decision, processing emotions, brainstorming, or just organizing scattered thoughts
+- Signal words: "idea", "what if", "thinking about", "should I", "concept", "brainstorming", "random thought", "just need to organize", "i keep thinking", "notes on"
+- The input reads like a note-to-self, not preparation for a conversation
+
+CRITICAL RULE: If you cannot identify a SPECIFIC audience with HIGH confidence, default to CLARITY MODE. Do NOT invent an audience. "Software idea about a focus app" has no audience. "Meeting with boss tomorrow about a raise" has an audience (boss).
+
+STEP 2: DETECT CONTEXT
+
+Based on the mode and content, pick the most specific context:
+
+PERFORMANCE CONTEXTS:
+- business_pitch: investors, clients, partners, funding, revenue
+- meeting_prep: team sync, standup, manager update, board review
+- job_interview: hiring, role, position, interviewer, portfolio
+- networking: conference, event, introduce myself, new contacts
+- sales: prospect, demo, close, deal, pricing, follow-up
+- education: thesis, research, professor, class presentation
+- creative_performance: comedy, speech, toast, open mic, keynote
+- difficult_conversation: conflict, raise, landlord, boundary, breakup, fired, negotiate
+
+CLARITY CONTEXTS:
+- thinking_idea: product idea, business concept, creative project, brainstorming, "what if"
+- thinking_decision: weighing options, should I, pros and cons, career change, life choice
+- thinking_reflection: processing emotions, journaling, therapy prep, self-reflection, overwhelmed
+- thinking_notes: organizing information, research notes, summarizing what I learned, consolidating thoughts
+- general: doesn't fit any specific context
+
+STEP 3: EXTRACT FIELDS
+
+For PERFORMANCE MODE, extract:
+- who: the specific audience (only if explicitly stated or strongly implied). Include confidence: high/medium/low
+- what: what they need to communicate
+- why: why this matters or what's at stake
+- how: any specific approach, tone, or constraints mentioned
+- urgency: any time pressure mentioned
+
+For CLARITY MODE, extract:
+- core_idea: the central thought or concept
+- supporting_details: any facts, numbers, or specifics mentioned
+- open_questions: things the user seems uncertain about
+- emotional_tone: how the user seems to feel (anxious, excited, confused, frustrated, neutral)
+
+STEP 4: RETURN JSON
+
+Return ONLY this JSON structure:
+
 {
-  "audience": "string (empty if no audience)",
-  "audience_detail": "string (empty if no audience)",
-  "subject": "string",
-  "subject_detail": "string",
-  "goal": "string",
-  "tone": "confident|humble|balanced|bold",
-  "urgency": "string",
-  "suggested_format": "one-pager|script",
-  "suggested_length": "quick|standard|detailed",
-  "clarifying_questions": [],
-  "summary": "string",
-  "mode": "thinking|performance|clarity",
-  "who_confidence": "high|medium|low"
+  "mode": "performance" | "clarity",
+  "context": "business_pitch" | "meeting_prep" | "job_interview" | "networking" | "sales" | "education" | "creative_performance" | "difficult_conversation" | "thinking_idea" | "thinking_decision" | "thinking_reflection" | "thinking_notes" | "general",
+  "confidence": "high" | "medium" | "low",
+  "performance_fields": {
+    "who": { "value": "string or null", "confidence": "high|medium|low" },
+    "what": "string",
+    "why": "string or null",
+    "how": "string or null",
+    "urgency": "string or null"
+  },
+  "clarity_fields": {
+    "core_idea": "string",
+    "supporting_details": ["string"],
+    "open_questions": ["string"],
+    "emotional_tone": "string"
+  },
+  "title_suggestion": "short 3-6 word title for this project",
+  "suggested_format": "one-pager" | "script",
+  "suggested_length": "quick" | "standard" | "detailed"
 }
+
+Only populate performance_fields OR clarity_fields based on the detected mode, not both. Set the unused one to null.
+
+EXAMPLES:
+
+Input: "meeting with boss tomorrow want a raise been here 2 years"
+Output: {"mode":"performance","context":"difficult_conversation","confidence":"high","performance_fields":{"who":{"value":"boss/manager","confidence":"high"},"what":"requesting a salary raise","why":"2 years tenure with no adjustment","how":null,"urgency":"tomorrow"},"clarity_fields":null,"title_suggestion":"Salary Raise Conversation","suggested_format":"one-pager","suggested_length":"standard"}
+
+Input: "software idea to build a focus mode app that locks your screen to 3 apps blocks notifications has a timer and AI helpers"
+Output: {"mode":"clarity","context":"thinking_idea","confidence":"high","performance_fields":null,"clarity_fields":{"core_idea":"Focus mode desktop app that locks screen to 3 pre-selected apps with notification blocking, timer, and integrated AI helpers","supporting_details":["screen locking","max 3 apps","notification blocking","built-in timer","AI helper integration"],"open_questions":["platform (desktop vs mobile vs browser extension)","monetization","technical feasibility"],"emotional_tone":"excited"},"title_suggestion":"Focus Mode App Concept","suggested_format":"one-pager","suggested_length":"standard"}
+
+Input: "ok so what if i combine music therapy with sound healing and turn it into a physical space not a clinic more like a studio where people decompress through sound singing bowls frequency tuning maybe AI soundscapes my friend does reiki could collaborate rent in bushwick is manageable evenings only corporate wellness for burnt out tech workers i have 4k saved zero business plan"
+Output: {"mode":"clarity","context":"thinking_idea","confidence":"high","performance_fields":null,"clarity_fields":{"core_idea":"Physical sound healing studio in Brooklyn combining music therapy, singing bowls, frequency tuning, and AI-generated soundscapes","supporting_details":["potential reiki collaboration","evening sessions in Bushwick","corporate wellness packages","$4K savings available"],"open_questions":["licensing requirements for sound healing","lease vs pop-up to start","business plan needed","art therapy integration"],"emotional_tone":"excited but uncertain"},"title_suggestion":"Sound Healing Studio Concept","suggested_format":"one-pager","suggested_length":"standard"}
+
+Input: "doing 5 minute open mic set friday in brooklyn crowd is mostly tech workers my angle is about epstein and how we all just meme about broken things instead of fixing them"
+Output: {"mode":"performance","context":"creative_performance","confidence":"high","performance_fields":{"who":{"value":"open mic audience, mostly tech workers in their 20s-30s","confidence":"high"},"what":"5 minute comedy set about collective inaction","why":"exploring how people meme about broken systems instead of acting","how":"shock hook with epstein, pivot to workplace parallel","urgency":"friday"},"clarity_fields":null,"title_suggestion":"Friday Open Mic Set","suggested_format":"script","suggested_length":"standard"}
 
 USER CONTEXT:
 - Preferred tone: ${writing_preferences.tone || "clear and human"}
