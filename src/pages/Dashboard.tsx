@@ -449,19 +449,19 @@ const Dashboard = () => {
       });
       // Fallback - set defaults and continue
       setParsedContext({
-        audience: '',
-        audience_detail: '',
-        subject: 'Your pitch',
-        subject_detail: transcribedText,
-        goal: 'Organize thoughts',
-        tone: 'balanced',
-        urgency: 'not specified',
+        mode: 'clarity',
+        context: 'general',
+        confidence: 'low',
+        performance_fields: null,
+        clarity_fields: {
+          core_idea: transcribedText,
+          supporting_details: [],
+          open_questions: [],
+          emotional_tone: 'neutral'
+        },
+        title_suggestion: 'Quick Pitch',
         suggested_format: 'one-pager',
         suggested_length: 'standard',
-        clarifying_questions: [],
-        summary: transcribedText,
-        mode: 'thinking',
-        who_confidence: 'low'
       });
       setQuickPitchStep(2);
     } finally {
