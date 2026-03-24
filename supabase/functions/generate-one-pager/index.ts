@@ -103,10 +103,15 @@ PERFORMANCE CONTEXTS:
 - Creative Performance (comedy, speeches, toasts, keynotes, TED) → sections: THE SETUP / THE TURN / THE CLOSER
 
 CLARITY CONTEXTS:
-- Difficult Conversation (conflict, negotiation, boundaries, landlord, raise) → sections: HERE'S WHAT'S GOING ON / HERE'S WHAT I KNOW / HERE'S WHAT I NEED
-- Personal / Life (therapy, decisions, self-reflection, relationships) → sections: HERE'S WHAT'S GOING ON / HERE'S WHAT I KNOW / HERE'S WHAT I NEED
 - Thinking / Ideas (no audience, exploring an idea, organizing thoughts, brainstorming) → sections: HERE'S THE IDEA / HERE'S HOW IT WORKS / HERE'S WHAT'S NEXT
+- Thinking / Decision (weighing options, pros and cons, career change) → sections: HERE'S THE CHOICE / HERE'S WHAT I KNOW / HERE'S WHAT MATTERS MOST
+- Thinking / Reflection (processing emotions, journaling, therapy prep, overwhelmed) → sections: HERE'S WHAT'S HAPPENING / HERE'S WHAT I'M FEELING / HERE'S WHAT I NEED
+- Thinking / Notes (organizing information, research, summarizing) → sections: HERE'S THE SUMMARY / KEY DETAILS / WHAT'S MISSING
+- Personal / Life (therapy, decisions, self-reflection, relationships) → sections: HERE'S WHAT'S HAPPENING / HERE'S WHAT I'M FEELING / HERE'S WHAT I NEED
 - General (unclear context, figuring something out) → sections: HERE'S WHAT'S GOING ON / HERE'S WHAT I KNOW / HERE'S WHAT I NEED
+
+PERFORMANCE CONTEXT (often misclassified as clarity):
+- Difficult Conversation (conflict, negotiation, boundaries, landlord, raise, confront) → sections: THE ISSUE / THE FACTS / THE RESOLUTION — this is PERFORMANCE mode because the user has a specific person they need to confront or negotiate with.
 
 CLARITY MODE also applies when the user is NOT preparing for any specific conversation or audience. If the input has no audience, no meeting, no person they're talking to — the user is thinking, not performing. They're using this tool as a mirror to see their own thoughts organized.
 
