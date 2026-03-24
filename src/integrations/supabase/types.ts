@@ -216,9 +216,12 @@ export type Database = {
       projects: {
         Row: {
           created_at: string | null
+          detected_context: string | null
+          detected_mode: string | null
           draft_state: Json | null
           id: string
           is_published: boolean | null
+          mode_confidence: string | null
           output_data: Json | null
           output_format: string | null
           public_id: string | null
@@ -230,9 +233,12 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          detected_context?: string | null
+          detected_mode?: string | null
           draft_state?: Json | null
           id?: string
           is_published?: boolean | null
+          mode_confidence?: string | null
           output_data?: Json | null
           output_format?: string | null
           public_id?: string | null
@@ -244,9 +250,12 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          detected_context?: string | null
+          detected_mode?: string | null
           draft_state?: Json | null
           id?: string
           is_published?: boolean | null
+          mode_confidence?: string | null
           output_data?: Json | null
           output_format?: string | null
           public_id?: string | null
