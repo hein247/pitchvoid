@@ -630,7 +630,8 @@ const Dashboard = () => {
           tone: selectedTone,
           length: selectedLength,
           documentContext: documentContext || undefined,
-          imageDescriptions: imageDescriptions.length > 0 ? imageDescriptions : undefined
+          imageDescriptions: imageDescriptions.length > 0 ? imageDescriptions : undefined,
+          parsedContext: parsedContext || undefined
         };
       } else {
         functionName = 'generate-one-pager';
@@ -639,7 +640,8 @@ const Dashboard = () => {
           targetAudience,
           visualStyle: selectedTone,
           documentContext: documentContext || undefined,
-          imageDescriptions: imageDescriptions.length > 0 ? imageDescriptions : undefined
+          imageDescriptions: imageDescriptions.length > 0 ? imageDescriptions : undefined,
+          parsedContext: parsedContext || undefined
         };
       }
 
