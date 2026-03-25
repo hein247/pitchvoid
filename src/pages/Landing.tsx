@@ -65,7 +65,7 @@ const Landing = () => {
         <section className="max-w-7xl mx-auto px-4 sm:px-8 pt-8 sm:pt-20 pb-16 sm:pb-28">
           <div className="max-w-2xl mx-auto text-center">
             <div className="animate-slideUp">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl leading-[1.1] text-foreground mb-5 sm:mb-7">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl leading-[1.1] text-foreground mb-8 sm:mb-10">
                 Too much to say.
                 <br />
                 <span className="brand-gradient-text">
@@ -90,16 +90,18 @@ const Landing = () => {
                   </AnimatePresence>
                 </span>
               </h1>
-
-              <p className="text-base sm:text-lg text-muted-foreground mb-8 sm:mb-10 max-w-md mx-auto leading-relaxed">Dump your scattered thoughts. PitchVoid turns them into something you can actually walk in and say.</p>
-
-              <p className="text-sm text-muted-foreground mb-10">
-                3 free credits · works for meetings, ideas, conversations, and everything in between
-              </p>
             </div>
           </div>
 
           <LiveDemo />
+
+          <div className="max-w-2xl mx-auto text-center mt-10 sm:mt-12">
+            <p className="text-base sm:text-lg text-muted-foreground mb-4 max-w-md mx-auto leading-relaxed">Dump your scattered thoughts. PitchVoid turns them into something you can actually walk in and say.</p>
+
+            <p className="text-sm text-muted-foreground">
+              3 free credits · works for meetings, ideas, conversations, and everything in between
+            </p>
+          </div>
         </section>
         <HowItWorks />
 
