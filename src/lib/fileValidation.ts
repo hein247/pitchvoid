@@ -59,7 +59,7 @@ export function validateFiles(
       errors.push({
         file,
         reason: 'size',
-        message: `"${file.name}" is ${sizeMB} MB — max file size is ${FILE_UPLOAD_CONFIG.maxSizeLabel}.`,
+        message: `"${file.name}" is ${sizeMB} MB. Max file size is ${FILE_UPLOAD_CONFIG.maxSizeLabel}.`,
       });
       continue;
     }

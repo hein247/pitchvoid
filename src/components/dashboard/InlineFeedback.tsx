@@ -83,7 +83,7 @@ const InlineFeedback = ({ projectId, format, generatedOutput, generationKey }: I
     return (
       <div className="flex flex-col items-center gap-2 py-8 animate-fadeIn">
         <span style={{ fontSize: 13, color: 'rgba(240,237,246,0.3)' }}>
-          {rating === 5 ? 'Thanks!' : 'Thanks — we\'ll improve!'}
+          {rating === 5 ? 'Thanks!' : 'Thanks, we\'ll improve!'}
         </span>
       </div>
     );

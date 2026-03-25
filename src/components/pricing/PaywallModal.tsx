@@ -95,7 +95,7 @@ export function PaywallModal({ open, onOpenChange, type, message }: PaywallModal
             className="w-full h-12 text-base font-semibold bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
           >
             <Sparkles className="w-5 h-5 mr-2" />
-            Upgrade — ${PRICING.pro.monthlyPrice}/mo
+            Upgrade // ${PRICING.pro.monthlyPrice}/mo
           </Button>
 
           <p className="text-xs text-center text-muted-foreground">

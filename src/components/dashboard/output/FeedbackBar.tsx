@@ -105,7 +105,7 @@ const FeedbackBar = ({ projectId, format, generatedOutput, generationKey }: Feed
       {submitted ? (
         <div className="flex items-center justify-center gap-2 py-3">
           <span className="text-xs text-muted-foreground/30">
-            {rating === 5 ? 'Thanks!' : 'Thanks — we\'ll improve!'}
+            {rating === 5 ? 'Thanks!' : 'Thanks, we\'ll improve!'}
           </span>
         </div>
       ) : (

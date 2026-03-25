@@ -69,7 +69,7 @@ const PhoneMockup = ({ image }: { image: string }) => (
             <span className="text-lg ml-auto">⊡</span>
           </div>
           <div className="px-3 pb-3">
-            <p className="text-xs"><span className="font-medium">mejuri</span> The Dôme Figure Ring — your new everyday essential ✨</p>
+            <p className="text-xs"><span className="font-medium">mejuri</span> The Dôme Figure Ring // your new everyday essential ✨</p>
           </div>
         </div>
       </div>

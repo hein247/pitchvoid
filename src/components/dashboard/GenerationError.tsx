@@ -12,7 +12,7 @@ interface GenerationErrorProps {
 const ERROR_CONFIG: Record<string, { icon: typeof AlertTriangle; title: string; color: string }> = {
   rate_limit: {
     icon: Clock,
-    title: 'Slow down — too many requests',
+    title: 'Slow down // too many requests',
     color: 'text-amber-400',
   },
   credits: {
