@@ -267,7 +267,6 @@ export default function HowItWorks() {
           await animate([
             ['.consolidated-card', { opacity: 0, scale: 0.95, filter: 'blur(10px)' }, { duration: 0.5, at: 0 }],
             ['.closing-headline', { opacity: 0, y: -10, filter: 'blur(6px)' }, { duration: 0.4, at: 0 }],
-            ['.demo-tagline', { opacity: 0 }, { duration: 0.4, at: 0 }],
             ['.cta-area', { opacity: 0, filter: 'blur(4px)', pointerEvents: 'none' }, { duration: 0.4, at: 0 }]
           ]);
           await safeDelay(400);
