@@ -16,6 +16,7 @@ import Settings from "./pages/Settings";
 import FAQ from "./pages/FAQ";
 import Legal from "./pages/Legal";
 import Why from "./pages/Why";
+import Blog from "./pages/Blog";
 import Feedback from "./pages/Feedback";
 import NotFound from "./pages/NotFound";
 
