@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAnimate, stagger, useReducedMotion } from 'motion/react';
-import { Bot, NotebookPen, MessageSquare, Mail, Calendar, FileText, Hash, Sparkles, UploadCloud, Image as ImageIcon } from 'lucide-react';
+import { Bot, NotebookPen, MessageSquare, Mail, Calendar, FileText, Hash, Sparkles, UploadCloud, Image as ImageIcon, ArrowRight } from 'lucide-react';
+import VoidTransition from '@/components/ui/VoidTransition';
 
 /* ── App UI Definitions ── */
 const APPS = {
@@ -92,8 +93,13 @@ const OUTPUT_SECTIONS = [
 export default function HowItWorks() {
   const [scope, animate] = useAnimate();
   const [isMobile, setIsMobile] = useState(false);
+  const [voidActive, setVoidActive] = useState(false);
   const prefersReducedMotion = useReducedMotion();
   const navigate = useNavigate();
+
+  const enterVoid = useCallback(() => {
+    setVoidActive(true);
+  }, []);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 640);
@@ -117,6 +123,7 @@ export default function HowItWorks() {
           await animate('.consolidated-card', { opacity: 1, scale: 1, filter: 'blur(0px)' }, { duration: 0 });
           await animate('.mess-text-container', { opacity: 0 }, { duration: 0 });
           await animate('.clean-sec', { opacity: 1, y: 0, filter: 'blur(0px)' }, { duration: 0 });
+          await animate('.closing-headline', { opacity: 1, y: 0, filter: 'blur(0px)' }, { duration: 0 });
           await animate('.demo-tagline', { opacity: 1, y: 0 }, { duration: 0 });
           await animate('.cta-area', { opacity: 1, scale: 1, filter: 'blur(0px)', pointerEvents: 'auto' }, { duration: 0 });
           return;
@@ -141,6 +148,7 @@ export default function HowItWorks() {
             ['.clean-sec', { opacity: 0, y: 15, filter: 'blur(4px)' }, { duration: 0, at: 0 }],
             ['.demo-tagline', { opacity: 0, y: 10 }, { duration: 0, at: 0 }],
             ['.cta-area', { opacity: 0, scale: 0.9, filter: 'blur(4px)', pointerEvents: 'none' }, { duration: 0, at: 0 }],
+            ['.closing-headline', { opacity: 0, y: 20, filter: 'blur(6px)' }, { duration: 0, at: 0 }],
           ]);
 
           if (!isActive) break;
@@ -252,13 +260,16 @@ export default function HowItWorks() {
           if (!isActive) break;
           await safeDelay(500);
 
+          // Fade in closing headline + CTA together
+          await animate('.closing-headline', { opacity: 1, y: 0, filter: 'blur(0px)' }, { duration: 0.8, ease: "easeOut" });
           animate('.demo-tagline', { opacity: 1, y: 0 }, { duration: 0.5 });
           await animate('.cta-area', { opacity: 1, scale: 1, filter: 'blur(0px)', pointerEvents: 'auto' }, { duration: 0.6, type: "spring", bounce: 0.5, delay: 0.1 });
 
-          await safeDelay(4500);
+          await safeDelay(5000);
 
           await animate([
             ['.consolidated-card', { opacity: 0, scale: 0.95, filter: 'blur(10px)' }, { duration: 0.5, at: 0 }],
+            ['.closing-headline', { opacity: 0, y: -10, filter: 'blur(6px)' }, { duration: 0.4, at: 0 }],
             ['.demo-tagline', { opacity: 0 }, { duration: 0.4, at: 0 }],
             ['.cta-area', { opacity: 0, filter: 'blur(4px)', pointerEvents: 'none' }, { duration: 0.4, at: 0 }]
           ]);
@@ -443,21 +454,30 @@ export default function HowItWorks() {
           </div>
 
           {/* ======================= */}
-          {/* PAGE 5: CTA */}
+          {/* PAGE 5: CLOSING + CTA */}
           {/* ======================= */}
-          <div className="absolute bottom-2 sm:bottom-12 left-0 right-0 flex flex-col items-center gap-7 sm:gap-5 z-50 pointer-events-none px-4">
+          <VoidTransition isActive={voidActive} onComplete={() => navigate('/dashboard')} />
+
+          <div className="closing-headline absolute top-8 sm:top-14 left-0 right-0 flex flex-col items-center z-50 pointer-events-none px-4" style={{ opacity: 0, transform: 'translateY(20px)', filter: 'blur(6px)' }}>
+            <h3 className="text-xl sm:text-3xl md:text-4xl font-display text-white text-center max-w-lg leading-tight">
+              Your next conversation is one brain dump away.
+            </h3>
+          </div>
+
+          <div className="absolute bottom-4 sm:bottom-12 left-0 right-0 flex flex-col items-center gap-5 z-50 pointer-events-none px-4">
             <p
               className="demo-tagline max-w-[280px] text-center leading-tight font-sans font-medium text-[13px] sm:max-w-none sm:text-[15px]"
               style={{ color: '#ffffff', opacity: 0 }}
             >
-              Overstimulated → Articulate. In seconds.
+              Concept. Investor pitch. Job interview. Difficult conversation. Whatever it is, just dump the mess and get the clarity.
             </p>
             <div className="cta-area pointer-events-auto" style={{ opacity: 0, scale: 0.9 }}>
               <button
-                onClick={() => navigate('/dashboard')}
-                className="px-8 py-3.5 rounded-full text-primary-foreground font-semibold magenta-gradient text-base sm:text-lg hover:opacity-90 hover:scale-105 transition-all cursor-pointer shadow-[0_0_30px_rgba(168,85,247,0.5)] border border-white/20"
+                onClick={enterVoid}
+                className="px-8 py-4 rounded-full text-primary-foreground font-semibold magenta-gradient text-base sm:text-lg hover:opacity-90 hover:scale-105 transition-all cursor-pointer shadow-[0_0_30px_rgba(168,85,247,0.5)] border border-white/20 group inline-flex items-center gap-3"
               >
-                Clear your head →
+                Enter the void
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
               </button>
             </div>
           </div>

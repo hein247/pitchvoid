@@ -1,13 +1,10 @@
-import { useNavigate } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import HowItWorks from '@/components/landing/HowItWorks';
 import LiveDemo from '@/components/landing/LiveDemo';
 import AnimatedShaderBackground from '@/components/ui/animated-shader-background';
 import Footer from '@/components/Footer';
-import VoidTransition from '@/components/ui/VoidTransition';
 import PageTransition from '@/components/ui/PageTransition';
 const ROTATING_WORDS = ['process', 'analyze', 'prepare', 'articulate', 'connect'];
 
@@ -40,13 +37,7 @@ const letterVariants = {
 };
 
 const Landing = () => {
-  const navigate = useNavigate();
   const [wordIndex, setWordIndex] = useState(0);
-  const [voidActive, setVoidActive] = useState(false);
-
-  const enterVoid = useCallback(() => {
-    setVoidActive(true);
-  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -56,7 +47,6 @@ const Landing = () => {
   }, []);
   return <PageTransition><div className="min-h-screen relative bg-[radial-gradient(ellipse_at_top,_hsl(25_75%_65%/0.08)_0%,_transparent_50%),_radial-gradient(ellipse_at_bottom_right,_hsl(260_60%_55%/0.06)_0%,_transparent_50%)]">
       <AnimatedShaderBackground />
-      <VoidTransition isActive={voidActive} onComplete={() => navigate('/dashboard')} />
       {/* Navigation */}
       <div className="relative z-10">
         <Navbar variant="landing" />
@@ -105,19 +95,6 @@ const Landing = () => {
         </section>
         <HowItWorks />
 
-        {/* CTA Section */}
-        <section id="pricing" className="max-w-3xl mx-auto px-4 sm:px-8 py-8 sm:py-12 text-center">
-          <h2 className="text-3xl sm:text-4xl text-foreground mb-4 sm:mb-6 font-display">
-            Your next conversation is one brain dump away.
-          </h2>
-          <p className="text-muted-foreground mb-6 sm:mb-8 text-sm sm:text-base max-w-lg mx-auto">
-            Concept, Investor pitch. Job interview. Difficult conversation. Whatever it is, just dump the mess and get the clarity.
-          </p>
-          <button onClick={enterVoid} className="px-8 py-4 rounded-full text-primary-foreground font-semibold magenta-gradient text-base sm:text-lg hover:opacity-90 hover:scale-105 transition-all shadow-[0_0_30px_rgba(168,85,247,0.5)] border border-white/20 group inline-flex items-center gap-3">
-            Enter the void
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
-          </button>
-        </section>
 
         <Footer />
       </div>
