@@ -286,6 +286,13 @@ export default function HowItWorks() {
 
   return (
     <section className="w-full py-20 sm:py-32 px-4 sm:px-8">
+      {/* Closing headline - outside the animation box */}
+      <div className="closing-headline max-w-[1100px] mx-auto mb-8 sm:mb-10 px-4" style={{ opacity: 0, transform: 'translateY(20px)', filter: 'blur(6px)' }}>
+        <h3 className="text-xl sm:text-3xl md:text-4xl font-display text-foreground text-center max-w-lg mx-auto leading-tight">
+          Your next conversation is one brain dump away.
+        </h3>
+      </div>
+
       <div
         ref={scope}
         className="w-full max-w-[1100px] mx-auto rounded-[24px] relative overflow-hidden shadow-2xl"
@@ -294,10 +301,10 @@ export default function HowItWorks() {
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
           border: '1px solid rgba(168,85,247,0.15)',
-          minHeight: isMobile ? '680px' : 'clamp(680px, 75vw, 760px)',
+          minHeight: isMobile ? '580px' : 'clamp(680px, 75vw, 760px)',
         }}
       >
-        <div className="relative w-full h-full flex items-center justify-center" style={{ minHeight: isMobile ? '680px' : 'clamp(680px, 75vw, 760px)' }}>
+        <div className="relative w-full h-full flex items-center justify-center" style={{ minHeight: isMobile ? '580px' : 'clamp(680px, 75vw, 760px)' }}>
 
           {/* ======================= */}
           {/* PAGE 1: TEXT */}
@@ -408,7 +415,7 @@ export default function HowItWorks() {
           <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
             <div
               className="consolidated-card relative w-[92%] max-w-[640px] bg-[#14121a]/95 backdrop-blur-2xl border border-purple-500/40 rounded-xl sm:rounded-2xl shadow-[0_0_80px_rgba(168,85,247,0.25)] overflow-hidden flex flex-col"
-              style={{ opacity: 0, scale: 0.5, filter: 'blur(10px)', minHeight: isMobile ? '380px' : '380px' }}
+              style={{ opacity: 0, scale: 0.5, filter: 'blur(10px)', minHeight: '380px' }}
             >
               {/* Simplified header */}
               <div className="h-11 bg-white/5 border-b border-white/10 flex items-center justify-between px-5">
@@ -454,23 +461,11 @@ export default function HowItWorks() {
           </div>
 
           {/* ======================= */}
-          {/* PAGE 5: CLOSING + CTA */}
+          {/* CTA BUTTON (inside box) */}
           {/* ======================= */}
           <VoidTransition isActive={voidActive} onComplete={() => navigate('/dashboard')} />
 
-          <div className="closing-headline absolute top-8 sm:top-14 left-0 right-0 flex flex-col items-center z-50 pointer-events-none px-4" style={{ opacity: 0, transform: 'translateY(20px)', filter: 'blur(6px)' }}>
-            <h3 className="text-xl sm:text-3xl md:text-4xl font-display text-white text-center max-w-lg leading-tight">
-              Your next conversation is one brain dump away.
-            </h3>
-          </div>
-
-          <div className="absolute bottom-8 sm:bottom-12 left-0 right-0 flex flex-col items-center gap-4 z-50 pointer-events-none px-6">
-            <p
-              className="demo-tagline max-w-[280px] text-center leading-tight font-sans font-medium text-[13px] sm:max-w-none sm:text-[15px]"
-              style={{ color: '#ffffff', opacity: 0 }}
-            >
-              Concept. Investor pitch. Job interview. Difficult conversation. Whatever it is, just dump the mess and get the clarity.
-            </p>
+          <div className="absolute bottom-10 sm:bottom-12 left-0 right-0 flex justify-center z-50 pointer-events-none">
             <div className="cta-area pointer-events-auto" style={{ opacity: 0, scale: 0.9 }}>
               <button
                 onClick={enterVoid}
