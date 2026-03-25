@@ -407,10 +407,10 @@ export default function HowItWorks() {
           {/* ======================= */}
           {/* PAGE 4: SYNTHESIS */}
           {/* ======================= */}
-          <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
+          <div className="absolute inset-0 flex items-start sm:items-center justify-center z-40 pointer-events-none pt-8 sm:pt-0">
             <div
-              className="consolidated-card relative w-[92%] max-w-[640px] bg-[#14121a]/95 backdrop-blur-2xl border border-purple-500/40 rounded-xl sm:rounded-2xl shadow-[0_0_80px_rgba(168,85,247,0.25)] overflow-hidden flex flex-col"
-              style={{ opacity: 0, scale: 0.5, filter: 'blur(10px)', minHeight: '380px' }}
+              className="consolidated-card relative w-[88%] max-w-[640px] bg-[#14121a]/95 backdrop-blur-2xl border border-purple-500/40 rounded-xl sm:rounded-2xl shadow-[0_0_80px_rgba(168,85,247,0.25)] overflow-hidden flex flex-col"
+              style={{ opacity: 0, scale: 0.5, filter: 'blur(10px)' }}
             >
               {/* Simplified header */}
               <div className="h-11 bg-white/5 border-b border-white/10 flex items-center justify-between px-5">
