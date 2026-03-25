@@ -439,7 +439,7 @@ export default function HowItWorks() {
                 />
 
                 {/* 3 clean output sections */}
-                <div className="clean-sections absolute inset-0 p-5 sm:p-10 flex flex-col justify-center gap-5 sm:gap-8 z-10">
+                <div className="clean-sections absolute inset-0 p-6 sm:p-10 flex flex-col justify-center gap-6 sm:gap-8 z-10">
                   {OUTPUT_SECTIONS.map((sec, i) => (
                     <div key={i} className={`clean-sec clean-sec-${i}`} style={{ opacity: 0, transform: 'translateY(15px)', filter: 'blur(4px)' }}>
                       <p className="text-[10px] sm:text-[11px] font-bold text-purple-400 tracking-[0.2em] uppercase mb-1.5 sm:mb-2 font-sans">
