@@ -113,6 +113,12 @@ const Navbar = ({
               >
                 Pricing
               </button>
+              <button
+                onClick={() => navigate('/blog')}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors py-3 text-left border-b border-accent/10"
+              >
+                Blog
+              </button>
               {user ? (
                 <button
                   onClick={() => navigate('/dashboard')}

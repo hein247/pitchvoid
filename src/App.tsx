@@ -39,6 +39,7 @@ const AnimatedRoutes = () => {
         <Route path="/faq" element={<FAQ />} />
         <Route path="/legal" element={<Legal />} />
         <Route path="/why" element={<Why />} />
+        <Route path="/blog" element={<Blog />} />
         <Route path="/feedback" element={<Feedback />} />
         <Route path="/case-study" element={<Suspense fallback={<div className="min-h-screen" style={{ background: "#FFFFFF" }} />}><CaseStudy /></Suspense>} />
         <Route path="/p/:id" element={<PublicPresentation />} />
