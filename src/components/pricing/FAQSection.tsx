@@ -8,11 +8,11 @@ import {
 const FAQ_ITEMS = [
   {
     q: 'What counts as 1 credit?',
-    a: "One credit gets you one generated output — either a one-pager or a talking script. You pick the format after you dump your thoughts. If you want both formats for the same scenario, that's 2 credits.",
+    a: "One credit gets you one generated output, either a one-pager or a talking script. You pick the format after you dump your thoughts. If you want both formats for the same scenario, that's 2 credits.",
   },
   {
     q: 'Does refining cost credits?',
-    a: "No. Once you've generated an output, you can refine it as many times as you want — shorter, bolder, simpler, or with custom instructions. Refining is always free.",
+    a: "No. Once you've generated an output, you can refine it as many times as you want. Shorter, bolder, simpler, or with custom instructions. Refining is always free.",
   },
   {
     q: 'What about Practice Mode, PDF export, and the teleprompter?',
@@ -24,11 +24,11 @@ const FAQ_ITEMS = [
   },
   {
     q: 'What can I use PitchVoid for?',
-    a: "Anything where you need to organize your thoughts before speaking or presenting. Investor pitches, job interviews, salary negotiations, client proposals, team updates, speeches, tough conversations, comedy sets, therapy prep — if you have scattered thoughts and need clarity, PitchVoid handles it.",
+    a: "Anything where you need to organize your thoughts before speaking or presenting. Investor pitches, job interviews, salary negotiations, client proposals, team updates, speeches, tough conversations, comedy sets, therapy prep. If you have scattered thoughts and need clarity, PitchVoid handles it.",
   },
   {
     q: 'Does PitchVoid write content for me?',
-    a: "No. PitchVoid organizes YOUR thoughts. It doesn't invent facts, add statistics, or create content you didn't provide. What you put in is what comes out — just structured and clear. If you leave something out, PitchVoid will flag what's missing so you can fill the gap yourself.",
+    a: "No. PitchVoid organizes YOUR thoughts. It doesn't invent facts, add statistics, or create content you didn't provide. What you put in is what comes out, just structured and clear. If you leave something out, PitchVoid will flag what's missing so you can fill the gap yourself.",
   },
   {
     q: 'Is my data private?',
@@ -36,7 +36,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'What AI model does PitchVoid use?',
-    a: "PitchVoid uses current commercial AI models to structure your inputs. We don't disclose the specific provider, and we may update or change models over time to improve output quality. The AI is a tool in the process — the thinking is yours.",
+    a: "PitchVoid uses current commercial AI models to structure your inputs. We don't disclose the specific provider, and we may update or change models over time to improve output quality. The AI is a tool in the process. The thinking is yours.",
   },
   {
     q: 'Can I get a refund?',
@@ -44,11 +44,11 @@ const FAQ_ITEMS = [
   },
   {
     q: 'What happens to my free credits?',
-    a: 'Every new account gets 3 free credits. They work exactly like purchased credits — same features, same quality, no watermarks, no limitations. They never expire.',
+    a: 'Every new account gets 3 free credits. They work exactly like purchased credits. Same features, same quality, no watermarks, no limitations. They never expire.',
   },
   {
     q: 'Will there be a subscription option?',
-    a: "Not right now. We believe you should pay for what you use, not for what you might use. If demand changes, we'll revisit — but credits feel right for how people actually use PitchVoid.",
+    a: "Not right now. We believe you should pay for what you use, not for what you might use. If demand changes, we'll revisit, but credits feel right for how people actually use PitchVoid.",
   },
 ];
 
