@@ -55,6 +55,12 @@ const Navbar = ({
           >
             Pricing
           </button>
+          <button
+            onClick={() => navigate('/blog')}
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Blog
+          </button>
           {user ? (
             <button
               onClick={() => navigate('/dashboard')}
