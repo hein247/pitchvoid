@@ -258,9 +258,8 @@ export default function HowItWorks() {
           if (!isActive) break;
           await safeDelay(500);
 
-          // Fade in closing headline + CTA together
+          // Fade in closing headline + CTA
           await animate('.closing-headline', { opacity: 1, y: 0, filter: 'blur(0px)' }, { duration: 0.8, ease: "easeOut" });
-          animate('.demo-tagline', { opacity: 1, y: 0 }, { duration: 0.5 });
           await animate('.cta-area', { opacity: 1, scale: 1, filter: 'blur(0px)', pointerEvents: 'auto' }, { duration: 0.6, type: "spring", bounce: 0.5, delay: 0.1 });
 
           await safeDelay(5000);
