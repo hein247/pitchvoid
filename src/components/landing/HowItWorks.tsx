@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAnimate, stagger, useReducedMotion } from 'motion/react';
-import { Bot, NotebookPen, MessageSquare, Mail, Calendar, FileText, Hash, Sparkles, UploadCloud, Image as ImageIcon } from 'lucide-react';
+import { Bot, NotebookPen, MessageSquare, Mail, Calendar, FileText, Hash, Sparkles, UploadCloud, Image as ImageIcon, ArrowRight } from 'lucide-react';
+import VoidTransition from '@/components/ui/VoidTransition';
 
 /* ── App UI Definitions ── */
 const APPS = {
