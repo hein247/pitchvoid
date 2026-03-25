@@ -259,13 +259,16 @@ export default function HowItWorks() {
           if (!isActive) break;
           await safeDelay(500);
 
+          // Fade in closing headline + CTA together
+          await animate('.closing-headline', { opacity: 1, y: 0, filter: 'blur(0px)' }, { duration: 0.8, ease: "easeOut" });
           animate('.demo-tagline', { opacity: 1, y: 0 }, { duration: 0.5 });
           await animate('.cta-area', { opacity: 1, scale: 1, filter: 'blur(0px)', pointerEvents: 'auto' }, { duration: 0.6, type: "spring", bounce: 0.5, delay: 0.1 });
 
-          await safeDelay(4500);
+          await safeDelay(5000);
 
           await animate([
             ['.consolidated-card', { opacity: 0, scale: 0.95, filter: 'blur(10px)' }, { duration: 0.5, at: 0 }],
+            ['.closing-headline', { opacity: 0, y: -10, filter: 'blur(6px)' }, { duration: 0.4, at: 0 }],
             ['.demo-tagline', { opacity: 0 }, { duration: 0.4, at: 0 }],
             ['.cta-area', { opacity: 0, filter: 'blur(4px)', pointerEvents: 'none' }, { duration: 0.4, at: 0 }]
           ]);
