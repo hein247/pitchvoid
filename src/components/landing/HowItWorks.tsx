@@ -445,7 +445,7 @@ export default function HowItWorks() {
                       <p className="text-[10px] sm:text-[11px] font-bold text-purple-400 tracking-[0.2em] uppercase mb-1.5 sm:mb-2 font-sans">
                         {sec.label}
                       </p>
-                      <p className="text-[14px] sm:text-[16px] text-white/95 font-medium leading-relaxed font-sans">
+                      <p className="text-[13px] sm:text-[16px] text-white/95 font-medium leading-relaxed font-sans">
                         {sec.text}
                       </p>
                     </div>
