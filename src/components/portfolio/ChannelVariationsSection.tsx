@@ -30,7 +30,7 @@ const EmailMockup = ({ image }: { image: string }) => (
       <img src={image} alt="Email hero" className="w-full" />
       <div className="p-6 text-center space-y-4">
         <h3 className="font-display text-xl text-foreground">Cozy Luxury Awaits</h3>
-        <p className="text-sm text-muted-foreground">The new Dôme Figure Ring — sculptural elegance for everyday.</p>
+        <p className="text-sm text-muted-foreground">The new Dôme Figure Ring // sculptural elegance for everyday.</p>
         <button className="bg-foreground text-background px-6 py-2 text-sm tracking-wide">
           SHOP NOW
         </button>
