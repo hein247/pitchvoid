@@ -105,19 +105,6 @@ const Landing = () => {
         </section>
         <HowItWorks />
 
-        {/* CTA Section */}
-        <section id="pricing" className="max-w-3xl mx-auto px-4 sm:px-8 py-8 sm:py-12 text-center">
-          <h2 className="text-3xl sm:text-4xl text-foreground mb-4 sm:mb-6 font-display">
-            Your next conversation is one brain dump away.
-          </h2>
-          <p className="text-muted-foreground mb-6 sm:mb-8 text-sm sm:text-base max-w-lg mx-auto">
-            Concept, Investor pitch. Job interview. Difficult conversation. Whatever it is, just dump the mess and get the clarity.
-          </p>
-          <button onClick={enterVoid} className="px-8 py-4 rounded-full text-primary-foreground font-semibold magenta-gradient text-base sm:text-lg hover:opacity-90 hover:scale-105 transition-all shadow-[0_0_30px_rgba(168,85,247,0.5)] border border-white/20 group inline-flex items-center gap-3">
-            Enter the void
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
-          </button>
-        </section>
 
         <Footer />
       </div>
