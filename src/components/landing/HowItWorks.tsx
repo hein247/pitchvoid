@@ -123,6 +123,7 @@ export default function HowItWorks() {
           await animate('.consolidated-card', { opacity: 1, scale: 1, filter: 'blur(0px)' }, { duration: 0 });
           await animate('.mess-text-container', { opacity: 0 }, { duration: 0 });
           await animate('.clean-sec', { opacity: 1, y: 0, filter: 'blur(0px)' }, { duration: 0 });
+          await animate('.closing-headline', { opacity: 1, y: 0, filter: 'blur(0px)' }, { duration: 0 });
           await animate('.demo-tagline', { opacity: 1, y: 0 }, { duration: 0 });
           await animate('.cta-area', { opacity: 1, scale: 1, filter: 'blur(0px)', pointerEvents: 'auto' }, { duration: 0 });
           return;
