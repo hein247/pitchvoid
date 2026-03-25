@@ -16,6 +16,7 @@ import Settings from "./pages/Settings";
 import FAQ from "./pages/FAQ";
 import Legal from "./pages/Legal";
 import Why from "./pages/Why";
+import Blog from "./pages/Blog";
 import Feedback from "./pages/Feedback";
 import NotFound from "./pages/NotFound";
 
@@ -38,6 +39,7 @@ const AnimatedRoutes = () => {
         <Route path="/faq" element={<FAQ />} />
         <Route path="/legal" element={<Legal />} />
         <Route path="/why" element={<Why />} />
+        <Route path="/blog" element={<Blog />} />
         <Route path="/feedback" element={<Feedback />} />
         <Route path="/case-study" element={<Suspense fallback={<div className="min-h-screen" style={{ background: "#FFFFFF" }} />}><CaseStudy /></Suspense>} />
         <Route path="/p/:id" element={<PublicPresentation />} />
