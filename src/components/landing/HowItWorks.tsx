@@ -93,8 +93,13 @@ const OUTPUT_SECTIONS = [
 export default function HowItWorks() {
   const [scope, animate] = useAnimate();
   const [isMobile, setIsMobile] = useState(false);
+  const [voidActive, setVoidActive] = useState(false);
   const prefersReducedMotion = useReducedMotion();
   const navigate = useNavigate();
+
+  const enterVoid = useCallback(() => {
+    setVoidActive(true);
+  }, []);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 640);
