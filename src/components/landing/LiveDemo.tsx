@@ -79,7 +79,7 @@ const LiveDemo = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-8 pt-8 sm:pt-12">
+    <div className="max-w-2xl mx-auto px-4 sm:px-8 pt-4 sm:pt-6">
       {/* Input area */}
       <div className="space-y-4">
         <motion.div
