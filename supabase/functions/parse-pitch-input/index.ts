@@ -42,7 +42,7 @@ serve(async (req) => {
     if (wordCount < 5) {
       return jsonResponse({
         needs_more: true,
-        suggestion: "Tell me a bit more — who are you talking to and what do you need to say?"
+        suggestion: "Tell me a bit more. Who are you talking to and what do you need to say?"
       });
     }
 
