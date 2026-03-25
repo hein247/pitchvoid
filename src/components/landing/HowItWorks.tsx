@@ -453,21 +453,30 @@ export default function HowItWorks() {
           </div>
 
           {/* ======================= */}
-          {/* PAGE 5: CTA */}
+          {/* PAGE 5: CLOSING + CTA */}
           {/* ======================= */}
-          <div className="absolute bottom-2 sm:bottom-12 left-0 right-0 flex flex-col items-center gap-7 sm:gap-5 z-50 pointer-events-none px-4">
+          <VoidTransition isActive={voidActive} onComplete={() => navigate('/dashboard')} />
+
+          <div className="closing-headline absolute top-8 sm:top-14 left-0 right-0 flex flex-col items-center z-50 pointer-events-none px-4" style={{ opacity: 0, transform: 'translateY(20px)', filter: 'blur(6px)' }}>
+            <h3 className="text-xl sm:text-3xl md:text-4xl font-display text-white text-center max-w-lg leading-tight">
+              Your next conversation is one brain dump away.
+            </h3>
+          </div>
+
+          <div className="absolute bottom-4 sm:bottom-12 left-0 right-0 flex flex-col items-center gap-5 z-50 pointer-events-none px-4">
             <p
               className="demo-tagline max-w-[280px] text-center leading-tight font-sans font-medium text-[13px] sm:max-w-none sm:text-[15px]"
               style={{ color: '#ffffff', opacity: 0 }}
             >
-              Overstimulated → Articulate. In seconds.
+              Concept. Investor pitch. Job interview. Difficult conversation. Whatever it is, just dump the mess and get the clarity.
             </p>
             <div className="cta-area pointer-events-auto" style={{ opacity: 0, scale: 0.9 }}>
               <button
-                onClick={() => navigate('/dashboard')}
-                className="px-8 py-3.5 rounded-full text-primary-foreground font-semibold magenta-gradient text-base sm:text-lg hover:opacity-90 hover:scale-105 transition-all cursor-pointer shadow-[0_0_30px_rgba(168,85,247,0.5)] border border-white/20"
+                onClick={enterVoid}
+                className="px-8 py-4 rounded-full text-primary-foreground font-semibold magenta-gradient text-base sm:text-lg hover:opacity-90 hover:scale-105 transition-all cursor-pointer shadow-[0_0_30px_rgba(168,85,247,0.5)] border border-white/20 group inline-flex items-center gap-3"
               >
-                Clear your head →
+                Enter the void
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
               </button>
             </div>
           </div>
