@@ -28,7 +28,7 @@ const MESS_CARDS = [
 const getScatteredPositions = (windowWidth: number) => {
   const isMobile = windowWidth < 640;
   const containerWidth = Math.min(windowWidth - 32, 1100);
-  const containerHeight = isMobile ? 560 : Math.min(windowWidth * 0.75, 760);
+  const containerHeight = isMobile ? 660 : Math.min(windowWidth * 0.75, 760);
 
   const scale = isMobile ? 0.72 : (windowWidth < 1024 ? 0.85 : 1);
   const cardW = (isMobile ? 180 : 320) * scale;
@@ -294,10 +294,10 @@ export default function HowItWorks() {
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
           border: '1px solid rgba(168,85,247,0.15)',
-          minHeight: isMobile ? '580px' : 'clamp(680px, 75vw, 760px)',
+          minHeight: isMobile ? '680px' : 'clamp(680px, 75vw, 760px)',
         }}
       >
-        <div className="relative w-full h-full flex items-center justify-center" style={{ minHeight: isMobile ? '580px' : 'clamp(680px, 75vw, 760px)' }}>
+        <div className="relative w-full h-full flex items-center justify-center" style={{ minHeight: isMobile ? '680px' : 'clamp(680px, 75vw, 760px)' }}>
 
           {/* ======================= */}
           {/* PAGE 1: TEXT */}
@@ -408,7 +408,7 @@ export default function HowItWorks() {
           <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
             <div
               className="consolidated-card relative w-[92%] max-w-[640px] bg-[#14121a]/95 backdrop-blur-2xl border border-purple-500/40 rounded-xl sm:rounded-2xl shadow-[0_0_80px_rgba(168,85,247,0.25)] overflow-hidden flex flex-col"
-              style={{ opacity: 0, scale: 0.5, filter: 'blur(10px)', minHeight: isMobile ? '420px' : '380px' }}
+              style={{ opacity: 0, scale: 0.5, filter: 'blur(10px)', minHeight: isMobile ? '380px' : '380px' }}
             >
               {/* Simplified header */}
               <div className="h-11 bg-white/5 border-b border-white/10 flex items-center justify-between px-5">
@@ -464,7 +464,7 @@ export default function HowItWorks() {
             </h3>
           </div>
 
-          <div className="absolute bottom-4 sm:bottom-12 left-0 right-0 flex flex-col items-center gap-5 z-50 pointer-events-none px-4">
+          <div className="absolute bottom-8 sm:bottom-12 left-0 right-0 flex flex-col items-center gap-4 z-50 pointer-events-none px-6">
             <p
               className="demo-tagline max-w-[280px] text-center leading-tight font-sans font-medium text-[13px] sm:max-w-none sm:text-[15px]"
               style={{ color: '#ffffff', opacity: 0 }}
