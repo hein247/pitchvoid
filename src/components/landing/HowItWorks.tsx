@@ -281,7 +281,7 @@ export default function HowItWorks() {
   }, [animate, prefersReducedMotion]);
 
   return (
-    <section className="w-full py-20 sm:py-32 px-4 sm:px-8">
+    <section ref={scope} className="w-full py-20 sm:py-32 px-4 sm:px-8">
       {/* Closing headline - outside the animation box */}
       <div className="closing-headline max-w-[1100px] mx-auto mb-8 sm:mb-10 px-4" style={{ opacity: 0, transform: 'translateY(20px)', filter: 'blur(6px)' }}>
         <h3 className="text-xl sm:text-3xl md:text-4xl font-display text-foreground text-center max-w-lg mx-auto leading-tight">
@@ -290,7 +290,6 @@ export default function HowItWorks() {
       </div>
 
       <div
-        ref={scope}
         className="w-full max-w-[1100px] mx-auto rounded-[24px] relative overflow-hidden shadow-2xl"
         style={{
           background: 'rgba(9,8,15,0.92)',
