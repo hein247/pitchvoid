@@ -145,7 +145,6 @@ export default function HowItWorks() {
             ['.mess-text-container', { opacity: 1, filter: 'blur(0px)' }, { duration: 0, at: 0 }],
             ['.process-scanline', { opacity: 0, top: '0%' }, { duration: 0, at: 0 }],
             ['.clean-sec', { opacity: 0, y: 15, filter: 'blur(4px)' }, { duration: 0, at: 0 }],
-            ['.demo-tagline', { opacity: 0, y: 10 }, { duration: 0, at: 0 }],
             ['.cta-area', { opacity: 0, scale: 0.9, filter: 'blur(4px)', pointerEvents: 'none' }, { duration: 0, at: 0 }],
             ['.closing-headline', { opacity: 0, y: 20, filter: 'blur(6px)' }, { duration: 0, at: 0 }],
           ]);
