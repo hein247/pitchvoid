@@ -28,7 +28,7 @@ const MESS_CARDS = [
 const getScatteredPositions = (windowWidth: number) => {
   const isMobile = windowWidth < 640;
   const containerWidth = Math.min(windowWidth - 32, 1100);
-  const containerHeight = isMobile ? 660 : Math.min(windowWidth * 0.75, 760);
+  const containerHeight = isMobile ? 560 : Math.min(windowWidth * 0.75, 760);
 
   const scale = isMobile ? 0.72 : (windowWidth < 1024 ? 0.85 : 1);
   const cardW = (isMobile ? 180 : 320) * scale;
@@ -124,7 +124,6 @@ export default function HowItWorks() {
           await animate('.mess-text-container', { opacity: 0 }, { duration: 0 });
           await animate('.clean-sec', { opacity: 1, y: 0, filter: 'blur(0px)' }, { duration: 0 });
           await animate('.closing-headline', { opacity: 1, y: 0, filter: 'blur(0px)' }, { duration: 0 });
-          await animate('.demo-tagline', { opacity: 1, y: 0 }, { duration: 0 });
           await animate('.cta-area', { opacity: 1, scale: 1, filter: 'blur(0px)', pointerEvents: 'auto' }, { duration: 0 });
           return;
         }
@@ -146,7 +145,6 @@ export default function HowItWorks() {
             ['.mess-text-container', { opacity: 1, filter: 'blur(0px)' }, { duration: 0, at: 0 }],
             ['.process-scanline', { opacity: 0, top: '0%' }, { duration: 0, at: 0 }],
             ['.clean-sec', { opacity: 0, y: 15, filter: 'blur(4px)' }, { duration: 0, at: 0 }],
-            ['.demo-tagline', { opacity: 0, y: 10 }, { duration: 0, at: 0 }],
             ['.cta-area', { opacity: 0, scale: 0.9, filter: 'blur(4px)', pointerEvents: 'none' }, { duration: 0, at: 0 }],
             ['.closing-headline', { opacity: 0, y: 20, filter: 'blur(6px)' }, { duration: 0, at: 0 }],
           ]);
@@ -260,9 +258,8 @@ export default function HowItWorks() {
           if (!isActive) break;
           await safeDelay(500);
 
-          // Fade in closing headline + CTA together
+          // Fade in closing headline + CTA
           await animate('.closing-headline', { opacity: 1, y: 0, filter: 'blur(0px)' }, { duration: 0.8, ease: "easeOut" });
-          animate('.demo-tagline', { opacity: 1, y: 0 }, { duration: 0.5 });
           await animate('.cta-area', { opacity: 1, scale: 1, filter: 'blur(0px)', pointerEvents: 'auto' }, { duration: 0.6, type: "spring", bounce: 0.5, delay: 0.1 });
 
           await safeDelay(5000);
@@ -270,7 +267,6 @@ export default function HowItWorks() {
           await animate([
             ['.consolidated-card', { opacity: 0, scale: 0.95, filter: 'blur(10px)' }, { duration: 0.5, at: 0 }],
             ['.closing-headline', { opacity: 0, y: -10, filter: 'blur(6px)' }, { duration: 0.4, at: 0 }],
-            ['.demo-tagline', { opacity: 0 }, { duration: 0.4, at: 0 }],
             ['.cta-area', { opacity: 0, filter: 'blur(4px)', pointerEvents: 'none' }, { duration: 0.4, at: 0 }]
           ]);
           await safeDelay(400);
@@ -285,19 +281,25 @@ export default function HowItWorks() {
   }, [animate, prefersReducedMotion]);
 
   return (
-    <section className="w-full py-20 sm:py-32 px-4 sm:px-8">
+    <section ref={scope} className="w-full py-20 sm:py-32 px-4 sm:px-8">
+      {/* Closing headline - outside the animation box */}
+      <div className="closing-headline max-w-[1100px] mx-auto mb-8 sm:mb-10 px-4" style={{ opacity: 0, transform: 'translateY(20px)', filter: 'blur(6px)' }}>
+        <h3 className="text-xl sm:text-3xl md:text-4xl font-display text-foreground text-center max-w-lg mx-auto leading-tight">
+          Your next conversation is one brain dump away.
+        </h3>
+      </div>
+
       <div
-        ref={scope}
         className="w-full max-w-[1100px] mx-auto rounded-[24px] relative overflow-hidden shadow-2xl"
         style={{
           background: 'rgba(9,8,15,0.92)',
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
           border: '1px solid rgba(168,85,247,0.15)',
-          minHeight: isMobile ? '680px' : 'clamp(680px, 75vw, 760px)',
+          minHeight: isMobile ? '580px' : 'clamp(680px, 75vw, 760px)',
         }}
       >
-        <div className="relative w-full h-full flex items-center justify-center" style={{ minHeight: isMobile ? '680px' : 'clamp(680px, 75vw, 760px)' }}>
+        <div className="relative w-full h-full flex items-center justify-center" style={{ minHeight: isMobile ? '580px' : 'clamp(680px, 75vw, 760px)' }}>
 
           {/* ======================= */}
           {/* PAGE 1: TEXT */}
@@ -408,7 +410,7 @@ export default function HowItWorks() {
           <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
             <div
               className="consolidated-card relative w-[92%] max-w-[640px] bg-[#14121a]/95 backdrop-blur-2xl border border-purple-500/40 rounded-xl sm:rounded-2xl shadow-[0_0_80px_rgba(168,85,247,0.25)] overflow-hidden flex flex-col"
-              style={{ opacity: 0, scale: 0.5, filter: 'blur(10px)', minHeight: isMobile ? '380px' : '380px' }}
+              style={{ opacity: 0, scale: 0.5, filter: 'blur(10px)', minHeight: '380px' }}
             >
               {/* Simplified header */}
               <div className="h-11 bg-white/5 border-b border-white/10 flex items-center justify-between px-5">
@@ -454,23 +456,11 @@ export default function HowItWorks() {
           </div>
 
           {/* ======================= */}
-          {/* PAGE 5: CLOSING + CTA */}
+          {/* CTA BUTTON (inside box) */}
           {/* ======================= */}
           <VoidTransition isActive={voidActive} onComplete={() => navigate('/dashboard')} />
 
-          <div className="closing-headline absolute top-8 sm:top-14 left-0 right-0 flex flex-col items-center z-50 pointer-events-none px-4" style={{ opacity: 0, transform: 'translateY(20px)', filter: 'blur(6px)' }}>
-            <h3 className="text-xl sm:text-3xl md:text-4xl font-display text-white text-center max-w-lg leading-tight">
-              Your next conversation is one brain dump away.
-            </h3>
-          </div>
-
-          <div className="absolute bottom-8 sm:bottom-12 left-0 right-0 flex flex-col items-center gap-4 z-50 pointer-events-none px-6">
-            <p
-              className="demo-tagline max-w-[280px] text-center leading-tight font-sans font-medium text-[13px] sm:max-w-none sm:text-[15px]"
-              style={{ color: '#ffffff', opacity: 0 }}
-            >
-              Concept. Investor pitch. Job interview. Difficult conversation. Whatever it is, just dump the mess and get the clarity.
-            </p>
+          <div className="absolute bottom-10 sm:bottom-12 left-0 right-0 flex justify-center z-50 pointer-events-none">
             <div className="cta-area pointer-events-auto" style={{ opacity: 0, scale: 0.9 }}>
               <button
                 onClick={enterVoid}
