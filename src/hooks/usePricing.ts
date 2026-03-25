@@ -56,11 +56,8 @@ export interface UsePricingReturn {
   isFree: boolean;
 }
 
-const OWNER_EMAIL = "heinthantaung.1993@gmail.com";
-
 export function usePricing(): UsePricingReturn {
   const { user } = useAuth();
-  const isOwner = user?.email?.toLowerCase() === OWNER_EMAIL;
   const [isLoading, setIsLoading] = useState(true);
   const [pricingData, setPricingData] = useState<UserPricingData>({
     plan: 'free',

@@ -92,11 +92,11 @@ export async function authenticateRequest(
   };
 }
 
-/** Owner email — bypasses all credit and plan checks */
-const OWNER_EMAIL = "heinthantaung.1993@gmail.com";
-
-export function isOwner(email: string): boolean {
-  return email.toLowerCase() === OWNER_EMAIL;
+/**
+ * Checks if a profile has admin privileges (replaces hardcoded email check)
+ */
+export function isAdmin(profile: UserProfile): boolean {
+  return (profile as any).is_admin === true;
 }
 
 /**
