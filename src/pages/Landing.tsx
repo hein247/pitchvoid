@@ -37,13 +37,7 @@ const letterVariants = {
 };
 
 const Landing = () => {
-  const navigate = useNavigate();
   const [wordIndex, setWordIndex] = useState(0);
-  const [voidActive, setVoidActive] = useState(false);
-
-  const enterVoid = useCallback(() => {
-    setVoidActive(true);
-  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -53,7 +47,6 @@ const Landing = () => {
   }, []);
   return <PageTransition><div className="min-h-screen relative bg-[radial-gradient(ellipse_at_top,_hsl(25_75%_65%/0.08)_0%,_transparent_50%),_radial-gradient(ellipse_at_bottom_right,_hsl(260_60%_55%/0.06)_0%,_transparent_50%)]">
       <AnimatedShaderBackground />
-      <VoidTransition isActive={voidActive} onComplete={() => navigate('/dashboard')} />
       {/* Navigation */}
       <div className="relative z-10">
         <Navbar variant="landing" />
