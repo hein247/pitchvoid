@@ -22,6 +22,7 @@ export interface UserPricingData {
   currentPeriodEnd: Date | null;
   teamId: string | null;
   teamRole: string | null;
+  isAdmin: boolean;
 }
 
 export interface UsePricingReturn {
@@ -68,6 +69,7 @@ export function usePricing(): UsePricingReturn {
     currentPeriodEnd: null,
     teamId: null,
     teamRole: null,
+    isAdmin: false,
   });
   
   // Paywall modal state
@@ -90,7 +92,7 @@ export function usePricing(): UsePricingReturn {
       try {
         const { data, error } = await supabase
           .from('profiles')
-          .select('plan, plan_interval, pitch_count, credits, subscription_status, current_period_end, team_id, team_role')
+          .select('plan, plan_interval, pitch_count, credits, subscription_status, current_period_end, team_id, team_role, is_admin')
           .eq('id', user.id)
           .maybeSingle();
 
@@ -109,6 +111,7 @@ export function usePricing(): UsePricingReturn {
             currentPeriodEnd: data.current_period_end ? new Date(data.current_period_end) : null,
             teamId: data.team_id,
             teamRole: data.team_role,
+            isAdmin: (data as any).is_admin === true,
           });
         }
       } catch (err) {
@@ -132,10 +135,10 @@ export function usePricing(): UsePricingReturn {
 
   const canPerformAction = useCallback(
     (action: PaywallAction, options: ActionCheckOptions = {}): PaywallCheckResult => {
-      if (isOwner) return { allowed: true };
+      if (pricingData.isAdmin) return { allowed: true };
       return canUserPerformAction(pricingData.plan, pricingData.pitchCount, action, options);
     },
-    [pricingData.plan, pricingData.pitchCount, isOwner]
+    [pricingData.plan, pricingData.pitchCount, pricingData.isAdmin]
   );
 
   const checkAndTriggerPaywall = useCallback(
@@ -159,13 +162,13 @@ export function usePricing(): UsePricingReturn {
    * The actual decrement happens server-side in edge functions.
    */
   const optimisticDecrementCredits = useCallback(() => {
-    if (isOwner) return; // Owner never loses credits
+    if (pricingData.isAdmin) return;
     setPricingData(prev => ({
       ...prev,
       credits: Math.max(0, prev.credits - 1),
       pitchCount: prev.pitchCount + 1,
     }));
-  }, [isOwner]);
+  }, [pricingData.isAdmin]);
 
   /**
    * Refresh credits from the server to sync with database
@@ -232,8 +235,8 @@ export function usePricing(): UsePricingReturn {
     
     // Plan info
     planLimits: PRICING[pricingData.plan].limits,
-    isPro: isOwner || pricingData.plan === 'pro',
+    isPro: pricingData.isAdmin || pricingData.plan === 'pro',
     isTeams: pricingData.plan === 'teams',
-    isFree: !isOwner && pricingData.plan === 'free',
+    isFree: !pricingData.isAdmin && pricingData.plan === 'free',
   };
 }

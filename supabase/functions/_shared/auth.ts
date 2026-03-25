@@ -6,6 +6,7 @@ export interface UserProfile {
   pitch_count: number | null;
   credits: number | null;
   subscription_status: string | null;
+  is_admin: boolean;
 }
 
 export interface AuthResult {
@@ -68,7 +69,7 @@ export async function authenticateRequest(
   // Fetch user profile for paywall checks
   const { data: profile, error: profileError } = await supabaseClient
     .from("profiles")
-    .select("id, plan, pitch_count, credits, subscription_status")
+    .select("id, plan, pitch_count, credits, subscription_status, is_admin")
     .eq("id", user.id)
     .single();
 
@@ -103,7 +104,7 @@ export function isAdmin(profile: UserProfile): boolean {
  * Checks if user has credits available for generation
  */
 export function checkCredits(profile: UserProfile, email?: string): PaywallResult {
-  if (email && isOwner(email)) return { allowed: true };
+  if (isAdmin(profile)) return { allowed: true };
 
   const credits = profile.credits ?? 0;
 
@@ -148,9 +149,8 @@ export function checkFormatAccess(profile: UserProfile, format: string): Paywall
  * Decrements the user's credit balance and increments pitch_count after successful generation.
  * This is the ONLY place credits are deducted — server-side authoritative.
  */
-export async function incrementPitchCount(userId: string, email?: string): Promise<void> {
-  // Owner never loses credits
-  if (email && isOwner(email)) return;
+export async function incrementPitchCount(userId: string, email?: string, profile?: UserProfile): Promise<void> {
+  if (profile && isAdmin(profile)) return;
 
   const supabaseClient = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
