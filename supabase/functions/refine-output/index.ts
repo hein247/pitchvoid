@@ -172,6 +172,7 @@ OUTPUT SCHEMA (return ONLY this JSON, nothing else):
 }
 
 RULES:
+- Keep the EXACT same section titles as the original output. Never rename, replace, or rephrase section titles during a refine. Only change the content, tone, and language of the points inside each section.
 - Keep the same number of sections and similar structure unless the instruction specifically asks for fewer.
 - Apply the refinement instruction to ALL points, not just some.
 - Preserve all specific facts, numbers, and details from the original.
