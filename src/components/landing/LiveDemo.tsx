@@ -101,11 +101,15 @@ const LiveDemo = () => {
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              onInput={(e) => {
+                const target = e.target as HTMLTextAreaElement;
+                target.style.height = 'auto';
+                target.style.height = target.scrollHeight + 'px';
+              }}
               placeholder="Brain dump your thoughts here..."
               disabled={isGenerating || !!output}
-              rows={5}
               maxLength={5000}
-              className="relative w-full rounded-[19px] bg-background text-foreground placeholder:text-muted-foreground/60 px-6 py-5 text-sm sm:text-base leading-relaxed resize-none focus:outline-none transition-all"
+              className="relative w-full rounded-[19px] bg-background text-foreground placeholder:text-muted-foreground/60 px-6 py-5 text-sm sm:text-base leading-relaxed resize-none focus:outline-none transition-all min-h-[140px]"
               style={{
                 boxShadow: '0 0 40px -10px hsl(25 75% 65% / 0.08)'
               }}
