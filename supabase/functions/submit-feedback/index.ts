@@ -59,6 +59,21 @@ serve(async (req) => {
       });
     }
 
+    // Verify user owns the project
+    const { data: project, error: projectError } = await supabase
+      .from("projects")
+      .select("id")
+      .eq("id", project_id)
+      .eq("user_id", userData.user.id)
+      .maybeSingle();
+
+    if (projectError || !project) {
+      return new Response(JSON.stringify({ error: "Project not found or access denied" }), {
+        status: 404,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Validate rating
     if (rating !== 1 && rating !== 5) {
       return new Response(JSON.stringify({ error: "rating must be 1 or 5" }), {

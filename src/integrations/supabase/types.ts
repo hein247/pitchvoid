@@ -110,6 +110,7 @@ export type Database = {
           full_name: string | null
           has_onboarded: boolean
           id: string
+          is_admin: boolean
           last_pitch_at: string | null
           pitch_count: number | null
           plan: string | null
@@ -128,6 +129,7 @@ export type Database = {
           full_name?: string | null
           has_onboarded?: boolean
           id: string
+          is_admin?: boolean
           last_pitch_at?: string | null
           pitch_count?: number | null
           plan?: string | null
@@ -146,6 +148,7 @@ export type Database = {
           full_name?: string | null
           has_onboarded?: boolean
           id?: string
+          is_admin?: boolean
           last_pitch_at?: string | null
           pitch_count?: number | null
           plan?: string | null
