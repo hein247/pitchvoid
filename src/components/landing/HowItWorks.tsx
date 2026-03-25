@@ -296,10 +296,10 @@ export default function HowItWorks() {
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
           border: '1px solid rgba(168,85,247,0.15)',
-          minHeight: isMobile ? '580px' : 'clamp(680px, 75vw, 760px)',
+          minHeight: isMobile ? '640px' : 'clamp(680px, 75vw, 760px)',
         }}
       >
-        <div className="relative w-full h-full flex items-center justify-center" style={{ minHeight: isMobile ? '580px' : 'clamp(680px, 75vw, 760px)' }}>
+        <div className="relative w-full h-full flex items-center justify-center" style={{ minHeight: isMobile ? '640px' : 'clamp(680px, 75vw, 760px)' }}>
 
           {/* ======================= */}
           {/* PAGE 1: TEXT */}
@@ -407,10 +407,10 @@ export default function HowItWorks() {
           {/* ======================= */}
           {/* PAGE 4: SYNTHESIS */}
           {/* ======================= */}
-          <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
+          <div className="absolute inset-0 flex items-start sm:items-center justify-center z-40 pointer-events-none pt-8 sm:pt-0">
             <div
-              className="consolidated-card relative w-[92%] max-w-[640px] bg-[#14121a]/95 backdrop-blur-2xl border border-purple-500/40 rounded-xl sm:rounded-2xl shadow-[0_0_80px_rgba(168,85,247,0.25)] overflow-hidden flex flex-col"
-              style={{ opacity: 0, scale: 0.5, filter: 'blur(10px)', minHeight: '380px' }}
+              className="consolidated-card relative w-[88%] max-w-[640px] bg-[#14121a]/95 backdrop-blur-2xl border border-purple-500/40 rounded-xl sm:rounded-2xl shadow-[0_0_80px_rgba(168,85,247,0.25)] overflow-hidden flex flex-col"
+              style={{ opacity: 0, scale: 0.5, filter: 'blur(10px)' }}
             >
               {/* Simplified header */}
               <div className="h-11 bg-white/5 border-b border-white/10 flex items-center justify-between px-5">
@@ -424,8 +424,8 @@ export default function HowItWorks() {
                 </div>
               </div>
 
-              <div className="relative p-5 sm:p-8 flex-1 flex flex-col justify-center">
-                <div className="mess-text-container absolute inset-0 p-4 sm:p-10 flex flex-col justify-center gap-3 sm:gap-5">
+              <div className="relative p-6 sm:p-8 flex-1 flex flex-col justify-center">
+                <div className="mess-text-container absolute inset-0 p-5 sm:p-10 flex flex-col justify-center gap-3 sm:gap-5">
                   {COMBINED_MESS.map((paragraph, idx) => (
                     <p key={idx} className="font-mono text-[11px] sm:text-[13px] text-white/50 leading-relaxed">
                       {paragraph}
@@ -439,13 +439,13 @@ export default function HowItWorks() {
                 />
 
                 {/* 3 clean output sections */}
-                <div className="clean-sections absolute inset-0 p-5 sm:p-10 flex flex-col justify-center gap-5 sm:gap-8 z-10">
+                <div className="clean-sections absolute inset-0 p-6 sm:p-10 flex flex-col justify-center gap-6 sm:gap-8 z-10">
                   {OUTPUT_SECTIONS.map((sec, i) => (
                     <div key={i} className={`clean-sec clean-sec-${i}`} style={{ opacity: 0, transform: 'translateY(15px)', filter: 'blur(4px)' }}>
                       <p className="text-[10px] sm:text-[11px] font-bold text-purple-400 tracking-[0.2em] uppercase mb-1.5 sm:mb-2 font-sans">
                         {sec.label}
                       </p>
-                      <p className="text-[14px] sm:text-[16px] text-white/95 font-medium leading-relaxed font-sans">
+                      <p className="text-[13px] sm:text-[16px] text-white/95 font-medium leading-relaxed font-sans">
                         {sec.text}
                       </p>
                     </div>
