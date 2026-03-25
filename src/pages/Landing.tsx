@@ -52,7 +52,7 @@ const Landing = () => {
         <Navbar variant="landing" />
 
         {/* Hero Section */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-8 pt-8 sm:pt-20 pb-16 sm:pb-28">
+        <section className="max-w-7xl mx-auto px-4 sm:px-8 pt-8 sm:pt-20 pb-8 sm:pb-12">
           <div className="max-w-2xl mx-auto text-center">
             <div className="animate-slideUp">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl leading-[1.1] text-foreground mb-8 sm:mb-10">
