@@ -1102,8 +1102,13 @@ const Dashboard = () => {
               ref={dashboardInputRef}
               value={transcribedText}
               onChange={(e) => setTranscribedText(e.target.value)}
+              onInput={(e) => {
+                const target = e.target as HTMLTextAreaElement;
+                target.style.height = 'auto';
+                target.style.height = target.scrollHeight + 'px';
+              }}
               placeholder={emptyInputShake ? 'Drop some thoughts first' : 'Brain dump your thoughts here...'}
-              className={`w-full h-12 sm:h-14 bg-transparent text-foreground resize-none text-sm focus:outline-none transition-colors ${emptyInputShake ? 'placeholder:text-red-500/50' : 'placeholder:text-muted-foreground/40'}`}
+              className={`w-full min-h-[48px] sm:min-h-[56px] bg-transparent text-foreground resize-none text-sm focus:outline-none transition-colors ${emptyInputShake ? 'placeholder:text-red-500/50' : 'placeholder:text-muted-foreground/40'}`}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
                   if (!transcribedText.trim()) {
