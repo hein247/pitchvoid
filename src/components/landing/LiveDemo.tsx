@@ -89,9 +89,6 @@ const LiveDemo = () => {
 
       <div className="relative z-10 max-w-2xl mx-auto px-4 sm:px-8">
       <div className="text-center mb-8">
-        <h2 className="text-3xl sm:text-4xl text-foreground font-display mb-3">
-          Try it now
-        </h2>
         <p className="text-muted-foreground text-sm sm:text-base">
           Dump your thoughts. See what comes back.
         </p>
