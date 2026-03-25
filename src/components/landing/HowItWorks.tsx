@@ -464,7 +464,7 @@ export default function HowItWorks() {
             </h3>
           </div>
 
-          <div className="absolute bottom-4 sm:bottom-12 left-0 right-0 flex flex-col items-center gap-5 z-50 pointer-events-none px-4">
+          <div className="absolute bottom-8 sm:bottom-12 left-0 right-0 flex flex-col items-center gap-4 z-50 pointer-events-none px-6">
             <p
               className="demo-tagline max-w-[280px] text-center leading-tight font-sans font-medium text-[13px] sm:max-w-none sm:text-[15px]"
               style={{ color: '#ffffff', opacity: 0 }}
