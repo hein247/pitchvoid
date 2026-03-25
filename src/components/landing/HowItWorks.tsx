@@ -28,7 +28,7 @@ const MESS_CARDS = [
 const getScatteredPositions = (windowWidth: number) => {
   const isMobile = windowWidth < 640;
   const containerWidth = Math.min(windowWidth - 32, 1100);
-  const containerHeight = isMobile ? 560 : Math.min(windowWidth * 0.75, 760);
+  const containerHeight = isMobile ? 660 : Math.min(windowWidth * 0.75, 760);
 
   const scale = isMobile ? 0.72 : (windowWidth < 1024 ? 0.85 : 1);
   const cardW = (isMobile ? 180 : 320) * scale;
