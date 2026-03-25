@@ -30,7 +30,7 @@ const EmailMockup = ({ image }: { image: string }) => (
       <img src={image} alt="Email hero" className="w-full" />
       <div className="p-6 text-center space-y-4">
         <h3 className="font-display text-xl text-foreground">Cozy Luxury Awaits</h3>
-        <p className="text-sm text-muted-foreground">The new Dôme Figure Ring — sculptural elegance for everyday.</p>
+        <p className="text-sm text-muted-foreground">The new Dôme Figure Ring // sculptural elegance for everyday.</p>
         <button className="bg-foreground text-background px-6 py-2 text-sm tracking-wide">
           SHOP NOW
         </button>
@@ -69,7 +69,7 @@ const PhoneMockup = ({ image }: { image: string }) => (
             <span className="text-lg ml-auto">⊡</span>
           </div>
           <div className="px-3 pb-3">
-            <p className="text-xs"><span className="font-medium">mejuri</span> The Dôme Figure Ring — your new everyday essential ✨</p>
+            <p className="text-xs"><span className="font-medium">mejuri</span> The Dôme Figure Ring // your new everyday essential ✨</p>
           </div>
         </div>
       </div>

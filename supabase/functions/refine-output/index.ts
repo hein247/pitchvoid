@@ -162,7 +162,7 @@ ${mappedInstruction}${userEditsDirective}
 OUTPUT SCHEMA (return ONLY this JSON, nothing else):
 {
   "title": "short label, max 8 words",
-  "context_line": "[What] for [Who] — one sentence",
+  "context_line": "[What] for [Who], one sentence",
   "sections": [
     {
       "title": "2-5 word label",

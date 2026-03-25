@@ -1216,7 +1216,7 @@ const Dashboard = () => {
             {/* Onboarding tip */}
             {!hasOnboarded && projects.length === 0 && !projectsLoading &&
           <p className="text-[11px] -mt-4 mb-6" style={{ color: 'rgba(240,237,246,0.15)' }}>
-                Tip: the messier, the better. Just dump everything — PitchVoid will sort it out.
+                Tip: the messier, the better. Just dump everything. PitchVoid will sort it out.
               </p>
           }
 

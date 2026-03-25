@@ -30,7 +30,7 @@ const CREDIT_PACKS: CreditPack[] = [
     price: 5,
     perUse: '$0.50 per use',
     features: [
-      'Works for anything — pitches, interviews, tough conversations, speeches',
+      'Works for anything // pitches, interviews, tough conversations, speeches',
       'One-pager and talking script formats',
       'Refine until it sounds like you',
       'Download as PDF',

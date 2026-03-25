@@ -47,7 +47,7 @@ const ChallengeSection = () => {
           </h2>
           <p className="text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Create efficient, brand-consistent campaign variations from a single source image 
-            using AI tools — demonstrating speed without sacrificing quality.
+            using AI tools, demonstrating speed without sacrificing quality.
           </p>
         </motion.div>
 

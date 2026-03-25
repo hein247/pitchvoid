@@ -67,7 +67,7 @@ const MobileEditorSheet = ({ data, onUpdate, onRefine, isRefining = false }: Mob
               <div className="space-y-4">
                 <div className="space-y-3">
                   <form onSubmit={handleRefineSubmit} className="relative">
-                    <input type="text" value={refineValue} onChange={e => setRefineValue(e.target.value)} placeholder="Refine — tone, length, details..." disabled={isRefining} className="w-full bg-accent/5 border border-border rounded-xl px-4 py-3 pr-12 text-foreground placeholder-muted-foreground text-sm focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50" />
+                    <input type="text" value={refineValue} onChange={e => setRefineValue(e.target.value)} placeholder="Refine // tone, length, details..." disabled={isRefining} className="w-full bg-accent/5 border border-border rounded-xl px-4 py-3 pr-12 text-foreground placeholder-muted-foreground text-sm focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50" />
                     <button type="submit" disabled={!refineValue.trim() || isRefining} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg text-primary hover:bg-primary/10 transition-colors disabled:opacity-50">
                       {isRefining ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                     </button>

@@ -6,7 +6,7 @@ import ShaderBackground from '@/components/ui/ShaderBackground';
 const tourSteps = [
   { 
     title: 'Create a Project', 
-    description: "Start by naming your pitch—whether it's for a job interview, client proposal, or team presentation.", 
+    description: "Start by naming your pitch, whether it's for a job interview, client proposal, or team presentation.", 
     icon: '📁' 
   },
   { 

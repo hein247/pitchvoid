@@ -26,7 +26,7 @@ const Blog = () => {
                 Coming Soon
               </h1>
               <p className="text-base sm:text-lg text-muted-foreground max-w-md mx-auto leading-relaxed">
-                We're working on something. Stories, ideas, and lessons from the void — stay tuned.
+                We're working on something. Stories, ideas, and lessons from the void. Stay tuned.
               </p>
             </motion.div>
           </section>

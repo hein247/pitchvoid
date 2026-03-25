@@ -74,7 +74,7 @@ const VersionHistoryDropdown = ({
                   >
                     <div className="flex flex-col min-w-0">
                       <span className="text-sm font-medium truncate">
-                        v{version.version_number} — {formatLabel}
+                        v{version.version_number} // {formatLabel}
                       </span>
                       <span className="text-[10px] text-muted-foreground">
                         {date.toLocaleDateString()} {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -153,7 +153,7 @@ export const VersionHistorySheet = ({
                   }`}
                 >
                   <div className="text-left">
-                    <span className="text-sm font-medium">v{version.version_number} — {formatLabel}</span>
+                    <span className="text-sm font-medium">v{version.version_number} // {formatLabel}</span>
                     <br />
                     <span className="text-[11px] text-muted-foreground">
                       {date.toLocaleDateString()} {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
