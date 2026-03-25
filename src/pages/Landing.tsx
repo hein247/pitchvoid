@@ -93,22 +93,14 @@ const Landing = () => {
 
               <p className="text-base sm:text-lg text-muted-foreground mb-8 sm:mb-10 max-w-md mx-auto leading-relaxed">Dump your scattered thoughts. PitchVoid turns them into something you can actually walk in and say.</p>
 
-              <div className="flex items-center gap-3 sm:gap-4 mb-5 justify-center">
-                <button onClick={enterVoid} className="px-8 py-3.5 sm:py-4 rounded-full text-primary-foreground font-semibold magenta-gradient text-base sm:text-lg inline-flex items-center gap-3 hover:opacity-90 hover:scale-105 transition-all shadow-[0_0_30px_rgba(168,85,247,0.5)] border border-white/20 group">
-                  Try it free
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
-                </button>
-                
-              </div>
-
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground mb-10">
                 3 free credits · works for meetings, ideas, conversations, and everything in between
               </p>
             </div>
           </div>
-        </section>
 
-        <LiveDemo />
+          <LiveDemo />
+        </section>
         <HowItWorks />
 
         {/* CTA Section */}

@@ -179,8 +179,7 @@ const LiveDemo = () => {
           </motion.div>
         }
       </AnimatePresence>
-      </div>
-    </section>);
+    </div>);
 
 };
 
