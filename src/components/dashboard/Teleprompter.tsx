@@ -244,13 +244,13 @@ export default function Teleprompter({ sections, onExit, onComplete }: Telepromp
       <div className="flex items-center justify-center gap-5 px-6 pt-4 pb-6 z-10">
         <button onClick={handleReset}
           className="bg-transparent border-none text-[11px] font-extralight cursor-pointer transition-colors duration-200"
-          style={{ color: "rgba(240,237,246,0.15)", letterSpacing: "0.1em" }}>
+          style={{ color: "rgba(255,255,255,0.7)", letterSpacing: "0.1em" }}>
           exit
         </button>
 
         <div className="flex items-center gap-3">
           <span className="text-[10px] font-extralight min-w-[32px] text-center tabular-nums"
-            style={{ color: "rgba(240,237,246,0.2)", letterSpacing: "0.1em" }}>
+            style={{ color: "rgba(255,255,255,0.7)", letterSpacing: "0.1em" }}>
             {getSpeedLabel()}
           </span>
           <input type="range" min={0} max={100} value={speed}
