@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* Import Fonts - Cormorant Garamond for headings, Be Vietnam Pro for body */
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap');
 
 /* Gradient animation for buttons */
 @keyframes gradient-x {
@@ -117,9 +117,21 @@
   }
 
   /* Typography system */
-  h1, h2, h3, h4, h5, h6 {
+  h1 {
     font-family: 'Cormorant Garamond', Georgia, serif;
-    font-weight: 400;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  h2 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  h3, h4, h5, h6 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 500;
   }
 
   p, span, div, button, input, textarea, label {
@@ -130,6 +142,13 @@
 @layer utilities {
   .font-display {
     font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 600;
+  }
+
+  .font-display-italic {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
   }
 
   .font-sans {
