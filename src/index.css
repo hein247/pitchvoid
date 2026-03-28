@@ -117,9 +117,21 @@
   }
 
   /* Typography system */
-  h1, h2, h3, h4, h5, h6 {
+  h1 {
     font-family: 'Cormorant Garamond', Georgia, serif;
-    font-weight: 400;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  h2 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  h3, h4, h5, h6 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 500;
   }
 
   p, span, div, button, input, textarea, label {
