@@ -196,14 +196,14 @@ export default function Teleprompter({ sections, onExit, onComplete }: Telepromp
             <div key={sIdx}>
               {sIdx > 0 && (
                 <p className="text-center my-9"
-                  style={{ color: "rgba(168,85,247,0.15)", fontSize: 14, letterSpacing: "0.5em" }}>
+                  style={{ color: "rgba(168,85,247,0.5)", fontSize: 14, letterSpacing: "0.5em" }}>
                   . . .
                 </p>
               )}
 
               <p className="text-[11px] uppercase tracking-[0.2em] font-light mb-5"
                 style={{
-                  color: "rgba(168,85,247,0.55)",
+                  color: "rgba(168,85,247,0.85)",
                   marginTop: sIdx === 0 ? 0 : 12,
                 }}>
                 {section.title}
@@ -225,7 +225,7 @@ export default function Teleprompter({ sections, onExit, onComplete }: Telepromp
               {section.coaching && (
                 <p className="text-[14px] italic mb-7"
                   style={{
-                    color: "rgba(168,85,247,0.35)",
+                    color: "rgba(168,85,247,0.7)",
                     fontFamily: "'Cormorant Garamond', serif",
                     letterSpacing: "0.02em",
                   }}>
