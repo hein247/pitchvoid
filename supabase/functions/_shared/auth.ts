@@ -158,14 +158,14 @@ export async function incrementPitchCount(userId: string, email?: string, profil
     { auth: { persistSession: false } }
   );
 
-  const { data: profile } = await supabaseClient
+  const { data: profileData } = await supabaseClient
     .from("profiles")
     .select("pitch_count, credits")
     .eq("id", userId)
     .single();
 
-  const currentCount = profile?.pitch_count || 0;
-  const currentCredits = profile?.credits ?? 0;
+  const currentCount = profileData?.pitch_count || 0;
+  const currentCredits = profileData?.credits ?? 0;
 
   await supabaseClient
     .from("profiles")
