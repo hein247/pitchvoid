@@ -221,7 +221,7 @@ Output: {"title":"Focus Mode Software Concept","context_line":"Organizing a prod
     const userPrompt = `Create a clarity cheat sheet from this input:
 
 **Scenario:** ${sanitizedScenario}
-${sanitizedAudience ? `**Target Audience:** ${sanitizedAudience}` : '**Target Audience:** None specified — the user is organizing their own thoughts, not preparing to present to anyone. Use CLARITY/THINKING mode with labels: HERE\'S THE IDEA / HERE\'S HOW IT WORKS / HERE\'S WHAT\'S NEXT.'}
+${sanitizedAudience ? `**Target Audience:** ${sanitizedAudience}` : (parsedContext?.mode === 'performance' ? `**Target Audience:** ${parsedContext?.performance_fields?.who?.value || 'Identified by parser — see Parser Intelligence below'}. This is PERFORMANCE MODE — use the appropriate performance section labels for context: ${parsedContext?.context || 'general'}.` : '**Target Audience:** None specified — the user is organizing their own thoughts. Use CLARITY mode with the labels specified in Parser Intelligence below.')}
 ${sanitizedContext ? `**Additional Context:** ${sanitizedContext}` : ''}${imageContext}
 ${sanitizedStyle ? `**Tone/Style:** ${sanitizedStyle}` : ''}${parserIntelligence}
 
