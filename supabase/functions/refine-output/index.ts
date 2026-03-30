@@ -165,11 +165,14 @@ OUTPUT SCHEMA (return ONLY this JSON, nothing else):
   "context_line": "[What] for [Who], one sentence",
   "sections": [
     {
-      "title": "2-5 word label",
+      "title": "MUST be identical to the original section title — do not change",
       "points": ["each point is 1-2 sentences"]
     }
   ]
 }
+
+ORIGINAL SECTION TITLES (preserve these exactly):
+${(current_output.sections as any[])?.map((s: any, i: number) => `Section ${i + 1}: "${s.title}"`).join('\n') || 'Use original titles'}
 
 RULES:
 - Keep the EXACT same section titles as the original output. Never rename, replace, or rephrase section titles during a refine. Only change the content, tone, and language of the points inside each section.
