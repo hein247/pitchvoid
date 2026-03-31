@@ -243,7 +243,7 @@ const OnePager = ({ data: rawData, refineAnimationKey, onDeletePoint }: OnePager
             {/* Section label — Level 2 */}
             <p
               className="text-[13px] uppercase tracking-[0.15em] font-medium mb-8"
-              style={{ color: 'hsl(25 75% 65% / 0.9)' }}
+              style={{ color: 'rgba(168,85,247,0.7)' }}
             >
               {section.title}
             </p>
