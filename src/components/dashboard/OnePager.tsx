@@ -128,7 +128,7 @@ const SwipeablePointCard = ({
         <div
           className="absolute left-0 top-4 bottom-4 w-[3px] rounded-full"
           style={{
-            background: 'linear-gradient(180deg, hsl(25 75% 65% / 0.7), hsl(25 75% 65% / 0.3))',
+            background: 'linear-gradient(180deg, rgba(168,85,247,0.6), rgba(168,85,247,0.2))',
           }}
         />
 
@@ -243,7 +243,7 @@ const OnePager = ({ data: rawData, refineAnimationKey, onDeletePoint }: OnePager
             {/* Section label — Level 2 */}
             <p
               className="text-[13px] uppercase tracking-[0.15em] font-medium mb-8"
-              style={{ color: 'hsl(25 75% 65% / 0.9)' }}
+              style={{ color: 'rgba(168,85,247,0.7)' }}
             >
               {section.title}
             </p>
