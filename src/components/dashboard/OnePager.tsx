@@ -133,7 +133,7 @@ const SwipeablePointCard = ({
         />
 
         <p
-          className="text-[13px] sm:text-sm leading-[1.7]"
+          className="text-sm sm:text-base leading-[1.7]"
           style={{ color: 'rgba(240,237,246,0.92)' }}
         >
           {renderPoint(point)}
