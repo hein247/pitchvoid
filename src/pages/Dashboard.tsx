@@ -1011,6 +1011,61 @@ const Dashboard = () => {
     navigate('/');
   };
 
+  const handleDashboardGenerate = () => {
+    if (!transcribedText.trim()) {
+      setEmptyInputShake(true);
+      setTimeout(() => setEmptyInputShake(false), 600);
+      return;
+    }
+    setShowQuickPitch(true);
+    handleParseInput();
+  };
+
+  const handleDashboardFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      const { validFiles, errors, overLimit } = validateFiles(files, attachedFiles.length);
+      if (overLimit) {
+        toast({ title: `Max ${MAX_FILES} files`, variant: 'destructive' });
+      }
+      errors.forEach((err) => toast({ title: err.message, variant: 'destructive' }));
+      const newAttached = validFiles.map((f) => ({
+        id: crypto.randomUUID(),
+        file: f,
+        name: f.name,
+        size: f.size,
+        type: f.type,
+        progress: 100,
+      }));
+      setAttachedFiles((prev) => [...prev, ...newAttached].slice(0, MAX_FILES));
+    }
+    e.target.value = '';
+  };
+
+  const handleExportPDF = async () => {
+    if (isFree) { checkAndTriggerPaywall('export'); return; }
+    try {
+      if (outputFormat === 'script' && scriptData) {
+        await exportScriptPDF(scriptData as any, true);
+      } else if (onePagerData) {
+        await exportOnePagerPDF(onePagerData as any, true);
+      }
+      toast({ title: 'PDF downloaded' });
+    } catch { toast({ title: 'Failed to generate PDF', variant: 'destructive' }); }
+  };
+
+  const handleCopyAll = () => {
+    if (outputFormat === 'one-pager' && onePagerData) {
+      const text = onePagerData.sections
+        .map((s) => `${s.title}\n${s.points.map((p) => `• ${p.replace(/\*\*/g, '')}`).join('\n')}`)
+        .join('\n\n');
+      navigator.clipboard.writeText(text);
+    } else if (outputFormat === 'script' && scriptData) {
+      const text = (scriptData as any).lines?.map((l: any) => l.text || '').join('\n\n') || '';
+      navigator.clipboard.writeText(text);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#000000' }}>
