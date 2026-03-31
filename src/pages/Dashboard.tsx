@@ -35,6 +35,9 @@ import { useProjects, type ProjectRecord, type DraftState } from '@/hooks/usePro
 import { validateFiles, FILE_UPLOAD_CONFIG, formatFileSize as formatFileSizeUtil } from '@/lib/fileValidation';
 import PageTransition from '@/components/ui/PageTransition';
 import { EtheralShadow } from '@/components/ui/etheral-shadow';
+import InputArea, { type AttachedFile } from '@/components/dashboard/InputArea';
+import ProjectsList from '@/components/dashboard/ProjectsList';
+import OutputView from '@/components/dashboard/OutputView';
 
 type OutputFormat = 'one-pager' | 'script';
 
