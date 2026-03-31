@@ -184,15 +184,7 @@ const Dashboard = () => {
   const [highlightNotes, setHighlightNotes] = useState('');
 
   // File attachment state
-  interface AttachedFile {
-    id: string;
-    file: File;
-    name: string;
-    size: number;
-    type: string;
-    content?: string;
-    progress: number;
-  }
+  // AttachedFile type imported from InputArea
   const [attachedFiles, setAttachedFiles] = useState<AttachedFile[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessingFiles, setIsProcessingFiles] = useState(false);
