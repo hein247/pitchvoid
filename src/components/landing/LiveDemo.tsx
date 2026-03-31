@@ -123,7 +123,7 @@ const LiveDemo = () => {
             <button
             onClick={handleGenerate}
             disabled={isGenerating}
-            className="px-8 py-3.5 rounded-full text-primary-foreground font-semibold magenta-gradient text-base sm:text-lg inline-flex items-center gap-3 hover:opacity-90 hover:scale-105 transition-all shadow-[0_0_30px_rgba(168,85,247,0.5)] border border-white/20 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100">
+            className="px-8 py-3.5 rounded-full text-primary-foreground font-semibold brand-gradient text-base sm:text-lg inline-flex items-center gap-3 hover:opacity-90 hover:scale-105 transition-all shadow-[0_0_30px_rgba(168,85,247,0.5)] border border-white/20 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100">
             
               {isGenerating ?
             <>
@@ -174,7 +174,7 @@ const LiveDemo = () => {
               </p>
               <button
               onClick={() => navigate('/auth')}
-              className="px-7 py-3.5 rounded-[15px] text-primary-foreground font-medium magenta-gradient text-base inline-flex items-center gap-3 hover:opacity-90 transition-opacity group">
+              className="px-7 py-3.5 rounded-[15px] text-primary-foreground font-medium brand-gradient text-base inline-flex items-center gap-3 hover:opacity-90 transition-opacity group">
               
                 Create account
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />

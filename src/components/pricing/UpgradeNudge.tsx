@@ -34,7 +34,7 @@ export function UpgradeNudge({ message, show, onDismiss }: UpgradeNudgeProps) {
                 <Button
                   size="sm"
                   onClick={() => navigate('/pricing')}
-                  className="magenta-gradient text-primary-foreground text-xs px-3 h-8 rounded-lg font-medium"
+                  className="brand-gradient text-primary-foreground text-xs px-3 h-8 rounded-lg font-medium"
                 >
                   Upgrade
                 </Button>

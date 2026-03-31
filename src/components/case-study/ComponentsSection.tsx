@@ -37,7 +37,7 @@ const ComponentsSection = () => {
               <p className="text-xs font-semibold text-foreground">Buttons</p>
             </div>
             <div className="p-6 flex flex-wrap gap-3 bg-background">
-              <button className="px-5 py-2.5 rounded-xl text-sm font-medium magenta-gradient text-primary-foreground">
+              <button className="px-5 py-2.5 rounded-xl text-sm font-medium brand-gradient text-primary-foreground">
                 Primary CTA
               </button>
               <button className="px-5 py-2.5 rounded-xl text-sm font-medium border border-border text-foreground bg-transparent">

@@ -106,7 +106,7 @@ const WireframesSection = () => {
                     <div className="h-6 w-14 rounded-full bg-muted-foreground/10" />
                   </div>
                 ))}
-                <div className="h-11 rounded-xl flex items-center justify-center text-sm font-medium magenta-gradient text-primary-foreground">
+                <div className="h-11 rounded-xl flex items-center justify-center text-sm font-medium brand-gradient text-primary-foreground">
                   + New Pitch
                 </div>
               </div>
@@ -121,7 +121,7 @@ const WireframesSection = () => {
                         key={l}
                         className={`flex-1 h-9 rounded-lg flex items-center justify-center text-xs font-medium border ${
                           i === 1
-                            ? "magenta-gradient text-primary-foreground border-transparent"
+                            ? "brand-gradient text-primary-foreground border-transparent"
                             : "border-border text-muted-foreground"
                         }`}
                       >

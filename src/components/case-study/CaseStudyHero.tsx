@@ -43,7 +43,7 @@ const CaseStudyHero = () =>
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.4 }}
-      className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium transition-opacity hover:opacity-80 magenta-gradient text-primary-foreground">
+      className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium transition-opacity hover:opacity-80 brand-gradient text-primary-foreground">
 
         View Live Product <ExternalLink className="w-4 h-4" />
       </motion.a>
