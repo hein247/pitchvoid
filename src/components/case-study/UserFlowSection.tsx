@@ -54,7 +54,7 @@ const UserFlowSection = () => {
                     isLeft ? "md:text-right md:flex-row-reverse md:col-start-1" : "md:col-start-2"
                   }`}
                 >
-                  <div className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold magenta-gradient text-primary-foreground">
+                  <div className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold brand-gradient text-primary-foreground">
                     {i + 1}
                   </div>
                   <div>

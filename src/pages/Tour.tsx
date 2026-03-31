@@ -75,7 +75,7 @@ const Tour = () => {
                   <div 
                     key={i} 
                     className={`h-1.5 rounded-full transition-all ${
-                      i <= currentStep ? 'w-8 magenta-gradient' : 'w-4 bg-accent/20'
+                      i <= currentStep ? 'w-8 brand-gradient' : 'w-4 bg-accent/20'
                     }`} 
                   />
                 ))}
@@ -92,7 +92,7 @@ const Tour = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
               {/* Visual */}
               <div className="tour-visual rounded-2xl p-8 h-64 flex items-center justify-center">
-                <div className="w-16 h-16 rounded-xl magenta-gradient flex items-center justify-center">
+                <div className="w-16 h-16 rounded-xl brand-gradient flex items-center justify-center">
                   <span className="text-primary-foreground text-2xl">{tourSteps[currentStep].icon}</span>
                 </div>
               </div>
@@ -117,7 +117,7 @@ const Tour = () => {
                   )}
                   <button 
                     onClick={handleNext}
-                    className="flex-1 px-6 py-3 rounded-xl text-primary-foreground font-medium magenta-gradient hover:opacity-90 transition-opacity"
+                    className="flex-1 px-6 py-3 rounded-xl text-primary-foreground font-medium brand-gradient hover:opacity-90 transition-opacity"
                   >
                     {currentStep < 2 ? 'Next' : 'Start Creating'}
                   </button>

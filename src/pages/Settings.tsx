@@ -166,7 +166,7 @@ export default function Settings() {
               {isFree ? (
                 <Button 
                   onClick={() => navigate('/pricing')}
-                  className="flex-1 magenta-gradient text-white"
+                  className="flex-1 brand-gradient text-white"
                 >
                   <Crown className="w-4 h-4 mr-2" />
                   Upgrade to Pro

@@ -146,7 +146,7 @@ const ShareModal = ({ isOpen, onClose, projectTitle, publicUrl }: ShareModalProp
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 flex-shrink-0 transition-all ${
                   copied 
                     ? 'bg-green-500 text-white' 
-                    : 'magenta-gradient text-white hover:opacity-90'
+                    : 'brand-gradient text-white hover:opacity-90'
                 }`}
               >
                 {copied ? (
@@ -198,7 +198,7 @@ const ShareModal = ({ isOpen, onClose, projectTitle, publicUrl }: ShareModalProp
               <button 
                 onClick={() => setPasswordEnabled(!passwordEnabled)} 
                 className={`w-10 h-5 sm:w-12 sm:h-6 rounded-full relative transition-colors ${
-                  passwordEnabled ? 'magenta-gradient' : 'bg-muted'
+                  passwordEnabled ? 'brand-gradient' : 'bg-muted'
                 }`}
               >
                 <div 
@@ -238,7 +238,7 @@ const ShareModal = ({ isOpen, onClose, projectTitle, publicUrl }: ShareModalProp
               <button 
                 onClick={() => setExpiryEnabled(!expiryEnabled)} 
                 className={`w-10 h-5 sm:w-12 sm:h-6 rounded-full relative transition-colors ${
-                  expiryEnabled ? 'magenta-gradient' : 'bg-muted'
+                  expiryEnabled ? 'brand-gradient' : 'bg-muted'
                 }`}
               >
                 <div 
@@ -272,7 +272,7 @@ const ShareModal = ({ isOpen, onClose, projectTitle, publicUrl }: ShareModalProp
         {/* Done Button */}
         <button 
           onClick={onClose} 
-          className="w-full py-2.5 sm:py-3 rounded-xl text-white font-medium magenta-gradient text-sm hover:opacity-90 transition-opacity"
+          className="w-full py-2.5 sm:py-3 rounded-xl text-white font-medium brand-gradient text-sm hover:opacity-90 transition-opacity"
         >
           Done
         </button>

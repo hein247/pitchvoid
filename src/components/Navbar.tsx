@@ -64,7 +64,7 @@ const Navbar = ({
           {user ? (
             <button
               onClick={() => navigate('/dashboard')}
-              className="w-9 h-9 rounded-full magenta-gradient flex items-center justify-center text-primary-foreground text-sm font-medium cursor-pointer hover:opacity-90 transition-opacity"
+              className="w-9 h-9 rounded-full brand-gradient flex items-center justify-center text-primary-foreground text-sm font-medium cursor-pointer hover:opacity-90 transition-opacity"
               title="Go to Dashboard"
             >
               {user.email?.charAt(0).toUpperCase()}
@@ -79,7 +79,7 @@ const Navbar = ({
               </button>
               <button
                 onClick={() => navigate('/auth')}
-                className="px-5 py-2.5 rounded-xl text-sm text-primary-foreground font-medium magenta-gradient hover:opacity-90 transition-opacity"
+                className="px-5 py-2.5 rounded-xl text-sm text-primary-foreground font-medium brand-gradient hover:opacity-90 transition-opacity"
               >
                 Get Started Free
               </button>
@@ -122,7 +122,7 @@ const Navbar = ({
               {user ? (
                 <button
                   onClick={() => navigate('/dashboard')}
-                  className="mt-4 px-5 py-3 rounded-xl text-sm text-primary-foreground font-medium magenta-gradient hover:opacity-90 transition-opacity w-full"
+                  className="mt-4 px-5 py-3 rounded-xl text-sm text-primary-foreground font-medium brand-gradient hover:opacity-90 transition-opacity w-full"
                 >
                   Go to Dashboard
                 </button>
@@ -136,7 +136,7 @@ const Navbar = ({
                   </button>
                   <button
                     onClick={() => navigate('/auth')}
-                    className="mt-4 px-5 py-3 rounded-xl text-sm text-primary-foreground font-medium magenta-gradient hover:opacity-90 transition-opacity w-full"
+                    className="mt-4 px-5 py-3 rounded-xl text-sm text-primary-foreground font-medium brand-gradient hover:opacity-90 transition-opacity w-full"
                   >
                     Get Started Free
                   </button>
@@ -188,7 +188,7 @@ const Navbar = ({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full magenta-gradient flex items-center justify-center text-primary-foreground text-sm font-medium cursor-pointer hover:opacity-90 transition-opacity"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full brand-gradient flex items-center justify-center text-primary-foreground text-sm font-medium cursor-pointer hover:opacity-90 transition-opacity"
                   title="Account"
                 >
                   {user.email?.charAt(0).toUpperCase()}

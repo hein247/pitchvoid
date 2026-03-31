@@ -1045,7 +1045,7 @@ const Dashboard = () => {
       <div className="fixed top-0 left-0 right-0 z-50 p-2 sm:p-3 install-banner animate-slideDown">
           <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl magenta-gradient flex items-center justify-center flex-shrink-0">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl brand-gradient flex items-center justify-center flex-shrink-0">
                 <span className="text-white font-semibold text-sm sm:text-base">P</span>
               </div>
               <div className="min-w-0">
@@ -1057,7 +1057,7 @@ const Dashboard = () => {
               <button onClick={() => setShowInstallPrompt(false)} className="text-muted-foreground text-sm hidden sm:block">
                 Not now
               </button>
-              <button className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-white text-xs sm:text-sm font-medium magenta-gradient">
+              <button className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-white text-xs sm:text-sm font-medium brand-gradient">
                 Install
               </button>
             </div>
@@ -1202,7 +1202,7 @@ const Dashboard = () => {
                   handleParseInput();
                 }}
                 disabled={isParsing || isOffline}
-                className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-primary-foreground magenta-gradient disabled:opacity-40 transition-opacity">
+                className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-primary-foreground brand-gradient disabled:opacity-40 transition-opacity">
 
                   {isParsing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />}
                   Generate
@@ -1581,7 +1581,7 @@ const Dashboard = () => {
               {[1, 2, 3, 4, 5].map((s) =>
             <div
               key={s}
-              className={`h-1 flex-1 rounded-full transition-all ${quickPitchStep >= s ? 'magenta-gradient' : 'bg-accent/20'}`} />
+              className={`h-1 flex-1 rounded-full transition-all ${quickPitchStep >= s ? 'brand-gradient' : 'bg-accent/20'}`} />
 
             )}
             </div>
@@ -1611,7 +1611,7 @@ const Dashboard = () => {
                   <button
                 onClick={isRecording ? handleStopRecording : () => {setIsRecording(true);setRecordingTime(0);}}
                 className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center flex-shrink-0 ${
-                isRecording ? 'bg-red-500 recording-pulse' : 'magenta-gradient'}`
+                isRecording ? 'bg-red-500 recording-pulse' : 'brand-gradient'}`
                 }>
 
                     {isRecording ?
@@ -1652,7 +1652,7 @@ const Dashboard = () => {
                   <button
                 onClick={handleParseInput}
                 disabled={!transcribedText.trim() || isParsing}
-                className="flex-1 py-2.5 sm:py-3 rounded-xl text-white font-medium magenta-gradient disabled:opacity-50 text-sm flex items-center justify-center gap-2">
+                className="flex-1 py-2.5 sm:py-3 rounded-xl text-white font-medium brand-gradient disabled:opacity-50 text-sm flex items-center justify-center gap-2">
 
                     {isParsing ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                     {isParsing ? 'Analyzing...' : 'Next →'}
@@ -1760,7 +1760,7 @@ const Dashboard = () => {
                   </button>
                   <button
                 onClick={() => setQuickPitchStep(3)}
-                className="flex-1 py-2.5 sm:py-3 rounded-xl text-white font-medium magenta-gradient text-sm">
+                className="flex-1 py-2.5 sm:py-3 rounded-xl text-white font-medium brand-gradient text-sm">
 
                     Looks good →
                   </button>
@@ -1855,7 +1855,7 @@ const Dashboard = () => {
                   <button
                 onClick={() => setQuickPitchStep(4)}
                 disabled={isProcessingFiles}
-                className="flex-1 py-2.5 sm:py-3 rounded-xl text-white font-medium magenta-gradient text-sm disabled:opacity-50">
+                className="flex-1 py-2.5 sm:py-3 rounded-xl text-white font-medium brand-gradient text-sm disabled:opacity-50">
 
                     {attachedFiles.length > 0 ? 'Next →' : 'Skip & Continue →'}
                   </button>
@@ -1944,7 +1944,7 @@ const Dashboard = () => {
                 onClick={handleQuickGenerate}
                 disabled={hasNoCredits}
                 className={`flex-1 py-2.5 sm:py-3 rounded-xl text-primary-foreground font-medium text-sm flex items-center justify-center gap-2 ${
-                  hasNoCredits ? 'opacity-40 cursor-not-allowed bg-muted' : 'magenta-gradient'
+                  hasNoCredits ? 'opacity-40 cursor-not-allowed bg-muted' : 'brand-gradient'
                 }`}>
 
                     <Sparkles className="w-4 h-4" /> Generate

@@ -464,7 +464,7 @@ export default function HowItWorks() {
             <div className="cta-area pointer-events-auto" style={{ opacity: 0, scale: 0.9 }}>
               <button
                 onClick={enterVoid}
-                className="px-8 py-4 rounded-full text-primary-foreground font-semibold magenta-gradient text-base sm:text-lg hover:opacity-90 hover:scale-105 transition-all cursor-pointer shadow-[0_0_30px_rgba(168,85,247,0.5)] border border-white/20 group inline-flex items-center gap-3"
+                className="px-8 py-4 rounded-full text-primary-foreground font-semibold brand-gradient text-base sm:text-lg hover:opacity-90 hover:scale-105 transition-all cursor-pointer shadow-[0_0_30px_rgba(168,85,247,0.5)] border border-white/20 group inline-flex items-center gap-3"
               >
                 Enter the void
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
