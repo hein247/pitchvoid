@@ -35,6 +35,9 @@ import { useProjects, type ProjectRecord, type DraftState } from '@/hooks/usePro
 import { validateFiles, FILE_UPLOAD_CONFIG, formatFileSize as formatFileSizeUtil } from '@/lib/fileValidation';
 import PageTransition from '@/components/ui/PageTransition';
 import { EtheralShadow } from '@/components/ui/etheral-shadow';
+import InputArea, { type AttachedFile } from '@/components/dashboard/InputArea';
+import ProjectsList from '@/components/dashboard/ProjectsList';
+import OutputView from '@/components/dashboard/OutputView';
 
 type OutputFormat = 'one-pager' | 'script';
 
@@ -184,15 +187,7 @@ const Dashboard = () => {
   const [highlightNotes, setHighlightNotes] = useState('');
 
   // File attachment state
-  interface AttachedFile {
-    id: string;
-    file: File;
-    name: string;
-    size: number;
-    type: string;
-    content?: string;
-    progress: number;
-  }
+  // AttachedFile type imported from InputArea
   const [attachedFiles, setAttachedFiles] = useState<AttachedFile[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessingFiles, setIsProcessingFiles] = useState(false);
@@ -1016,6 +1011,61 @@ const Dashboard = () => {
     navigate('/');
   };
 
+  const handleDashboardGenerate = () => {
+    if (!transcribedText.trim()) {
+      setEmptyInputShake(true);
+      setTimeout(() => setEmptyInputShake(false), 600);
+      return;
+    }
+    setShowQuickPitch(true);
+    handleParseInput();
+  };
+
+  const handleDashboardFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      const { validFiles, errors, overLimit } = validateFiles(files, attachedFiles.length);
+      if (overLimit) {
+        toast({ title: `Max ${MAX_FILES} files`, variant: 'destructive' });
+      }
+      errors.forEach((err) => toast({ title: err.message, variant: 'destructive' }));
+      const newAttached = validFiles.map((f) => ({
+        id: crypto.randomUUID(),
+        file: f,
+        name: f.name,
+        size: f.size,
+        type: f.type,
+        progress: 100,
+      }));
+      setAttachedFiles((prev) => [...prev, ...newAttached].slice(0, MAX_FILES));
+    }
+    e.target.value = '';
+  };
+
+  const handleExportPDF = async () => {
+    if (isFree) { checkAndTriggerPaywall('export'); return; }
+    try {
+      if (outputFormat === 'script' && scriptData) {
+        await exportScriptPDF(scriptData as any, true);
+      } else if (onePagerData) {
+        await exportOnePagerPDF(onePagerData as any, true);
+      }
+      toast({ title: 'PDF downloaded' });
+    } catch { toast({ title: 'Failed to generate PDF', variant: 'destructive' }); }
+  };
+
+  const handleCopyAll = () => {
+    if (outputFormat === 'one-pager' && onePagerData) {
+      const text = onePagerData.sections
+        .map((s) => `${s.title}\n${s.points.map((p) => `• ${p.replace(/\*\*/g, '')}`).join('\n')}`)
+        .join('\n\n');
+      navigator.clipboard.writeText(text);
+    } else if (outputFormat === 'script' && scriptData) {
+      const text = (scriptData as any).lines?.map((l: any) => l.text || '').join('\n\n') || '';
+      navigator.clipboard.writeText(text);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#000000' }}>
@@ -1097,121 +1147,24 @@ const Dashboard = () => {
           }
 
             {/* Inline Pitch Input */}
-            <div className={`mb-6 sm:mb-8 max-w-2xl mx-auto rounded-2xl border border-border/60 bg-card/60 backdrop-blur-md p-4 sm:p-5 transition-transform shadow-lg shadow-primary/5 ${emptyInputShake ? 'animate-shake' : ''}`}>
-              <textarea
-              ref={dashboardInputRef}
+            <InputArea
+              inputRef={dashboardInputRef}
               value={transcribedText}
-              onChange={(e) => setTranscribedText(e.target.value)}
-              onInput={(e) => {
-                const target = e.target as HTMLTextAreaElement;
-                target.style.height = 'auto';
-                target.style.height = target.scrollHeight + 'px';
-              }}
-              placeholder={emptyInputShake ? 'Drop some thoughts first' : 'Brain dump your thoughts here...'}
-              className={`w-full min-h-[48px] sm:min-h-[56px] bg-transparent text-foreground resize-none text-sm focus:outline-none transition-colors ${emptyInputShake ? 'placeholder:text-red-500/50' : 'placeholder:text-muted-foreground/40'}`}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-                  if (!transcribedText.trim()) {
-                    setEmptyInputShake(true);
-                    setTimeout(() => setEmptyInputShake(false), 600);
-                    return;
-                  }
-                  setShowQuickPitch(true);
-                  handleParseInput();
-                }
-              }} />
-
-              {/* Attached files preview */}
-              {attachedFiles.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2 mb-1">
-                  {attachedFiles.map((af) => {
-                    const FileIcon = getFileIcon(af.type);
-                    return (
-                      <div key={af.id} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-xs text-foreground/80">
-                        <FileIcon className="w-3 h-3 text-accent/60" />
-                        <span className="max-w-[120px] truncate">{af.name}</span>
-                        <button
-                          onClick={() => setAttachedFiles((prev) => prev.filter((f) => f.id !== af.id))}
-                          className="ml-0.5 text-muted-foreground hover:text-foreground"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/20">
-                <div className="flex items-center gap-1">
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={(e) => {
-                      if (e.target.files) {
-                        const files = Array.from(e.target.files);
-                        const { validFiles, errors, overLimit } = validateFiles(files, attachedFiles.length);
-                        if (overLimit) {
-                          toast({ title: `Max ${MAX_FILES} files`, variant: 'destructive' });
-                        }
-                        errors.forEach((err) => toast({ title: err.message, variant: 'destructive' }));
-                        const newAttached = validFiles.map((f) => ({
-                          id: crypto.randomUUID(),
-                          file: f,
-                          name: f.name,
-                          size: f.size,
-                          type: f.type,
-                          progress: 100,
-                        }));
-                        setAttachedFiles((prev) => [...prev, ...newAttached].slice(0, MAX_FILES));
-                      }
-                      e.target.value = '';
-                    }}
-                    accept={FILE_UPLOAD_CONFIG.acceptString}
-                    multiple
-                    className="hidden"
-                  />
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="p-2 rounded-lg transition-colors text-white/60 hover:text-white hover:bg-accent/10"
-                    title="Attach files"
-                  >
-                    <Upload className="w-4 h-4" />
-                  </button>
-                  <div className="w-px h-4 bg-border/30 mx-1" />
-                  <button
-                  onClick={isRecording ? handleStopRecording : () => {setIsRecording(true);setRecordingTime(0);}}
-                  className={`p-2 rounded-lg transition-colors ${
-                  isRecording ? 'bg-red-500/20 text-red-400' : 'text-white/60 hover:text-white hover:bg-accent/10'}`
-                  }
-                  title="Voice input">
-                    <Mic className="w-4 h-4" />
-                  </button>
-                  {isRecording &&
-                <span className="text-xs text-red-400 font-mono ml-1">{formatTime(recordingTime)}</span>
-                }
-                </div>
-                <button
-                onClick={() => {
-                  if (!transcribedText.trim()) {
-                    setEmptyInputShake(true);
-                    setTimeout(() => setEmptyInputShake(false), 600);
-                    return;
-                  }
-                  setShowQuickPitch(true);
-                  handleParseInput();
-                }}
-                disabled={isParsing || isOffline}
-                className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-primary-foreground brand-gradient disabled:opacity-40 transition-opacity">
-
-                  {isParsing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />}
-                  Generate
-                </button>
-              </div>
-              {isOffline && (
-                <p className="text-xs text-muted-foreground mt-2">You're offline. Reconnect to generate.</p>
-              )}
-            </div>
+              onChange={setTranscribedText}
+              onGenerate={handleDashboardGenerate}
+              isParsing={isParsing}
+              isOffline={isOffline}
+              isRecording={isRecording}
+              onToggleRecording={isRecording ? handleStopRecording : () => { setIsRecording(true); setRecordingTime(0); }}
+              recordingTime={recordingTime}
+              formatTime={formatTime}
+              attachedFiles={attachedFiles}
+              onRemoveFile={(id) => setAttachedFiles((prev) => prev.filter((f) => f.id !== id))}
+              fileInputRef={fileInputRef}
+              onFileInputChange={handleDashboardFileInput}
+              acceptString={FILE_UPLOAD_CONFIG.acceptString}
+              emptyInputShake={emptyInputShake}
+            />
 
             {/* Onboarding tip */}
             {!hasOnboarded && projects.length === 0 && !projectsLoading &&
@@ -1220,52 +1173,19 @@ const Dashboard = () => {
               </p>
           }
 
-
-            {/* Separator between prompt and projects */}
-            <div className="flex items-center gap-3 mb-6 mt-2">
-              <div className="flex-1 h-px bg-border/30" />
-              <span className="text-[11px] uppercase tracking-widest text-muted-foreground/30 font-medium">Projects</span>
-              <div className="flex-1 h-px bg-border/30" />
-            </div>
-
-            {/* Projects Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-              {projectsLoading ?
-            <div className="col-span-full text-center py-12">
-                  <Loader2 className="w-6 h-6 animate-spin mx-auto text-primary mb-2" />
-                  <p className="text-muted-foreground text-sm">Loading projects...</p>
-                </div> :
-            projects.length === 0 ?
-            <div className="col-span-full text-center py-16">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center bg-gradient-to-br from-accent/15 to-primary/8 border border-dashed border-accent/30">
-                    <FileText className="w-7 h-7 text-accent/50" />
-                  </div>
-                  <p className="text-foreground font-medium mb-1">No pitches yet</p>
-                  <p className="text-muted-foreground text-sm">Describe your pitch above to get started</p>
-                </div> :
-
-            projects.map((project) =>
-            <ProjectCard
-              key={project.id}
-              id={project.id}
-              title={project.title}
-              status={project.status}
-              scenarioDescription={project.scenario_description}
-              createdAt={project.created_at}
-              isPublished={project.is_published}
-              outputData={project.output_data}
-              onOpen={() => openProject(project)}
-              onContinue={project.status === 'draft' && project.draft_state ? () => handleContinueDraft(project) : undefined}
-              onDownloadPDF={project.status !== 'draft' && project.output_data ? () => {
+            <ProjectsList
+              projects={projects}
+              isLoading={projectsLoading}
+              isFree={isFree}
+              onOpen={openProject}
+              onContinueDraft={handleContinueDraft}
+              onDownloadPDF={(project) => {
                 const od = project.output_data as Record<string, any>;
-                if (od?.onePager) exportOnePagerPDF(od.onePager, !isFree);else
-                if (od?.script) exportScriptPDF(od.script, !isFree);
-              } : undefined}
-              onDelete={() => deleteProject(project.id)} />
-
-            )
-            }
-            </div>
+                if (od?.onePager) exportOnePagerPDF(od.onePager, !isFree);
+                else if (od?.script) exportScriptPDF(od.script, !isFree);
+              }}
+              onDelete={deleteProject}
+            />
           </main>
 
         </div>
@@ -1273,279 +1193,45 @@ const Dashboard = () => {
 
       {/* Project View */}
       {currentView === 'project' && activeProject &&
-      <div className="min-h-screen flex flex-col bg-[hsl(0_0%_7%)]">
-          {/* Preview Panel — full screen */}
-          <div className="grain-bg flex flex-col relative flex-1">
-            <header className="px-3 sm:px-6 py-3 sm:py-4 flex items-center gap-2 sm:gap-3 justify-between border-b border-border relative z-50">
-              {/* Left: Back + Title */}
-              <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-                <button
-                onClick={() => setCurrentView('dashboard')}
-                className="text-muted-foreground hover:text-foreground transition-colors flex-shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center">
-
-                  <ArrowLeft className="w-5 h-5" />
-                </button>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h2 className="font-medium font-display text-sm sm:text-base truncate max-w-[140px] sm:max-w-[300px] lg:max-w-[400px]" style={{ color: 'rgba(240,237,246,0.95)' }} title={(outputFormat === 'script' ? scriptData?.title : onePagerData?.title) || activeProject.title}>{(outputFormat === 'script' ? scriptData?.title : onePagerData?.title) || activeProject.title}</h2>
-                    {parsedContext?.context && parsedContext.context !== 'general' &&
-                      <span className="text-[10px] uppercase tracking-wider hidden sm:inline" style={{ color: 'rgba(168,85,247,0.35)' }}>
-                        {parsedContext.context.replace(/_/g, ' ').replace('thinking ', '')}
-                      </span>
-                    }
-                  </div>
-                  {isRegenerating &&
-                <p className="text-xs text-primary animate-pulse">{generationPhase}</p>
-                }
-                  {!isRegenerating && outputFormat === 'one-pager' && onePagerData &&
-                <p className="text-xs hidden sm:block" style={{ color: 'rgba(240,237,246,0.4)' }}>{onePagerData.context_line || 'One-pager'}</p>
-                }
-                  {!isRegenerating && outputFormat === 'script' && scriptData &&
-                <p className="text-xs hidden sm:block" style={{ color: 'rgba(240,237,246,0.4)' }}>Speaking script</p>
-                }
-                </div>
-              </div>
-
-              {/* Right: Actions */}
-              {(onePagerData || scriptData) &&
-            <div className="flex items-center gap-1 sm:gap-0 flex-shrink-0">
-                  {/* Desktop: Format Toggle + Versions + Overflow */}
-                  <div className="hidden sm:flex items-center gap-1">
-                    <div className="flex items-center rounded-xl border border-border p-1 bg-card/50 backdrop-blur-sm">
-                      <FormatToggle
-                    activeFormat={outputFormat}
-                    onFormatChange={handleFormatChange}
-                    hasOnePager={!!onePagerData}
-                    hasScript={!!scriptData}
-                    onRegenerate={handleRegenerateInFormat}
-                    isRegenerating={isRegenerating}
-                    lockedFormats={isFree ? ['script'] : []}
-                    onLockedClick={(format) => checkAndTriggerPaywall('use_format', { format })} />
-
-                      {/* Practice mode - for scripts only */}
-                      {outputFormat === 'script' && scriptData && (
-                        <>
-                          <div className="w-px h-6 bg-border mx-1" />
-                          <button
-                            onClick={() => setIsPracticeMode(true)}
-                            className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/10 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
-                            title="Practice">
-                            <Play className="w-4 h-4" />
-                          </button>
-                        </>
-                      )}
-                    </div>
-
-                    {/* Version History */}
-                    {activeProject &&
-                  <VersionHistoryDropdown
-                    projectId={activeProject.id}
-                    currentVersionId={activeVersionId}
-                    fetchVersions={fetchVersions}
-                    onSelectVersion={(version) => {
-                      setActiveVersionId(version.id);
-                      const vData = version.output_data;
-                      if (version.output_format === 'script' && vData.script) {
-                        setScriptData(vData.script as unknown as ScriptData);
-                        setOutputFormat('script');
-                      } else if (vData.onePager) {
-                        setOnePagerData(vData.onePager as unknown as OnePagerData);
-                        setOutputFormat('one-pager');
-                      }
-                    }} />
-                  }
-
-                    {/* Desktop overflow for secondary actions */}
-                    <DesktopOverflowMenu
-                      onShare={() => setShowShareModal(true)}
-                      onExport={async () => {
-                        if (isFree) {checkAndTriggerPaywall('export');return;}
-                        try {
-                          if (outputFormat === 'script' && scriptData) {
-                            await exportScriptPDF(scriptData as any, true);
-                          } else if (onePagerData) {
-                            await exportOnePagerPDF(onePagerData as any, true);
-                          }
-                          toast({ title: 'PDF downloaded' });
-                        } catch {toast({ title: 'Failed to generate PDF', variant: 'destructive' });}
-                      }}
-                      onEdit={onePagerData && !isRegenerating ? () => setShowEditor((prev) => !prev) : undefined}
-                      onCopyAll={() => {
-                        if (outputFormat === 'one-pager' && onePagerData) {
-                          const text = onePagerData.sections
-                            .map((s) => `${s.title}\n${s.points.map((p) => `• ${p.replace(/\*\*/g, '')}`).join('\n')}`)
-                            .join('\n\n');
-                          navigator.clipboard.writeText(text);
-                        } else if (outputFormat === 'script' && scriptData) {
-                          const text = (scriptData as any).lines?.map((l: any) => l.text || '').join('\n\n') || '';
-                          navigator.clipboard.writeText(text);
-                        }
-                      }}
-                      isFree={isFree}
-                    />
-                  </div>
-
-                  {/* Mobile: only overflow menu */}
-                  <MobileOverflowMenu
-                onShare={() => setShowShareModal(true)}
-                onExport={async () => {
-                  if (isFree) {checkAndTriggerPaywall('export');return;}
-                  try {
-                    if (outputFormat === 'script' && scriptData) {
-                      await exportScriptPDF(scriptData as any, true);
-                    } else if (onePagerData) {
-                      await exportOnePagerPDF(onePagerData as any, true);
-                    }
-                    toast({ title: 'PDF downloaded' });
-                  } catch {toast({ title: 'Failed to generate PDF', variant: 'destructive' });}
-                }}
-                onEdit={onePagerData && !isRegenerating ? () => setShowEditor((prev) => !prev) : undefined}
-                onPractice={outputFormat === 'script' && scriptData ? () => setIsPracticeMode(true) : undefined}
-                onCopyAll={() => {
-                  if (outputFormat === 'one-pager' && onePagerData) {
-                    const text = onePagerData.sections.
-                    map((s) => `${s.title}\n${s.points.map((p) => `• ${p.replace(/\*\*/g, '')}`).join('\n')}`).
-                    join('\n\n');
-                    navigator.clipboard.writeText(text);
-                  }
-                }}
-                onVersionHistory={() => {/* handled by sheet */}}
-                isFree={isFree}
-                activeProject={activeProject}
-                activeVersionId={activeVersionId}
-                fetchVersions={fetchVersions}
-                onSelectVersion={(version) => {
-                  setActiveVersionId(version.id);
-                  const vData = version.output_data;
-                  if (version.output_format === 'script' && vData.script) {
-                    setScriptData(vData.script as unknown as ScriptData);
-                    setOutputFormat('script');
-                  } else if (vData.onePager) {
-                    setOnePagerData(vData.onePager as unknown as OnePagerData);
-                    setOutputFormat('one-pager');
-                  }
-                }}
-                // Format toggle props for mobile
-                activeFormat={outputFormat}
-                onFormatChange={handleFormatChange}
-                hasOnePager={!!onePagerData}
-                hasScript={!!scriptData}
-                onRegenerate={handleRegenerateInFormat}
-                isRegenerating={isRegenerating}
-                lockedFormats={isFree ? ['script'] : []}
-                onLockedClick={(format) => checkAndTriggerPaywall('use_format', { format })} />
-
-                </div>
-            }
-            </header>
-            
-            <div className={`overflow-y-auto px-5 sm:p-6 lg:p-8 py-4 relative z-10 transition-opacity duration-300 ${isRefining ? 'opacity-30' : 'opacity-100'}`} style={{ paddingBottom: onePagerData || scriptData ? '260px' : undefined }}>
-              {/* Inline refining overlay */}
-              {isRefining && (
-                <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
-                  <OrbitalLoader size="sm" message="Refining..." />
-                </div>
-              )}
-              {/* Show orbital loader during regeneration */}
-              {isRegenerating ?
-            <div className="py-16 flex items-center justify-center">
-              <OrbitalLoader
-                messages={['Finding the structure...', 'Organizing your thoughts...', 'Almost there...']}
-                messageInterval={2000}
-              />
-            </div> :
-            outputFormat === 'script' && scriptData ?
-            <ScriptViewer
-              data={scriptData}
-              onUpdate={(updatedData) => setScriptData(updatedData)}
-              refineAnimationKey={refineAnimationKey} /> :
-
-            outputFormat === 'one-pager' && onePagerData ?
-            <OnePager
-              data={onePagerData}
-              projectTitle={activeProject?.title}
-              refineAnimationKey={refineAnimationKey} /> :
-
-            (onePagerData || scriptData) && !isRegenerating ? (
-            /* Format not yet generated — show loading, useEffect will trigger generation */
-            <div className="py-16 flex items-center justify-center animate-fadeIn">
-              <OrbitalLoader
-                messages={['Finding the structure...', 'Organizing your thoughts...', 'Almost there...']}
-                messageInterval={2000}
-              />
-            </div>) :
-
-            <div className="py-16 flex items-center justify-center">
-                  <div className="text-center">
-                    <div
-                  className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 rounded-2xl flex items-center justify-center bg-gradient-to-br from-accent/15 to-primary/8 border border-dashed border-accent/30">
-
-                      <FileText className="w-8 h-8 sm:w-9 sm:h-9 text-accent/50" />
-                    </div>
-                    <p className="text-muted-foreground text-sm">Your pitch will appear here</p>
-                    <p className="text-muted-foreground/60 text-xs mt-1">Describe your scenario below to get started</p>
-                  </div>
-                </div>
-            }
-
-            </div>
-
-            {/* Refinement Bar */}
-            {(onePagerData || scriptData) && !isRegenerating &&
-          <RefinementBar
-            onRefine={handleRefine}
-            isRefining={isRefining}
-            showUndo={showUndo}
-            onUndo={handleUndo}
-            projectId={activeProject?.id}
-            format={outputFormat === 'script' ? 'script' : 'one-pager'}
-            generationKey={feedbackKey}
-            generatedOutput={
-              outputFormat === 'script'
-                ? (scriptData as unknown as Record<string, unknown>)
-                : (onePagerData as unknown as Record<string, unknown>)
-            }
-          />
-
-          }
-          </div>
-
-          {/* Edit button removed — now in top bar header */}
-
-          {/* Editor Overlay */}
-          {showEditor && onePagerData &&
-        <div className="fixed inset-0 z-40 flex items-end justify-center modal-overlay" onClick={() => setShowEditor(false)}>
-              <div
-            className="w-full max-w-3xl max-h-[70vh] overflow-y-auto rounded-t-2xl border border-border bg-background p-4 sm:p-6 animate-slideUp"
-            onClick={(e) => e.stopPropagation()}>
-
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-medium text-foreground font-display">Edit One-Pager</h3>
-                  <button onClick={() => setShowEditor(false)} className="text-muted-foreground hover:text-foreground">
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-                {isMobile ?
-            <MobileEditorSheet
-              data={onePagerData}
-              onUpdate={(updatedData) => setOnePagerData(updatedData)}
-              onRefine={(prompt) => {
-                setInputValue(prompt);
-                setTimeout(() => handleSubmit(), 0);
-              }}
-              isRefining={isGenerating} /> :
-
-
-            <OnePagerEditor
-              data={onePagerData}
-              onUpdate={(updatedData) => setOnePagerData(updatedData)} />
-
-            }
-              </div>
-            </div>
-        }
-
-        </div>
+        <OutputView
+          project={activeProject}
+          parsedContext={parsedContext}
+          outputFormat={outputFormat}
+          onePagerData={onePagerData}
+          scriptData={scriptData}
+          isRegenerating={isRegenerating}
+          isRefining={isRefining}
+          generationPhase={generationPhase}
+          refineAnimationKey={refineAnimationKey}
+          feedbackKey={feedbackKey}
+          showUndo={showUndo}
+          showEditor={showEditor}
+          activeVersionId={activeVersionId}
+          isFree={isFree}
+          isMobile={isMobile}
+          onBack={() => setCurrentView('dashboard')}
+          onFormatChange={handleFormatChange}
+          onRegenerateInFormat={handleRegenerateInFormat}
+          onRefine={handleRefine}
+          onUndo={handleUndo}
+          onShare={() => setShowShareModal(true)}
+          onPractice={() => setIsPracticeMode(true)}
+          onExportPDF={handleExportPDF}
+          onToggleEditor={() => setShowEditor((prev) => !prev)}
+          onCloseEditor={() => setShowEditor(false)}
+          onSetOnePagerData={(data) => setOnePagerData(data)}
+          onSetScriptData={(data) => setScriptData(data)}
+          onSetOutputFormat={(format) => setOutputFormat(format)}
+          onSetActiveVersionId={(id) => setActiveVersionId(id)}
+          onCopyAll={handleCopyAll}
+          checkAndTriggerPaywall={checkAndTriggerPaywall}
+          fetchVersions={fetchVersions}
+          onRefineFromEditor={(prompt) => {
+            setInputValue(prompt);
+            setTimeout(() => handleSubmit(), 0);
+          }}
+          isGenerating={isGenerating}
+        />
       }
 
       {/* Quick Pitch Modal - 5 Steps: Describe → Confirm → Context → Tune → Generate */}
