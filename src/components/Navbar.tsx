@@ -2,7 +2,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { usePricing } from '@/hooks/usePricing';
 import { Mic, Menu, Crown, Settings } from 'lucide-react';
-import pitchvoidLogo from '@/assets/PitchVoid_Logo_Colored.png';
+import pitchvoidLogo from '@/assets/pitchvoid-logo.png';
 import {
   DropdownMenu,
   DropdownMenuContent,
