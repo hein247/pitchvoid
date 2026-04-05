@@ -111,6 +111,7 @@ const Dashboard = () => {
   const {
     projects,
     isLoading: projectsLoading,
+    fetchProjects,
     createProject,
     saveDraftState,
     saveProjectOutput,
