@@ -97,7 +97,7 @@ const Navbar = ({
           <SheetContent side="right" className="w-[280px] bg-background border-l border-accent/20">
             <SheetHeader>
               <SheetTitle className="text-left">
-                <img src={pitchvoidLogo} alt="PitchVoid" className="h-12" />
+                <img src={pitchvoidLogo} alt="PitchVoid" className="h-7" />
               </SheetTitle>
             </SheetHeader>
             <nav className="flex flex-col gap-4 mt-8">
