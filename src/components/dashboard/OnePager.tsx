@@ -113,10 +113,10 @@ const OnePager = ({ data: rawData, refineAnimationKey }: OnePagerProps) => {
           <img
             src={pitchvoidOrbital}
             alt=""
-            className="absolute w-[160px] sm:w-[220px] pointer-events-none select-none"
+            className="absolute w-[280px] sm:w-[400px] pointer-events-none select-none"
             style={{
-              top: '20px',
-              right: '-30px',
+              top: '-20px',
+              right: '-50px',
               opacity: 0.04,
               transform: 'rotate(15deg)',
             }}
