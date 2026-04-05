@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Check, Copy } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
+import pitchvoidOrbital from '@/assets/pitchvoid-orbital.png';
 
 export interface OnePagerSection {
   title: string;
@@ -107,8 +108,21 @@ const OnePager = ({ data: rawData, refineAnimationKey }: OnePagerProps) => {
           background: 'linear-gradient(180deg, rgba(88,40,180,0.15) 0%, rgba(20,18,26,0.95) 40%, rgba(14,12,20,0.98) 100%)',
           border: '1px solid rgba(168,85,247,0.15)',
         }}
-      >
-        {/* Copy All — desktop only */}
+        >
+          {/* Orbital watermark */}
+          <img
+            src={pitchvoidOrbital}
+            alt=""
+            className="absolute w-[200px] sm:w-[320px] pointer-events-none select-none"
+            style={{
+              top: '-40px',
+              right: '-60px',
+              opacity: 0.06,
+              transform: 'rotate(15deg)',
+            }}
+          />
+
+          {/* Copy All — desktop only */}
         <div className="hidden sm:flex justify-end mb-2 relative z-10">
           <button
             onClick={copyAll}

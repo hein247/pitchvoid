@@ -1,6 +1,7 @@
-import { Loader2, FileText } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import ProjectCard from '@/components/dashboard/ProjectCard';
 import type { ProjectRecord } from '@/hooks/useProjects';
+import pitchvoidOrbital from '@/assets/pitchvoid-orbital.png';
 
 interface ProjectsListProps {
   projects: ProjectRecord[];
@@ -31,9 +32,11 @@ const ProjectsList = ({ projects, isLoading, isFree, onOpen, onContinueDraft, on
           </div>
         ) : projects.length === 0 ? (
           <div className="col-span-full text-center py-16">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center bg-gradient-to-br from-accent/15 to-primary/8 border border-dashed border-accent/30">
-              <FileText className="w-7 h-7 text-accent/50" />
-            </div>
+            <img
+              src={pitchvoidOrbital}
+              alt=""
+              className="w-[120px] mx-auto mb-4 opacity-20 pointer-events-none select-none"
+            />
             <p className="text-foreground font-medium mb-1">No pitches yet</p>
             <p className="text-muted-foreground text-sm">Describe your pitch above to get started</p>
           </div>
