@@ -1133,7 +1133,7 @@ const Dashboard = () => {
             <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-background to-transparent" />
           </div>
 
-          <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 relative" style={{ zIndex: 1 }}>
+          <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-4 pb-6 sm:py-8 relative" style={{ zIndex: 1 }}>
             {/* Header */}
             <div className="mb-6">
               <h1 className="text-xl sm:text-2xl font-bold text-foreground font-display">My Void </h1>
