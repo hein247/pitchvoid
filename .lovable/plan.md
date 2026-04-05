@@ -1,36 +1,36 @@
 
 
-## Make the Live Demo Section Stand Out
+# Add Orbital Pattern to OnePager Output and Empty States
 
-### What Changes
-Add visual separation to the "Try it now" section so it pops against the rest of the landing page. The section will get:
+## What Changes
 
-1. **Subtle background tint** — A faint radial gradient glow (magenta/violet) behind the section to create depth
-2. **Top/bottom divider lines** — Thin gradient horizontal rules to frame the section
-3. **Larger vertical padding** — More breathing room above and below
+The uploaded orbital pattern (overlapping ellipses in peach/amber/purple) gets used in two places:
 
-### Implementation
+1. **OnePager output watermark** — A faint version of the pattern sits behind the generated one-pager content, positioned top-right, large and subtle (opacity ~0.06-0.08), giving the premium document a branded feel without interfering with readability.
 
-**File: `src/components/landing/LiveDemo.tsx`**
+2. **Empty states** — When the user has no projects yet ("No pitches yet" in ProjectsList) and when no output is loaded, the orbital pattern replaces the generic icon as a decorative illustration, displayed at moderate opacity (~0.15-0.2) as a centered background element.
 
-Update the outer `<section>` wrapper from a plain container to one with:
-- A soft radial gradient background using brand colors (`--primary` / `--secondary`) at very low opacity (~4-6%)
-- Top and bottom 1px gradient dividers (fade from transparent → brand color → transparent)
-- Increased vertical padding (`py-20 sm:py-32`)
+## Implementation
 
-```text
-┌─────────────────────────────────┐
-│  gradient divider line (1px)    │
-│                                 │
-│   radial glow background        │
-│   ┌─────────────────────────┐   │
-│   │  Try it now             │   │
-│   │  textarea + button      │   │
-│   └─────────────────────────┘   │
-│                                 │
-│  gradient divider line (1px)    │
-└─────────────────────────────────┘
-```
+### Step 1: Copy the asset into the project
+Copy `PitchVoid_Logo_Colored-2.png` to `src/assets/pitchvoid-orbital.png`.
 
-Single file change — `src/components/landing/LiveDemo.tsx` only.
+### Step 2: OnePager watermark (`src/components/dashboard/OnePager.tsx`)
+Inside the main container (the one with the purple gradient background), add an `<img>` of the orbital pattern:
+- Position: `absolute`, top-right corner, offset slightly (`top: -40px, right: -60px`)
+- Size: ~320px on desktop, ~200px on mobile
+- Opacity: `0.06`
+- `pointer-events: none`, `select: none`
+- Slight rotation (`rotate: 15deg`) for visual interest
+
+### Step 3: Empty state in ProjectsList (`src/components/dashboard/ProjectsList.tsx`)
+Replace the current empty state icon (the `FileText` icon inside a bordered box) with the orbital pattern image:
+- Centered, ~120px wide
+- Opacity: `0.2`
+- Keep the existing "No pitches yet" and "Describe your pitch above" text below it
+
+### What stays the same
+- All OnePager functionality (copy, animations, sections, refinement)
+- ProjectsList grid rendering and loading state
+- No new dependencies
 
