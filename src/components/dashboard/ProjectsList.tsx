@@ -1,6 +1,7 @@
-import { Loader2, FileText } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import ProjectCard from '@/components/dashboard/ProjectCard';
 import type { ProjectRecord } from '@/hooks/useProjects';
+import pitchvoidOrbital from '@/assets/pitchvoid-orbital.png';
 
 interface ProjectsListProps {
   projects: ProjectRecord[];

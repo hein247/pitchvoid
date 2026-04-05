@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Check, Copy } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
+import pitchvoidOrbital from '@/assets/pitchvoid-orbital.png';
 
 export interface OnePagerSection {
   title: string;
