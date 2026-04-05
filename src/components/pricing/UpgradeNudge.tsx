@@ -20,7 +20,7 @@ export function UpgradeNudge({ message, show, onDismiss }: UpgradeNudgeProps) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3 }}
-          className="fixed bottom-20 left-4 right-4 sm:bottom-auto sm:left-auto sm:top-4 sm:right-4 z-50 max-w-sm w-auto"
+          className="fixed bottom-4 left-4 right-4 sm:bottom-auto sm:left-auto sm:top-4 sm:right-4 z-50 max-w-sm w-auto"
         >
           <div className="bg-card/90 backdrop-blur-xl border border-accent/25 rounded-xl p-3.5 shadow-[0_8px_32px_rgba(124,77,255,0.12)]">
             <div className="flex items-center gap-3">
