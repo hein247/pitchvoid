@@ -125,7 +125,7 @@ const OnePager = ({ data: rawData, refineAnimationKey }: OnePagerProps) => {
           {/* Title + Copy All row */}
         <div className="flex items-start justify-between gap-4 mb-3 relative z-10">
           <h1
-            className="text-[28px] sm:text-[42px] font-normal font-display"
+            className="text-[28px] sm:text-[42px] font-normal font-sans"
             style={{
               color: 'rgba(240,237,246,0.95)',
               letterSpacing: '-0.01em',
