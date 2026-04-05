@@ -103,7 +103,7 @@ const OnePager = ({ data: rawData, refineAnimationKey }: OnePagerProps) => {
     >
       {/* Main container card */}
       <div
-        className="relative rounded-[20px] p-7 sm:p-12"
+        className="relative overflow-hidden rounded-[20px] p-7 sm:p-12"
         style={{
           background: 'linear-gradient(180deg, rgba(88,40,180,0.15) 0%, rgba(20,18,26,0.95) 40%, rgba(14,12,20,0.98) 100%)',
           border: '1px solid rgba(168,85,247,0.15)',
@@ -113,11 +113,11 @@ const OnePager = ({ data: rawData, refineAnimationKey }: OnePagerProps) => {
           <img
             src={pitchvoidOrbital}
             alt=""
-            className="absolute w-[200px] sm:w-[320px] pointer-events-none select-none"
+            className="absolute w-[160px] sm:w-[220px] pointer-events-none select-none"
             style={{
-              top: '-40px',
-              right: '-60px',
-              opacity: 0.06,
+              top: '20px',
+              right: '-30px',
+              opacity: 0.04,
               transform: 'rotate(15deg)',
             }}
           />
