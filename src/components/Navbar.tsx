@@ -2,7 +2,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { usePricing } from '@/hooks/usePricing';
 import { Mic, Menu, Crown, Settings } from 'lucide-react';
-import pitchvoidLogo from '@/assets/pitchvoid-logo.png';
+import pitchvoidLogo from '@/assets/PitchVoid_Logo_Colored.png';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,7 +38,7 @@ const Navbar = ({
           onClick={() => navigate('/')}
           className="flex items-center"
         >
-          <img src={pitchvoidLogo} alt="PitchVoid" className="h-7 sm:h-8" />
+          <img src={pitchvoidLogo} alt="PitchVoid" className="h-12 sm:h-14" />
         </button>
         
         {/* Desktop nav */}
@@ -97,7 +97,7 @@ const Navbar = ({
           <SheetContent side="right" className="w-[280px] bg-background border-l border-accent/20">
             <SheetHeader>
               <SheetTitle className="text-left">
-                <img src={pitchvoidLogo} alt="PitchVoid" className="h-7" />
+                <img src={pitchvoidLogo} alt="PitchVoid" className="h-12" />
               </SheetTitle>
             </SheetHeader>
             <nav className="flex flex-col gap-4 mt-8">
@@ -157,7 +157,7 @@ const Navbar = ({
           onClick={() => navigate('/')}
           className="flex items-center"
         >
-          <img src={pitchvoidLogo} alt="PitchVoid" className="h-6 sm:h-7" />
+          <img src={pitchvoidLogo} alt="PitchVoid" className="h-10 sm:h-12" />
         </button>
         <div className="flex items-center gap-2 sm:gap-4">
           {/* Credit pill — tappable, goes to pricing */}
@@ -226,7 +226,7 @@ const Navbar = ({
         onClick={() => navigate('/')}
         className="flex items-center"
       >
-        <img src={pitchvoidLogo} alt="PitchVoid" className="h-7 sm:h-8" />
+        <img src={pitchvoidLogo} alt="PitchVoid" className="h-12 sm:h-14" />
       </button>
     </nav>
   );
