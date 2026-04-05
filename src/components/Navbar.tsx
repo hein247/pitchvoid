@@ -38,7 +38,7 @@ const Navbar = ({
           onClick={() => navigate('/')}
           className="flex items-center"
         >
-          <img src={pitchvoidLogo} alt="PitchVoid" className="h-7 sm:h-8" />
+          <img src={pitchvoidLogo} alt="PitchVoid" className="h-12 sm:h-14" />
         </button>
         
         {/* Desktop nav */}
