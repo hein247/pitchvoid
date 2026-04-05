@@ -157,7 +157,7 @@ const Navbar = ({
           onClick={() => navigate('/')}
           className="flex items-center"
         >
-          <img src={pitchvoidLogo} alt="PitchVoid" className="h-6 sm:h-7" />
+          <img src={pitchvoidLogo} alt="PitchVoid" className="h-10 sm:h-12" />
         </button>
         <div className="flex items-center gap-2 sm:gap-4">
           {/* Credit pill — tappable, goes to pricing */}
