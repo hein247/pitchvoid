@@ -1128,19 +1128,21 @@ const Dashboard = () => {
       <div className={`relative ${showInstallPrompt ? 'pt-14 sm:pt-16' : ''}`}>
           <Navbar variant="dashboard" onSignOut={handleSignOut} />
           
-          {/* Ethereal Shadow — absolute background behind all content */}
-          <div className="absolute inset-0 top-14 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
+          {/* Ethereal Shadow — keep the glow behind the top hero only */}
+          <div className="absolute inset-x-0 top-14 h-[260px] sm:h-[360px] pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
             <EtheralShadow
               color="rgba(124, 77, 255, 0.25)"
               animation={{ scale: 30, speed: 15 }}
               noise={{ opacity: 0.03, scale: 1.2 }}
               className="w-full h-full"
             />
-            {/* Fade out at the bottom */}
-            <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-background to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 h-24 sm:h-32 bg-gradient-to-t from-background via-background to-transparent" />
           </div>
 
-          <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-4 pb-6 sm:py-8 relative" style={{ zIndex: 1 }}>
+          <main
+            className={`max-w-7xl mx-auto px-4 sm:px-6 pt-4 ${showNudge ? 'pb-40' : 'pb-6'} sm:py-8 relative`}
+            style={{ zIndex: 1 }}
+          >
             {/* Header */}
             <div className="mb-6">
               <h1 className="text-xl sm:text-2xl font-bold text-foreground font-display">My Void </h1>
@@ -1181,19 +1183,21 @@ const Dashboard = () => {
               </p>
           }
 
-            <ProjectsList
-              projects={projects}
-              isLoading={projectsLoading}
-              isFree={isFree}
-              onOpen={openProject}
-              onContinueDraft={handleContinueDraft}
-              onDownloadPDF={(project) => {
-                const od = project.output_data as Record<string, any>;
-                if (od?.onePager) exportOnePagerPDF(od.onePager, !isFree);
-                else if (od?.script) exportScriptPDF(od.script, !isFree);
-              }}
-              onDelete={deleteProject}
-            />
+            <div className="relative z-10">
+              <ProjectsList
+                projects={projects}
+                isLoading={projectsLoading}
+                isFree={isFree}
+                onOpen={openProject}
+                onContinueDraft={handleContinueDraft}
+                onDownloadPDF={(project) => {
+                  const od = project.output_data as Record<string, any>;
+                  if (od?.onePager) exportOnePagerPDF(od.onePager, !isFree);
+                  else if (od?.script) exportScriptPDF(od.script, !isFree);
+                }}
+                onDelete={deleteProject}
+              />
+            </div>
           </main>
 
         </div>
