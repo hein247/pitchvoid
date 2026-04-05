@@ -73,7 +73,7 @@ const ProjectCard = ({
         animate={enableMotion ? { opacity: 1, y: 0 } : undefined}
         whileHover={enableMotion ? { y: -2 } : undefined}
         transition={enableMotion ? { duration: 0.25 } : undefined}
-        className={`relative w-full text-left rounded-[10px] border-2 border-white/15 bg-[hsl(260_20%_10%/0.5)] backdrop-blur-md hover:border-[hsl(270_60%_65%/0.45)] hover:bg-[hsl(260_20%_12%/0.6)] transition-all ${enableMotion ? 'duration-200 hover:transform-gpu hover:will-change-transform' : 'duration-150'} p-4 sm:p-5 cursor-pointer`}
+        className={`relative w-full text-left rounded-[10px] border-2 border-white/15 className={`relative w-full text-left rounded-[10px] border-2 border-white/20 bg-[hsl(260_20%_10%/0.85)] backdrop-blur-md hover:border-[hsl(270_60%_65%/0.45)] hover:bg-[hsl(260_20%_12%/0.9)] transition-all ${enableMotion ? 'duration-200 hover:transform-gpu hover:will-change-transform' : 'duration-150'} p-4 sm:p-5 cursor-pointer`} transition-all ${enableMotion ? 'duration-200 hover:transform-gpu hover:will-change-transform' : 'duration-150'} p-4 sm:p-5 cursor-pointer`}
       >
       {/* Title */}
       <h3 className="text-base sm:text-lg font-semibold text-white group-hover/glow:text-primary transition-colors truncate font-display leading-snug">
