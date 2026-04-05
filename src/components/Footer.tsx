@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import pitchvoidLogo from '@/assets/pitchvoid-logo.png';
+import pitchvoidLogo from '@/assets/PitchVoid_Logo_Colored.png';
 
 export default function Footer() {
   return (
