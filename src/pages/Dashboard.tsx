@@ -246,6 +246,13 @@ const Dashboard = () => {
     };
   }, []);
 
+  // Re-fetch projects when returning to dashboard view
+  useEffect(() => {
+    if (currentView === 'dashboard') {
+      fetchProjects();
+    }
+  }, [currentView, fetchProjects]);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isGenerating]);
