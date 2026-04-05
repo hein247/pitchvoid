@@ -122,11 +122,20 @@ const OnePager = ({ data: rawData, refineAnimationKey }: OnePagerProps) => {
             }}
           />
 
-          {/* Copy All — desktop only */}
-        <div className="hidden sm:flex justify-end mb-2 relative z-10">
+          {/* Title + Copy All row */}
+        <div className="flex items-start justify-between gap-4 mb-3 relative z-10">
+          <h1
+            className="text-[28px] sm:text-[42px] font-normal font-display"
+            style={{
+              color: 'rgba(240,237,246,0.95)',
+              letterSpacing: '-0.01em',
+            }}
+          >
+            {data.title}
+          </h1>
           <button
             onClick={copyAll}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-colors"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-colors shrink-0 mt-2"
             style={{ color: copiedAll ? undefined : 'rgba(240,237,246,0.4)' }}
             onMouseEnter={(e) => { if (!copiedAll) e.currentTarget.style.color = 'rgba(240,237,246,0.7)'; }}
             onMouseLeave={(e) => { if (!copiedAll) e.currentTarget.style.color = 'rgba(240,237,246,0.4)'; }}
@@ -144,17 +153,6 @@ const OnePager = ({ data: rawData, refineAnimationKey }: OnePagerProps) => {
             )}
           </button>
         </div>
-
-        {/* Title */}
-        <h1
-          className="text-[28px] sm:text-[42px] font-normal mb-3 font-display"
-          style={{
-            color: 'rgba(240,237,246,0.95)',
-            letterSpacing: '-0.01em',
-          }}
-        >
-          {data.title}
-        </h1>
 
         {/* Context line + Refined tag */}
         <div className="flex items-center gap-3 flex-wrap">
