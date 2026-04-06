@@ -352,7 +352,7 @@ const LiveDemo = () => {
                       disabled={isGenerating}
                       className="p-2 rounded-lg transition-all duration-300 disabled:opacity-20"
                       style={{
-                        color: hasContent ? 'rgba(240,237,246,0.4)' : 'rgba(240,237,246,0.12)',
+                        color: hasContent ? 'rgba(240,237,246,0.5)' : 'rgba(240,237,246,0.3)',
                       }}
                       onMouseEnter={(e) => (e.currentTarget.style.color = 'rgba(240,237,246,0.6)')}
                       onMouseLeave={(e) => (e.currentTarget.style.color = hasContent ? 'rgba(240,237,246,0.4)' : 'rgba(240,237,246,0.12)')}
