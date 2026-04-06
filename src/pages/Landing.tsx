@@ -53,10 +53,10 @@ const Landing = () => {
           loop
           muted
           playsInline
-          className="w-full h-full object-cover opacity-20"
+          ref={(el) => { if (el) el.playbackRate = 0.5; }}
+          className="w-full h-full object-cover"
           src="/videos/hero-bg.mp4"
         />
-        <div className="absolute inset-0 bg-background/60" />
       </div>
       {/* Navigation */}
       <div className="relative z-10">
