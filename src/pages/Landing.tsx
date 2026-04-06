@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import HowItWorks from '@/components/landing/HowItWorks';
 import LiveDemo from '@/components/landing/LiveDemo';
-
+import AnimatedShaderBackground from '@/components/ui/animated-shader-background';
 import Footer from '@/components/Footer';
 import PageTransition from '@/components/ui/PageTransition';
 const ROTATING_WORDS = ['process', 'analyze', 'prepare', 'articulate', 'connect'];
@@ -46,18 +46,7 @@ const Landing = () => {
     return () => clearInterval(interval);
   }, []);
   return <PageTransition><div className="min-h-screen relative bg-[radial-gradient(ellipse_at_top,_hsl(25_75%_65%/0.08)_0%,_transparent_50%),_radial-gradient(ellipse_at_bottom_right,_hsl(260_60%_55%/0.06)_0%,_transparent_50%)]">
-      {/* Video background */}
-      <div className="fixed inset-0 z-0 overflow-hidden">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          ref={(el) => { if (el) el.playbackRate = 0.5; }}
-          className="w-full h-full object-cover"
-          src="/videos/hero-bg.mp4"
-        />
-      </div>
+      <AnimatedShaderBackground />
       {/* Navigation */}
       <div className="relative z-10">
         <Navbar variant="landing" />

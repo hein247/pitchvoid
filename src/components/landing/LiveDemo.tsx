@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { ArrowRight, Loader2, Upload, Mic, X, File, Image } from 'lucide-react';
 import pitchvoidIcon from '@/assets/pitchvoid-logo-blacked.png';
-import pitchvoidOrbitalColored from '@/assets/pitchvoid-orbital-colored.png';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -194,7 +193,7 @@ const LiveDemo = () => {
   };
 
   return (
-    <div className="relative max-w-2xl mx-auto px-4 sm:px-8 pt-4 sm:pt-6">
+    <div className="max-w-2xl mx-auto px-4 sm:px-8 pt-4 sm:pt-6">
       {/* Input area */}
       <div className="space-y-4">
         <motion.div
