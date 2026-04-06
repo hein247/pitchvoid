@@ -241,7 +241,7 @@ const LiveDemo = () => {
                   borderWidth: '1px',
                   borderStyle: 'solid',
                   borderColor: phase === 'empty'
-                    ? 'rgba(240,237,246,0)'
+                    ? 'rgba(240,237,246,0.06)'
                     : phase === 'active'
                     ? 'rgba(240,237,246,0.06)'
                     : phase === 'ready'
