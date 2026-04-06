@@ -195,12 +195,6 @@ const LiveDemo = () => {
 
   return (
     <div className="relative max-w-2xl mx-auto px-4 sm:px-8 pt-4 sm:pt-6">
-      {/* Background orbital */}
-      <img
-        src={pitchvoidOrbitalColored}
-        alt=""
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] sm:w-[600px] opacity-20 pointer-events-none select-none"
-      />
       {/* Input area */}
       <div className="space-y-4">
         <motion.div
