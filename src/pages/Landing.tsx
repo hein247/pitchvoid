@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import HowItWorks from '@/components/landing/HowItWorks';
 import LiveDemo from '@/components/landing/LiveDemo';
-import AnimatedShaderBackground from '@/components/ui/animated-shader-background';
+
 import Footer from '@/components/Footer';
 import PageTransition from '@/components/ui/PageTransition';
 const ROTATING_WORDS = ['process', 'analyze', 'prepare', 'articulate', 'connect'];
