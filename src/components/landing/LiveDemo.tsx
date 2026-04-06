@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
-import { ArrowRight, Loader2, Upload, Mic, Zap, X, File, Image, Pencil } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { ArrowRight, Loader2, Upload, Mic, Zap, X, File, Image } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -20,8 +20,6 @@ const LiveDemo = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [output, setOutput] = useState<OnePagerData | null>(null);
   const [shakeInput, setShakeInput] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false);
 
   // File upload state
   const [attachedFiles, setAttachedFiles] = useState<AttachedFile[]>([]);
@@ -30,11 +28,6 @@ const LiveDemo = () => {
   // Voice recording state
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
-
-  const hasContent = input.length > 0 || attachedFiles.length > 0;
-  const isReady = input.length >= 50 || (input.length >= 10 && attachedFiles.length > 0);
-  const showGenerate = input.length >= 10 || attachedFiles.length > 0;
-  const glowWidth = Math.min(100, (input.length / 200) * 100);
 
   // Recording timer
   useEffect(() => {
@@ -61,6 +54,7 @@ const LiveDemo = () => {
 
   const handleStopRecording = () => {
     setIsRecording(false);
+    // Mock transcription (same as dashboard)
     setTimeout(() => {
       setInput((prev) =>
         prev
@@ -79,6 +73,7 @@ const LiveDemo = () => {
     }
   };
 
+  // File processing
   const processFile = async (file: File): Promise<string | undefined> => {
     return new Promise((resolve) => {
       const reader = new FileReader();
@@ -143,7 +138,6 @@ const LiveDemo = () => {
 
     setIsGenerating(true);
     setOutput(null);
-    setIsCollapsed(true);
 
     try {
       const { data, error } = await supabase.functions.invoke('generate-demo', {
@@ -152,7 +146,11 @@ const LiveDemo = () => {
 
       if (error) {
         if (error.message?.includes('429') || error.message?.includes('rate limit')) {
-          toast({ title: 'Demo limit reached', description: "You've already tried the demo. Sign up for 3 free credits.", variant: 'destructive' });
+          toast({
+            title: 'Demo limit reached',
+            description: "You've already tried the demo. Sign up for 3 free credits.",
+            variant: 'destructive',
+          });
           return;
         }
         throw error;
@@ -160,15 +158,21 @@ const LiveDemo = () => {
 
       if (data?.error) {
         if (data.errorType === 'rate_limit') {
-          toast({ title: 'Demo limit reached', description: "You've already tried the demo. Sign up for 3 free credits.", variant: 'destructive' });
+          toast({
+            title: 'Demo limit reached',
+            description: "You've already tried the demo. Sign up for 3 free credits.",
+            variant: 'destructive',
+          });
           return;
         }
         throw new Error(data.error);
       }
 
       if (data?.needs_more) {
-        toast({ title: 'Need more detail', description: data.suggestion || "Try describing who you're talking to and what you need to communicate." });
-        setIsCollapsed(false);
+        toast({
+          title: 'Need more detail',
+          description: data.suggestion || "Try describing who you're talking to and what you need to communicate.",
+        });
         return;
       }
 
@@ -177,164 +181,88 @@ const LiveDemo = () => {
       }
     } catch (err: any) {
       console.error('Demo generation error:', err);
-      toast({ title: 'Something went wrong', description: 'Please try again in a moment.', variant: 'destructive' });
-      setIsCollapsed(false);
+      toast({
+        title: 'Something went wrong',
+        description: 'Please try again in a moment.',
+        variant: 'destructive',
+      });
     } finally {
       setIsGenerating(false);
     }
   };
 
-  // Phase: determines visual state
-  const phase = output ? 'done' : isReady ? 'ready' : hasContent ? 'active' : 'empty';
-
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-8 pt-4 sm:pt-6">
-      {/* The Void Input */}
-      <motion.div
-        animate={shakeInput ? { x: [-8, 8, -6, 6, -3, 3, 0] } : {}}
-        transition={{ duration: 0.4 }}
-      >
-        <div className="relative">
-          {/* Ambient radial glow behind input */}
-          <div
-            className="absolute inset-0 -inset-x-12 -inset-y-8 pointer-events-none transition-opacity duration-700"
-            style={{
-              background: 'radial-gradient(ellipse at center, hsl(263 70% 58% / 0.06) 0%, transparent 70%)',
-              opacity: phase === 'empty' ? 1 : phase === 'active' ? 0.7 : phase === 'ready' ? 0.5 : 0,
-              animation: phase === 'empty' ? 'void-breathe-glow 4s ease-in-out infinite' : undefined,
-            }}
-          />
-
-          {/* Collapsed post-generation summary */}
-          {isCollapsed && output && (
-            <div className="relative flex items-center gap-3 px-5 py-3 rounded-2xl border transition-all duration-500"
+      {/* Input area */}
+      <div className="space-y-4">
+        <motion.div
+          animate={shakeInput ? { x: [-8, 8, -6, 6, -3, 3, 0] } : {}}
+          transition={{ duration: 0.4 }}
+        >
+          <div className="relative rounded-[20px] p-[1px] overflow-hidden">
+            {/* Animated gradient border */}
+            <div
+              className="absolute inset-0 rounded-[20px] animate-gradient-x"
               style={{
-                borderColor: 'rgba(240,237,246,0.08)',
-                backgroundColor: 'rgba(240,237,246,0.02)',
+                background: shakeInput
+                  ? 'hsl(0 70% 50% / 0.6)'
+                  : 'linear-gradient(90deg, hsl(var(--primary)), hsl(var(--secondary)), hsl(var(--primary)), hsl(var(--secondary)))',
+                backgroundSize: '300% 100%',
+                opacity: 0.5,
               }}
+            />
+            <div
+              className="relative rounded-[19px] bg-background"
+              style={{ boxShadow: '0 0 40px -10px hsl(25 75% 65% / 0.08)' }}
             >
-              <p className="text-sm text-[rgba(240,237,246,0.45)] truncate flex-1 font-['Be_Vietnam_Pro']">
-                {input.slice(0, 80)}{input.length > 80 ? '…' : ''}
-              </p>
-              <button
-                onClick={() => { setIsCollapsed(false); setOutput(null); }}
-                className="p-1.5 rounded-lg text-[rgba(240,237,246,0.25)] hover:text-[rgba(240,237,246,0.6)] transition-colors"
-              >
-                <Pencil className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          )}
-
-          {/* Main input area — hidden when collapsed with output */}
-          {!(isCollapsed && output) && (
-            <motion.div
-              initial={false}
-              animate={{
-                scale: isGenerating ? 0.98 : 1,
-                opacity: isGenerating ? 0.6 : 1,
-              }}
-              transition={{ duration: 0.3 }}
-            >
-              <div
-                className="relative rounded-2xl transition-all duration-500 overflow-hidden"
-                style={{
-                  borderWidth: '1px',
-                  borderStyle: 'solid',
-                  borderColor: phase === 'empty'
-                    ? 'rgba(240,237,246,0.06)'
-                    : phase === 'active'
-                    ? 'rgba(240,237,246,0.06)'
-                    : phase === 'ready'
-                    ? 'rgba(240,237,246,0.12)'
-                    : 'rgba(240,237,246,0.08)',
-                  backgroundColor: phase === 'empty'
-                    ? 'transparent'
-                    : phase === 'active'
-                    ? 'rgba(240,237,246,0.02)'
-                    : 'rgba(240,237,246,0.03)',
-                  boxShadow: phase === 'ready'
-                    ? '0 0 60px -20px hsl(263 70% 58% / 0.1)'
-                    : 'none',
+              <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onInput={(e) => {
+                  const target = e.target as HTMLTextAreaElement;
+                  target.style.height = 'auto';
+                  target.style.height = target.scrollHeight + 'px';
                 }}
-              >
-                {/* Textarea */}
-                <div className="relative">
-                  <textarea
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onFocus={() => setIsFocused(true)}
-                    onBlur={() => setIsFocused(false)}
-                    onInput={(e) => {
-                      const target = e.target as HTMLTextAreaElement;
-                      target.style.height = 'auto';
-                      target.style.height = Math.min(target.scrollHeight, 200) + 'px';
-                    }}
-                    disabled={isGenerating}
-                    maxLength={5000}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-                        handleGenerate();
-                      }
-                    }}
-                    className="w-full bg-transparent text-foreground px-6 py-5 text-sm sm:text-base leading-relaxed resize-none focus:outline-none transition-all font-['Be_Vietnam_Pro']"
-                    style={{
-                      minHeight: phase === 'empty' ? '56px' : '80px',
-                      maxHeight: '200px',
-                    }}
-                  />
-                  {/* Custom breathing placeholder */}
-                  {!hasContent && !isFocused && (
-                    <div
-                      className="absolute inset-0 flex items-center px-6 pointer-events-none select-none font-['Be_Vietnam_Pro'] text-sm sm:text-base"
-                      style={{
-                        color: shakeInput ? 'rgba(239,68,68,0.5)' : 'rgba(240,237,246,0.35)',
-                        animation: shakeInput ? undefined : 'void-breathe 4s ease-in-out infinite',
-                      }}
-                    >
-                      speak into the void...
-                    </div>
-                  )}
-                  {!hasContent && isFocused && (
-                    <div
-                      className="absolute inset-0 flex items-center px-6 pointer-events-none select-none font-['Be_Vietnam_Pro'] text-sm sm:text-base"
-                      style={{ color: 'rgba(240,237,246,0.4)' }}
-                    >
-                      speak into the void...
-                    </div>
-                  )}
-                </div>
+                placeholder={shakeInput ? 'Drop some thoughts first' : 'Brain dump your thoughts here...'}
+                disabled={isGenerating || !!output}
+                maxLength={5000}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                    handleGenerate();
+                  }
+                }}
+                className={`w-full rounded-t-[19px] bg-transparent text-foreground px-6 py-5 text-sm sm:text-base leading-relaxed resize-none focus:outline-none transition-all min-h-[120px] ${
+                  shakeInput ? 'placeholder:text-red-500/50' : 'placeholder:text-muted-foreground/60'
+                }`}
+              />
 
-                {/* Attached files */}
-                {attachedFiles.length > 0 && (
-                  <div className="flex flex-wrap gap-2 px-6 pb-2">
-                    {attachedFiles.map((af) => {
-                      const FileIcon = getFileIcon(af.type);
-                      return (
-                        <div
-                          key={af.id}
-                          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs"
-                          style={{
-                            backgroundColor: 'rgba(240,237,246,0.04)',
-                            border: '1px solid rgba(240,237,246,0.08)',
-                            color: 'rgba(240,237,246,0.65)',
-                          }}
+              {/* Attached files preview */}
+              {attachedFiles.length > 0 && (
+                <div className="flex flex-wrap gap-2 px-6 pb-2">
+                  {attachedFiles.map((af) => {
+                    const FileIcon = getFileIcon(af.type);
+                    return (
+                      <div
+                        key={af.id}
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-xs text-foreground/80"
+                      >
+                        <FileIcon className="w-3 h-3 text-accent/60" />
+                        <span className="max-w-[120px] truncate">{af.name}</span>
+                        <button
+                          onClick={() => handleRemoveFile(af.id)}
+                          className="ml-0.5 text-muted-foreground hover:text-foreground"
                         >
-                          <FileIcon className="w-3 h-3 opacity-50" />
-                          <span className="max-w-[120px] truncate">{af.name}</span>
-                          <button
-                            onClick={() => handleRemoveFile(af.id)}
-                            className="ml-0.5 opacity-40 hover:opacity-80 transition-opacity"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
 
-                {/* Toolbar */}
-                <div className="flex items-center justify-between px-5 py-3">
+              {/* Toolbar: upload, mic, generate */}
+              {!output && (
+                <div className="flex items-center justify-between px-5 py-3 border-t border-border/20">
                   <div className="flex items-center gap-1">
                     <input
                       type="file"
@@ -350,34 +278,20 @@ const LiveDemo = () => {
                     <button
                       onClick={() => fileInputRef.current?.click()}
                       disabled={isGenerating}
-                      className="p-2 rounded-lg transition-all duration-300 disabled:opacity-20"
-                      style={{
-                        color: hasContent ? 'rgba(240,237,246,0.5)' : 'rgba(240,237,246,0.3)',
-                      }}
-                      onMouseEnter={(e) => (e.currentTarget.style.color = 'rgba(240,237,246,0.7)')}
-                      onMouseLeave={(e) => (e.currentTarget.style.color = hasContent ? 'rgba(240,237,246,0.5)' : 'rgba(240,237,246,0.3)')}
+                      className="p-2 rounded-lg transition-colors text-muted-foreground hover:text-foreground hover:bg-accent/10 disabled:opacity-40"
                       title="Attach files"
                     >
                       <Upload className="w-4 h-4" />
                     </button>
-                    <div className="w-px h-4 mx-1" style={{ backgroundColor: 'rgba(240,237,246,0.06)' }} />
+                    <div className="w-px h-4 bg-border/30 mx-1" />
                     <button
                       onClick={handleToggleRecording}
-                      disabled={isGenerating}
-                      className={`p-2 rounded-lg transition-all duration-300 disabled:opacity-20 ${
-                        isRecording ? 'bg-red-500/20 text-red-400' : ''
-                      }`}
-                      style={
-                        !isRecording
-                          ? { color: hasContent ? 'rgba(240,237,246,0.5)' : 'rgba(240,237,246,0.3)' }
-                          : undefined
-                      }
-                      onMouseEnter={(e) => {
-                        if (!isRecording) e.currentTarget.style.color = 'rgba(240,237,246,0.7)';
-                      }}
-                      onMouseLeave={(e) => {
-                        if (!isRecording) e.currentTarget.style.color = hasContent ? 'rgba(240,237,246,0.5)' : 'rgba(240,237,246,0.3)';
-                      }}
+                      disabled={isGenerating || !!output}
+                      className={`p-2 rounded-lg transition-colors ${
+                        isRecording
+                          ? 'bg-red-500/20 text-red-400'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-accent/10'
+                      } disabled:opacity-40`}
                       title="Voice input"
                     >
                       <Mic className="w-4 h-4" />
@@ -388,48 +302,24 @@ const LiveDemo = () => {
                       </span>
                     )}
                   </div>
-
-                  {/* Generate button — fades in */}
-                  <AnimatePresence>
-                    {showGenerate && (
-                      <motion.button
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.9 }}
-                        transition={{ duration: 0.25 }}
-                        onClick={handleGenerate}
-                        disabled={isGenerating}
-                        className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium text-primary-foreground brand-gradient disabled:opacity-40 transition-opacity"
-                      >
-                        {isGenerating ? (
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        ) : (
-                          <Zap className="w-3.5 h-3.5" />
-                        )}
-                        Generate
-                      </motion.button>
+                  <button
+                    onClick={handleGenerate}
+                    disabled={isGenerating}
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium text-primary-foreground brand-gradient disabled:opacity-40 transition-opacity"
+                  >
+                    {isGenerating ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Zap className="w-3.5 h-3.5" />
                     )}
-                  </AnimatePresence>
+                    Generate
+                  </button>
                 </div>
-
-                {/* Glow line — fullness indicator */}
-                <div className="relative h-px">
-                  <div
-                    className="absolute bottom-0 left-1/2 h-px transition-all duration-700 ease-out"
-                    style={{
-                      width: `${glowWidth}%`,
-                      transform: 'translateX(-50%)',
-                      background: 'linear-gradient(90deg, transparent, hsl(263 70% 58% / 0.4), transparent)',
-                      opacity: hasContent ? 1 : 0,
-                      animation: isReady ? 'void-glow-pulse 3s ease-in-out infinite' : undefined,
-                    }}
-                  />
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </div>
-      </motion.div>
+              )}
+            </div>
+          </div>
+        </motion.div>
+      </div>
 
       {/* Loading skeleton */}
       <AnimatePresence>
@@ -457,6 +347,7 @@ const LiveDemo = () => {
               <OnePager data={output} />
             </div>
 
+            {/* Post-output CTA */}
             <div className="mt-12 text-center space-y-4">
               <p className="text-muted-foreground text-sm sm:text-base">
                 Sign up to save this, practice it, and get 2 more free.
@@ -472,22 +363,6 @@ const LiveDemo = () => {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Void animations */}
-      <style>{`
-        @keyframes void-breathe {
-          0%, 100% { opacity: 0.15; }
-          50% { opacity: 0.3; }
-        }
-        @keyframes void-breathe-glow {
-          0%, 100% { opacity: 0.7; }
-          50% { opacity: 1; }
-        }
-        @keyframes void-glow-pulse {
-          0%, 100% { opacity: 0.8; }
-          50% { opacity: 1; }
-        }
-      `}</style>
     </div>
   );
 };
