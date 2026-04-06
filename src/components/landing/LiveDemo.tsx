@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { ArrowRight, Loader2, Upload, Mic, X, File, Image } from 'lucide-react';
 import pitchvoidIcon from '@/assets/pitchvoid-logo-blacked.png';
+import pitchvoidOrbitalColored from '@/assets/pitchvoid-orbital-colored.png';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
