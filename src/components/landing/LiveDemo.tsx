@@ -354,8 +354,8 @@ const LiveDemo = () => {
                       style={{
                         color: hasContent ? 'rgba(240,237,246,0.5)' : 'rgba(240,237,246,0.3)',
                       }}
-                      onMouseEnter={(e) => (e.currentTarget.style.color = 'rgba(240,237,246,0.6)')}
-                      onMouseLeave={(e) => (e.currentTarget.style.color = hasContent ? 'rgba(240,237,246,0.4)' : 'rgba(240,237,246,0.12)')}
+                      onMouseEnter={(e) => (e.currentTarget.style.color = 'rgba(240,237,246,0.7)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.color = hasContent ? 'rgba(240,237,246,0.5)' : 'rgba(240,237,246,0.3)')}
                       title="Attach files"
                     >
                       <Upload className="w-4 h-4" />
