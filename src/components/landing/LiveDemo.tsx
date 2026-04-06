@@ -241,7 +241,7 @@ const LiveDemo = () => {
                   borderWidth: '1px',
                   borderStyle: 'solid',
                   borderColor: phase === 'empty'
-                    ? 'rgba(240,237,246,0)'
+                    ? 'rgba(240,237,246,0.06)'
                     : phase === 'active'
                     ? 'rgba(240,237,246,0.06)'
                     : phase === 'ready'
@@ -287,7 +287,7 @@ const LiveDemo = () => {
                     <div
                       className="absolute inset-0 flex items-center px-6 pointer-events-none select-none font-['Be_Vietnam_Pro'] text-sm sm:text-base"
                       style={{
-                        color: shakeInput ? 'rgba(239,68,68,0.4)' : 'rgba(240,237,246,0.18)',
+                        color: shakeInput ? 'rgba(239,68,68,0.5)' : 'rgba(240,237,246,0.35)',
                         animation: shakeInput ? undefined : 'void-breathe 4s ease-in-out infinite',
                       }}
                     >
@@ -297,7 +297,7 @@ const LiveDemo = () => {
                   {!hasContent && isFocused && (
                     <div
                       className="absolute inset-0 flex items-center px-6 pointer-events-none select-none font-['Be_Vietnam_Pro'] text-sm sm:text-base"
-                      style={{ color: 'rgba(240,237,246,0.25)' }}
+                      style={{ color: 'rgba(240,237,246,0.4)' }}
                     >
                       speak into the void...
                     </div>
@@ -352,10 +352,10 @@ const LiveDemo = () => {
                       disabled={isGenerating}
                       className="p-2 rounded-lg transition-all duration-300 disabled:opacity-20"
                       style={{
-                        color: hasContent ? 'rgba(240,237,246,0.4)' : 'rgba(240,237,246,0.12)',
+                        color: hasContent ? 'rgba(240,237,246,0.5)' : 'rgba(240,237,246,0.3)',
                       }}
-                      onMouseEnter={(e) => (e.currentTarget.style.color = 'rgba(240,237,246,0.6)')}
-                      onMouseLeave={(e) => (e.currentTarget.style.color = hasContent ? 'rgba(240,237,246,0.4)' : 'rgba(240,237,246,0.12)')}
+                      onMouseEnter={(e) => (e.currentTarget.style.color = 'rgba(240,237,246,0.7)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.color = hasContent ? 'rgba(240,237,246,0.5)' : 'rgba(240,237,246,0.3)')}
                       title="Attach files"
                     >
                       <Upload className="w-4 h-4" />
@@ -369,14 +369,14 @@ const LiveDemo = () => {
                       }`}
                       style={
                         !isRecording
-                          ? { color: hasContent ? 'rgba(240,237,246,0.4)' : 'rgba(240,237,246,0.12)' }
+                          ? { color: hasContent ? 'rgba(240,237,246,0.5)' : 'rgba(240,237,246,0.3)' }
                           : undefined
                       }
                       onMouseEnter={(e) => {
-                        if (!isRecording) e.currentTarget.style.color = 'rgba(240,237,246,0.6)';
+                        if (!isRecording) e.currentTarget.style.color = 'rgba(240,237,246,0.7)';
                       }}
                       onMouseLeave={(e) => {
-                        if (!isRecording) e.currentTarget.style.color = hasContent ? 'rgba(240,237,246,0.4)' : 'rgba(240,237,246,0.12)';
+                        if (!isRecording) e.currentTarget.style.color = hasContent ? 'rgba(240,237,246,0.5)' : 'rgba(240,237,246,0.3)';
                       }}
                       title="Voice input"
                     >
