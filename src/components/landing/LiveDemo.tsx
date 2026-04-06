@@ -297,7 +297,7 @@ const LiveDemo = () => {
                   {!hasContent && isFocused && (
                     <div
                       className="absolute inset-0 flex items-center px-6 pointer-events-none select-none font-['Be_Vietnam_Pro'] text-sm sm:text-base"
-                      style={{ color: 'rgba(240,237,246,0.25)' }}
+                      style={{ color: 'rgba(240,237,246,0.4)' }}
                     >
                       speak into the void...
                     </div>
