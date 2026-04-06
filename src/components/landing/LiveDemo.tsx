@@ -373,10 +373,10 @@ const LiveDemo = () => {
                           : undefined
                       }
                       onMouseEnter={(e) => {
-                        if (!isRecording) e.currentTarget.style.color = 'rgba(240,237,246,0.6)';
+                        if (!isRecording) e.currentTarget.style.color = 'rgba(240,237,246,0.7)';
                       }}
                       onMouseLeave={(e) => {
-                        if (!isRecording) e.currentTarget.style.color = hasContent ? 'rgba(240,237,246,0.4)' : 'rgba(240,237,246,0.12)';
+                        if (!isRecording) e.currentTarget.style.color = hasContent ? 'rgba(240,237,246,0.5)' : 'rgba(240,237,246,0.3)';
                       }}
                       title="Voice input"
                     >
