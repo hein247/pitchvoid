@@ -263,7 +263,7 @@ const LiveDemo = () => {
 
               {/* Toolbar: upload, mic, generate */}
               {!output && (
-                <div className="flex items-center justify-between px-5 py-3 border-t border-border/20">
+                <div className="flex items-center justify-between px-5 py-3 mx-4 border-t border-border/20">
                   <div className="flex items-center gap-1">
                     <input
                       type="file"
