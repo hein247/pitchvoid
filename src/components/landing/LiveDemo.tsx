@@ -311,7 +311,7 @@ const LiveDemo = () => {
                     {isGenerating ? (
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
                     ) : (
-                      <Zap className="w-3.5 h-3.5" />
+                      <img src={pitchvoidIcon} alt="" className="w-4 h-4 invert" />
                     )}
                     Generate
                   </button>
