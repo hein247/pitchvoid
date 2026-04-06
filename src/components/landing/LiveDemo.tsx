@@ -369,7 +369,7 @@ const LiveDemo = () => {
                       }`}
                       style={
                         !isRecording
-                          ? { color: hasContent ? 'rgba(240,237,246,0.4)' : 'rgba(240,237,246,0.12)' }
+                          ? { color: hasContent ? 'rgba(240,237,246,0.5)' : 'rgba(240,237,246,0.3)' }
                           : undefined
                       }
                       onMouseEnter={(e) => {
