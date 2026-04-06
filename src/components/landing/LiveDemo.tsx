@@ -287,7 +287,7 @@ const LiveDemo = () => {
                     <div
                       className="absolute inset-0 flex items-center px-6 pointer-events-none select-none font-['Be_Vietnam_Pro'] text-sm sm:text-base"
                       style={{
-                        color: shakeInput ? 'rgba(239,68,68,0.4)' : 'rgba(240,237,246,0.18)',
+                        color: shakeInput ? 'rgba(239,68,68,0.5)' : 'rgba(240,237,246,0.35)',
                         animation: shakeInput ? undefined : 'void-breathe 4s ease-in-out infinite',
                       }}
                     >
