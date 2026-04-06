@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { ArrowRight, Loader2, Upload, Mic, X, File, Image } from 'lucide-react';
 import pitchvoidIcon from '@/assets/pitchvoid-logo-blacked.png';
+import pitchvoidOrbitalColored from '@/assets/pitchvoid-orbital-colored.png';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -193,7 +194,13 @@ const LiveDemo = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-8 pt-4 sm:pt-6">
+    <div className="relative max-w-2xl mx-auto px-4 sm:px-8 pt-4 sm:pt-6">
+      {/* Background orbital */}
+      <img
+        src={pitchvoidOrbitalColored}
+        alt=""
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] sm:w-[600px] opacity-20 pointer-events-none select-none"
+      />
       {/* Input area */}
       <div className="space-y-4">
         <motion.div
