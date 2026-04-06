@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { ArrowRight, Loader2, Upload, Mic, Zap, X, File, Image } from 'lucide-react';
+import { ArrowRight, Loader2, Upload, Mic, X, File, Image } from 'lucide-react';
+import pitchvoidIcon from '@/assets/pitchvoid-logo-blacked.png';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -310,7 +311,7 @@ const LiveDemo = () => {
                     {isGenerating ? (
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
                     ) : (
-                      <Zap className="w-3.5 h-3.5" />
+                      <img src={pitchvoidIcon} alt="" className="w-4 h-4 invert" />
                     )}
                     Generate
                   </button>
