@@ -17,7 +17,7 @@ const ProjectsList = ({ projects, isLoading, isFree, onOpen, onContinueDraft, on
   return (
     <>
       {/* Separator between prompt and projects */}
-      <div className="flex items-center gap-3 mb-6 mt-2">
+      <div className="flex items-center gap-3 mb-6 mt-2 mx-4 sm:mx-6">
         <div className="flex-1 h-px bg-border/30" />
         <span className="text-[11px] uppercase tracking-widest text-muted-foreground/30 font-medium">Projects</span>
         <div className="flex-1 h-px bg-border/30" />
