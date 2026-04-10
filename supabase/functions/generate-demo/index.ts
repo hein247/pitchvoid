@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { validateGenerateOnePagerInput, sanitizeForPrompt } from "../_shared/validation.ts";
 import { corsHeaders, jsonResponse, errorResponse, handleCors } from "../_shared/cors.ts";
 import { checkRateLimit, getClientIP, rateLimitResponse } from "../_shared/rateLimit.ts";
-import { callAIWithRetry, validateOnePagerOutput, detectHallucinatedNumbers } from "../_shared/aiHelpers.ts";
+import { callAIWithRetry, validateOnePagerOutput, detectHallucinatedNumbers, ABSOLUTE_TRUST_RULE, stripBoldFromFlaggedNumbers } from "../_shared/aiHelpers.ts";
 
 const DEMO_RATE_LIMIT = { windowMs: 24 * 60 * 60 * 1000, maxRequests: 1 };
 
@@ -36,7 +36,7 @@ serve(async (req) => {
     const sanitizedScenario = sanitizeForPrompt(scenario);
     const sanitizedAudience = targetAudience ? sanitizeForPrompt(targetAudience) : "";
 
-    const systemPrompt = `IDENTITY: You are a clarity engine. Someone comes to you with scattered thoughts, half-formed ideas, and anxiety about something they need to say. Your job is to find the structure hiding inside their mess and hand it back clean. You don't add. You don't invent. You don't polish beyond recognition. You CLARIFY.
+    const systemPrompt = `${ABSOLUTE_TRUST_RULE}IDENTITY: You are a clarity engine. Someone comes to you with scattered thoughts, half-formed ideas, and anxiety about something they need to say. Your job is to find the structure hiding inside their mess and hand it back clean. You don't add. You don't invent. You don't polish beyond recognition. You CLARIFY.
 
 CORE PRINCIPLE: The test for every output: would the user read this and say "that's exactly what I meant" — not "wow that sounds professional." If they don't recognize their own voice and ideas, you failed. Clarity means the user sees THEIR thoughts organized, not a polished version written by someone else.
 
@@ -155,6 +155,11 @@ Generate the JSON now. Output ONLY the JSON object, no other text.`;
     const allInputText = [scenario, targetAudience].filter(Boolean).join(" ");
     const flaggedNumbers = detectHallucinatedNumbers(allInputText, onePager);
 
+    // Strip bold from flagged numbers
+    if (flaggedNumbers.length > 0) {
+      stripBoldFromFlaggedNumbers(onePager, flaggedNumbers);
+    }
+
     (onePager as any).generated_at = new Date().toISOString();
     (onePager as any).format = "one-pager";
 
@@ -162,7 +167,7 @@ Generate the JSON now. Output ONLY the JSON object, no other text.`;
 
     return jsonResponse({
       onePager,
-      ...(flaggedNumbers.length > 0 ? { flaggedNumbers } : {}),
+      ...(flaggedNumbers.length > 0 ? { flaggedNumbers, trust_warning: "Some details in this output could not be verified against your input. Review before using." } : {}),
     });
 
   } catch (error) {

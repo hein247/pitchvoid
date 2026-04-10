@@ -157,6 +157,7 @@ const Dashboard = () => {
   const undoTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [refineAnimationKey, setRefineAnimationKey] = useState(0);
   const [feedbackKey, setFeedbackKey] = useState(0);
+  const [trustWarning, setTrustWarning] = useState<string | null>(null);
 
   // Generation error state
   const [generationError, setGenerationError] = useState<{
@@ -691,6 +692,7 @@ const Dashboard = () => {
         if (onePagerData) outputPayload.onePager = onePagerData;
       }
       setFeedbackKey((prev) => prev + 1);
+      setTrustWarning(data.trust_warning || null);
 
       if (project) {
         setActiveProject({ ...project, title: projectTitle, status: 'complete', output_format: outputFormat, output_data: outputPayload });
@@ -1217,6 +1219,7 @@ const Dashboard = () => {
           generationPhase={generationPhase}
           refineAnimationKey={refineAnimationKey}
           feedbackKey={feedbackKey}
+          trustWarning={trustWarning}
           showUndo={showUndo}
           showEditor={showEditor}
           activeVersionId={activeVersionId}

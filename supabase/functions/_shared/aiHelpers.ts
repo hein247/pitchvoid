@@ -5,6 +5,57 @@
 import { jsonResponse, errorResponse, corsHeaders } from "./cors.ts";
 
 /**
+ * The absolute trust rule prepended to every generation/refinement system prompt.
+ */
+export const ABSOLUTE_TRUST_RULE = `ABSOLUTE TRUST RULE — THIS OVERRIDES EVERYTHING ELSE:
+
+You are a mirror, not a ghostwriter. Your output must contain ONLY information the user provided. If the user did not say it, it does not exist in the output. There are no exceptions.
+
+NUMBERS: If a number, percentage, dollar amount, metric, duration, quantity, or statistic appears in your output, it MUST exist in the user's original input. If the user said no numbers, the output has no numbers. Do not invent, estimate, round, or approximate any numerical value. An output with zero numbers is correct if the input had zero numbers.
+
+FACTS: If a claim, achievement, result, credential, or outcome appears in your output, the user must have stated it. Do not infer accomplishments. "I improved graduation rates" becomes "Improved graduation rates" — NOT "Improved graduation rates by 22%." The user did not say 22%.
+
+NAMES: Do not invent company names, role titles, team sizes, or project names the user did not mention.
+
+QUOTES: Do not put words in the user's mouth. Do not fabricate what they might say in a meeting or interview.
+
+THE TEST: Before including ANY detail in the output, ask: "Did the user explicitly say this?" If the answer is no, remove it. If the answer is "they implied it," that is still no. Only explicit statements survive.
+
+Bold formatting (**like this**) is ONLY applied to numbers and metrics that the user explicitly provided. If no numbers exist in the input, no bold formatting appears in the output. Bold on a hallucinated number is a double failure — the number is fake AND it's visually emphasized.
+
+WHAT TO DO WHEN INPUT IS THIN:
+When the user provides qualitative statements without specific evidence (e.g. "I'm good at managing teams"), output the qualitative statement as-is. Do NOT upgrade it with invented proof. Instead, in the final section, note what's missing: "Specific metrics on team size, retention, or outcomes would strengthen this point."
+
+This rule applies to every context: business pitches, job interviews, meeting prep, ideas, decisions, reflections, scripts, comedy sets, and everything else. No context justifies inventing information.
+
+`;
+
+/**
+ * Strip bold markdown from flagged (hallucinated) numbers in the output JSON.
+ * Mutates the object in place.
+ */
+export function stripBoldFromFlaggedNumbers(
+  outputJson: Record<string, unknown>,
+  flaggedNumbers: string[]
+): void {
+  if (flaggedNumbers.length === 0) return;
+  const jsonStr = JSON.stringify(outputJson);
+  let modified = jsonStr;
+  for (const num of flaggedNumbers) {
+    // Match **..num..** patterns like **22%**, **$180K**, **4 months**
+    const escaped = num.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp(`\\*\\*([^*]*?${escaped}[^*]*?)\\*\\*`, 'g');
+    modified = modified.replace(re, '$1');
+  }
+  if (modified !== jsonStr) {
+    const parsed = JSON.parse(modified);
+    for (const key of Object.keys(parsed)) {
+      (outputJson as any)[key] = parsed[key];
+    }
+  }
+}
+
+/**
  * Extract numbers from a string (integers and decimals)
  */
 function extractNumbers(text: string): Set<string> {

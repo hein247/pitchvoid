@@ -4,7 +4,7 @@ import { authenticateRequest, checkPitchLimit, checkFormatAccess, incrementPitch
 import { validateGenerateScriptInput, sanitizeForPrompt } from "../_shared/validation.ts";
 import { corsHeaders, jsonResponse, errorResponse, handleCors } from "../_shared/cors.ts";
 import { checkRateLimit, rateLimitResponse, RATE_LIMITS } from "../_shared/rateLimit.ts";
-import { callAIWithRetry, detectHallucinatedNumbers } from "../_shared/aiHelpers.ts";
+import { callAIWithRetry, detectHallucinatedNumbers, ABSOLUTE_TRUST_RULE, stripBoldFromFlaggedNumbers } from "../_shared/aiHelpers.ts";
 
 serve(async (req) => {
   const corsResponse = handleCors(req);
@@ -82,7 +82,7 @@ serve(async (req) => {
     };
     const totalDuration = durationMap[length] || durationMap['standard'];
 
-    const systemPrompt = `You are PitchVoid's script engine. You turn messy thoughts into a linear conversation flow — a sequence of things to say out loud, in order, like cue cards.
+    const systemPrompt = `${ABSOLUTE_TRUST_RULE}You are PitchVoid's script engine. You turn messy thoughts into a linear conversation flow — a sequence of things to say out loud, in order, like cue cards.
 
 STEP 1 — DETECT CONTEXT from the parsed input (audience, goal, content). Pick the BEST match:
 - Business Pitch (investors, clients, partners)
@@ -241,6 +241,11 @@ Generate the JSON now. Output ONLY the JSON object, no other text.`;
     const allInputText = [scenario, targetAudience, documentContext].filter(Boolean).join(" ");
     const flaggedNumbers = detectHallucinatedNumbers(allInputText, script);
 
+    // Strip bold from flagged numbers
+    if (flaggedNumbers.length > 0) {
+      stripBoldFromFlaggedNumbers(script, flaggedNumbers);
+    }
+
     // Add metadata
     (script as any).generated_at = new Date().toISOString();
     (script as any).format = "script";
@@ -281,7 +286,7 @@ Generate the JSON now. Output ONLY the JSON object, no other text.`;
 
     return jsonResponse({
       script,
-      ...(flaggedNumbers.length > 0 ? { flaggedNumbers } : {}),
+      ...(flaggedNumbers.length > 0 ? { flaggedNumbers, trust_warning: "Some details in this output could not be verified against your input. Review before using." } : {}),
     });
 
   } catch (error) {

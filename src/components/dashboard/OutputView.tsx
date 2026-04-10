@@ -24,6 +24,7 @@ interface OutputViewProps {
   generationPhase: string;
   refineAnimationKey: number;
   feedbackKey: number;
+  trustWarning?: string | null;
   showUndo: boolean;
   showEditor: boolean;
   activeVersionId?: string;
@@ -52,7 +53,7 @@ interface OutputViewProps {
 
 const OutputView = ({
   project, parsedContext, outputFormat, onePagerData, scriptData,
-  isRegenerating, isRefining, generationPhase, refineAnimationKey, feedbackKey,
+  isRegenerating, isRefining, generationPhase, refineAnimationKey, feedbackKey, trustWarning,
   showUndo, showEditor, activeVersionId, isFree, isMobile,
   onBack, onFormatChange, onRegenerateInFormat, onRefine, onUndo,
   onShare, onPractice, onExportPDF, onToggleEditor, onCloseEditor,
@@ -228,6 +229,13 @@ const OutputView = ({
                 <p className="text-muted-foreground text-sm">Your pitch will appear here</p>
                 <p className="text-muted-foreground/60 text-xs mt-1">Describe your scenario below to get started</p>
               </div>
+            </div>
+          )}
+
+          {/* Trust Warning */}
+          {trustWarning && !isRegenerating && (onePagerData || scriptData) && (
+            <div className="max-w-[680px] mx-auto mt-4 px-4 py-2.5 rounded-lg" style={{ backgroundColor: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.15)' }}>
+              <p className="text-xs" style={{ color: 'rgba(234,179,8,0.4)' }}>{trustWarning}</p>
             </div>
           )}
         </div>
