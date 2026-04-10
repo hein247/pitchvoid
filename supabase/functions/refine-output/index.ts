@@ -4,7 +4,7 @@ import { authenticateRequest } from "../_shared/auth.ts";
 import { validateRefineOutputInput, sanitizeForPrompt } from "../_shared/validation.ts";
 import { corsHeaders, jsonResponse, errorResponse, handleCors } from "../_shared/cors.ts";
 import { checkRateLimit, rateLimitResponse, RATE_LIMITS } from "../_shared/rateLimit.ts";
-import { callAIWithRetry, validateOnePagerOutput, validateScriptOutput } from "../_shared/aiHelpers.ts";
+import { callAIWithRetry, validateOnePagerOutput, validateScriptOutput, ABSOLUTE_TRUST_RULE } from "../_shared/aiHelpers.ts";
 
 /** Map chip labels to detailed refinement instructions */
 const CHIP_INSTRUCTIONS: Record<string, string> = {
@@ -148,7 +148,7 @@ serve(async (req) => {
     let systemPrompt: string;
 
     if (format === "one-pager") {
-      systemPrompt = `You are PitchVoid's refinement engine. You take an existing one-pager and modify it based on the user's instruction.
+      systemPrompt = `${ABSOLUTE_TRUST_RULE}You are PitchVoid's refinement engine. You take an existing one-pager and modify it based on the user's instruction.
 
 CURRENT OUTPUT (JSON):
 ${currentOutputJson}
@@ -189,7 +189,7 @@ USER PREFERENCES:
 - Preferred tone: ${prefTone}
 - Industry: ${prefIndustry}`;
     } else {
-      systemPrompt = `You are PitchVoid's refinement engine. You take an existing script and modify it based on the user's instruction.
+      systemPrompt = `${ABSOLUTE_TRUST_RULE}You are PitchVoid's refinement engine. You take an existing script and modify it based on the user's instruction.
 
 CURRENT OUTPUT (JSON):
 ${currentOutputJson}
@@ -221,7 +221,8 @@ RULES:
 - Preserve all specific facts, numbers, and details from the original.
 - Bold ALL numbers in the text with **double asterisks**.
 - The emphasis field contains ONLY the number/metric phrase, or null.
-- Do not invent new facts or numbers not in the original.
+- Do not invent new facts or numbers not in the original input or current output.
+- Refinement changes tone and language. It NEVER adds new information, facts, numbers, or claims.
 - Do not add text outside the JSON.
 
 USER PREFERENCES:
