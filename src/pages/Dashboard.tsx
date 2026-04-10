@@ -204,7 +204,7 @@ const Dashboard = () => {
   'https://pitchvoid.lovable.app/p/demo';
 
   // No-credits inline state
-  const hasNoCredits = credits === 0;
+  const hasNoCredits = !isPro && credits === 0;
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const dashboardInputRef = useRef<HTMLTextAreaElement>(null);
@@ -568,7 +568,7 @@ const Dashboard = () => {
 
   const handleQuickGenerate = async () => {
     // Check credits before generating
-    if (credits <= 0) {
+    if (!isPro && credits <= 0) {
       // Don't generate — the inline message will show
       return;
     }
@@ -870,7 +870,7 @@ const Dashboard = () => {
   // Regenerate content in a different format
   const handleRegenerateInFormat = async (newFormat: OutputFormat) => {
     // Check credits before regenerating in new format
-    if (credits <= 0) {
+    if (!isPro && credits <= 0) {
       toast({
         title: 'No credits remaining',
         description: 'Get more credits to generate in a new format.',
