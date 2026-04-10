@@ -126,7 +126,7 @@ export function usePricing(): UsePricingReturn {
 
   // Update nudge visibility based on credits
   useEffect(() => {
-    if (nudgeDismissed) return;
+    if (nudgeDismissed || pricingData.isAdmin) return;
     
     if (pricingData.credits <= 3 && pricingData.credits >= 0) {
       setShowNudge(true);
