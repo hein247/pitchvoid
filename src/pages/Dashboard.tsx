@@ -104,6 +104,7 @@ const Dashboard = () => {
     paywallMessage,
     setShowPaywall,
     isFree,
+    isPro,
     planLimits
   } = usePricing();
 
