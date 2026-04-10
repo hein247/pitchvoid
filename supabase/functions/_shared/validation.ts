@@ -193,7 +193,7 @@ export function validateRefineOutputInput(body: Record<string, unknown>): Valida
     return { valid: false, error: "current_output is required and must be an object" };
   }
 
-  const instructionResult = validateString(body.refine_instruction, "refine_instruction", 500, true);
+  const instructionResult = validateString(body.refine_instruction, "refine_instruction", 1000, true);
   if (!instructionResult.valid) return instructionResult;
 
   if (!body.format || (body.format !== "one-pager" && body.format !== "script")) {
